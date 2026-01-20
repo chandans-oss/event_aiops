@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
-import { ErrorBoundary } from "@/components/errorBoundary";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 import Events from "./pages/Events";
 import Preprocessing from "./pages/Preprocessing";
