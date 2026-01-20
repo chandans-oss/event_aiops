@@ -143,9 +143,7 @@ export function ImpactSidebar({ cluster, onClose }: ImpactSidebarProps) {
               <p className="text-sm text-muted-foreground font-mono">{cluster.id}</p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="h-5 w-5" />
-          </Button>
+
         </div>
 
         <ScrollArea className="flex-1">
@@ -343,9 +341,7 @@ export function ImpactSidebar({ cluster, onClose }: ImpactSidebarProps) {
         {/* Footer Actions */}
         <div className="p-4 border-t border-border bg-card/50">
           <div className="flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={onClose}>
-              Close
-            </Button>
+
             <Button className="flex-1 bg-severity-high hover:bg-severity-high/90">
               Generate Impact Report
             </Button>

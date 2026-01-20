@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Cluster, Severity } from '@/types';
 import { formatDistanceToNow } from 'date-fns';
-import { SeverityIcon } from '@/components/SeverityIcon';
+import { SeverityIcon } from '@/components/severityIcon';
 
 interface ClusterCardProps {
   cluster: Cluster;

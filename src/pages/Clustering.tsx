@@ -4,8 +4,8 @@ import { Network, GitBranch, Clock, MapPin, Cpu, ArrowRight, CheckCircle2, Zap, 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { ChildEventsSidebar } from '@/components/sidebars/ChildEventsSidebar';
+import { MainLayout } from '@/components/layout/mainLayout';
+import { ChildEventsSidebar } from '@/components/sidebars/childEventsSidebar';
 import { mockClusters, processingStats } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
@@ -91,8 +91,8 @@ export default function Clustering() {
                       key={strategy.id}
                       className={cn(
                         "flex items-center justify-between p-4 rounded-lg border transition-all",
-                        strategy.active 
-                          ? "bg-primary/10 border-primary/30" 
+                        strategy.active
+                          ? "bg-primary/10 border-primary/30"
                           : "bg-secondary/30 border-border/50"
                       )}
                     >

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { MainLayout } from '@/components/layout/mainLayout';
 import { processingStats } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
@@ -42,12 +42,12 @@ export default function Preprocessing() {
           {/* Upload Section */}
           <div className="glass-card rounded-xl p-6">
             <h2 className="text-lg font-semibold text-foreground mb-4">Upload Events</h2>
-            
+
             <div
               className={cn(
                 "border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300",
-                isDragging 
-                  ? "border-primary bg-primary/10" 
+                isDragging
+                  ? "border-primary bg-primary/10"
                   : "border-border hover:border-primary/50 hover:bg-primary/5"
               )}
               onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
@@ -95,7 +95,7 @@ export default function Preprocessing() {
           {/* Processing Metrics */}
           <div className="glass-card rounded-xl p-6">
             <h2 className="text-lg font-semibold text-foreground mb-4">Processing Metrics</h2>
-            
+
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="p-4 rounded-lg bg-secondary/30 border border-border/50">
                 <p className="text-2xl font-bold text-foreground">{processingStats.totalEvents.toLocaleString()}</p>

@@ -1,13 +1,11 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import { MainLayout } from '@/components/layout/mainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-    ArrowLeft, FileText, Zap, ChevronRight, CheckCircle2, Activity, Search,
-    GitBranch, Database, Brain, Target, Layers, Network
+    ArrowLeft, CheckCircle2, Activity, GitBranch, Database, Brain, Target, Layers, Network, ArrowRight
 } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { getClusterData } from '@/data/clusterSpecificData';
 import { useState } from 'react';
@@ -32,275 +30,202 @@ export default function RCADetailPage() {
 
     const steps = clusterData.rcaProcessSteps;
     const activeStep = steps[activeTab];
-
     const stepIcons = [Activity, GitBranch, Target, Brain, Layers, Database, Network];
-
-    const renderStepData = () => {
-        if (!activeStep) return null;
-
-        const output = activeStep.details.rawOutput ? JSON.parse(activeStep.details.rawOutput) : null;
-
-        return (
-            <div className="space-y-6">
-                {/* Step Description */}
-                <div className="p-6 bg-muted/30 rounded-lg border border-border">
-                    <div className="flex items-start gap-3 mb-4">
-                        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                            {(() => {
-                                const Icon = stepIcons[activeTab] || Activity;
-                                return <Icon className="h-4 w-4" />;
-                            })()}
-                        </div>
-                        <div className="flex-1">
-                            <h3 className="font-bold text-sm mb-1">{activeStep.name}</h3>
-                            <p className="text-xs text-muted-foreground italic">"{activeStep.description}"</p>
-                        </div>
-                    </div>
-
-                    {activeStep.details.bulletPoints && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-4">
-                            {activeStep.details.bulletPoints.map((point, i) => (
-                                <div key={i} className="flex items-start gap-2 text-xs">
-                                    <CheckCircle2 className="h-3 w-3 text-emerald-600 mt-0.5 shrink-0" />
-                                    <span className="text-muted-foreground">{point}</span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* Metadata Grid */}
-                {activeStep.details.metadata && (
-                    <Card>
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-semibold">Execution Metadata</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                {Object.entries(activeStep.details.metadata).map(([key, value]) => (
-                                    <div key={key} className="space-y-1">
-                                        <p className="text-[10px] text-muted-foreground uppercase font-semibold tracking-wide">{key}</p>
-                                        <p className="text-xs font-mono font-bold truncate">{Array.isArray(value) ? value[0] : value}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
-
-                {/* Special Visualizations */}
-                {activeStep.id === 'orchestration' && output?.signals && (
-                    <Card>
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-semibold">Signal Metrics</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="border rounded-lg overflow-hidden">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow className="bg-muted/50">
-                                            <TableHead className="text-xs font-semibold">Metric</TableHead>
-                                            <TableHead className="text-xs font-semibold text-right">Value</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {Object.entries(output.signals[Object.keys(output.signals)[0]]).map(([k, v]: [string, any]) => (
-                                            <TableRow key={k}>
-                                                <TableCell className="text-xs font-mono">{k}</TableCell>
-                                                <TableCell className="text-xs font-bold text-right">{v}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
-
-                {activeStep.id === 'planner-llm' && output?.steps && (
-                    <Card>
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-semibold">Diagnostic Plan</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-2">
-                                {output.steps.map((s: any, i: number) => (
-                                    <div key={i} className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg border border-border">
-                                        <div className="h-6 w-6 rounded bg-primary/10 flex items-center justify-center text-primary text-xs font-bold shrink-0">
-                                            {i + 1}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-xs font-semibold truncate">{s.tool}</p>
-                                            <p className="text-[10px] text-muted-foreground italic">{s.why}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
-
-                {/* Remedy Recommendations - Show on last step */}
-                {activeTab === steps.length - 1 && clusterData.remediationSteps && clusterData.remediationSteps.length > 0 && (
-                    <Card className="border-2 border-primary/20 bg-primary/5">
-                        <CardHeader className="pb-3">
-                            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                                <Zap className="h-4 w-4 text-primary" />
-                                Recommended Remediation Actions
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-3">
-                                {clusterData.remediationSteps.slice(0, 3).map((remedy, i) => (
-                                    <div key={remedy.id} className="flex items-start gap-3 p-4 bg-background rounded-lg border border-border hover:border-primary/50 transition-colors">
-                                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold shrink-0">
-                                            {i + 1}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-semibold mb-1">{remedy.action}</p>
-                                            <p className="text-xs text-muted-foreground">{remedy.description}</p>
-                                            <div className="flex items-center gap-3 mt-2">
-                                                <Badge variant={remedy.automated ? "default" : "secondary"} className="text-[9px]">
-                                                    {remedy.automated ? "Automated" : "Manual"}
-                                                </Badge>
-                                                <span className="text-[10px] text-muted-foreground">Phase: {remedy.phase}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
-            </div>
-        );
-    };
 
     return (
         <MainLayout>
-            <div className="p-6 space-y-6 bg-background min-h-screen">
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
-                            <ArrowLeft className="h-5 w-5" />
-                        </Button>
-                        <div>
-                            <h1 className="text-2xl font-bold tracking-tight">AI-Driven Root Cause Analysis</h1>
-                            <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
-                                <span className="font-mono text-primary">{clusterData.clusterId}</span>
-                                <span>•</span>
-                                <span>{clusterData.rcaMetadata.rootEventType.replace(/_/g, ' ')}</span>
-                            </p>
+            <div className="h-screen flex flex-col overflow-hidden">
+                {/* Fixed Compact Header */}
+                <div className="shrink-0 border-b border-border/50 bg-background/95 backdrop-blur-sm px-4 py-2">
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => navigate('/events')}>
+                                <ArrowLeft className="h-3.5 w-3.5" />
+                            </Button>
+                            <div>
+                                <h1 className="text-base font-bold leading-tight">RCA Analysis Flow</h1>
+                                <p className="text-[10px] text-muted-foreground">
+                                    <span className="font-mono">{id}</span> • {clusterData.rootCause?.split(':')[0]}
+                                </p>
+                            </div>
                         </div>
+                        <Badge className="bg-emerald-100 text-emerald-700 border border-emerald-300 text-[10px] px-2 py-0.5 font-bold">
+                            {((clusterData.confidence || 0) * 100).toFixed(0)}% Conf
+                        </Badge>
                     </div>
                 </div>
 
-                {/* Process Flow Visualization */}
-                <Card className="overflow-hidden">
-                    <CardContent className="p-6">
-                        <div className="flex items-center justify-between gap-2 overflow-x-auto pb-2">
+                {/* Main Content Area */}
+                <div className="flex-1 overflow-hidden flex">
+                    {/* Left Sidebar - Pipeline Steps */}
+                    <div className="w-48 shrink-0 border-r border-border/50 bg-muted/20 overflow-y-auto">
+                        <div className="p-3 space-y-1.5">
                             {steps.map((step, index) => {
                                 const Icon = stepIcons[index] || Activity;
-                                const isActive = activeTab === index;
+                                const isActive = index === activeTab;
+                                const isComplete = index < activeTab || step.status === 'complete';
+
                                 return (
-                                    <div key={step.id} className="flex items-center gap-2 shrink-0">
-                                        <button
-                                            onClick={() => setActiveTab(index)}
-                                            className={cn(
-                                                "flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-all min-w-[140px] relative",
-                                                isActive
-                                                    ? "bg-primary/5 border-primary shadow-sm"
-                                                    : "border-border hover:border-primary/50 hover:bg-muted/50"
-                                            )}
-                                        >
-                                            <div className={cn(
-                                                "h-10 w-10 rounded-lg flex items-center justify-center relative",
-                                                isActive ? "bg-primary text-white" : "bg-emerald-500 text-white"
-                                            )}>
-                                                {isActive ? (
-                                                    <Icon className="h-5 w-5" />
-                                                ) : (
-                                                    <CheckCircle2 className="h-5 w-5" />
-                                                )}
-                                            </div>
-                                            <div className="text-center">
-                                                <p className={cn(
-                                                    "text-[10px] font-semibold leading-tight",
-                                                    isActive ? "text-primary" : "text-foreground"
-                                                )}>
-                                                    {step.name}
-                                                </p>
-                                            </div>
-                                        </button>
-                                        {index < steps.length - 1 && (
-                                            <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                                    <button
+                                        key={step.id}
+                                        onClick={() => setActiveTab(index)}
+                                        className={cn(
+                                            "w-full flex items-center gap-2 p-2 rounded-lg border transition-all text-left",
+                                            isActive
+                                                ? "border-primary bg-primary/10 shadow-sm"
+                                                : isComplete
+                                                    ? "border-emerald-200 bg-emerald-50/50 hover:bg-emerald-50"
+                                                    : "border-border bg-background hover:bg-muted/50"
                                         )}
-                                    </div>
+                                    >
+                                        <div className={cn(
+                                            "h-7 w-7 rounded-md flex items-center justify-center shrink-0 transition-all",
+                                            isActive
+                                                ? "bg-primary text-white"
+                                                : isComplete
+                                                    ? "bg-emerald-500 text-white"
+                                                    : "bg-muted text-muted-foreground"
+                                        )}>
+                                            {isComplete && !isActive ? (
+                                                <CheckCircle2 className="h-3.5 w-3.5" />
+                                            ) : (
+                                                <Icon className="h-3.5 w-3.5" />
+                                            )}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className={cn(
+                                                "text-[10px] font-bold leading-tight truncate",
+                                                isActive ? "text-primary" : isComplete ? "text-emerald-700" : "text-foreground/70"
+                                            )}>
+                                                {step.name}
+                                            </p>
+                                            {isActive && (
+                                                <p className="text-[8px] text-muted-foreground truncate">{step.description}</p>
+                                            )}
+                                        </div>
+                                        {isActive && <ArrowRight className="h-3 w-3 text-primary shrink-0" />}
+                                    </button>
                                 );
                             })}
                         </div>
-                    </CardContent>
-                </Card>
-
-                {/* Tab Navigation */}
-                <div className="flex items-center gap-1 border-b border-border">
-                    {steps.map((step, index) => (
-                        <button
-                            key={step.id}
-                            onClick={() => setActiveTab(index)}
-                            className={cn(
-                                "px-4 py-3 text-sm font-medium border-b-2 transition-colors",
-                                activeTab === index
-                                    ? "border-primary text-primary"
-                                    : "border-transparent text-muted-foreground hover:text-foreground"
-                            )}
-                        >
-                            {step.name}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Active Step Content */}
-                <div className="grid grid-cols-12 gap-6">
-                    {/* Main Content */}
-                    <div className="col-span-12 lg:col-span-8">
-                        {renderStepData()}
                     </div>
 
-                    {/* Sidebar */}
-                    <div className="col-span-12 lg:col-span-4 space-y-6">
+                    {/* Right Content Area - Step Details */}
+                    <div className="flex-1 overflow-y-auto p-3">
+                        {activeStep?.details.sections ? (
+                            <div className="grid grid-cols-3 gap-2 auto-rows-min">
+                                {activeStep.details.sections.map((section, idx) => {
+                                    const isTable = section.type === 'table';
+                                    const isLongList = section.type === 'list' && (section.content as string[]).length > 5;
+                                    const colSpan = isTable || isLongList ? 'col-span-3' : 'col-span-1';
 
-                        {/* Data Evidence */}
-                        <Card>
-                            <CardHeader className="pb-3">
-                                <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                                    <Database className="h-4 w-4 text-primary" />
-                                    Data Evidence
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-3">
-                                    {clusterData.dataEvidence.map((evidence, idx) => (
-                                        <div key={idx} className="space-y-2">
-                                            <div className="flex items-center justify-between">
-                                                <p className="text-xs font-semibold">{evidence.source}</p>
-                                                <Badge variant="secondary" className="text-[9px]">
-                                                    {evidence.relevance}%
-                                                </Badge>
-                                            </div>
-                                            <div className="space-y-1">
-                                                {evidence.samples.slice(0, 2).map((sample, sIdx) => (
-                                                    <p key={sIdx} className="text-[10px] font-mono text-muted-foreground truncate bg-muted/30 px-2 py-1 rounded">
-                                                        {sample}
+                                    return (
+                                        <Card key={idx} className={cn("border border-border/40 shadow-sm", colSpan)}>
+                                            <CardHeader className="pb-1.5 px-2.5 pt-2 bg-muted/30 border-b border-border/20">
+                                                <CardTitle className="text-[10px] font-bold text-foreground uppercase tracking-wide">
+                                                    {section.title}
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-2.5">
+                                                {/* KV Type */}
+                                                {section.type === 'kv' && (
+                                                    <div className="space-y-2">
+                                                        {Object.entries(section.content as Record<string, string>).map(([k, v]) => (
+                                                            <div key={k} className="space-y-0.5">
+                                                                <p className="text-[8px] text-muted-foreground font-bold uppercase tracking-wide">{k}</p>
+                                                                <p className="text-[11px] font-semibold text-foreground leading-tight">{v}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {/* Scored List */}
+                                                {section.type === 'scored-list' && (
+                                                    <div className="space-y-2">
+                                                        {(section.content as any[]).map((item, i) => (
+                                                            <div key={i} className="space-y-1">
+                                                                <div className="flex justify-between items-center gap-2">
+                                                                    <span className="font-bold text-[10px] text-foreground truncate">{item.label}</span>
+                                                                    <Badge variant="outline" className="text-[8px] h-3.5 font-mono px-1 border-primary/30 bg-primary/10 text-primary font-bold shrink-0">
+                                                                        {item.displayScore}
+                                                                    </Badge>
+                                                                </div>
+                                                                <div className="h-1 w-full bg-secondary/40 rounded-full overflow-hidden">
+                                                                    <div
+                                                                        className={cn("h-full transition-all duration-500",
+                                                                            item.score >= 80 ? "bg-emerald-500" :
+                                                                                item.score >= 50 ? "bg-amber-500" : "bg-primary"
+                                                                        )}
+                                                                        style={{ width: `${Math.min(item.score, 100)}%` }}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {/* List */}
+                                                {section.type === 'list' && (
+                                                    <div className="space-y-0.5 max-h-[140px] overflow-y-auto">
+                                                        {(section.content as string[]).map((item, i) => (
+                                                            <div key={i} className="flex items-start gap-1.5 text-[10px] py-0.5">
+                                                                <div className="h-1 w-1 rounded-full bg-primary mt-1 shrink-0" />
+                                                                <span className="text-foreground/80 leading-snug">{item}</span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                )}
+
+                                                {/* Text */}
+                                                {section.type === 'text' && (
+                                                    <p className="text-[10px] text-foreground/90 leading-relaxed">
+                                                        {section.content as string}
                                                     </p>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
+                                                )}
+
+                                                {/* Table */}
+                                                {section.type === 'table' && section.columns && (
+                                                    <div className="border border-border/30 rounded overflow-hidden">
+                                                        <Table>
+                                                            <TableHeader>
+                                                                <TableRow className="bg-muted/30 hover:bg-muted/30">
+                                                                    {section.columns.map((col) => (
+                                                                        <TableHead key={col.key} className={cn("text-[9px] font-bold h-6 py-0.5 px-2", col.align === 'right' ? "text-right" : "")}>
+                                                                            {col.label}
+                                                                        </TableHead>
+                                                                    ))}
+                                                                </TableRow>
+                                                            </TableHeader>
+                                                            <TableBody>
+                                                                {(section.content as Record<string, any>[]).map((row, rIdx) => (
+                                                                    <TableRow key={rIdx} className="hover:bg-muted/10">
+                                                                        {section.columns!.map((col) => (
+                                                                            <TableCell key={col.key} className={cn("text-[10px] py-1 px-2", col.align === 'right' ? "text-right font-mono" : "")}>
+                                                                                {col.key === 'match' || col.key === 'score' ? (
+                                                                                    <Badge variant="secondary" className={cn("text-[8px] font-bold px-1 py-0",
+                                                                                        parseInt(row[col.key]) > 80 ? "text-emerald-700 bg-emerald-100" : "text-amber-700 bg-amber-100"
+                                                                                    )}>
+                                                                                        {row[col.key]}
+                                                                                    </Badge>
+                                                                                ) : (
+                                                                                    <span className="text-foreground/90">{row[col.key]}</span>
+                                                                                )}
+                                                                            </TableCell>
+                                                                        ))}
+                                                                    </TableRow>
+                                                                ))}
+                                                            </TableBody>
+                                                        </Table>
+                                                    </div>
+                                                )}
+                                            </CardContent>
+                                        </Card>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div className="text-sm text-muted-foreground text-center py-8">No data available for this step</div>
+                        )}
                     </div>
                 </div>
             </div>

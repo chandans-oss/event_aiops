@@ -11,12 +11,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { RCASidebar } from '@/components/sidebars/RCASidebar';
-import { ImpactSidebar } from '@/components/sidebars/ImpactSidebar';
-import { RemediationSidebar } from '@/components/sidebars/RemediationSidebar';
-import { ChildEventsSidebar } from '@/components/sidebars/ChildEventsSidebar';
-import { SeverityIcon } from '@/components/SeverityIcon';
+import { MainLayout } from '@/components/layout/mainLayout';
+import { RCASidebar } from '@/components/sidebars/rcaSidebar';
+import { ImpactSidebar } from '@/components/sidebars/impactSidebar';
+import { RemediationSidebar } from '@/components/sidebars/remediationSidebar';
+import { ChildEventsSidebar } from '@/components/sidebars/childEventsSidebar';
+import { SeverityIcon } from '@/components/severityIcon';
 import { mockClusters, processingStats } from '@/data/mockData';
 import { Cluster, Severity, ClusterStatus } from '@/types';
 import { cn } from '@/lib/utils';

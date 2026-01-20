@@ -4,23 +4,24 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
-import AnalyticsDashboard from "./pages/AnalyticsDashboard";
-import Events from "./pages/Events";
-import Preprocessing from "./pages/Preprocessing";
-import Clustering from "./pages/Clustering";
-import RCAImpact from "./pages/RCAImpact";
-import Remediation from "./pages/Remediation";
-import Admin from "./pages/Admin";
-import EventUpload from "./pages/EventUpload";
-import UploadData from "./pages/admin/UploadData";
-import RCAFlow from "./pages/demo/RCAFlow";
-import Playground from "./pages/demo/Playground";
-import ImpactAnalysis from "./pages/demo/ImpactAnalysis";
-import RCADetailPage from "./pages/RCADetailPage";
-import ImpactDetailPage from "./pages/ImpactDetailPage";
-import EventCorrelationClustersPage from "./pages/EventCorrelationClustersPage";
-import NotFound from "./pages/NotFound";
+import { ErrorBoundary } from "@/components/errorBoundary";
+import AnalyticsDashboard from "./pages/analyticsDashboard";
+import Events from "./pages/events";
+import Preprocessing from "./pages/preprocessing";
+import Clustering from "./pages/clustering";
+import RCAImpact from "./pages/rcaImpact";
+import Remediation from "./pages/remediation";
+import Topology from "./pages/topology";
+import Admin from "./pages/admin";
+import EventUpload from "./pages/eventUpload";
+import UploadData from "./pages/admin/uploadData";
+import RCAFlow from "./pages/demo/rcaFlow";
+import Playground from "./pages/demo/playground";
+import ImpactAnalysis from "./pages/demo/impactAnalysis";
+import RCADetailPage from "./pages/rcaDetailPage";
+import ImpactDetailPage from "./pages/impactDetailPage";
+import EventCorrelationClustersPage from "./pages/eventCorrelationClustersPage";
+import NotFound from "./pages/notFound";
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="/clustering" element={<Clustering />} />
               <Route path="/rca-impact" element={<RCAImpact />} />
               <Route path="/remediation" element={<Remediation />} />
+              <Route path="/topology" element={<Topology />} />
               <Route path="/event-correlation-clusters/:clusterId" element={<EventCorrelationClustersPage />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/upload" element={<UploadData />} />

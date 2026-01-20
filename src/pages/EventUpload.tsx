@@ -3,9 +3,9 @@ import { Upload, FileSpreadsheet, CheckCircle2, Loader2, ArrowRight, X, Eye } fr
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { ProcessingPipelineStepper, PipelineStage } from '@/components/upload/ProcessingPipelineStepper';
-import { ClusterCard } from '@/components/dashboard/ClusterCard';
+import { MainLayout } from '@/components/layout/mainLayout';
+import { ProcessingPipelineStepper, PipelineStage } from '@/components/upload/processingPipelineStepper';
+import { ClusterCard } from '@/components/dashboard/clusterCard';
 import { mockClusters, processingStats } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
@@ -27,40 +27,40 @@ export default function EventUpload() {
     const getStatus = (stageId: string): 'pending' | 'active' | 'complete' => {
       if (processingStage === 'complete') return 'complete';
       if (processingStage === 'idle') return 'pending';
-      
+
       const stageOrder = ['preprocessing', 'clustering', 'rca', 'remediation'];
       const currentIndex = stageOrder.indexOf(processingStage);
       const stageIndex = stageOrder.indexOf(stageId);
-      
+
       if (stageIndex < currentIndex) return 'complete';
       if (stageIndex === currentIndex) return 'active';
       return 'pending';
     };
 
     return [
-      { 
-        id: 'preprocessing', 
-        label: 'Event Pre-Processing', 
+      {
+        id: 'preprocessing',
+        label: 'Event Pre-Processing',
         status: getStatus('preprocessing'),
-        count: processingStats.normalized 
+        count: processingStats.normalized
       },
-      { 
-        id: 'clustering', 
-        label: 'Event Clustering', 
+      {
+        id: 'clustering',
+        label: 'Event Clustering',
         status: getStatus('clustering'),
-        count: processingStats.clustered 
+        count: processingStats.clustered
       },
-      { 
-        id: 'rca', 
-        label: 'RCA & Impact', 
+      {
+        id: 'rca',
+        label: 'RCA & Impact',
         status: getStatus('rca'),
-        count: mockClusters.length 
+        count: mockClusters.length
       },
-      { 
-        id: 'remediation', 
-        label: 'Remediation', 
+      {
+        id: 'remediation',
+        label: 'Remediation',
         status: getStatus('remediation'),
-        count: mockClusters.filter(c => c.status === 'Resolved').length 
+        count: mockClusters.filter(c => c.status === 'Resolved').length
       },
     ];
   }, [processingStage]);
@@ -100,18 +100,18 @@ export default function EventUpload() {
           {/* Upload Section */}
           <div className="glass-card rounded-xl p-6">
             <h2 className="text-lg font-semibold text-foreground mb-4">Upload Events</h2>
-            
+
             <div
               className={cn(
                 "border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300",
-                isDragging 
-                  ? "border-primary bg-primary/10" 
+                isDragging
+                  ? "border-primary bg-primary/10"
                   : "border-border hover:border-primary/50 hover:bg-primary/5"
               )}
               onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
               onDragLeave={() => setIsDragging(false)}
-              onDrop={(e) => { 
-                e.preventDefault(); 
+              onDrop={(e) => {
+                e.preventDefault();
                 setIsDragging(false);
                 handleFileUpload();
               }}
@@ -164,7 +164,7 @@ export default function EventUpload() {
           {/* Processing Progress */}
           <div className="glass-card rounded-xl p-6">
             <h2 className="text-lg font-semibold text-foreground mb-4">Processing Progress</h2>
-            
+
             <div className="space-y-4 mb-6">
               {[
                 { name: 'Upload', progress: 100, status: 'complete' as const },
@@ -269,9 +269,9 @@ export default function EventUpload() {
               <ClusterCard
                 key={cluster.id}
                 cluster={cluster}
-                onRCAClick={() => {}}
-                onImpactClick={() => {}}
-                onRemediationClick={() => {}}
+                onRCAClick={() => { }}
+                onImpactClick={() => { }}
+                onRemediationClick={() => { }}
               />
             ))}
           </div>

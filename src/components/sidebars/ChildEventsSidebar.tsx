@@ -5,7 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Cluster, Severity } from '@/types';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
-import { SeverityIcon } from '@/components/SeverityIcon';
+import { SeverityIcon } from '@/components/severityIcon';
 
 interface ChildEventsSidebarProps {
   cluster: Cluster;
@@ -176,7 +176,7 @@ export function ChildEventsSidebar({ cluster, onClose }: ChildEventsSidebarProps
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
               Correlated Events ({childEvents.length})
             </h3>
-            
+
             {/* Table Header */}
             <div className="grid grid-cols-12 gap-4 px-4 py-3 bg-secondary/50 rounded-t-lg border border-border text-xs font-semibold text-muted-foreground uppercase tracking-wide">
               <div className="col-span-3">Issue</div>

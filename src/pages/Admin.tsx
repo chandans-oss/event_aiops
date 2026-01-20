@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { AdminSidebar, AdminSection } from '@/components/admin/AdminSidebar';
-import { RulesSection } from '@/components/admin/RulesSection';
-import { IntentsSection } from '@/components/admin/IntentsSection';
-import { KBSection } from '@/components/admin/KBSection';
-import { AutoRemediationSection } from '@/components/admin/AutoRemediationSection';
+import { MainLayout } from '@/components/layout/mainLayout';
+import { AdminSidebar, AdminSection } from '@/components/admin/adminSidebar';
+import { RulesSection } from '@/components/admin/rulesSection';
+import { IntentsSection } from '@/components/admin/intentsSection';
+import { KBSection } from '@/components/admin/kbSection';
+import { AutoRemediationSection } from '@/components/admin/autoRemediationSection';
 
 export default function Admin() {
   const [activeSection, setActiveSection] = useState<AdminSection>('rules');

@@ -7,10 +7,11 @@ import { Separator } from '@/components/ui/separator';
 
 interface RCASummaryProps {
     data: ClusterSpecificData;
+    confidence?: number;
     onViewDetailedRCA: () => void;
 }
 
-export function RCASummary({ data, onViewDetailedRCA }: RCASummaryProps) {
+export function RCASummary({ data, confidence = 0.95, onViewDetailedRCA }: RCASummaryProps) {
     return (
         <div className="space-y-6">
             {/* Root Cause Description */}
@@ -37,12 +38,9 @@ export function RCASummary({ data, onViewDetailedRCA }: RCASummaryProps) {
                         </div>
                         <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-secondary/50 border border-border">
                             <span className="text-muted-foreground text-sm">Confidence:</span>
-                            <span className="font-bold text-primary">94%</span>
+                            <span className="font-bold text-primary">{Math.round(confidence * 100)}%</span>
                         </div>
-                        <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-secondary/50 border border-border">
-                            <span className="text-muted-foreground text-sm">AI Model:</span>
-                            <span className="font-medium">Ensemble v2.4</span>
-                        </div>
+
                     </div>
                 </CardContent>
             </Card>
@@ -84,7 +82,7 @@ export function RCASummary({ data, onViewDetailedRCA }: RCASummaryProps) {
             {/* Actions */}
             <div className="flex justify-end pt-4">
                 <Button onClick={onViewDetailedRCA} className="gap-2">
-                    View Detailed RCA
+                    RCA Analysis Flow
                     <ArrowRight className="h-4 w-4" />
                 </Button>
             </div>

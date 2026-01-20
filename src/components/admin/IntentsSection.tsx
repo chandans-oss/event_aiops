@@ -191,7 +191,7 @@ export function IntentsSection() {
               .filter((intent) =>
                 searchQuery
                   ? intent.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    intent.id.toLowerCase().includes(searchQuery.toLowerCase())
+                  intent.id.toLowerCase().includes(searchQuery.toLowerCase())
                   : true
               )
               .map((intent) => (
@@ -240,7 +240,7 @@ function IntentCard({ intent, onEdit }: { intent: IntentFull; onEdit: () => void
               </Badge>
             ))}
           </div>
-          
+
           {/* Signals & Hypotheses Summary */}
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
             <span>{intent.signals.length} signals</span>
@@ -296,7 +296,7 @@ function IntentCard({ intent, onEdit }: { intent: IntentFull; onEdit: () => void
                     <code className="text-xs font-mono text-status-success">{hypothesis.id}</code>
                   </div>
                   <p className="text-sm text-foreground mb-3">{hypothesis.description}</p>
-                  
+
                   {hypothesis.signals.length > 0 && (
                     <div className="mb-2">
                       <span className="text-xs text-muted-foreground">Signals:</span>
@@ -309,12 +309,12 @@ function IntentCard({ intent, onEdit }: { intent: IntentFull; onEdit: () => void
                       </div>
                     </div>
                   )}
-                  
-                  {hypothesis.log_patterns.length > 0 && (
+
+                  {hypothesis.logPatterns.length > 0 && (
                     <div>
                       <span className="text-xs text-muted-foreground">Log Patterns:</span>
                       <div className="flex flex-wrap gap-1 mt-1">
-                        {hypothesis.log_patterns.map((lp, i) => (
+                        {hypothesis.logPatterns.map((lp, i) => (
                           <Badge key={i} variant="outline" className="text-xs">
                             "{lp.keyword}" (w: {lp.weight})
                           </Badge>
@@ -328,11 +328,11 @@ function IntentCard({ intent, onEdit }: { intent: IntentFull; onEdit: () => void
           </div>
 
           {/* Situation Description */}
-          {intent.situation_desc && (
+          {intent.situationDesc && (
             <div>
               <h4 className="text-sm font-semibold text-foreground mb-2">Situation Template</h4>
               <div className="bg-secondary/30 rounded-lg p-3 text-sm text-muted-foreground font-mono">
-                {intent.situation_desc}
+                {intent.situationDesc}
               </div>
             </div>
           )}
@@ -376,7 +376,7 @@ function IntentForm({ intent, onClose }: { intent?: IntentFull; onClose: () => v
         </div>
         <div>
           <Label>Sub-Intent</Label>
-          <Input placeholder="e.g., unidirectional" defaultValue={intent?.subintent} />
+          <Input placeholder="e.g., unidirectional" defaultValue={intent?.subIntent} />
         </div>
       </div>
 
@@ -462,7 +462,7 @@ function IntentForm({ intent, onClose }: { intent?: IntentFull; onClose: () => v
         <Label>Situation Description Template</Label>
         <Textarea
           placeholder="Use {variable} placeholders..."
-          defaultValue={intent?.situation_desc}
+          defaultValue={intent?.situationDesc}
           rows={3}
         />
       </div>

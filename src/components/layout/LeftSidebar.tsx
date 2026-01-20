@@ -16,6 +16,7 @@ import {
   Search,
   Wrench,
   FolderArchive,
+  Network,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
   { path: "/events", label: "Events", icon: Activity },
+  { path: "/topology", label: "Topology", icon: Network },
   {
     path: "/admin",
     label: "Admin",

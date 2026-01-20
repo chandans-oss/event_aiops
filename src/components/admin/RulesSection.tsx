@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Layers, GitBranch, Plus, Edit2, Trash2, GripVertical, ToggleLeft, Clock, Wrench, AlertTriangle, MapPin, Network, Brain, Search, X } from 'lucide-react';
+import { Copy, Layers, GitBranch, Plus, Edit2, Trash2, GripVertical, ToggleLeft, Clock, Wrench, AlertTriangle, MapPin, Network, Brain, Search, X, Server, RefreshCw, Timer, ListChecks, ArrowRightCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
@@ -11,26 +11,27 @@ import { DeduplicationRuleForm, SuppressionRuleForm, CorrelationRuleForm, Delete
 import { DeduplicationRule, SuppressionRule, CorrelationRule } from '@/types';
 
 // Deduplication rule icons and labels
-const dedupRuleConfig: Record<string, { icon: typeof Copy; label: string }> = {
-  same_alert_type: { icon: Copy, label: 'Same Alert Type' },
-  same_severity: { icon: AlertTriangle, label: 'Same Severity' },
-  same_error_message: { icon: Layers, label: 'Same Error Message' },
-  same_event_multi_source: { icon: GitBranch, label: 'Multi-Source Event' },
+const dedupRuleConfig: Record<string, { icon: any; label: string }> = {
+  exact_match: { icon: Copy, label: 'Exact Match' },
+  time_window: { icon: Clock, label: 'Time Window' },
+  source_based: { icon: Server, label: 'Source Based' },
 };
 
 // Suppression rule icons and labels
-const suppressionRuleConfig: Record<string, { icon: typeof ToggleLeft; label: string }> = {
+const suppressionRuleConfig: Record<string, { icon: any; label: string }> = {
+  maintenance: { icon: Wrench, label: 'Maintenance' },
   business_hours: { icon: Clock, label: 'Business Hours' },
-  user_defined_time: { icon: Clock, label: 'User Defined Time' },
-  assets_maintenance: { icon: Wrench, label: 'Assets Maintenance' },
+  reboot_pattern: { icon: RefreshCw, label: 'Reboot Pattern' },
+  time_based: { icon: Timer, label: 'Time Based' },
 };
 
 // Correlation rule icons and labels
-const correlationRuleConfig: Record<string, { icon: typeof GitBranch; label: string }> = {
-  causal: { icon: GitBranch, label: 'Causal' },
+const correlationRuleConfig: Record<string, { icon: any; label: string }> = {
   temporal: { icon: Clock, label: 'Temporal' },
-  spatial: { icon: MapPin, label: 'Spatial' },
+  causal: { icon: ArrowRightCircle, label: 'Causal' },
   topological: { icon: Network, label: 'Topological' },
+  spatial: { icon: MapPin, label: 'Spatial' },
+  rule_based: { icon: ListChecks, label: 'Rule Based' },
   gnn: { icon: Brain, label: 'GNN' },
 };
 
@@ -55,14 +56,14 @@ export function RulesSection() {
   // Filter function for rules
   const filterRules = <T extends { name: string; description: string; status: string; type: string }>(rules: T[]) => {
     return rules.filter((rule) => {
-      const matchesSearch = searchQuery === '' || 
+      const matchesSearch = searchQuery === '' ||
         rule.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         rule.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
         rule.type.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
       const matchesStatus = statusFilter === 'all' || rule.status === statusFilter;
       const matchesType = typeFilter === 'all' || rule.type === typeFilter;
-      
+
       return matchesSearch && matchesStatus && matchesType;
     });
   };
@@ -175,7 +176,7 @@ export function RulesSection() {
             </Button>
           )}
         </div>
-        
+
         <Select value={statusFilter} onValueChange={(value: 'all' | 'active' | 'inactive') => setStatusFilter(value)}>
           <SelectTrigger className="w-[140px]">
             <SelectValue placeholder="Status" />

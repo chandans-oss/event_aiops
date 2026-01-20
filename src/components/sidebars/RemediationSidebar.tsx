@@ -542,10 +542,7 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
             <Button variant="outline" size="lg" onClick={() => setViewMode('verification')} className="h-14 gap-3 px-8 font-black uppercase tracking-widest border-2 shadow-xl hover:bg-secondary">
               <Download className="h-5 w-5" /> Detailed Report
             </Button>
-            <Button size="lg" className="h-14 gap-4 px-10 font-black uppercase tracking-widest shadow-2xl shadow-primary/30" onClick={onClose}>
-              Return to Events
-              <ArrowRight className="h-5 w-5" />
-            </Button>
+
           </div>
         </CardContent>
       </Card>
@@ -601,9 +598,7 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                 <p className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.2em] translate-x-1">Execution Payload Activity</p>
               </div>
             )}
-            <Button variant="ghost" size="icon" onClick={onClose} className="h-12 w-12 rounded-xl border-2 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-all">
-              <X className="h-6 w-6" />
-            </Button>
+
           </div>
         </div>
 

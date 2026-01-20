@@ -7,14 +7,20 @@ export interface RCAProcessStep {
     description: string;
     status: 'complete' | 'active' | 'pending';
     details: {
-        input: string[];
-        processing: string;
-        output: string;
-        duration: string;
+        input?: string[];
+        processing?: string;
+        output?: string;
+        duration?: string;
         rawInput?: string;
         rawOutput?: string;
         metadata?: Record<string, string | string[]>;
-        bulletPoints?: string[]; // Added for the list view in the UI
+        bulletPoints?: string[];
+        sections?: Array<{
+            title: string;
+            type: 'text' | 'list' | 'kv' | 'table' | 'scored-list';
+            content: any;
+            columns?: Array<{ key: string; label: string; align?: 'left' | 'right' }>;
+        }>;
     };
 }
 
@@ -57,6 +63,8 @@ export interface ClusterSpecificData {
         severity: string;
     };
     rcaSummary: string;
+    rootCause: string;
+    confidence: number;
     remedyTitle?: string;
     rcaProcessSteps: RCAProcessStep[];
     dataEvidence: DataEvidence[];
@@ -167,32 +175,7 @@ const generateRCASteps = (id: string, type: string, device: string): RCAProcessS
                 }
             },
         },
-        {
-            id: 'planner-llm',
-            name: 'Planner LLM',
-            description: 'LLM generated diagnostic and validation plan',
-            status: 'complete',
-            details: {
-                input: ['Situation card', 'Tool Inventory'],
-                processing: 'Planner LLM process completed.',
-                output: 'Diagnostic plan created.',
-                duration: '4.2s',
-                metadata: {
-                    'Plan ID': `PLAN-${Math.floor(Math.random() * 10000)}`,
-                    'Steps': '5 Diagnostic Steps',
-                    'Tools': 'SSH, REST-API, TSDB',
-                    'Strategy': 'Top-Down Verification'
-                },
-                rawOutput: JSON.stringify({
-                    steps: [
-                        { tool: "SSH_COMMAND", why: `Capture real-time state on ${device}` },
-                        { tool: "SNMP_GET", why: "Verify baseline metrics" },
-                        { tool: "LOG_ANALYSIS", why: `Identify patterns related to ${type}` },
-                        { tool: "TSDB_LOOKUP", why: "Compare current anomalies with 7-day average" }
-                    ]
-                })
-            },
-        },
+
         {
             id: 'data-correlator',
             name: 'Data Correlation Engine',
@@ -245,6 +228,8 @@ const createPlaceholderData = (id: string, type: string, device: string, summary
     clusterId: id,
     rcaMetadata: { rootEventId: `evt_${id}`, rootEventType: type, timestamp: new Date().toISOString(), device, severity: 'Critical' },
     rcaSummary: summary || `Analysis of the ${type} event on ${device}. High-confidence correlation suggests a persistent failure in the ${type.toLowerCase()} module, leading to service degradation across dependent nodes.`,
+    rootCause: `${type.replace(/_/g, ' ')}: System degradation on ${device}`,
+    confidence: 0.88,
     remedyTitle: remedyTitle || `Remediate ${type.replace(/_/g, ' ')}`,
     rcaProcessSteps: generateRCASteps(id, type, device),
     dataEvidence: [
@@ -253,8 +238,8 @@ const createPlaceholderData = (id: string, type: string, device: string, summary
         { source: 'Chassis Telemetry', type: 'Metrics', count: 25, samples: ['Internal temp: 45C', 'CPU: 88%', 'Buffer usage: 92%'], relevance: 90 }
     ],
     correlatedChildEvents: [
-        { id: `EVT-${id}-CH-01`, alertType: 'INTERFACE_UP_DOWN', source: device, severity: 'Major', timestamp: new Date().toISOString(), correlationScore: 0.96, correlationReason: 'Temporal & Topological Proximity', message: `Interface Gi0/1 on ${device} is flapping` },
-        { id: `EVT-${id}-CH-02`, alertType: 'BGP_ADJACENCY_CHANGE', source: device, severity: 'Critical', timestamp: new Date().toISOString(), correlationScore: 0.89, correlationReason: 'Impact Propagation', message: 'BGP session lost with peer 10.1.1.2' }
+        { id: `EVT-${id}-CH-01`, alertType: 'INTERFACE_UP_DOWN', source: device, severity: 'Major', timestamp: new Date().toISOString(), correlationScore: 0.96, correlationReason: 'Temporal Correlation: Events within time window', message: `Interface Gi0/1 on ${device} is flapping` },
+        { id: `EVT-${id}-CH-02`, alertType: 'BGP_ADJACENCY_CHANGE', source: device, severity: 'Critical', timestamp: new Date().toISOString(), correlationScore: 0.89, correlationReason: 'Topological Correlation: Upstream dominates downstream', message: 'BGP session lost with peer 10.1.1.2' }
     ],
     impactedAssets: [
         { id: 'auth-service', name: 'Auth Service', type: 'Microservice', severity: 'Critical', status: 'Degraded', dependencies: [device] },
@@ -292,16 +277,249 @@ export const CLU_LC_001_Data: ClusterSpecificData = {
     rcaMetadata: { rootEventId: 'EVT-LC-010', rootEventType: 'LINK_CONGESTION', timestamp: '2025-10-28T14:30:00Z', device: 'core-router-dc1', severity: 'Critical' },
     remedyTitle: 'Reconfigure and Stabilize DNS Resolution',
     rcaSummary: 'Backup-Induced Congestion: Unscheduled NFS backup traffic from agent-server-01 consuming >35% link capacity during business hours, causing queue drops and latency spikes on interface Gi0/1/0.',
-    rcaProcessSteps: generateRCASteps('CLU-LC-001', 'LINK_CONGESTION', 'core-router-dc1'),
+    rootCause: 'Backup-Induced Congestion: Unscheduled NFS backup traffic',
+    confidence: 0.93,
+    rcaProcessSteps: [
+        {
+            id: 'orchestration',
+            name: 'Orchestration',
+            description: 'Incident & Goal creation',
+            status: 'complete',
+            details: {
+                sections: [
+                    {
+                        title: "Incident Details",
+                        type: "kv",
+                        content: {
+                            "Incident ID": "ALARM-12345",
+                            "Device": "core-router-dc1",
+                            "Interface": "N/A",
+                            "Correlation Window": "Last 15 min from 2025-10-28T14:30:00Z",
+                            "Initial Severity": "Critical"
+                        }
+                    },
+                    {
+                        title: "Trigger Event",
+                        type: "text",
+                        content: "High interface utilization detected on Gi0/0/0"
+                    },
+                    {
+                        title: "Goal",
+                        type: "text",
+                        content: "Investigate interface Gi0/1/0 utilization exceeding 95% on core-router-dc1 possibly related to traffic overloading due to backup job activity."
+                    },
+                    {
+                        title: "Logs and Traps",
+                        type: "list",
+                        content: [
+                            "Device: core-router-dc1 | Timestamp: 2025-10-28T14:20:00Z | Message: Backup job started on agent-server-01 and tail drop observed",
+                            "Device: core-router-dc1 | Timestamp: 2025-10-28T14:21:30Z | Message: Interface Gi0/1/0 output queue full",
+                            "Device: core-router-dc1 | Timestamp: 2025-10-28T14:25:00Z | Message: CPU utilization crossed 85% threshold",
+                            "Device: core-router-dc1 | Timestamp: 2025-10-28T14:28:00Z | Message: Interface Gi0/1/1 line status: up, duplex: full, speed: 1Gbps",
+                            "Device: core-router-dc1 | Timestamp: 2025-10-28T14:30:00Z | Message: Normal packet forwarding observed on Gi0/1/1"
+                        ]
+                    },
+                    {
+                        title: "Key Performance Indicators (KPIs)",
+                        type: "table",
+                        columns: [{ key: "metric", label: "Metric" }, { key: "value", label: "Value", align: "right" }],
+                        content: [
+                            { metric: "CPU Utilization", value: "85.0%" },
+                            { metric: "Memory Utilization", value: "75.0%" },
+                            { metric: "Device Temperature", value: "45.0 °C" },
+                            { metric: "Avail_percent", value: "100.0" },
+                            { metric: "Bandwidth Utilization", value: "98.0%" },
+                            { metric: "Input Errors", value: "20.0 pkts" },
+                            { metric: "Output Errors", value: "500.0 pkts" },
+                            { metric: "Latency", value: "400.0 ms" },
+                            { metric: "Packet Loss", value: "1.2%" },
+                            { metric: "DSCP Traffic", value: "78.0%" }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            id: 'intent-routing',
+            name: 'Intent Routing',
+            description: 'Identify Intent',
+            status: 'complete',
+            details: {
+                sections: [
+                    {
+                        title: "Selected Intent",
+                        type: "text",
+                        content: "performance.congestion"
+                    },
+                    {
+                        title: "Intent Status",
+                        type: "kv",
+                        content: {
+                            "Score": "1.0",
+                            "Match Strength": "Strong Match"
+                        }
+                    },
+                    {
+                        title: "Top 3 Intents",
+                        type: "scored-list",
+                        content: [
+                            { label: "performance.congestion", score: 100, displayScore: "1.0" },
+                            { label: "system.cpu_high", score: 80, displayScore: "0.8" },
+                            { label: "link.high_errors", score: 30, displayScore: "0.3" }
+                        ]
+                    },
+                    {
+                        title: "Key Matches",
+                        type: "kv",
+                        content: {
+                            "Signal Matches": "utilization_percent > 90 (0.9), out_discards > 0 (0.8)",
+                            "Log Matches": "tail drop, backup"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            id: 'hypothesis-scorer',
+            name: 'Hypotheses Scorer',
+            description: 'Identify possible hypothesis',
+            status: 'complete',
+            details: {
+                sections: [
+                    {
+                        title: "Selected Intent",
+                        type: "text",
+                        content: "performance"
+                    },
+                    {
+                        title: "Top Hypothesis",
+                        type: "text",
+                        content: "QOS_CONGESTION - High utilization and queue discards (score: 1.00)"
+                    },
+                    {
+                        title: "Hypothesis Scores",
+                        type: "scored-list",
+                        content: [
+                            { label: "H_QOS_CONGESTION", score: 100, displayScore: "1.0" },
+                            { label: "H_BACKUP_TRAFFIC", score: 100, displayScore: "1.1" },
+                            { label: "H_PEAK_TRAFFIC", score: 40, displayScore: "0.4" }
+                        ]
+                    },
+                    {
+                        title: "Log Evidence",
+                        type: "list",
+                        content: [
+                            "Device: core-router-dc1 | Timestamp: 2025-10-28T14:20:00Z | Message: Backup job started on agent-server-01 and tail drop observed",
+                            "Device: core-router-dc1 | Timestamp: 2025-10-28T14:25:00Z | Message: Interface Gi0/1/0 output queue full",
+                            "Device: core-router-dc1 | Timestamp: 2025-10-28T14:20:00Z | Message: Backup job started on agent-server-01 and tail drop observed",
+                            "Device: core-router-dc1 | Timestamp: 2025-10-28T14:21:30Z | Message: Backup traffic detected on Gi0/1/0 (source: agent-server-01)"
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            id: 'situation-builder',
+            name: 'Situation Builder',
+            description: 'Create Situation Card',
+            status: 'complete',
+            details: {
+                sections: [
+                    {
+                        title: "Situation ID",
+                        type: "text",
+                        content: "INFRAON-ALARM-12345"
+                    },
+                    {
+                        title: "Summary",
+                        type: "text",
+                        content: "Interface Gi0/1/0 on core-router-dc1 shows high utilization (96.0%), with 500.0 queue drops. Top hypothesis: QOS_CONGESTION - High utilization and queue discards (score=1.0)."
+                    },
+                    {
+                        title: "Input Data Summary",
+                        type: "kv",
+                        content: {
+                            "Device": "core-router-dc1",
+                            "Resource": "Gi0/1/0",
+                            "Type": "interface",
+                            "Logs": "High interface utilization detected, Backup job started..."
+                        }
+                    },
+                    {
+                        title: "Action Taken",
+                        type: "text",
+                        content: "Situation dumped into Vector DB"
+                    }
+                ]
+            }
+        },
+        {
+            id: 'data-correlator',
+            name: 'Data Correlation Engine',
+            description: 'Semantic match against historical data',
+            status: 'complete',
+            details: {
+                sections: [
+                    {
+                        title: "Correlation Results",
+                        type: "kv",
+                        content: {
+                            "Historical Matches": "2 similar cases found",
+                            "Top Similarity Score": "0.88",
+                            "Confidence": "High"
+                        }
+                    },
+                    {
+                        title: "Correlated Incidents (Historical KB)",
+                        type: "table",
+                        columns: [{ key: "id", label: "Incident ID" }, { key: "cause", label: "Root Cause" }, { key: "match", label: "Match %", align: "right" }, { key: "res", label: "Resolution" }],
+                        content: [
+                            { id: "INC-2024-001", cause: "Backup Traffic Congestion", match: "88%", res: "Apply QoS Policy" },
+                            { id: "INC-2023-899", cause: "Unscheduled Data Transfer", match: "72%", res: "Reschedule Job" }
+                        ]
+                    }
+                ]
+            }
+        },
+        {
+            id: 'rca-correlator',
+            name: 'RCA Correlator Engine',
+            description: 'Final multi-modal synthesis',
+            status: 'complete',
+            details: {
+                sections: [
+                    {
+                        title: "Final Determination",
+                        type: "text",
+                        content: "The root cause is definitively identified as QOS_CONGESTION caused by unscheduled backup traffic saturating interface Gi0/1/0."
+                    },
+                    {
+                        title: "Evidence Synthesis",
+                        type: "kv",
+                        content: {
+                            "Primary Signal": "Bandwidth Utilization > 95%",
+                            "Confirming Log": "Backup job started",
+                            "Negative Evidence": "No physical layer errors observed"
+                        }
+                    },
+                    {
+                        title: "Recommended Action",
+                        type: "text",
+                        content: "Implement QoS throttling for backup traffic class and reschedule backup job to maintenance window."
+                    }
+                ]
+            }
+        }
+    ],
     dataEvidence: [
         { source: 'NetFlow', type: 'Metrics', count: 450, samples: ['DSCP: 0, 76% share', 'Source: agent-server-01', 'Destination: backup-node-dc2'], relevance: 98 },
         { source: 'SNMP', type: 'Metrics', count: 12, samples: ['ifOutDiscards: 542', 'ifUtil: 96%', 'ifErrors: 8'], relevance: 92 },
         { source: 'Interface Logs', type: 'Logs', count: 5, samples: ['Gi0/1/0: Queue full - tail drops active', 'Gi0/1/0: High buffer utilization'], relevance: 88 }
     ],
     correlatedChildEvents: [
-        { id: 'EVT-LC-009', alertType: 'PACKET_DISCARD', source: 'core-router-dc1', severity: 'Critical', timestamp: '2025-10-28T14:30:00Z', correlationScore: 0.95, correlationReason: 'Direct Resource Overlap', message: 'Output packet discards on Gi0/1/0' },
-        { id: 'EVT-LC-011', alertType: 'HIGH_LATENCY', source: 'core-router-dc1', severity: 'Critical', timestamp: '2025-10-28T14:31:00Z', correlationScore: 0.92, correlationReason: 'Network Congestion Propagation', message: 'Latency to peer router 500 ms' },
-        { id: 'EVT-LC-008', alertType: 'CPU_HIGH', source: 'core-router-dc1', severity: 'Major', timestamp: '2025-10-28T14:27:00Z', correlationScore: 0.88, correlationReason: 'Resource Contention', message: 'CPU usage reached 85%' }
+        { id: 'EVT-LC-009', alertType: 'PACKET_DISCARD', source: 'core-router-dc1', severity: 'Critical', timestamp: '2025-10-28T14:30:00Z', correlationScore: 0.95, correlationReason: 'Spatial Correlation: Same host / service', message: 'Output packet discards on Gi0/1/0' },
+        { id: 'EVT-LC-011', alertType: 'HIGH_LATENCY', source: 'core-router-dc1', severity: 'Critical', timestamp: '2025-10-28T14:31:00Z', correlationScore: 0.92, correlationReason: 'Causal Correlation: Cause → effect chains', message: 'Latency to peer router 500 ms' },
+        { id: 'EVT-LC-008', alertType: 'CPU_HIGH', source: 'core-router-dc1', severity: 'Major', timestamp: '2025-10-28T14:27:00Z', correlationScore: 0.88, correlationReason: 'Rule-Based Correlation: Domain-specific heuristics', message: 'CPU usage reached 85%' }
     ],
     impactedAssets: [
         { id: 'api-gw', name: 'API Gateway', type: 'Service', severity: 'Critical', status: 'Slow', dependencies: ['core-router-dc1'] },

@@ -3,7 +3,7 @@ import { Upload, FileSpreadsheet, Download, CheckCircle2, X, Table, FileDown, In
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { MainLayout } from '@/components/layout/mainLayout';
 import { cn } from '@/lib/utils';
 import {
   Accordion,
@@ -13,34 +13,34 @@ import {
 } from '@/components/ui/accordion';
 
 const requiredSheets = [
-  { 
-    name: 'events', 
-    description: 'Network events and alerts', 
-    columns: ['event_id', 'device', 'event_code', 'timestamp', 'severity', 'message', 'site', 'region', 'rack'],
+  {
+    name: 'events',
+    description: 'Network events and alerts',
+    columns: ['eventId', 'device', 'eventCode', 'timestamp', 'severity', 'message', 'site', 'region', 'rack'],
     sampleRows: 3
   },
-  { 
-    name: 'metrics', 
-    description: 'Performance metrics data', 
-    columns: ['timestamp', 'device', 'interface', 'utilization_percent', 'in_errors', 'out_discards', 'latency_ms'],
+  {
+    name: 'metrics',
+    description: 'Performance metrics data',
+    columns: ['timestamp', 'device', 'interface', 'utilizationPercent', 'inErrors', 'outDiscards', 'latencyMs'],
     sampleRows: 3
   },
-  { 
-    name: 'topology', 
-    description: 'Network topology relationships', 
-    columns: ['source_device', 'source_interface', 'target_device', 'target_interface', 'link_type'],
+  {
+    name: 'topology',
+    description: 'Network topology relationships',
+    columns: ['sourceDevice', 'sourceInterface', 'targetDevice', 'targetInterface', 'linkType'],
     sampleRows: 3
   },
-  { 
-    name: 'syslog', 
-    description: 'Syslog messages', 
+  {
+    name: 'syslog',
+    description: 'Syslog messages',
     columns: ['timestamp', 'device', 'severity', 'facility', 'message'],
     sampleRows: 3
   },
-  { 
-    name: 'devices', 
-    description: 'Device inventory', 
-    columns: ['device_id', 'hostname', 'type', 'vendor', 'model', 'site', 'rack', 'status'],
+  {
+    name: 'devices',
+    description: 'Device inventory',
+    columns: ['deviceId', 'hostname', 'type', 'vendor', 'model', 'site', 'rack', 'status'],
     sampleRows: 3
   },
 ];
@@ -54,7 +54,7 @@ export default function UploadData() {
   const handleFileUpload = () => {
     setIsUploading(true);
     setUploadProgress(0);
-    
+
     const interval = setInterval(() => {
       setUploadProgress(prev => {
         if (prev >= 100) {
@@ -99,18 +99,18 @@ export default function UploadData() {
           {/* Upload Section */}
           <div className="glass-card rounded-xl p-6">
             <h2 className="text-lg font-semibold text-foreground mb-4">Upload Excel File</h2>
-            
+
             <div
               className={cn(
                 "border-2 border-dashed rounded-xl p-12 text-center transition-all duration-300",
-                isDragging 
-                  ? "border-primary bg-primary/10" 
+                isDragging
+                  ? "border-primary bg-primary/10"
                   : "border-border hover:border-primary/50 hover:bg-primary/5"
               )}
               onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
               onDragLeave={() => setIsDragging(false)}
-              onDrop={(e) => { 
-                e.preventDefault(); 
+              onDrop={(e) => {
+                e.preventDefault();
                 setIsDragging(false);
                 handleFileUpload();
               }}
@@ -181,7 +181,7 @@ export default function UploadData() {
               <Info className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-semibold text-foreground">Required Data Format</h2>
             </div>
-            
+
             <p className="text-sm text-muted-foreground mb-4">
               The Excel file should contain the following sheets with the specified columns:
             </p>

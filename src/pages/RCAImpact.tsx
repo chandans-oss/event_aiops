@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { MainLayout } from '@/components/layout/mainLayout';
 import { cn } from '@/lib/utils';
 import { mockClusters } from '@/data/mockData';
 import { Cluster } from '@/types';
@@ -80,7 +80,7 @@ const getClusterRCAResult = (cluster: Cluster) => {
       ],
     },
   };
-  
+
   return results[cluster.id] || {
     rootCause: cluster.rca.rootCause.split(':')[0] || 'Under Analysis',
     description: cluster.rca.rootCause,
@@ -165,11 +165,11 @@ export default function RCAImpact() {
             {timelineData.map(({ cluster, stages, currentStage }) => {
               const isComplete = currentStage === 6;
               return (
-                <div 
+                <div
                   key={cluster.id}
                   className={cn(
                     "flex items-center p-3 rounded-lg border cursor-pointer transition-all",
-                    isComplete 
+                    isComplete
                       ? "bg-status-success/5 border-status-success/30 hover:bg-status-success/10"
                       : "bg-secondary/30 border-border/50 hover:bg-secondary/50"
                   )}
@@ -323,8 +323,8 @@ export default function RCAImpact() {
                 key={cluster.id}
                 className={cn(
                   "p-4 rounded-xl border transition-all cursor-pointer",
-                  isComplete 
-                    ? "bg-status-success/5 border-status-success/30 hover:bg-status-success/10" 
+                  isComplete
+                    ? "bg-status-success/5 border-status-success/30 hover:bg-status-success/10"
                     : "bg-secondary/30 border-border/50 hover:bg-secondary/50",
                   selectedClusterId === cluster.id && "ring-2 ring-primary"
                 )}

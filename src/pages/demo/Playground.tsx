@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { MainLayout } from '@/components/layout/mainLayout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,7 +25,7 @@ export default function Playground() {
   const handleProcess = () => {
     setIsProcessing(true);
     setResults(null);
-    
+
     setTimeout(() => {
       setResults({
         clusters: 1,
@@ -139,7 +139,7 @@ export default function Playground() {
                           </div>
                           <div className="flex items-center gap-2">
                             <div className="w-24 h-2 bg-secondary rounded-full overflow-hidden">
-                              <div 
+                              <div
                                 className={cn(
                                   "h-full rounded-full",
                                   idx === 0 ? "bg-status-success" : "bg-primary/60"

@@ -37,9 +37,10 @@ export interface Cluster {
 }
 
 // Rule Types
-export type DeduplicationRuleType = 'same_alert_type' | 'same_severity' | 'same_error_message' | 'same_event_multi_source';
-export type SuppressionRuleType = 'business_hours' | 'user_defined_time' | 'assets_maintenance';
-export type CorrelationRuleType = 'causal' | 'temporal' | 'spatial' | 'topological' | 'gnn';
+// Rule Types
+export type DeduplicationRuleType = 'exact_match' | 'time_window' | 'source_based';
+export type SuppressionRuleType = 'maintenance' | 'business_hours' | 'reboot_pattern' | 'time_based';
+export type CorrelationRuleType = 'temporal' | 'causal' | 'topological' | 'spatial' | 'rule_based' | 'gnn';
 
 export interface BaseRule {
   id: string;
@@ -53,47 +54,26 @@ export interface BaseRule {
 
 export interface DeduplicationRule extends BaseRule {
   type: DeduplicationRuleType;
-  config: {
-    matchCriteria?: string[];
-    timeWindowValue?: number;
-    timeWindowUnit?: 'seconds' | 'minutes' | 'hours';
-    groupBy?: string[];
-  };
+  timeWindow: number;
+  fields: string[];
+  matchCount?: number;
+  // Legacy config support if needed, but we are moving to flat properties mostly
+  config?: any;
 }
 
 export interface SuppressionRule extends BaseRule {
   type: SuppressionRuleType;
   affectedDevices: string[];
-  config: {
-    schedule?: {
-      start: string;
-      end: string;
-      recurring?: boolean;
-    };
-    businessHours?: {
-      days: string[];
-      startTime: string;
-      endTime: string;
-    };
-  };
+  schedule: Record<string, any>;
+  suppressCount?: number;
+  config?: any;
 }
 
 export interface CorrelationRule extends BaseRule {
   type: CorrelationRuleType;
   mlEnabled: boolean;
   gnnEnabled: boolean;
-  config: {
-    relationships?: Array<{
-      cause: string;
-      effect: string;
-      timeWindow: number;
-      confidence: number;
-    }>;
-    groupingCriteria?: string[];
-    traceDepth?: number;
-    timeWindowValue?: number;
-    timeWindowUnit?: 'seconds' | 'minutes' | 'hours';
-  };
+  config: Record<string, any>;
 }
 
 // Knowledge Base Types
@@ -126,7 +106,7 @@ export interface IntentHypothesis {
   id: string;
   description: string;
   signals: IntentSignal[];
-  log_patterns: IntentLogPattern[];
+  logPatterns: IntentLogPattern[];
 }
 
 export interface Intent {
@@ -139,21 +119,21 @@ export interface Intent {
   keywords: string[];
   hypotheses: string[] | IntentHypothesis[];
   signals: IntentSignal[];
-  situation_desc?: string;
+  situationDesc?: string;
 }
 
 export interface IntentFull {
   _id?: { $oid: string };
   id: string;
   intent: string;
-  subintent: string;
+  subIntent: string;
   domain: string;
   function: string;
   description: string;
   keywords: string[];
   signals: IntentSignal[];
   hypotheses: IntentHypothesis[];
-  situation_desc: string;
+  situationDesc: string;
 }
 
 export interface IntentCategory {

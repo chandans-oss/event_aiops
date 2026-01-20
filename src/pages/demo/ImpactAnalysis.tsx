@@ -1,4 +1,4 @@
-import { MainLayout } from '@/components/layout/MainLayout';
+import { MainLayout } from '@/components/layout/mainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -97,15 +97,15 @@ export default function ImpactAnalysis() {
                         <span className="font-medium text-foreground">{service.name}</span>
                         <Badge variant={
                           service.status === 'critical' ? 'destructive' :
-                          service.status === 'degraded' ? 'secondary' : 'outline'
+                            service.status === 'degraded' ? 'secondary' : 'outline'
                         }>
                           {service.status}
                         </Badge>
                       </div>
                       <span className="text-sm text-muted-foreground">{service.users} users</span>
                     </div>
-                    <Progress 
-                      value={service.impact} 
+                    <Progress
+                      value={service.impact}
                       className={cn(
                         "h-2",
                         service.impact > 80 && "[&>div]:bg-severity-critical",

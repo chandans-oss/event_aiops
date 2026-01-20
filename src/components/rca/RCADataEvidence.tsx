@@ -20,14 +20,15 @@ export function RCADataEvidence({ data }: RCADataEvidenceProps) {
     const metrics = getEvidenceByType('Metrics');
     const logs = getEvidenceByType('Logs');
     const config = getEvidenceByType('Config');
-    const topology = getEvidenceByType('Topology');
+    const similarEvents = getEvidenceByType('Similar Events');
+    const netflow = getEvidenceByType('Netflow');
 
     const content: Record<string, any> = {
-        metrics: { items: metrics, icon: BarChart2, empty: "No anomalous metrics detected" },
-        logs: { items: logs, icon: Terminal, empty: "No significant log patterns found" },
-        config: { items: config, icon: GitCommit, empty: "No recent configuration changes" },
-        changes: { items: [], icon: Clock, empty: "No deployment or upgrade events found in correlation window" },
-        topology: { items: topology, icon: Network, empty: "No topology dependencies flagged" },
+        metrics: { label: "Metrics", items: metrics, icon: BarChart2, empty: "No anomalous metrics detected" },
+        logs: { label: "Logs", items: logs, icon: Terminal, empty: "No significant log patterns found" },
+        configChanges: { label: "Config Changes", items: config, icon: GitCommit, empty: "No recent configuration changes" },
+        similarEvents: { label: "Similar Events", items: similarEvents, icon: Clock, empty: "No similar historical events found" },
+        netflow: { label: "Netflow", items: netflow, icon: Network, empty: "No anomalous network flows detected" },
     };
 
     const activeData = content[activeTab];
@@ -37,7 +38,8 @@ export function RCADataEvidence({ data }: RCADataEvidenceProps) {
             {/* Custom Tab List */}
             <div className="grid w-full grid-cols-5 p-1 bg-secondary/50 rounded-lg">
                 {Object.keys(content).map((key) => {
-                    const Icon = content[key].icon;
+                    const item = content[key];
+                    const Icon = item.icon;
                     return (
                         <button
                             key={key}
@@ -50,7 +52,7 @@ export function RCADataEvidence({ data }: RCADataEvidenceProps) {
                             )}
                         >
                             <Icon className="h-4 w-4" />
-                            <span className="capitalize">{key}</span>
+                            <span className="capitalize text-xs">{item.label}</span>
                         </button>
                     );
                 })}

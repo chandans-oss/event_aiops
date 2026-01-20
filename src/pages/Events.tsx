@@ -13,12 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { EventInfoSidebar } from '@/components/sidebars/EventInfoSidebar';
-import { RCASidebar } from '@/components/sidebars/RCASidebar';
-import { ImpactSidebar } from '@/components/sidebars/ImpactSidebar';
-import { RemediationSidebar } from '@/components/sidebars/RemediationSidebar';
-import { SeverityIcon } from '@/components/SeverityIcon';
+import { MainLayout } from '@/components/layout/mainLayout';
+import { EventInfoSidebar } from '@/components/sidebars/eventInfoSidebar';
+import { RCASidebar } from '@/components/sidebars/rcaSidebar';
+import { ImpactSidebar } from '@/components/sidebars/impactSidebar';
+import { RemediationSidebar } from '@/components/sidebars/remediationSidebar';
+import { SeverityIcon } from '@/components/severityIcon';
 import { sampleNetworkEvents, getEventStats, NetworkEvent } from '@/data/eventsData';
 import { mockClusters } from '@/data/mockData';
 import { Severity } from '@/types';
@@ -294,10 +294,11 @@ export default function Events() {
                     <div
                       key={event.event_id}
                       className={cn(
-                        "grid grid-cols-12 gap-4 px-6 py-4 hover:bg-secondary/30 transition-all border-l-4",
+                        "grid grid-cols-12 gap-4 px-6 py-4 hover:bg-secondary/30 transition-all border-l-4 cursor-pointer",
                         severity.border,
                         event.status === 'Resolved' && "opacity-60"
                       )}
+                      onClick={() => openSidebar('info', event)}
                     >
                       {/* Event ID / Device */}
                       <div className="col-span-2 flex flex-col justify-center">
@@ -348,19 +349,14 @@ export default function Events() {
                             "gap-1 text-xs",
                             event.label === 'Root' ? "bg-status-success hover:bg-status-success/90" : "opacity-50"
                           )}
-                          onClick={() => event.label === 'Root' && openSidebar('rca', event)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (event.label === 'Root') openSidebar('rca', event);
+                          }}
                           disabled={event.label !== 'Root'}
                         >
                           <Eye className="h-3 w-3" />
-                          RCA
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          className="gap-1 text-xs"
-                          onClick={() => openSidebar('info', event)}
-                        >
-                          <Info className="h-3 w-3" />
+                          RCA/Impact
                         </Button>
                       </div>
                     </div>

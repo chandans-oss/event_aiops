@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MainLayout } from '@/components/layout/MainLayout';
+import { MainLayout } from '@/components/layout/mainLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { mockClusters, processingStats } from '@/data/mockData';
 import { sampleNetworkEvents } from '@/data/eventsData';
-import { SeverityIcon } from '@/components/SeverityIcon';
+import { SeverityIcon } from '@/components/severityIcon';
 import { Activity, Target, Wrench, GitBranch } from 'lucide-react';
 import {
   BarChart,
@@ -108,18 +108,18 @@ export default function AnalyticsDashboard() {
     }));
   }, []);
 
-  // RCA bar chart data - Derived from mockClusters and synced with Root Events
-  const rcaData = useMemo(() => {
+  // Top 5 Events by Service Impact
+  const eventImpactData = useMemo(() => {
     return mockClusters
-      .filter(c => c.rca) // Only clusters with RCA analysis
       .map((cluster) => ({
         id: cluster.id,
-        name: cluster.id.replace('CLU-', 'C-'),
-        confidence: Math.round((cluster.rca?.confidence || 0.5) * 100),
+        name: cluster.id.replace('CLU-', 'EVT-'),
+        impact: cluster.affectedServices.length,
         rootCause: cluster.rca?.rootCause || 'Unknown',
         severity: cluster.rootEvent.severity,
       }))
-      .sort((a, b) => b.confidence - a.confidence); // Sort by confidence
+      .sort((a, b) => b.impact - a.impact)
+      .slice(0, 5);
   }, []);
 
   const handleClusterClick = (clusterId: string) => {
@@ -257,14 +257,14 @@ export default function AnalyticsDashboard() {
                 <div>
                   <CardTitle className="text-base font-bold flex items-center gap-2">
                     <Target className="h-4 w-4 text-primary" />
-                    Root Cause Analysis Confidence
+                    Event Impact Analysis
                   </CardTitle>
                   <CardDescription className="text-xs">
-                    Confidence scores for identified root events in the current cluster list
+                    Top 5 events by number of affected services
                   </CardDescription>
                 </div>
                 <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 text-[10px]">
-                  {rcaData.length} Analyzed
+                  Top {eventImpactData.length}
                 </Badge>
               </div>
             </CardHeader>
@@ -272,7 +272,7 @@ export default function AnalyticsDashboard() {
               <div className="h-[400px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={rcaData}
+                    data={eventImpactData}
                     layout="vertical"
                     margin={{ left: 20, right: 40, top: 0, bottom: 0 }}
                     barGap={8}
@@ -282,8 +282,6 @@ export default function AnalyticsDashboard() {
                       type="number"
                       stroke="hsl(var(--muted-foreground))"
                       fontSize={10}
-                      domain={[0, 100]}
-                      tickFormatter={(value) => `${value}%`}
                       axisLine={false}
                       tickLine={false}
                     />
@@ -322,8 +320,8 @@ export default function AnalyticsDashboard() {
                                   {data.rootCause}
                                 </p>
                                 <div className="flex items-center justify-between mt-3 pt-2 border-t border-border/50">
-                                  <span className="text-[10px] text-muted-foreground font-medium uppercase">Confidence Score</span>
-                                  <span className="text-sm font-bold text-primary">{data.confidence}%</span>
+                                  <span className="text-[10px] text-muted-foreground font-medium uppercase">Affected Services</span>
+                                  <span className="text-sm font-bold text-primary">{data.impact}</span>
                                 </div>
                                 <p className="text-[9px] text-primary/70 font-semibold mt-1 flex items-center gap-1 italic">
                                   <Activity className="h-3 w-3" />
@@ -337,7 +335,7 @@ export default function AnalyticsDashboard() {
                       }}
                     />
                     <Bar
-                      dataKey="confidence"
+                      dataKey="impact"
                       radius={[0, 6, 6, 0]}
                       barSize={24}
                       onClick={(data) => handleRcaClick(data.id)}
@@ -345,7 +343,7 @@ export default function AnalyticsDashboard() {
                       animationDuration={1500}
                       animationEasing="ease-in-out"
                     >
-                      {rcaData.map((entry, index) => {
+                      {eventImpactData.map((entry, index) => {
                         let fillColor = 'hsl(var(--primary))';
                         if (entry.severity === 'Critical') fillColor = 'hsl(var(--severity-critical))';
                         else if (entry.severity === 'Major') fillColor = 'hsl(var(--severity-high))';
@@ -360,10 +358,9 @@ export default function AnalyticsDashboard() {
                         );
                       })}
                       <LabelList
-                        dataKey="confidence"
+                        dataKey="impact"
                         position="right"
                         offset={10}
-                        formatter={(value: number) => `${value}%`}
                         style={{ fill: 'hsl(var(--foreground))', fontSize: '10px', fontWeight: 'bold', opacity: 0.8 }}
                       />
                     </Bar>

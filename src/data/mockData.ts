@@ -7,24 +7,24 @@ export const linkCongestionIntent: IntentFull = {
   _id: { $oid: '69381e8e2c85e919f6139300' },
   id: 'performance.congestion',
   intent: 'performance',
-  subintent: 'congestion',
+  subIntent: 'congestion',
   domain: 'Network',
   function: 'Link Layer',
   description: 'Interface congestion detected with high utilization and queue drops',
   keywords: ['congestion', 'queue drop', 'buffer full', 'tail drop', 'backup', 'rsync'],
   signals: [
-    { metric: 'utilization_percent', op: '>', value: 90, weight: 0.5 },
-    { metric: 'out_discards', op: '>', value: 0, weight: 0.4 }
+    { metric: 'utilizationPercent', op: '>', value: 90, weight: 0.5 },
+    { metric: 'outDiscards', op: '>', value: 0, weight: 0.4 }
   ],
   hypotheses: [
     {
       id: 'H_QOS_CONGESTION',
       description: 'QOS_CONGESTION - High utilization and queue discards',
       signals: [
-        { metric: 'utilization_percent', op: '>', value: 90, weight: 0.5 },
-        { metric: 'out_discards', op: '>', value: 0, weight: 0.4 }
+        { metric: 'utilizationPercent', op: '>', value: 90, weight: 0.5 },
+        { metric: 'outDiscards', op: '>', value: 0, weight: 0.4 }
       ],
-      log_patterns: [
+      logPatterns: [
         { keyword: 'tail drop', weight: 0.3 },
         { keyword: 'buffer full', weight: 0.3 },
         { keyword: 'queue full', weight: 0.3 }
@@ -34,9 +34,9 @@ export const linkCongestionIntent: IntentFull = {
       id: 'H_PEAK_TRAFFIC',
       description: 'Peak-hour usage causing congestion',
       signals: [
-        { metric: 'utilization_percent', op: '>', value: 85, weight: 0.4 }
+        { metric: 'utilizationPercent', op: '>', value: 85, weight: 0.4 }
       ],
-      log_patterns: [
+      logPatterns: [
         { keyword: 'traffic spike', weight: 0.2 }
       ]
     },
@@ -44,37 +44,37 @@ export const linkCongestionIntent: IntentFull = {
       id: 'H_BACKUP_TRAFFIC',
       description: 'Backup using default DSCP0 traffic',
       signals: [
-        { metric: 'traffic_dscp0_percent', op: '>', value: 50, weight: 0.4 },
-        { metric: 'utilization_percent', op: '>', value: 85, weight: 0.4 }
+        { metric: 'trafficDscp0Percent', op: '>', value: 50, weight: 0.4 },
+        { metric: 'utilizationPercent', op: '>', value: 85, weight: 0.4 }
       ],
-      log_patterns: [
+      logPatterns: [
         { keyword: 'backup', weight: 0.3 },
         { keyword: 'replication', weight: 0.3 },
         { keyword: 'scheduled backup', weight: 0.2 }
       ]
     }
   ],
-  situation_desc: 'Backup traffic detected on {device} through link, with {utilization_percent}% utilization and {traffic_dscp0_percent}% DSCP0 share. Top hypothesis: {top_hypothesis} (score={prior}).'
+  situationDesc: 'Backup traffic detected on {device} through link, with {utilizationPercent}% utilization and {trafficDscp0Percent}% DSCP0 share. Top hypothesis: {top_hypothesis} (score={prior}).'
 };
 
 // Raw Performance Metrics from Link Congestion
 export const linkCongestionMetrics = [
-  { timestamp: '2025-10-28T14:10:00Z', device: 'core-router-dc1', interface: 'Gi0/1/0', utilization_percent: 30, in_errors: 0, out_discards: 0, latency_ms: 5, packet_loss_percent: 0, traffic_dscp0_percent: 23 },
-  { timestamp: '2025-10-28T14:15:00Z', device: 'core-router-dc1', interface: 'Gi0/1/0', utilization_percent: 45, in_errors: 0, out_discards: 10, latency_ms: 10, packet_loss_percent: 0, traffic_dscp0_percent: 34 },
-  { timestamp: '2025-10-28T14:20:00Z', device: 'core-router-dc1', interface: 'Gi0/1/0', utilization_percent: 60, in_errors: 5, out_discards: 80, latency_ms: 25, packet_loss_percent: 0.1, traffic_dscp0_percent: 35 },
-  { timestamp: '2025-10-28T14:25:00Z', device: 'core-router-dc1', interface: 'Gi0/1/0', utilization_percent: 82, in_errors: 10, out_discards: 300, latency_ms: 300, packet_loss_percent: 0.3, traffic_dscp0_percent: 68 },
-  { timestamp: '2025-10-28T14:30:00Z', device: 'core-router-dc1', interface: 'Gi0/1/0', utilization_percent: 96, in_errors: 20, out_discards: 500, latency_ms: 500, packet_loss_percent: 1.2, traffic_dscp0_percent: 76 },
-  { timestamp: '2025-10-28T14:35:00Z', device: 'core-router-dc1', interface: 'Gi0/1/0', utilization_percent: 98, in_errors: 25, out_discards: 100, latency_ms: 120, packet_loss_percent: 1.5, traffic_dscp0_percent: 55 },
+  { timestamp: '2025-10-28T14:10:00Z', device: 'core-router-dc1', interface: 'Gi0/1/0', utilizationPercent: 30, inErrors: 0, outDiscards: 0, latencyMs: 5, packetLossPercent: 0, trafficDscp0Percent: 23 },
+  { timestamp: '2025-10-28T14:15:00Z', device: 'core-router-dc1', interface: 'Gi0/1/0', utilizationPercent: 45, inErrors: 0, outDiscards: 10, latencyMs: 10, packetLossPercent: 0, trafficDscp0Percent: 34 },
+  { timestamp: '2025-10-28T14:20:00Z', device: 'core-router-dc1', interface: 'Gi0/1/0', utilizationPercent: 60, inErrors: 5, outDiscards: 80, latencyMs: 25, packetLossPercent: 0.1, trafficDscp0Percent: 35 },
+  { timestamp: '2025-10-28T14:25:00Z', device: 'core-router-dc1', interface: 'Gi0/1/0', utilizationPercent: 82, inErrors: 10, outDiscards: 300, latencyMs: 300, packetLossPercent: 0.3, trafficDscp0Percent: 68 },
+  { timestamp: '2025-10-28T14:30:00Z', device: 'core-router-dc1', interface: 'Gi0/1/0', utilizationPercent: 96, inErrors: 20, outDiscards: 500, latencyMs: 500, packetLossPercent: 1.2, trafficDscp0Percent: 76 },
+  { timestamp: '2025-10-28T14:35:00Z', device: 'core-router-dc1', interface: 'Gi0/1/0', utilizationPercent: 98, inErrors: 25, outDiscards: 100, latencyMs: 120, packetLossPercent: 1.5, trafficDscp0Percent: 55 },
 ];
 
 // Device Metrics
 export const linkCongestionDeviceMetrics = [
-  { timestamp: '2025-10-28T14:10:00Z', device: 'core-router-dc1', cpu_percent: 40, mem_percent: 60, temp_c: 38 },
-  { timestamp: '2025-10-28T14:15:00Z', device: 'core-router-dc1', cpu_percent: 55, mem_percent: 65, temp_c: 39 },
-  { timestamp: '2025-10-28T14:20:00Z', device: 'core-router-dc1', cpu_percent: 65, mem_percent: 68, temp_c: 40 },
-  { timestamp: '2025-10-28T14:25:00Z', device: 'core-router-dc1', cpu_percent: 75, mem_percent: 70, temp_c: 43 },
-  { timestamp: '2025-10-28T14:30:00Z', device: 'core-router-dc1', cpu_percent: 85, mem_percent: 75, temp_c: 45 },
-  { timestamp: '2025-10-28T14:35:00Z', device: 'core-router-dc1', cpu_percent: 88, mem_percent: 77, temp_c: 46 },
+  { timestamp: '2025-10-28T14:10:00Z', device: 'core-router-dc1', cpuPercent: 40, memPercent: 60, tempC: 38 },
+  { timestamp: '2025-10-28T14:15:00Z', device: 'core-router-dc1', cpuPercent: 55, memPercent: 65, tempC: 39 },
+  { timestamp: '2025-10-28T14:20:00Z', device: 'core-router-dc1', cpuPercent: 65, memPercent: 68, tempC: 40 },
+  { timestamp: '2025-10-28T14:25:00Z', device: 'core-router-dc1', cpuPercent: 75, memPercent: 70, tempC: 43 },
+  { timestamp: '2025-10-28T14:30:00Z', device: 'core-router-dc1', cpuPercent: 85, memPercent: 75, tempC: 45 },
+  { timestamp: '2025-10-28T14:35:00Z', device: 'core-router-dc1', cpuPercent: 88, memPercent: 77, tempC: 46 },
 ];
 
 // Syslog Events
@@ -87,8 +87,8 @@ export const linkCongestionSyslogEvents = [
 
 // SNMP Traps
 export const linkCongestionSnmpTraps = [
-  { timestamp: '2025-10-28T14:25:00Z', device: 'core-router-dc1', resource: 'Gi0/1/0', trap_type: 'linkCongestion', severity: 'major', description: 'Interface congestion threshold exceeded' },
-  { timestamp: '2025-10-28T14:30:00Z', device: 'core-router-dc1', resource: 'core-router-dc1', trap_type: 'highCPU', severity: 'major', description: 'CPU above 80% threshold' },
+  { timestamp: '2025-10-28T14:25:00Z', device: 'core-router-dc1', resource: 'Gi0/1/0', trapType: 'linkCongestion', severity: 'major', description: 'Interface congestion threshold exceeded' },
+  { timestamp: '2025-10-28T14:30:00Z', device: 'core-router-dc1', resource: 'core-router-dc1', trapType: 'highCPU', severity: 'major', description: 'CPU above 80% threshold' },
 ];
 
 // Normalized Events after Pre-processing
@@ -110,8 +110,8 @@ export const linkCongestionNormalizedEvents = [
 
 // NetFlow Data
 export const linkCongestionNetflowData = [
-  { timestamp: '2025-10-28T14:20:00Z', src_ip: '10.1.10.5', dst_ip: '10.2.20.10', bytes: 500000000, packets: 120000, application: 'agent-server-01' },
-  { timestamp: '2025-10-28T14:25:00Z', src_ip: '10.1.10.5', dst_ip: '10.2.20.10', bytes: 850000000, packets: 200000, application: 'agent-server-01' },
+  { timestamp: '2025-10-28T14:20:00Z', srcIp: '10.1.10.5', dstIp: '10.2.20.10', bytes: 500000000, packets: 120000, application: 'agent-server-01' },
+  { timestamp: '2025-10-28T14:25:00Z', srcIp: '10.1.10.5', dstIp: '10.2.20.10', bytes: 850000000, packets: 200000, application: 'agent-server-01' },
 ];
 
 // Link Congestion RCA Details
@@ -121,9 +121,9 @@ export const linkCongestionRCADetails = {
   confidence: 0.93,
   topHypothesis: 'H_BACKUP_TRAFFIC',
   matchedSignals: [
-    { metric: 'utilization_percent', actual: 96, threshold: 90, matched: true },
-    { metric: 'out_discards', actual: 500, threshold: 0, matched: true },
-    { metric: 'traffic_dscp0_percent', actual: 76, threshold: 50, matched: true },
+    { metric: 'utilizationPercent', actual: 96, threshold: 90, matched: true },
+    { metric: 'outDiscards', actual: 500, threshold: 0, matched: true },
+    { metric: 'trafficDscp0Percent', actual: 76, threshold: 50, matched: true },
   ],
   matchedLogPatterns: [
     { keyword: 'backup', found: true, source: 'syslog' },
@@ -142,8 +142,8 @@ export const linkCongestionRemediationActions = [
 
 // KPIs Before/After Remediation
 export const linkCongestionKpiComparison = {
-  before: { latency_ms: 170, packet_loss_pct: 1.3, queue_drops_pct: 2.5, mttd_seconds: 180, mttr_minutes: 20 },
-  after: { latency_ms: 35, packet_loss_pct: 0.2, queue_drops_pct: 0.1, mttd_seconds: 45, mttr_minutes: 6 },
+  before: { latencyMs: 170, packetLossPct: 1.3, queueDropsPct: 2.5, mttdSeconds: 180, mttrMinutes: 20 },
+  after: { latencyMs: 35, packetLossPct: 0.2, queueDropsPct: 0.1, mttdSeconds: 45, mttrMinutes: 6 },
 };
 
 // Gap Analysis for Architecture Evaluation
@@ -559,196 +559,179 @@ export const mockFlowStages: FlowStage[] = [
 
 export const mockDeduplicationRules: DeduplicationRule[] = [
   {
-    id: 'ded-001',
-    type: 'same_alert_type',
-    name: 'Same Alert Type Dedup',
-    description: 'Deduplicate events with identical alert name or type',
-    priority: 9,
+    id: 'dedup-001',
+    type: 'exact_match',
+    name: 'Exact Match Deduplication',
+    description: 'Deduplicate events with same source, alert type, severity, and message.',
+    priority: 1,
     status: 'active',
-    createdAt: '2025-12-01T00:00:00Z',
-    modifiedAt: '2026-01-03T10:30:00Z',
-    config: {
-      matchCriteria: ['alertType', 'alertName']
-    }
+    timeWindow: 300,
+    fields: ['source', 'alertType', 'severity', 'message'],
+    createdAt: '2025-10-01T00:00:00Z',
+    modifiedAt: '2025-10-01T00:00:00Z',
+    matchCount: 15420
   },
   {
-    id: 'ded-002',
-    type: 'same_severity',
-    name: 'Same Severity Dedup',
-    description: 'Deduplicate events with matching severity levels from same source',
-    priority: 8,
+    id: 'dedup-002',
+    type: 'time_window',
+    name: 'Time-Window Deduplication',
+    description: 'Keep first alert, suppress duplicates within X minutes window.',
+    priority: 2,
     status: 'active',
-    createdAt: '2025-12-05T00:00:00Z',
-    modifiedAt: '2026-01-02T14:00:00Z',
-    config: {
-      matchCriteria: ['severity', 'source']
-    }
+    timeWindow: 600,
+    fields: ['source', 'alertType'],
+    createdAt: '2025-10-02T00:00:00Z',
+    modifiedAt: '2025-10-02T00:00:00Z',
+    matchCount: 8500
   },
   {
-    id: 'ded-003',
-    type: 'same_error_message',
-    name: 'Same Error Message Dedup',
-    description: 'Deduplicate events with identical error messages',
-    priority: 7,
+    id: 'dedup-003',
+    type: 'source_based',
+    name: 'Source-Based Deduplication',
+    description: 'Ensure only one active alert exists per host/service/component for specific check types.',
+    priority: 3,
     status: 'active',
-    createdAt: '2025-12-10T00:00:00Z',
-    modifiedAt: '2025-12-28T09:15:00Z',
-    config: {
-      matchCriteria: ['errorMessage', 'errorCode']
-    }
-  },
-  {
-    id: 'ded-004',
-    type: 'same_event_multi_source',
-    name: 'Multi-Source Event Dedup',
-    description: 'Deduplicate same event reported from multiple sources',
-    priority: 6,
-    status: 'active',
-    createdAt: '2025-12-15T00:00:00Z',
-    modifiedAt: '2026-01-05T11:00:00Z',
-    config: {
-      groupBy: ['eventId', 'timestamp']
-    }
+    timeWindow: 0,
+    fields: ['source'],
+    createdAt: '2025-10-03T00:00:00Z',
+    modifiedAt: '2025-10-03T00:00:00Z',
+    matchCount: 3200
   }
 ];
 
 export const mockSuppressionRules: SuppressionRule[] = [
   {
     id: 'sup-001',
-    type: 'business_hours',
-    name: 'Non-Critical After Hours',
-    description: 'Suppress low/info severity alerts outside business hours',
-    priority: 6,
+    type: 'maintenance',
+    name: 'Maintenance Suppression',
+    description: 'Suppress all events for devices currently under scheduled maintenance windows.',
+    priority: 1,
     status: 'active',
-    createdAt: '2025-11-20T00:00:00Z',
-    modifiedAt: '2025-12-15T00:00:00Z',
-    affectedDevices: [],
-    config: {
-      businessHours: {
-        days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
-        startTime: '09:00',
-        endTime: '18:00'
-      }
-    }
+    schedule: { type: 'maintenance_window' },
+    affectedDevices: ['ws-001', 'db-002', 'backup-server'],
+    createdAt: '2025-09-15T00:00:00Z',
+    modifiedAt: '2025-09-15T00:00:00Z',
+    suppressCount: 1205
   },
   {
     id: 'sup-002',
-    type: 'user_defined_time',
-    name: 'Weekend Suppression Window',
-    description: 'Suppress non-critical alerts during user-defined weekend window',
-    priority: 5,
+    type: 'business_hours',
+    name: 'Business Hours Suppression',
+    description: 'Suppress low-severity events outside of defined business hours (09:00 - 18:00).',
+    priority: 2,
     status: 'active',
-    createdAt: '2025-11-25T00:00:00Z',
-    modifiedAt: '2026-01-02T00:00:00Z',
-    affectedDevices: [],
-    config: {
-      schedule: {
-        start: '2026-01-11T18:00:00Z',
-        end: '2026-01-13T08:00:00Z',
-        recurring: true
-      }
-    }
+    schedule: { type: 'weekly', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], start: '18:00', end: '09:00' },
+    affectedDevices: ['dev-env-*', 'test-env-*'],
+    createdAt: '2025-09-20T00:00:00Z',
+    modifiedAt: '2025-09-20T00:00:00Z',
+    suppressCount: 450
   },
   {
     id: 'sup-003',
-    type: 'assets_maintenance',
-    name: 'Database Maintenance Window',
-    description: 'Suppress alerts for assets under scheduled maintenance',
-    priority: 10,
+    type: 'reboot_pattern',
+    name: 'Reboot Pattern Suppression',
+    description: 'Suppress known noise and transient alerts detected during device reboot sequence (Grace period).',
+    priority: 1,
     status: 'active',
-    createdAt: '2025-11-15T00:00:00Z',
-    modifiedAt: '2026-01-01T00:00:00Z',
-    affectedDevices: ['db-server-01', 'db-server-02', 'db-replica-01'],
-    config: {
-      schedule: {
-        start: '2026-01-07T02:00:00Z',
-        end: '2026-01-07T06:00:00Z',
-        recurring: true
-      }
-    }
+    schedule: { type: 'event_triggered', trigger: 'sys.reboot' },
+    affectedDevices: ['all'],
+    createdAt: '2025-11-10T00:00:00Z',
+    modifiedAt: '2025-11-10T00:00:00Z',
+    suppressCount: 89
+  },
+  {
+    id: 'sup-004',
+    type: 'time_based',
+    name: 'Time-Based Suppression',
+    description: 'Suppress alerts that do not repeat or persist within a defined interval (Transient noise).',
+    priority: 3,
+    status: 'active',
+    schedule: { type: 'interval', duration: '5m' },
+    affectedDevices: ['edge-routers'],
+    createdAt: '2025-11-12T00:00:00Z',
+    modifiedAt: '2025-11-12T00:00:00Z',
+    suppressCount: 230
   }
 ];
 
 export const mockCorrelationRules: CorrelationRule[] = [
   {
     id: 'cor-001',
-    type: 'causal',
-    name: 'Database Cascade Detection',
-    description: 'Detect cascading failures from database issues using cause-effect relationships',
-    priority: 10,
-    status: 'active',
-    mlEnabled: true,
-    gnnEnabled: false,
-    createdAt: '2025-10-01T00:00:00Z',
-    modifiedAt: '2026-01-04T11:00:00Z',
-    config: {
-      relationships: [
-        { cause: 'DB_CONNECTION_FAILED', effect: 'API_TIMEOUT', timeWindow: 30, confidence: 0.9 },
-        { cause: 'DB_CONNECTION_FAILED', effect: 'WEB_5XX_ERROR', timeWindow: 60, confidence: 0.85 }
-      ],
-      traceDepth: 5
-    }
-  },
-  {
-    id: 'cor-002',
     type: 'temporal',
-    name: 'Time-Based Clustering',
-    description: 'Correlate events occurring within defined time windows',
-    priority: 8,
+    name: 'Temporal Correlation',
+    description: 'Group events occurring within strict time windows; detect event storms.',
+    priority: 5,
     status: 'active',
     mlEnabled: false,
     gnnEnabled: false,
     createdAt: '2025-11-01T00:00:00Z',
     modifiedAt: '2025-12-10T00:00:00Z',
-    config: {
-      timeWindowValue: 60,
-      timeWindowUnit: 'seconds'
-    }
+    config: { timeWindowValue: 60, timeWindowUnit: 'seconds' }
   },
   {
-    id: 'cor-003',
-    type: 'spatial',
-    name: 'Location-Based Correlation',
-    description: 'Correlate events based on physical or logical proximity',
-    priority: 7,
+    id: 'cor-002',
+    type: 'causal',
+    name: 'Causal Correlation',
+    description: 'Link events based on cause-effect chains and propagation across layers.',
+    priority: 8,
     status: 'active',
     mlEnabled: false,
     gnnEnabled: false,
-    createdAt: '2025-10-20T00:00:00Z',
-    modifiedAt: '2025-12-15T00:00:00Z',
-    config: {
-      groupingCriteria: ['datacenter', 'rack', 'region']
-    }
+    createdAt: '2025-10-15T00:00:00Z',
+    modifiedAt: '2025-12-20T00:00:00Z',
+    config: { confidenceThreshold: 0.85 }
   },
   {
-    id: 'cor-004',
+    id: 'cor-003',
     type: 'topological',
-    name: 'Service Dependency Correlation',
-    description: 'Correlate events based on service dependency topology graph',
+    name: 'Topological Correlation',
+    description: 'Correlate events based on dependency graph (Upstream dominates Downstream).',
     priority: 9,
     status: 'active',
     mlEnabled: false,
     gnnEnabled: false,
     createdAt: '2025-10-15T00:00:00Z',
     modifiedAt: '2025-12-20T00:00:00Z',
-    config: {
-      traceDepth: 3
-    }
+    config: { traceDepth: 3 }
+  },
+  {
+    id: 'cor-004',
+    type: 'spatial',
+    name: 'Spatial Correlation',
+    description: 'Group events by location: Same host, service, region, or datacenter.',
+    priority: 6,
+    status: 'active',
+    mlEnabled: false,
+    gnnEnabled: false,
+    createdAt: '2025-10-20T00:00:00Z',
+    modifiedAt: '2025-12-15T00:00:00Z',
+    config: { groupingCriteria: ['datacenter', 'rack', 'region'] }
   },
   {
     id: 'cor-005',
+    type: 'rule_based',
+    name: 'Rule-Based Correlation',
+    description: 'Apply domain-specific heuristics and expert rules for grouping.',
+    priority: 10,
+    status: 'active',
+    mlEnabled: false,
+    gnnEnabled: false,
+    createdAt: '2025-08-01T00:00:00Z',
+    modifiedAt: '2025-08-01T00:00:00Z',
+    config: { ruleset: 'standard_ops' }
+  },
+  {
+    id: 'cor-006',
     type: 'gnn',
-    name: 'Graph Neural Network Correlation',
-    description: 'Use GNN to discover complex event correlations in infrastructure graph',
+    name: 'GNN-Based Correlation (Advanced)',
+    description: 'Graph Neural Network learning propagation patterns on nodes=events, edges=topology/causal.',
     priority: 10,
     status: 'active',
     mlEnabled: true,
     gnnEnabled: true,
     createdAt: '2025-09-01T00:00:00Z',
     modifiedAt: '2026-01-05T00:00:00Z',
-    config: {
-      traceDepth: 5
-    }
+    config: { traceDepth: 5, modelVersion: 'v2.4' }
   }
 ];
 
@@ -820,7 +803,7 @@ export const mockIntents: Intent[] = [
     keywords: ['cpu', 'utilization', 'spike', 'performance'],
     hypotheses: ['H_REGEX_BACKTRACK', 'H_INFINITE_LOOP', 'H_MEMORY_PRESSURE'],
     signals: [
-      { metric: 'cpu_percent', op: '>', value: 90, weight: 0.6 },
+      { metric: 'cpuPercent', op: '>', value: 90, weight: 0.6 },
       { metric: 'load_average', op: '>', value: 4, weight: 0.4 }
     ]
   },
@@ -834,8 +817,8 @@ export const mockIntents: Intent[] = [
     keywords: ['congestion', 'queue drop', 'buffer full', 'tail drop', 'backup', 'rsync'],
     hypotheses: ['H_BACKUP_TRAFFIC', 'H_QOS_CONGESTION', 'H_PEAK_TRAFFIC'],
     signals: [
-      { metric: 'utilization_percent', op: '>', value: 90, weight: 0.5 },
-      { metric: 'out_discards', op: '>', value: 0, weight: 0.4 }
+      { metric: 'utilizationPercent', op: '>', value: 90, weight: 0.5 },
+      { metric: 'outDiscards', op: '>', value: 0, weight: 0.4 }
     ]
   },
   {
@@ -848,8 +831,8 @@ export const mockIntents: Intent[] = [
     keywords: ['latency', 'delay', 'slow', 'timeout'],
     hypotheses: ['H_BGP_FLAP', 'H_CONGESTION', 'H_ISP_ISSUE'],
     signals: [
-      { metric: 'latency_ms', op: '>', value: 100, weight: 0.6 },
-      { metric: 'packet_loss_percent', op: '>', value: 1, weight: 0.4 }
+      { metric: 'latencyMs', op: '>', value: 100, weight: 0.6 },
+      { metric: 'packetLossPercent', op: '>', value: 1, weight: 0.4 }
     ]
   }
 ];

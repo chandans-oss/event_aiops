@@ -42,9 +42,7 @@ export function EventInfoSidebar({ event, onClose }: EventInfoSidebarProps) {
             <p className="text-sm text-muted-foreground">{event.event_id}</p>
           </div>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose}>
-          <X className="h-5 w-5" />
-        </Button>
+
       </div>
 
       {/* Content */}
@@ -250,17 +248,7 @@ export function EventInfoSidebar({ event, onClose }: EventInfoSidebarProps) {
       {/* Footer */}
       <div className="p-4 border-t border-border">
         <div className="flex gap-3">
-          <Button variant="outline" className="flex-1" onClick={onClose}>
-            Close
-          </Button>
-          {(event.label === 'Root' || event.label === 'Child') && event.clusterId && (
-            <Button
-              className="flex-1 gradient-primary"
-              onClick={() => navigate(`/event-correlation-clusters/${event.clusterId}`)}
-            >
-              View Cluster
-            </Button>
-          )}
+          {/* Footer actions removed as per request */}
         </div>
       </div>
     </div>

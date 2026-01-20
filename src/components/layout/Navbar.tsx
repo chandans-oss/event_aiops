@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { ThemeToggle } from '@/components/themeToggle';
 
 export function Navbar() {
   return (
@@ -22,7 +22,7 @@ export function Navbar() {
             <img src="/infraon_logo.jpg" alt="Infraon Logo" className="h-full w-full object-contain mix-blend-multiply dark:mix-blend-screen" />
           </div>
           <div className="flex flex-col">
-            <span className="text-lg font-bold text-foreground">Event Processor</span>
+            <span className="text-lg font-bold text-foreground">Event Analytics</span>
             <span className="text-xs text-muted-foreground">Intelligent RCA Platform</span>
           </div>
         </Link>

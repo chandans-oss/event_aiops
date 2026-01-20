@@ -50,7 +50,7 @@ export const mockIntentsFull: IntentFull[] = [
     _id: { $oid: '69381e8e2c85e919f613923f' },
     id: 'link.unidirectional',
     intent: 'link',
-    subintent: 'unidirectional',
+    subIntent: 'unidirectional',
     domain: 'Network',
     function: 'Link Layer',
     description: 'Unidirectional link issue detected between two devices',
@@ -67,19 +67,19 @@ export const mockIntentsFull: IntentFull[] = [
           { metric: 'rx_errors', op: '>', value: 100, weight: 0.6 },
           { metric: 'tx_errors', op: '==', value: 0, weight: 0.3 }
         ],
-        log_patterns: [
+        logPatterns: [
           { keyword: 'unidirectional link', weight: 0.3 },
           { keyword: 'no light received', weight: 0.3 }
         ]
       }
     ],
-    situation_desc: 'Link between {device} and {peer} appears unidirectional. {device} is receiving frames with errors (rx_errors={rx_errors}) while not transmitting successfully (tx_errors={tx_errors}). Top hypothesis: {top_hypothesis} (score={prior}).'
+    situationDesc: 'Link between {device} and {peer} appears unidirectional. {device} is receiving frames with errors (rx_errors={rx_errors}) while not transmitting successfully (tx_errors={tx_errors}). Top hypothesis: {top_hypothesis} (score={prior}).'
   },
   {
     _id: { $oid: '69381e8e2c85e919f6139240' },
     id: 'link.flapping',
     intent: 'link',
-    subintent: 'flapping',
+    subIntent: 'flapping',
     domain: 'Network',
     function: 'Link Layer',
     description: 'Link state is oscillating between up and down rapidly',
@@ -95,7 +95,7 @@ export const mockIntentsFull: IntentFull[] = [
         signals: [
           { metric: 'link_state_changes', op: '>', value: 5, weight: 0.6 }
         ],
-        log_patterns: [
+        logPatterns: [
           { keyword: 'link down', weight: 0.4 },
           { keyword: 'carrier lost', weight: 0.3 }
         ]
@@ -106,18 +106,18 @@ export const mockIntentsFull: IntentFull[] = [
         signals: [
           { metric: 'temperature', op: '>', value: 70, weight: 0.5 }
         ],
-        log_patterns: [
+        logPatterns: [
           { keyword: 'sfp warning', weight: 0.4 }
         ]
       }
     ],
-    situation_desc: 'Link on {device}:{interface} is flapping with {link_state_changes} state changes. Top hypothesis: {top_hypothesis}.'
+    situationDesc: 'Link on {device}:{interface} is flapping with {link_state_changes} state changes. Top hypothesis: {top_hypothesis}.'
   },
   {
     _id: { $oid: '69381e8e2c85e919f6139241' },
     id: 'routing.bgp_down',
     intent: 'routing',
-    subintent: 'bgp_down',
+    subIntent: 'bgp_down',
     domain: 'Network',
     function: 'Routing',
     description: 'BGP session with peer has gone down',
@@ -133,18 +133,18 @@ export const mockIntentsFull: IntentFull[] = [
         signals: [
           { metric: 'icmp_loss', op: '>', value: 50, weight: 0.6 }
         ],
-        log_patterns: [
+        logPatterns: [
           { keyword: 'hold timer expired', weight: 0.5 }
         ]
       }
     ],
-    situation_desc: 'BGP session on {device} with peer {peer_ip} is down. Last state: {last_state}.'
+    situationDesc: 'BGP session on {device} with peer {peer_ip} is down. Last state: {last_state}.'
   },
   {
     _id: { $oid: '69381e8e2c85e919f6139242' },
     id: 'db.connection_pool_exhausted',
     intent: 'database',
-    subintent: 'connection_pool_exhausted',
+    subIntent: 'connection_pool_exhausted',
     domain: 'Database',
     function: 'Connection Management',
     description: 'Database connection pool has been exhausted',
@@ -160,18 +160,18 @@ export const mockIntentsFull: IntentFull[] = [
         signals: [
           { metric: 'connections_created', op: '>', value: 1000, weight: 0.6 }
         ],
-        log_patterns: [
+        logPatterns: [
           { keyword: 'connection timeout', weight: 0.4 }
         ]
       }
     ],
-    situation_desc: 'Connection pool on {database} is exhausted with {active_connections} active connections.'
+    situationDesc: 'Connection pool on {database} is exhausted with {active_connections} active connections.'
   },
   {
     _id: { $oid: '69381e8e2c85e919f6139243' },
     id: 'compute.cpu_spike',
     intent: 'compute',
-    subintent: 'cpu_spike',
+    subIntent: 'cpu_spike',
     domain: 'Compute',
     function: 'CPU',
     description: 'CPU utilization has spiked abnormally',
@@ -187,12 +187,12 @@ export const mockIntentsFull: IntentFull[] = [
         signals: [
           { metric: 'top_process_cpu', op: '>', value: 80, weight: 0.7 }
         ],
-        log_patterns: [
+        logPatterns: [
           { keyword: 'oom killer', weight: 0.3 }
         ]
       }
     ],
-    situation_desc: 'CPU on {host} is at {cpu_percent}% utilization.'
+    situationDesc: 'CPU on {host} is at {cpu_percent}% utilization.'
   }
 ];
 
