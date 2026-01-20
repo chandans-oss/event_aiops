@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
 import { Link } from 'react-router-dom';
-import { ThemeToggle } from '@/components/themeToggle';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 export function Navbar() {
   return (
