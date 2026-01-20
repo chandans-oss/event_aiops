@@ -11,7 +11,7 @@ import Preprocessing from "./pages/Preprocessing";
 import Clustering from "./pages/Clustering";
 import RCAImpact from "./pages/RCAImpact";
 import Remediation from "./pages/Remediation";
-import Topology from "./pages/Topology";
+import Topology from "./pages/topology";
 import Admin from "./pages/Admin";
 import EventUpload from "./pages/EventUpload";
 import UploadData from "./pages/admin/UploadData";
