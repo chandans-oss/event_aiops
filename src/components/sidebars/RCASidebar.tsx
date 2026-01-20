@@ -7,13 +7,13 @@ import { Cluster } from '@/types';
 import { getClusterData } from '@/data/clusterSpecificData';
 
 // Import new RCA components
-import { RCASummary } from '@/components/rca/rcaSummary';
-import { RCACorrelatedEvents } from '@/components/rca/rcaCorrelatedEvents';
-import { RCADataEvidence } from '@/components/rca/rcaDataEvidence';
-import { RCAImpactMap } from '@/components/rca/rcaImpactMap';
-import { RCADiagnosisPath } from '@/components/rca/rcaDiagnosisPath';
-import { RCARemediation } from '@/components/rca/rcaRemediation';
-import { RCAAnalytics } from '@/components/rca/rcaAnalytics';
+import { RCASummary } from '@/components/rca/RCASummary';
+import { RCACorrelatedEvents } from '@/components/rca/RCACorrelatedEvents';
+import { RCADataEvidence } from '@/components/rca/RCADataEvidence';
+import { RCAImpactMap } from '@/components/rca/RCAImpactMap';
+import { RCADiagnosisPath } from '@/components/rca/RCADiagnosisPath';
+import { RCARemediation } from '@/components/rca/RCARemediation';
+import { RCAAnalytics } from '@/components/rca/RCAAnalytics';
 
 interface RCASidebarProps {
   cluster: Cluster;
