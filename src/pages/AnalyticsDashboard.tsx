@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MainLayout } from '@/components/layout/mainLayout';
+import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { mockClusters, processingStats } from '@/data/mockData';
 import { sampleNetworkEvents } from '@/data/eventsData';
-import { SeverityIcon } from '@/components/severityIcon';
+import { SeverityIcon } from '@/components/SeverityIcon';
 import { Activity, Target, Wrench, GitBranch } from 'lucide-react';
 import {
   BarChart,

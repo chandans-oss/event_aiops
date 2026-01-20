@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { MainLayout } from '@/components/layout/mainLayout';
+import { MainLayout } from '@/components/layout/MainLayout';
 import { processingStats } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';

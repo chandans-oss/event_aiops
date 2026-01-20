@@ -5,7 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Cluster, Severity } from '@/types';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
-import { SeverityIcon } from '@/components/severityIcon';
+import { SeverityIcon } from '@/components/SeverityIcon';
 
 interface ChildEventsSidebarProps {
   cluster: Cluster;

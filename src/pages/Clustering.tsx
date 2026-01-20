@@ -4,8 +4,8 @@ import { Network, GitBranch, Clock, MapPin, Cpu, ArrowRight, CheckCircle2, Zap, 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { MainLayout } from '@/components/layout/mainLayout';
-import { ChildEventsSidebar } from '@/components/sidebars/childEventsSidebar';
+import { MainLayout } from '@/components/layout/MainLayout';
+import { ChildEventsSidebar } from '@/components/sidebars/ChildEventsSidebar';
 import { mockClusters, processingStats } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';

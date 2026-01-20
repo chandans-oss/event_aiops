@@ -3,7 +3,7 @@ import { Upload, FileSpreadsheet, Download, CheckCircle2, X, Table, FileDown, In
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { MainLayout } from '@/components/layout/mainLayout';
+import { MainLayout } from '@/components/layout/MainLayout';
 import { cn } from '@/lib/utils';
 import {
   Accordion,

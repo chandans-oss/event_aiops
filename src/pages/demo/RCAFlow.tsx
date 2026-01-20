@@ -1,4 +1,4 @@
-import { MainLayout } from '@/components/layout/mainLayout';
+import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Database, Target, Lightbulb, FileText, Search, Activity, CheckCircle2 } from 'lucide-react';

@@ -3,7 +3,7 @@ import { Upload, FileSpreadsheet, CheckCircle2, Loader2, ArrowRight, X, Eye } fr
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { MainLayout } from '@/components/layout/mainLayout';
+import { MainLayout } from '@/components/layout/MainLayout';
 import { ProcessingPipelineStepper, PipelineStage } from '@/components/upload/processingPipelineStepper';
 import { ClusterCard } from '@/components/dashboard/clusterCard';
 import { mockClusters, processingStats } from '@/data/mockData';
