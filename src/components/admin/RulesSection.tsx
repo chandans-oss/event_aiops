@@ -267,22 +267,7 @@ export function RulesSection() {
                     <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                       {rule.description}
                     </p>
-                    {rule.affectedDevices.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {rule.affectedDevices.slice(0, 2).map((device) => (
-                          <Badge key={device} variant="outline" className="text-xs">
-                            {device}
-                          </Badge>
-                        ))}
-                        {rule.affectedDevices.length > 2 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{rule.affectedDevices.length - 2}
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                      <Badge variant="outline">Priority: {rule.priority}</Badge>
+                    <div className="flex items-center justify-end pt-3 border-t border-border/50">
                       <div className="flex items-center gap-2">
                         <Switch checked={rule.status === 'active'} />
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditSuppression(rule)}>
@@ -342,10 +327,7 @@ export function RulesSection() {
                     <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
                       {rule.description}
                     </p>
-                    <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">Priority: {rule.priority}</Badge>
-                      </div>
+                    <div className="flex items-center justify-end pt-3 border-t border-border/50">
                       <div className="flex items-center gap-2">
                         <Switch checked={rule.status === 'active'} />
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditDedup(rule)}>
@@ -412,8 +394,7 @@ export function RulesSection() {
                         <Badge className="bg-severity-medium/20 text-severity-medium border-severity-medium/30">GNN</Badge>
                       )}
                     </div>
-                    <div className="flex items-center justify-between pt-3 border-t border-border/50">
-                      <Badge variant="outline">Priority: {rule.priority}</Badge>
+                    <div className="flex items-center justify-end pt-3 border-t border-border/50">
                       <div className="flex items-center gap-2">
                         <Switch checked={rule.status === 'active'} />
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditCorrelation(rule)}>

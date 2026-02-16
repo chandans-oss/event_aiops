@@ -19,7 +19,6 @@ import { DeduplicationRule, SuppressionRule, CorrelationRule } from '@/shared/ty
 const baseRuleSchema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(100, 'Name must be less than 100 characters'),
   description: z.string().trim().min(1, 'Description is required').max(500, 'Description must be less than 500 characters'),
-  priority: z.coerce.number().min(1, 'Priority must be at least 1').max(10, 'Priority must be at most 10'),
   status: z.enum(['active', 'inactive']),
 });
 
@@ -70,7 +69,6 @@ export function DeduplicationRuleForm({ open, onOpenChange, rule, onSave }: Dedu
     defaultValues: {
       name: rule?.name || '',
       description: rule?.description || '',
-      priority: rule?.priority || 5,
       status: rule?.status || 'active',
       type: rule?.type || 'same_alert_type',
       matchCriteria: rule?.config?.matchCriteria?.join(', ') || '',
@@ -148,21 +146,7 @@ export function DeduplicationRuleForm({ open, onOpenChange, rule, onSave }: Dedu
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="priority"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Priority (1-10) *</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={1} max={10} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
+            <div className="grid grid-cols-1 gap-4">
               <FormField
                 control={form.control}
                 name="status"
@@ -232,7 +216,6 @@ export function SuppressionRuleForm({ open, onOpenChange, rule, onSave }: Suppre
     defaultValues: {
       name: rule?.name || '',
       description: rule?.description || '',
-      priority: rule?.priority || 5,
       status: rule?.status || 'active',
       type: rule?.type || 'business_hours',
       affectedDevices: rule?.affectedDevices?.join(', ') || '',
@@ -316,21 +299,7 @@ export function SuppressionRuleForm({ open, onOpenChange, rule, onSave }: Suppre
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="priority"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Priority (1-10) *</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={1} max={10} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
+            <div className="grid grid-cols-1 gap-4">
               <FormField
                 control={form.control}
                 name="status"
@@ -482,7 +451,6 @@ export function CorrelationRuleForm({ open, onOpenChange, rule, onSave }: Correl
     defaultValues: {
       name: rule?.name || '',
       description: rule?.description || '',
-      priority: rule?.priority || 5,
       status: rule?.status || 'active',
       type: rule?.type || 'causal',
       mlEnabled: rule?.mlEnabled || false,
@@ -566,21 +534,7 @@ export function CorrelationRuleForm({ open, onOpenChange, rule, onSave }: Correl
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="priority"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Priority (1-10) *</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={1} max={10} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
+            <div className="grid grid-cols-1 gap-4">
               <FormField
                 control={form.control}
                 name="status"
