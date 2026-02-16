@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { MainLayout } from '@/shared/components/layout/MainLayout';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Textarea } from '@/shared/components/ui/textarea';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Play, RotateCcw, Lightbulb, Target, Activity, CheckCircle2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 
 const sampleEvents = `evt_001,Dist-R3,LINK_DOWN,2025-12-26T10:00:00Z,critical,Gi1/0/1 interface down
 evt_002,Edge-S7,LINK_DOWN,2025-12-26T10:00:02Z,critical,Uplink to Dist-R3 failed

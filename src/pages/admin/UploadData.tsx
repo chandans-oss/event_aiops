@@ -1,16 +1,16 @@
 import { useState } from 'react';
 import { Upload, FileSpreadsheet, Download, CheckCircle2, X, Table, FileDown, Info } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { MainLayout } from '@/components/layout/MainLayout';
-import { cn } from '@/lib/utils';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Progress } from '@/shared/components/ui/progress';
+import { MainLayout } from '@/shared/components/layout/MainLayout';
+import { cn } from '@/shared/lib/utils';
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
-} from '@/components/ui/accordion';
+} from '@/shared/components/ui/accordion';
 
 const requiredSheets = [
   {

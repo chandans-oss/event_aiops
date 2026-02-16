@@ -1,14 +1,14 @@
 import { useState } from 'react';
 import { Copy, Layers, GitBranch, Plus, Edit2, Trash2, GripVertical, ToggleLeft, Clock, Wrench, AlertTriangle, MapPin, Network, Brain, Search, X, Server, RefreshCw, Timer, ListChecks, ArrowRightCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { mockDeduplicationRules, mockSuppressionRules, mockCorrelationRules } from '@/data/mockData';
+import { Button } from '@/shared/components/ui/button';
+import { Badge } from '@/shared/components/ui/badge';
+import { Switch } from '@/shared/components/ui/switch';
+import { Input } from '@/shared/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
+import { mockDeduplicationRules, mockSuppressionRules, mockCorrelationRules } from '@/data/mock/mockData';
 import { DeduplicationRuleForm, SuppressionRuleForm, CorrelationRuleForm, DeleteRuleDialog } from './RuleForms';
-import { DeduplicationRule, SuppressionRule, CorrelationRule } from '@/types';
+import { DeduplicationRule, SuppressionRule, CorrelationRule } from '@/shared/types';
 
 // Deduplication rule icons and labels
 const dedupRuleConfig: Record<string, { icon: any; label: string }> = {

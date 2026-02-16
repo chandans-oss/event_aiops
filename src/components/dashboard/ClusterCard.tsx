@@ -1,10 +1,10 @@
 import { AlertCircle, Clock, Server, Users, ChevronRight, Eye, BarChart3, Wrench } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { Cluster, Severity } from '@/types';
+import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
+import { cn } from '@/shared/lib/utils';
+import { Cluster, Severity } from '@/shared/types';
 import { formatDistanceToNow } from 'date-fns';
-import { SeverityIcon } from '@/components/SeverityIcon';
+import { SeverityIcon } from '@/shared/components/common/SeverityIcon';
 
 interface ClusterCardProps {
   cluster: Cluster;

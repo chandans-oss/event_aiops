@@ -1,8 +1,8 @@
 import { useState, useCallback, useMemo } from 'react';
 import { Server, Database, Globe, Shield, Cpu, HardDrive, AlertCircle, CheckCircle2, Network } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/shared/lib/utils';
+import { Badge } from '@/shared/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/shared/components/ui/tooltip';
 
 export interface ServiceNode {
   id: string;

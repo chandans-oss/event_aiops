@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Shield, Lightbulb, BookOpen, Zap, ChevronRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn } from '@/shared/lib/utils';
 
 export type AdminSection = 'rules' | 'intents' | 'kb' | 'auto-remediation';
 
