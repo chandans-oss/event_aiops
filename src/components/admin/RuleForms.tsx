@@ -24,13 +24,13 @@ const baseRuleSchema = z.object({
 
 // Deduplication rule schema
 const deduplicationRuleSchema = baseRuleSchema.extend({
-  type: z.enum(['same_alert_type', 'same_severity', 'same_error_message', 'same_event_multi_source']),
+  type: z.enum(['exact_match', 'time_window', 'source_based']),
   matchCriteria: z.string().optional(),
 });
 
 // Suppression rule schema
 const suppressionRuleSchema = baseRuleSchema.extend({
-  type: z.enum(['business_hours', 'user_defined_time', 'assets_maintenance']),
+  type: z.enum(['maintenance', 'business_hours', 'reboot_pattern', 'time_based']),
   affectedDevices: z.string().optional(),
   scheduleStart: z.string().optional(),
   scheduleEnd: z.string().optional(),
@@ -41,7 +41,7 @@ const suppressionRuleSchema = baseRuleSchema.extend({
 
 // Correlation rule schema
 const correlationRuleSchema = baseRuleSchema.extend({
-  type: z.enum(['causal', 'temporal', 'spatial', 'topological', 'gnn']),
+  type: z.enum(['temporal', 'spatial', 'topological', 'causal_rule_based', 'ml_gnn_refinement', 'llm_semantic']),
   mlEnabled: z.boolean(),
   gnnEnabled: z.boolean(),
   traceDepth: z.coerce.number().min(1).max(10).optional(),
@@ -70,7 +70,7 @@ export function DeduplicationRuleForm({ open, onOpenChange, rule, onSave }: Dedu
       name: rule?.name || '',
       description: rule?.description || '',
       status: rule?.status || 'active',
-      type: rule?.type || 'same_alert_type',
+      type: rule?.type || 'exact_match',
       matchCriteria: rule?.config?.matchCriteria?.join(', ') || '',
     },
   });
@@ -121,10 +121,9 @@ export function DeduplicationRuleForm({ open, onOpenChange, rule, onSave }: Dedu
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="same_alert_type">Same Alert Type</SelectItem>
-                      <SelectItem value="same_severity">Same Severity</SelectItem>
-                      <SelectItem value="same_error_message">Same Error Message</SelectItem>
-                      <SelectItem value="same_event_multi_source">Same Event Multi-Source</SelectItem>
+                      <SelectItem value="exact_match">Exact Match</SelectItem>
+                      <SelectItem value="time_window">Time Window</SelectItem>
+                      <SelectItem value="source_based">Source Based</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -275,9 +274,10 @@ export function SuppressionRuleForm({ open, onOpenChange, rule, onSave }: Suppre
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="maintenance">Maintenance</SelectItem>
                       <SelectItem value="business_hours">Business Hours</SelectItem>
-                      <SelectItem value="user_defined_time">User Defined Time</SelectItem>
-                      <SelectItem value="assets_maintenance">Assets Maintenance</SelectItem>
+                      <SelectItem value="reboot_pattern">Reboot Pattern</SelectItem>
+                      <SelectItem value="time_based">Time Based</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -371,7 +371,7 @@ export function SuppressionRuleForm({ open, onOpenChange, rule, onSave }: Suppre
             )}
 
             {/* User Defined Time / Maintenance Fields */}
-            {(ruleType === 'user_defined_time' || ruleType === 'assets_maintenance') && (
+            {(ruleType === 'time_based' || ruleType === 'maintenance') && (
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -403,7 +403,7 @@ export function SuppressionRuleForm({ open, onOpenChange, rule, onSave }: Suppre
             )}
 
             {/* Affected Devices */}
-            {ruleType === 'assets_maintenance' && (
+            {ruleType === 'maintenance' && (
               <FormField
                 control={form.control}
                 name="affectedDevices"
@@ -452,7 +452,7 @@ export function CorrelationRuleForm({ open, onOpenChange, rule, onSave }: Correl
       name: rule?.name || '',
       description: rule?.description || '',
       status: rule?.status || 'active',
-      type: rule?.type || 'causal',
+      type: rule?.type || 'temporal',
       mlEnabled: rule?.mlEnabled || false,
       gnnEnabled: rule?.gnnEnabled || false,
       traceDepth: rule?.config?.traceDepth || 3,
@@ -508,11 +508,12 @@ export function CorrelationRuleForm({ open, onOpenChange, rule, onSave }: Correl
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="causal">Causal</SelectItem>
                       <SelectItem value="temporal">Temporal</SelectItem>
                       <SelectItem value="spatial">Spatial</SelectItem>
                       <SelectItem value="topological">Topological</SelectItem>
-                      <SelectItem value="gnn">GNN</SelectItem>
+                      <SelectItem value="causal_rule_based">Causal / Rule-based</SelectItem>
+                      <SelectItem value="ml_gnn_refinement">ML/GNN Refinement</SelectItem>
+                      <SelectItem value="llm_semantic">LLM Semantic Synthesis</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -588,7 +589,7 @@ export function CorrelationRuleForm({ open, onOpenChange, rule, onSave }: Correl
             </div>
 
             {/* Trace Depth for topological/causal/gnn */}
-            {(ruleType === 'topological' || ruleType === 'causal' || ruleType === 'gnn') && (
+            {(ruleType === 'topological' || ruleType === 'causal_rule_based' || ruleType === 'ml_gnn_refinement') && (
               <FormField
                 control={form.control}
                 name="traceDepth"

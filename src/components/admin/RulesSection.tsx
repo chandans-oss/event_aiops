@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Copy, Layers, GitBranch, Plus, Edit2, Trash2, GripVertical, ToggleLeft, Clock, Wrench, AlertTriangle, MapPin, Network, Brain, Search, X, Server, RefreshCw, Timer, ListChecks, ArrowRightCircle } from 'lucide-react';
+import { Copy, Layers, GitBranch, Plus, Edit2, Trash2, GripVertical, ToggleLeft, Clock, Wrench, AlertTriangle, MapPin, Network, Brain, Search, X, Server, RefreshCw, Timer, ListChecks, ArrowRightCircle, Zap } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
 import { Switch } from '@/shared/components/ui/switch';
@@ -28,11 +28,11 @@ const suppressionRuleConfig: Record<string, { icon: any; label: string }> = {
 // Correlation rule icons and labels
 const correlationRuleConfig: Record<string, { icon: any; label: string }> = {
   temporal: { icon: Clock, label: 'Temporal' },
-  causal: { icon: ArrowRightCircle, label: 'Causal' },
-  topological: { icon: Network, label: 'Topological' },
   spatial: { icon: MapPin, label: 'Spatial' },
-  rule_based: { icon: ListChecks, label: 'Rule Based' },
-  gnn: { icon: Brain, label: 'GNN' },
+  topological: { icon: Network, label: 'Topological' },
+  causal_rule_based: { icon: ArrowRightCircle, label: 'Causal / Rule-based' },
+  ml_gnn_refinement: { icon: Brain, label: 'ML/GNN Refinement' },
+  llm_semantic: { icon: Zap, label: 'LLM Semantic Synthesis' },
 };
 
 export function RulesSection() {

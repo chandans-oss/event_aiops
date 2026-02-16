@@ -40,7 +40,7 @@ export interface Cluster {
 // Rule Types
 export type DeduplicationRuleType = 'exact_match' | 'time_window' | 'source_based';
 export type SuppressionRuleType = 'maintenance' | 'business_hours' | 'reboot_pattern' | 'time_based';
-export type CorrelationRuleType = 'temporal' | 'causal' | 'topological' | 'spatial' | 'rule_based' | 'gnn';
+export type CorrelationRuleType = 'temporal' | 'spatial' | 'topological' | 'causal_rule_based' | 'ml_gnn_refinement' | 'llm_semantic';
 
 export interface BaseRule {
   id: string;
