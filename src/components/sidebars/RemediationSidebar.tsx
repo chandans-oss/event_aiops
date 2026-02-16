@@ -608,19 +608,19 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
               <TabsTrigger value="steps" className="data-[state=active]:bg-transparent data-[state=active]:border-b-4 data-[state=active]:border-primary rounded-none border-b-4 border-transparent px-2 py-4 text-xs font-black uppercase tracking-widest transition-all">
                 <div className="flex items-center gap-3">
                   <div className="h-5 w-5 rounded bg-foreground/5 flex items-center justify-center font-mono">01</div>
-                  Workflow Steps
+                  Remediation Steps
                 </div>
               </TabsTrigger>
               <TabsTrigger value="terminal" className="data-[state=active]:bg-transparent data-[state=active]:border-b-4 data-[state=active]:border-primary rounded-none border-b-4 border-transparent px-2 py-4 text-xs font-black uppercase tracking-widest transition-all">
                 <div className="flex items-center gap-3">
                   <div className="h-5 w-5 rounded bg-foreground/5 flex items-center justify-center font-mono">02</div>
-                  Live Payload Logs
+                  Terminal
                 </div>
               </TabsTrigger>
               <TabsTrigger value="kb" className="data-[state=active]:bg-transparent data-[state=active]:border-b-4 data-[state=active]:border-primary rounded-none border-b-4 border-transparent px-2 py-4 text-xs font-black uppercase tracking-widest transition-all">
                 <div className="flex items-center gap-3">
                   <div className="h-5 w-5 rounded bg-foreground/5 flex items-center justify-center font-mono">03</div>
-                  KB & Knowledge
+                  Knowledge Base
                 </div>
               </TabsTrigger>
             </TabsList>

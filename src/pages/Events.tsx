@@ -14,10 +14,10 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { MainLayout } from '@/components/layout/MainLayout';
-import { EventInfoSidebar } from '@/components/sidebars/EventInfoSidebar';
-import { RCASidebar } from '@/components/sidebars/RCASidebar';
-import { ImpactSidebar } from '@/components/sidebars/ImpactSidebar';
-import { RemediationSidebar } from '@/components/sidebars/RemediationSidebar';
+import { EventInfoSidebar } from '@/components/sidebars/eventInfoSidebar';
+import { RCASidebar } from '@/components/sidebars/rcaSidebar';
+import { ImpactSidebar } from '@/components/sidebars/impactSidebar';
+import { RemediationSidebar } from '@/components/sidebars/remediationSidebar';
 import { SeverityIcon } from '@/components/SeverityIcon';
 import { sampleNetworkEvents, getEventStats, NetworkEvent } from '@/data/eventsData';
 import { mockClusters } from '@/data/mockData';
@@ -271,10 +271,10 @@ export default function Events() {
               {/* Table Header */}
               <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-secondary/50 border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                 <div className="col-span-2">Event ID / Device</div>
-                <div className="col-span-2">Event Code</div>
                 <div className="col-span-1">Severity</div>
-                <div className="col-span-1">Label</div>
-                <div className="col-span-2">Message</div>
+                <div className="col-span-2">Event Message</div>
+                <div className="col-span-2">Event Code</div>
+                <div className="col-span-1">Event Label</div>
                 <div className="col-span-1">Timestamp</div>
                 <div className="col-span-3">Actions</div>
               </div>
@@ -307,18 +307,23 @@ export default function Events() {
                         <p className="text-xs text-muted-foreground">{event.site} / {event.rack}</p>
                       </div>
 
-                      {/* Event Code */}
-                      <div className="col-span-2 flex items-center">
-                        <Badge variant="outline" className="font-mono text-xs">
-                          {event.event_code}
-                        </Badge>
-                      </div>
-
                       {/* Severity */}
                       <div className="col-span-1 flex items-center">
                         <Badge className={cn("gap-1", severity.className)}>
                           <SeverityIcon severity={event.severity} className="h-3 w-3" />
                           {event.severity}
+                        </Badge>
+                      </div>
+
+                      {/* Message */}
+                      <div className="col-span-2 flex items-center">
+                        <p className="text-sm text-muted-foreground truncate">{event.message}</p>
+                      </div>
+
+                      {/* Event Code */}
+                      <div className="col-span-2 flex items-center">
+                        <Badge variant="outline" className="font-mono text-xs">
+                          {event.event_code}
                         </Badge>
                       </div>
 
@@ -328,11 +333,6 @@ export default function Events() {
                           <LabelIcon className={cn("h-3 w-3", labelCfg.color)} />
                           <span className={labelCfg.color}>{label}</span>
                         </Badge>
-                      </div>
-
-                      {/* Message */}
-                      <div className="col-span-2 flex items-center">
-                        <p className="text-sm text-muted-foreground truncate">{event.message}</p>
                       </div>
 
                       {/* Timestamp */}
