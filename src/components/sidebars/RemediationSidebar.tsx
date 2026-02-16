@@ -604,24 +604,15 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
 
         <Tabs value={currentTab} onValueChange={setCurrentTab} className="flex-1 flex flex-col min-h-0">
           <div className="px-8 border-b-2 border-border bg-background/50 sticky top-0 z-20 shrink-0 shadow-sm">
-            <TabsList className="h-16 w-full max-w-2xl bg-transparent p-0 gap-10">
+            <TabsList className="h-16 w-full max-w-2xl bg-transparent p-0 flex items-center justify-start gap-6">
               <TabsTrigger value="steps" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-2 py-4 text-sm font-medium transition-all">
-                <div className="flex items-center gap-3">
-                  <div className="h-5 w-5 rounded bg-muted flex items-center justify-center font-mono text-xs">01</div>
-                  Remediation Steps
-                </div>
+                Remediation Steps
               </TabsTrigger>
               <TabsTrigger value="terminal" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-2 py-4 text-sm font-medium transition-all">
-                <div className="flex items-center gap-3">
-                  <div className="h-5 w-5 rounded bg-muted flex items-center justify-center font-mono text-xs">02</div>
-                  Terminal
-                </div>
+                Terminal
               </TabsTrigger>
               <TabsTrigger value="kb" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-2 py-4 text-sm font-medium transition-all">
-                <div className="flex items-center gap-3">
-                  <div className="h-5 w-5 rounded bg-muted flex items-center justify-center font-mono text-xs">03</div>
-                  Knowledge Base
-                </div>
+                Knowledge Base
               </TabsTrigger>
             </TabsList>
           </div>
