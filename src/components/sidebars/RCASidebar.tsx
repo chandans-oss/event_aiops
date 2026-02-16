@@ -110,7 +110,7 @@ export function RCASidebar({ cluster, onClose, onOpenRemediation }: RCASidebarPr
 
         {/* Tabs & Content */}
         <Tabs value={currentTab} onValueChange={setCurrentTab} className="p-6 pt-2">
-          <div className="border-b border-border bg-background/50 sticky top-0 z-10 -mx-6 px-6 mb-6">
+          <div className="border-b border-border bg-background sticky top-0 z-10 -mx-6 px-6 mb-6">
             <TabsList className="h-12 w-full grid grid-cols-5 bg-transparent p-0">
               <TabsTrigger value="summary" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">RCA Summary</TabsTrigger>
               <TabsTrigger value="correlated" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">Correlated Events</TabsTrigger>
