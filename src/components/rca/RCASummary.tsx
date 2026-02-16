@@ -16,14 +16,20 @@ export function RCASummary({ data, confidence = 0.95, onViewDetailedRCA }: RCASu
         <div className="space-y-6">
             {/* Root Cause Description */}
             <Card>
-                <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                        <AlertTriangle className="h-5 w-5 text-destructive" />
-                        Root Cause Analysis
-                    </CardTitle>
-                    <CardDescription>
-                        {data.rcaMetadata.device} • {new Date(data.rcaMetadata.timestamp).toLocaleString()}
-                    </CardDescription>
+                <CardHeader className="flex flex-row items-start justify-between space-y-0 pb-4">
+                    <div className="space-y-1">
+                        <CardTitle className="text-lg flex items-center gap-2">
+                            <AlertTriangle className="h-5 w-5 text-destructive" />
+                            Root Cause Analysis
+                        </CardTitle>
+                        <CardDescription>
+                            {data.rcaMetadata.device} • {new Date(data.rcaMetadata.timestamp).toLocaleString()}
+                        </CardDescription>
+                    </div>
+                    <Button onClick={onViewDetailedRCA} variant="default" size="sm" className="gap-2 shadow-md">
+                        RCA Analysis Flow
+                        <ArrowRight className="h-4 w-4" />
+                    </Button>
                 </CardHeader>
                 <CardContent>
                     <p className="text-foreground text-lg leading-relaxed">
@@ -54,38 +60,43 @@ export function RCASummary({ data, confidence = 0.95, onViewDetailedRCA }: RCASu
                     <CardTitle className="text-base">Incident Timeline</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="relative border-l-2 border-border pl-4 space-y-4 ml-2">
-                        <div className="relative">
-                            <div className="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-muted border border-border" />
-                            <p className="text-sm font-medium">Issue Started</p>
-                            <p className="text-xs text-muted-foreground">14:00:00 (Est.)</p>
+                    <div className="relative flex items-start justify-between pt-2 px-2">
+                        {/* Connecting Line */}
+                        <div className="absolute top-[13px] left-6 right-6 h-[2px] bg-border -z-10" />
+
+                        <div className="flex flex-col items-center text-center space-y-2 relative px-2">
+                            <div className="h-3 w-3 rounded-full bg-muted border border-border ring-4 ring-card" />
+                            <div>
+                                <p className="text-sm font-medium">Issue Started</p>
+                                <p className="text-xs text-muted-foreground font-mono">14:00:00</p>
+                            </div>
                         </div>
-                        <div className="relative">
-                            <div className="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-orange-500 border border-border" />
-                            <p className="text-sm font-medium">Detection & Alerting</p>
-                            <p className="text-xs text-muted-foreground">14:02:15 (+2m 15s)</p>
+                        <div className="flex flex-col items-center text-center space-y-2 relative px-2">
+                            <div className="h-3 w-3 rounded-full bg-orange-500 border border-border ring-4 ring-card" />
+                            <div>
+                                <p className="text-sm font-medium">Detection</p>
+                                <p className="text-xs text-muted-foreground font-mono">+2m 15s</p>
+                            </div>
                         </div>
-                        <div className="relative">
-                            <div className="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-primary border border-border" />
-                            <p className="text-sm font-medium">RCA Completed</p>
-                            <p className="text-xs text-muted-foreground">14:02:45 (+30s)</p>
+                        <div className="flex flex-col items-center text-center space-y-2 relative px-2">
+                            <div className="h-3 w-3 rounded-full bg-primary border border-border ring-4 ring-card" />
+                            <div>
+                                <p className="text-sm font-medium">RCA Done</p>
+                                <p className="text-xs text-muted-foreground font-mono">+30s</p>
+                            </div>
                         </div>
-                        <div className="relative">
-                            <div className="absolute -left-[21px] top-1 h-3 w-3 rounded-full bg-muted border border-border animate-pulse" />
-                            <p className="text-sm font-medium">Projected Resolution</p>
-                            <p className="text-xs text-muted-foreground">14:45:00</p>
+                        <div className="flex flex-col items-center text-center space-y-2 relative px-2">
+                            <div className="h-3 w-3 rounded-full bg-muted border border-border animate-pulse ring-4 ring-card" />
+                            <div>
+                                <p className="text-sm font-medium">Resolution</p>
+                                <p className="text-xs text-muted-foreground font-mono">14:45:00</p>
+                            </div>
                         </div>
                     </div>
                 </CardContent>
             </Card>
 
-            {/* Actions */}
-            <div className="flex justify-end pt-4">
-                <Button onClick={onViewDetailedRCA} className="gap-2">
-                    RCA Analysis Flow
-                    <ArrowRight className="h-4 w-4" />
-                </Button>
-            </div>
+
         </div>
     );
 }

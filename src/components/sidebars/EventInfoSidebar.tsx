@@ -154,13 +154,12 @@ export function EventInfoSidebar({ event, onClose }: EventInfoSidebarProps) {
         )}
 
         {/* Rule Details based on label */}
-        {label !== 'Child' && (
+        {(label === 'Duplicate' || label === 'Suppressed') && (
           <div className="glass-card rounded-xl p-4">
             <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
               <AlertTriangle className="h-4 w-4 text-severity-high" />
               {label === 'Duplicate' && 'Deduplication Details'}
               {label === 'Suppressed' && 'Suppression Details'}
-              {label === 'Root' && 'Root Cause Analysis'}
             </h3>
 
             <div className="space-y-3">
@@ -199,25 +198,6 @@ export function EventInfoSidebar({ event, onClose }: EventInfoSidebarProps) {
                   <div className="mt-3 p-3 rounded-lg bg-severity-info/10 border border-severity-info/30">
                     <p className="text-sm text-severity-info">
                       <strong>Note:</strong> Suppressed events are still logged but do not trigger active alerts or notifications.
-                    </p>
-                  </div>
-                </>
-              )}
-
-              {label === 'Root' && (
-                <>
-                  <p className="text-sm text-muted-foreground">
-                    This event has been identified as the root cause based on:
-                  </p>
-                  <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                    <li>First event in the correlation timeline</li>
-                    <li>Upstream position in network topology</li>
-                    <li>Cascading failure pattern analysis</li>
-                    <li>Intent-based hypothesis scoring</li>
-                  </ul>
-                  <div className="mt-3 p-3 rounded-lg bg-status-success/10 border border-status-success/30">
-                    <p className="text-sm text-status-success">
-                      <strong>Action Required:</strong> RCA, Impact Analysis, and Remediation are available for this event.
                     </p>
                   </div>
                 </>

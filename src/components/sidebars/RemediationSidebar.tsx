@@ -134,10 +134,10 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                     <div>
                       <CardTitle className="text-base flex items-center gap-2">
                         STEP {index + 1}: {step.action}
-                        {isCompleted && <Badge className="bg-status-success text-[10px] h-4 uppercase font-black">Worked</Badge>}
-                        {isFailed && <Badge variant="destructive" className="text-[10px] h-4 uppercase font-black">Failed</Badge>}
+                        {isCompleted && <Badge className="bg-status-success text-xs h-5 font-medium">Worked</Badge>}
+                        {isFailed && <Badge variant="destructive" className="text-xs h-5 font-medium">Failed</Badge>}
                       </CardTitle>
-                      <CardDescription className="text-xs line-clamp-1">{step.description}</CardDescription>
+                      <CardDescription className="text-sm line-clamp-1">{step.description}</CardDescription>
                     </div>
                   </div>
                   <Badge variant="outline" className="font-mono text-[10px]">~{step.duration}</Badge>
@@ -147,8 +147,8 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                 {/* Command Block */}
                 <div className="bg-secondary/30 rounded-lg p-3 border border-border/50 font-mono text-xs">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-muted-foreground text-[10px] font-bold uppercase tracking-widest">Execution Command</span>
-                    <Button variant="ghost" size="sm" className="h-5 px-1 text-[10px]">Copy</Button>
+                    <span className="text-muted-foreground text-xs font-medium">Execution Command</span>
+                    <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">Copy</Button>
                   </div>
                   <pre className="text-foreground whitespace-pre-wrap">{step.command || `# Manual Action Required`}</pre>
                 </div>
@@ -162,19 +162,19 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                 {isActive && (
                   <div className="flex items-center gap-4 pt-2">
                     <Button
-                      className="bg-status-success hover:bg-status-success/90 flex-1 gap-2 font-black py-5 shadow-lg shadow-status-success/20"
+                      className="bg-status-success hover:bg-status-success/90 flex-1 gap-2"
                       onClick={() => handleStepAction(step.id, 'success')}
                     >
                       <Check className="h-4 w-4" />
-                      ✓ Worked
+                      Worked
                     </Button>
                     <Button
                       variant="destructive"
-                      className="flex-1 gap-2 font-black py-5 shadow-lg shadow-destructive/20"
+                      className="flex-1 gap-2"
                       onClick={() => handleStepAction(step.id, 'failed')}
                     >
                       <XCircle className="h-4 w-4" />
-                      ✗ Didn't Work
+                      Didn't Work
                     </Button>
                   </div>
                 )}
@@ -576,10 +576,10 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
             </div>
             <div>
               <div className="flex items-center gap-3 mb-1">
-                <h2 className="text-2xl font-black text-foreground tracking-tighter uppercase">{viewMode === 'execution' ? 'Guided Remediation' : viewMode === 'verification' ? 'Resolution Verification' : 'Case Resolved'}</h2>
-                <Badge variant="outline" className="font-black uppercase tracking-widest text-[10px] bg-primary/5 text-primary border-primary/20">AIOps Agent v4.0</Badge>
+                <h2 className="text-lg font-semibold text-foreground">{viewMode === 'execution' ? 'Guided Remediation' : viewMode === 'verification' ? 'Resolution Verification' : 'Case Resolved'}</h2>
+                <Badge variant="outline" className="text-xs font-medium bg-primary/5 text-primary border-primary/20">AIOps Agent v4.0</Badge>
               </div>
-              <p className="text-sm text-muted-foreground font-mono font-bold opacity-70 flex items-center gap-2 uppercase tracking-widest">
+              <p className="text-sm text-muted-foreground flex items-center gap-2">
                 <AlertCircle className="h-3.5 w-3.5 text-primary" />
                 {cluster.id} • {clusterData.rcaMetadata.rootEventType.replace(/_/g, ' ')}
               </p>
@@ -590,12 +590,12 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
             {viewMode === 'execution' && (
               <div className="hidden md:flex flex-col items-end gap-1">
                 <div className="flex items-center gap-3">
-                  <span className="text-2xl font-black text-primary tracking-tighter">{progress}%</span>
-                  <div className="w-48 h-3 bg-secondary rounded-full overflow-hidden border-2 border-border p-[3px]">
-                    <div className="h-full bg-primary rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(59,130,246,0.5)]" style={{ width: `${progress}%` }} />
+                  <span className="text-lg font-bold text-primary">{progress}%</span>
+                  <div className="w-48 h-2 bg-secondary rounded-full overflow-hidden border border-border">
+                    <div className="h-full bg-primary rounded-full transition-all duration-1000 ease-out" style={{ width: `${progress}%` }} />
                   </div>
                 </div>
-                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-[0.2em] translate-x-1">Execution Payload Activity</p>
+                <p className="text-xs text-muted-foreground translate-x-1">Execution Payload Activity</p>
               </div>
             )}
 
@@ -605,21 +605,21 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
         <Tabs value={currentTab} onValueChange={setCurrentTab} className="flex-1 flex flex-col min-h-0">
           <div className="px-8 border-b-2 border-border bg-background/50 sticky top-0 z-20 shrink-0 shadow-sm">
             <TabsList className="h-16 w-full max-w-2xl bg-transparent p-0 gap-10">
-              <TabsTrigger value="steps" className="data-[state=active]:bg-transparent data-[state=active]:border-b-4 data-[state=active]:border-primary rounded-none border-b-4 border-transparent px-2 py-4 text-xs font-black uppercase tracking-widest transition-all">
+              <TabsTrigger value="steps" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-2 py-4 text-sm font-medium transition-all">
                 <div className="flex items-center gap-3">
-                  <div className="h-5 w-5 rounded bg-foreground/5 flex items-center justify-center font-mono">01</div>
+                  <div className="h-5 w-5 rounded bg-muted flex items-center justify-center font-mono text-xs">01</div>
                   Remediation Steps
                 </div>
               </TabsTrigger>
-              <TabsTrigger value="terminal" className="data-[state=active]:bg-transparent data-[state=active]:border-b-4 data-[state=active]:border-primary rounded-none border-b-4 border-transparent px-2 py-4 text-xs font-black uppercase tracking-widest transition-all">
+              <TabsTrigger value="terminal" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-2 py-4 text-sm font-medium transition-all">
                 <div className="flex items-center gap-3">
-                  <div className="h-5 w-5 rounded bg-foreground/5 flex items-center justify-center font-mono">02</div>
+                  <div className="h-5 w-5 rounded bg-muted flex items-center justify-center font-mono text-xs">02</div>
                   Terminal
                 </div>
               </TabsTrigger>
-              <TabsTrigger value="kb" className="data-[state=active]:bg-transparent data-[state=active]:border-b-4 data-[state=active]:border-primary rounded-none border-b-4 border-transparent px-2 py-4 text-xs font-black uppercase tracking-widest transition-all">
+              <TabsTrigger value="kb" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-2 py-4 text-sm font-medium transition-all">
                 <div className="flex items-center gap-3">
-                  <div className="h-5 w-5 rounded bg-foreground/5 flex items-center justify-center font-mono">03</div>
+                  <div className="h-5 w-5 rounded bg-muted flex items-center justify-center font-mono text-xs">03</div>
                   Knowledge Base
                 </div>
               </TabsTrigger>
