@@ -228,7 +228,7 @@ export function RulesSection() {
         {/* Suppression Rules */}
         <TabsContent value="suppression" className="mt-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">Suppression Rules</h2>
+            <h2 className="text-lg font-semibold text-foreground">Suppression Rules (Clean View)</h2>
             <Button className="gap-2 gradient-primary" onClick={handleAddRule}>
               <Plus className="h-4 w-4" />
               Add Rule

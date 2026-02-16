@@ -471,49 +471,32 @@ export const mockSuppressionRules: SuppressionRule[] = [
     type: 'maintenance',
     name: 'Maintenance Suppression',
     description: 'Suppress all events for devices currently under scheduled maintenance windows.',
-    priority: 1,
     status: 'active',
-    schedule: { type: 'maintenance_window' },
-    affectedDevices: ['ws-001', 'db-002', 'backup-server'],
-    createdAt: '2025-09-15T00:00:00Z',
-    modifiedAt: '2025-09-15T00:00:00Z',
-    suppressCount: 1205
+    schedule: { type: 'maintenance_window' }
   },
   {
     id: 'sup-002',
     type: 'business_hours',
     name: 'Business Hours Suppression',
     description: 'Suppress low-severity events outside of defined business hours (09:00 - 18:00).',
-    priority: 2,
     status: 'active',
-    schedule: { type: 'weekly', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], start: '18:00', end: '09:00' },
-    affectedDevices: ['dev-env-*', 'test-env-*'],
-    createdAt: '2025-09-20T00:00:00Z',
-    modifiedAt: '2025-09-20T00:00:00Z',
-    suppressCount: 450
+    schedule: { type: 'weekly', days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'], start: '18:00', end: '09:00' }
   },
   {
     id: 'sup-003',
     type: 'reboot_pattern',
     name: 'Reboot Pattern Suppression',
     description: 'Suppress known noise and transient alerts detected during device reboot sequence (Grace period).',
-    priority: 1,
     status: 'active',
-    schedule: { type: 'event_triggered', trigger: 'sys.reboot' },
-    affectedDevices: ['all'],
-    createdAt: '2025-11-10T00:00:00Z',
-    modifiedAt: '2025-11-10T00:00:00Z',
-    suppressCount: 89
+    schedule: { type: 'event_triggered', trigger: 'sys.reboot' }
   },
   {
     id: 'sup-004',
     type: 'time_based',
     name: 'Time-Based Suppression',
     description: 'Suppress alerts that do not repeat or persist within a defined interval (Transient noise).',
-    priority: 3,
     status: 'active',
     schedule: { type: 'interval', duration: '5m' },
-    affectedDevices: ['edge-routers'],
     createdAt: '2025-11-12T00:00:00Z',
     modifiedAt: '2025-11-12T00:00:00Z',
     suppressCount: 230
@@ -526,10 +509,7 @@ export const mockCorrelationRules: CorrelationRule[] = [
     type: 'temporal',
     name: 'Temporal Correlation',
     description: 'Correlate events occurring within a defined rolling time window across any source.',
-    createdAt: '2025-10-10T00:00:00Z',
-    modifiedAt: '2025-12-01T00:00:00Z',
     status: 'active',
-    priority: 8,
     mlEnabled: false,
     gnnEnabled: false,
     config: { timeWindowSeconds: 300 }
@@ -539,10 +519,7 @@ export const mockCorrelationRules: CorrelationRule[] = [
     type: 'spatial',
     name: 'Spatial Correlation',
     description: 'Group events by location: Same host, service, region, or datacenter.',
-    createdAt: '2025-10-20T00:00:00Z',
-    modifiedAt: '2025-12-15T00:00:00Z',
     status: 'active',
-    priority: 6,
     mlEnabled: false,
     gnnEnabled: false,
     config: { groupingCriteria: ['datacenter', 'rack', 'region'] }
@@ -552,10 +529,7 @@ export const mockCorrelationRules: CorrelationRule[] = [
     type: 'topological',
     name: 'Topological Correlation',
     description: 'Correlate events based on dependency graph (Upstream dominates Downstream).',
-    createdAt: '2025-10-15T00:00:00Z',
-    modifiedAt: '2025-12-20T00:00:00Z',
     status: 'active',
-    priority: 9,
     mlEnabled: false,
     gnnEnabled: false,
     config: { traceDepth: 3 }
@@ -565,10 +539,7 @@ export const mockCorrelationRules: CorrelationRule[] = [
     type: 'causal_rule_based',
     name: 'Causal / Rule-based Correlation',
     description: 'Apply domain-specific heuristics and expert rules for grouping.',
-    createdAt: '2025-08-01T00:00:00Z',
-    modifiedAt: '2025-08-01T00:00:00Z',
     status: 'active',
-    priority: 10,
     mlEnabled: false,
     gnnEnabled: false,
     config: { ruleset: 'standard_ops' }
@@ -578,10 +549,7 @@ export const mockCorrelationRules: CorrelationRule[] = [
     type: 'ml_gnn_refinement',
     name: 'ML / GNN Refinement',
     description: 'Graph Neural Network learning propagation patterns on nodes=events, edges=topology/causal.',
-    createdAt: '2025-09-01T00:00:00Z',
-    modifiedAt: '2026-01-05T00:00:00Z',
     status: 'active',
-    priority: 10,
     mlEnabled: true,
     gnnEnabled: true,
     config: { traceDepth: 5, modelVersion: 'v2.4' }
@@ -591,10 +559,7 @@ export const mockCorrelationRules: CorrelationRule[] = [
     type: 'llm_semantic',
     name: 'LLM Semantic Synthesis',
     description: 'Use large language models to synthesize cross-domain alerts based on semantic meaning (not RCA).',
-    createdAt: '2026-02-16T00:00:00Z',
-    modifiedAt: '2026-02-16T00:00:00Z',
     status: 'active',
-    priority: 7,
     mlEnabled: true,
     gnnEnabled: false,
     config: { model: 'gpt-4-turbo', temperature: 0.1 }

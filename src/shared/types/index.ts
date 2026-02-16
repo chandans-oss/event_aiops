@@ -46,10 +46,10 @@ export interface BaseRule {
   id: string;
   name: string;
   description: string;
-  priority: number;
+  priority?: number;
   status: 'active' | 'inactive';
-  createdAt: string;
-  modifiedAt: string;
+  createdAt?: string;
+  modifiedAt?: string;
 }
 
 export interface DeduplicationRule extends BaseRule {
@@ -63,7 +63,7 @@ export interface DeduplicationRule extends BaseRule {
 
 export interface SuppressionRule extends BaseRule {
   type: SuppressionRuleType;
-  affectedDevices: string[];
+  affectedDevices?: string[];
   schedule: Record<string, any>;
   suppressCount?: number;
   config?: any;
