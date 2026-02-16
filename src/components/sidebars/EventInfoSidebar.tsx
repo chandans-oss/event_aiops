@@ -154,95 +154,77 @@ export function EventInfoSidebar({ event, onClose }: EventInfoSidebarProps) {
         )}
 
         {/* Rule Details based on label */}
-        <div className="glass-card rounded-xl p-4">
-          <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-severity-high" />
-            {label === 'Duplicate' && 'Deduplication Details'}
-            {label === 'Suppressed' && 'Suppression Details'}
-            {label === 'Child' && 'Correlation Details'}
-            {label === 'Root' && 'Root Cause Analysis'}
-          </h3>
+        {label !== 'Child' && (
+          <div className="glass-card rounded-xl p-4">
+            <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+              <AlertTriangle className="h-4 w-4 text-severity-high" />
+              {label === 'Duplicate' && 'Deduplication Details'}
+              {label === 'Suppressed' && 'Suppression Details'}
+              {label === 'Root' && 'Root Cause Analysis'}
+            </h3>
 
-          <div className="space-y-3">
-            {label === 'Duplicate' && (
-              <>
-                <p className="text-sm text-muted-foreground">
-                  This event was marked as a duplicate because it matches an existing event based on the following criteria:
-                </p>
-                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                  <li>Same device ({event.device})</li>
-                  <li>Same event type ({event.event_code})</li>
-                  <li>Within time window of 5 minutes</li>
-                  <li>Similar severity level</li>
-                </ul>
-                <div className="mt-3 p-3 rounded-lg bg-severity-medium/10 border border-severity-medium/30">
-                  <p className="text-sm text-severity-medium">
-                    <strong>Impact:</strong> This event has been consolidated to reduce alert fatigue and noise in the monitoring system.
+            <div className="space-y-3">
+              {label === 'Duplicate' && (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    This event was marked as a duplicate because it matches an existing event based on the following criteria:
                   </p>
-                </div>
-              </>
-            )}
+                  <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                    <li>Same device ({event.device})</li>
+                    <li>Same event type ({event.event_code})</li>
+                    <li>Within time window of 5 minutes</li>
+                    <li>Similar severity level</li>
+                  </ul>
+                  <div className="mt-3 p-3 rounded-lg bg-severity-medium/10 border border-severity-medium/30">
+                    <p className="text-sm text-severity-medium">
+                      <strong>Impact:</strong> This event has been consolidated to reduce alert fatigue and noise in the monitoring system.
+                    </p>
+                  </div>
+                </>
+              )}
 
-            {label === 'Suppressed' && (
-              <>
-                <p className="text-sm text-muted-foreground">
-                  This event was suppressed based on the following rule:
-                </p>
-                <div className="p-3 rounded-lg bg-muted/30 border border-border">
-                  <p className="text-sm font-medium text-foreground mb-1">
-                    {event.classificationReason?.rule || 'Business Hours Suppression'}
+              {label === 'Suppressed' && (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    This event was suppressed based on the following rule:
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    Events matching this criteria are suppressed to prevent unnecessary alerts during specified conditions.
-                  </p>
-                </div>
-                <div className="mt-3 p-3 rounded-lg bg-severity-info/10 border border-severity-info/30">
-                  <p className="text-sm text-severity-info">
-                    <strong>Note:</strong> Suppressed events are still logged but do not trigger active alerts or notifications.
-                  </p>
-                </div>
-              </>
-            )}
+                  <div className="p-3 rounded-lg bg-muted/30 border border-border">
+                    <p className="text-sm font-medium text-foreground mb-1">
+                      {event.classificationReason?.rule || 'Business Hours Suppression'}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Events matching this criteria are suppressed to prevent unnecessary alerts during specified conditions.
+                    </p>
+                  </div>
+                  <div className="mt-3 p-3 rounded-lg bg-severity-info/10 border border-severity-info/30">
+                    <p className="text-sm text-severity-info">
+                      <strong>Note:</strong> Suppressed events are still logged but do not trigger active alerts or notifications.
+                    </p>
+                  </div>
+                </>
+              )}
 
-            {label === 'Child' && (
-              <>
-                <p className="text-sm text-muted-foreground">
-                  This event was correlated with the root cause event based on:
-                </p>
-                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                  <li>Temporal proximity (within correlation window)</li>
-                  <li>Topological relationship to root event</li>
-                  <li>Causal dependency analysis</li>
-                  <li>Service impact path correlation</li>
-                </ul>
-                <div className="mt-3 p-3 rounded-lg bg-severity-info/10 border border-severity-info/30">
-                  <p className="text-sm text-severity-info">
-                    <strong>Cluster:</strong> {event.clusterId || 'N/A'}
+              {label === 'Root' && (
+                <>
+                  <p className="text-sm text-muted-foreground">
+                    This event has been identified as the root cause based on:
                   </p>
-                </div>
-              </>
-            )}
-
-            {label === 'Root' && (
-              <>
-                <p className="text-sm text-muted-foreground">
-                  This event has been identified as the root cause based on:
-                </p>
-                <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
-                  <li>First event in the correlation timeline</li>
-                  <li>Upstream position in network topology</li>
-                  <li>Cascading failure pattern analysis</li>
-                  <li>Intent-based hypothesis scoring</li>
-                </ul>
-                <div className="mt-3 p-3 rounded-lg bg-status-success/10 border border-status-success/30">
-                  <p className="text-sm text-status-success">
-                    <strong>Action Required:</strong> RCA, Impact Analysis, and Remediation are available for this event.
-                  </p>
-                </div>
-              </>
-            )}
+                  <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                    <li>First event in the correlation timeline</li>
+                    <li>Upstream position in network topology</li>
+                    <li>Cascading failure pattern analysis</li>
+                    <li>Intent-based hypothesis scoring</li>
+                  </ul>
+                  <div className="mt-3 p-3 rounded-lg bg-status-success/10 border border-status-success/30">
+                    <p className="text-sm text-status-success">
+                      <strong>Action Required:</strong> RCA, Impact Analysis, and Remediation are available for this event.
+                    </p>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Footer */}
