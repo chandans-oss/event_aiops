@@ -49,13 +49,13 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
 
   const [viewMode, setViewMode] = useState<'execution' | 'verification' | 'history'>('execution');
   const [activeStepIndex, setActiveStepIndex] = useState(0);
-  const [stepStates, setStepStates] = useState<Record<string, 'pending' | 'success' | 'failed'>>({});
+  const [stepStates, setStepStates] = useState<Record<string, 'pending' | 'executed' | 'success' | 'failed'>>({});
   const [terminalHistory, setTerminalHistory] = useState<Array<{ type: 'command' | 'output'; text: string }>>([]);
   const [currentTab, setCurrentTab] = useState('steps');
 
   useEffect(() => {
     if (clusterData) {
-      const initialStates: Record<string, 'pending' | 'success' | 'failed'> = {};
+      const initialStates: Record<string, 'pending' | 'executed' | 'success' | 'failed'> = {};
       clusterData.remediationSteps.forEach(step => {
         initialStates[step.id] = 'pending';
       });
@@ -63,7 +63,7 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
     }
   }, [cluster.id]);
 
-  const handleStepAction = (stepId: string, result: 'success' | 'failed' | 'pending') => {
+  const handleStepAction = (stepId: string, result: 'success' | 'failed' | 'pending' | 'executed') => {
     setStepStates(prev => ({ ...prev, [stepId]: result }));
 
     // Log to terminal
@@ -78,10 +78,21 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
         return;
       }
 
+      if (result === 'executed') {
+        const logs = [
+          { type: 'command' as const, text: `$ execute remediation_step --id ${step.id} --action "${step.action}"` },
+          { type: 'output' as const, text: `> Initiating execution protocol...` },
+          { type: 'output' as const, text: `> Command sent to device ${cluster.id} via SSH` },
+          { type: 'output' as const, text: `> Waiting for execution confirmation...` },
+          { type: 'output' as const, text: `✓ Execution completed. Please verify impact.` },
+        ];
+        setTerminalHistory(prev => [...prev, ...logs]);
+        return;
+      }
+
       const logs = [
-        { type: 'command' as const, text: `$ execute remediation_step --id ${step.id} --action "${step.action}"` },
-        { type: 'output' as const, text: result === 'success' ? `✓ Step completed successfully: ${step.action}` : `❌ Step failed: ${step.action}` },
-        { type: 'output' as const, text: result === 'success' ? `  Post-action check: PASS` : `  Post-action check: FAIL` },
+        { type: 'output' as const, text: result === 'success' ? `✓ Verification: Step succeeded.` : `❌ Verification: Step failed.` },
+        { type: 'output' as const, text: result === 'success' ? `  Post-action metrics check: PASS` : `  Post-action metrics check: FAIL` },
       ];
       setTerminalHistory(prev => [...prev, ...logs]);
     }
@@ -108,7 +119,7 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
       <div className="col-span-12 lg:col-span-8 space-y-6">
         {steps.map((step, index) => {
           const state = stepStates[step.id];
-          const isActive = index === activeStepIndex && state === 'pending';
+          const isActive = index === activeStepIndex && (state === 'pending' || state === 'executed');
           const isCompleted = state === 'success';
           const isFailed = state === 'failed';
           const StepIcon = isCompleted ? CheckCircle2 : (isFailed ? XCircle : Circle);
@@ -159,23 +170,45 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                   <p>Expected Result: {step.verification?.join(', ') || 'Successful execution confirmation'}</p>
                 </div>
 
-                {isActive && (
-                  <div className="flex items-center gap-4 pt-2">
+                {isActive && state === 'pending' && (
+                  <div className="pt-2">
                     <Button
-                      className="bg-status-success hover:bg-status-success/90 flex-1 gap-2"
-                      onClick={() => handleStepAction(step.id, 'success')}
+                      className="w-full gap-2 shadow-md"
+                      size="default"
+                      onClick={() => handleStepAction(step.id, 'executed')}
                     >
-                      <Check className="h-4 w-4" />
-                      Worked
+                      <Play className="h-4 w-4" />
+                      Execute Remediation
                     </Button>
-                    <Button
-                      variant="destructive"
-                      className="flex-1 gap-2"
-                      onClick={() => handleStepAction(step.id, 'failed')}
-                    >
-                      <XCircle className="h-4 w-4" />
-                      Didn't Work
-                    </Button>
+                  </div>
+                )}
+
+                {isActive && state === 'executed' && (
+                  <div className="space-y-3 pt-2">
+                    <div className="p-3 bg-secondary/20 rounded-lg border border-border/50">
+                      <div className="flex items-center gap-2 text-sm text-foreground font-medium mb-2">
+                        <CheckCircle2 className="h-4 w-4 text-primary" />
+                        Execution Completed
+                      </div>
+                      <p className="text-xs text-muted-foreground">The command has been executed on the device. Please verify if the issue is resolved.</p>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Button
+                        className="bg-status-success hover:bg-status-success/90 flex-1 gap-2"
+                        onClick={() => handleStepAction(step.id, 'success')}
+                      >
+                        <Check className="h-4 w-4" />
+                        Worked
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        className="flex-1 gap-2"
+                        onClick={() => handleStepAction(step.id, 'failed')}
+                      >
+                        <XCircle className="h-4 w-4" />
+                        Didn't Work
+                      </Button>
+                    </div>
                   </div>
                 )}
 
@@ -577,7 +610,6 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
             <div>
               <div className="flex items-center gap-3 mb-1">
                 <h2 className="text-lg font-semibold text-foreground">{viewMode === 'execution' ? 'Guided Remediation' : viewMode === 'verification' ? 'Resolution Verification' : 'Case Resolved'}</h2>
-                <Badge variant="outline" className="text-xs font-medium bg-primary/5 text-primary border-primary/20">AIOps Agent v4.0</Badge>
               </div>
               <p className="text-sm text-muted-foreground flex items-center gap-2">
                 <AlertCircle className="h-3.5 w-3.5 text-primary" />
