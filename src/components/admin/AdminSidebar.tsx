@@ -24,20 +24,26 @@ export function AdminSidebar({ activeSection, onSectionChange }: AdminSidebarPro
       "h-full bg-card/40 backdrop-blur-md border-r border-border/50 flex flex-col transition-all duration-300",
       isCollapsed ? "w-16" : "w-64"
     )}>
-      {/* Header with Collapse Toggle */}
+      {/* Header with Collapse Toggle - Matching IEP Style */}
       <div className={cn(
         "p-4 border-b border-border/50 flex items-center justify-between",
-        isCollapsed ? "justify-center" : "justify-end"
+        isCollapsed ? "justify-center" : "items-start"
       )}>
         {!isCollapsed && (
-          <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold animate-in fade-in duration-500">
-            Admin Workspace
-          </span>
+          <div className="flex flex-col animate-in fade-in slide-in-from-left-2 duration-500">
+            <h2 className="text-xl font-bold text-foreground">Admin Settings</h2>
+            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight opacity-70">
+              Manage rules, intents & remediation
+            </p>
+          </div>
         )}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="p-1.5 rounded-md hover:bg-secondary/80 text-muted-foreground hover:text-foreground transition-all duration-200"
-          title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          className={cn(
+            "p-1.5 rounded-lg bg-secondary/50 hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all duration-200 border border-border/50",
+            isCollapsed ? "mt-2" : "mt-1"
+          )}
+          title={isCollapsed ? "Expand Admin Sidebar" : "Shorten Admin Sidebar"}
         >
           {isCollapsed ? (
             <ChevronRight className="h-4 w-4" />
@@ -48,7 +54,7 @@ export function AdminSidebar({ activeSection, onSectionChange }: AdminSidebarPro
       </div>
 
       {/* Navigation Items */}
-      <nav className="flex-1 p-3 space-y-2">
+      <nav className="flex-1 p-3 space-y-2 mt-2">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeSection === item.id;
@@ -59,36 +65,46 @@ export function AdminSidebar({ activeSection, onSectionChange }: AdminSidebarPro
               onClick={() => onSectionChange(item.id)}
               title={isCollapsed ? item.label : undefined}
               className={cn(
-                "w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all group",
+                "w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all group relative",
                 isActive
-                  ? "bg-primary/20 text-primary border border-primary/30 shadow-[0_0_15px_rgba(var(--primary-rgb),0.1)]"
+                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
                   : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground border border-transparent",
                 isCollapsed && "justify-center px-0"
               )}
             >
               <Icon className={cn(
                 "h-5 w-5 shrink-0 transition-transform duration-300 group-hover:scale-110",
-                isActive && "text-primary scale-110"
+                isActive && "scale-110"
               )} />
               {!isCollapsed && (
                 <span className="flex-1 text-left whitespace-nowrap overflow-hidden text-ellipsis animate-in fade-in slide-in-from-left-2 duration-300">
                   {item.label}
                 </span>
               )}
-              {!isCollapsed && isActive && (
-                <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+
+              {!isCollapsed && (
+                <div className="ml-auto opacity-50 group-hover:opacity-100 transition-opacity">
+                  <ChevronRight className={cn("h-4 w-4 transition-transform", isActive && "rotate-90")} />
+                </div>
+              )}
+
+              {isCollapsed && isActive && (
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-l-full" />
               )}
             </button>
           );
         })}
       </nav>
 
-      {/* Footer Info (Only when expanded) */}
+      {/* Footer Info */}
       {!isCollapsed && (
         <div className="p-4 border-t border-border/30 bg-secondary/5">
-          <p className="text-[9px] text-muted-foreground leading-tight uppercase tracking-tighter opacity-50">
-            System Configuration Mode
-          </p>
+          <div className="flex items-center gap-2 px-1">
+            <Shield className="h-3 w-3 text-primary/50" />
+            <p className="text-[9px] text-muted-foreground leading-tight uppercase tracking-widest font-semibold opacity-50">
+              System Secure Mode
+            </p>
+          </div>
         </div>
       )}
     </div>
