@@ -573,6 +573,48 @@ const Topology = () => {
                                                 ))}
                                             </div>
                                         </div>
+
+                                        {/* Explainable Scoring Logic Section */}
+                                        <div className="bg-muted/20 p-4 rounded-xl border border-border/60">
+                                            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2 mb-3">
+                                                <Info className="h-3.5 w-3.5" /> Explainable Scoring Logic
+                                            </h4>
+
+                                            <div className="mb-4">
+                                                <p className="text-[10px] font-mono bg-background/50 p-2 rounded border border-border text-foreground/80 break-all">
+                                                    {correlationResult?.scoring_explanation?.formula}
+                                                </p>
+                                                <div className="flex gap-2 mt-2 flex-wrap">
+                                                    {correlationResult?.scoring_explanation?.weights && Object.entries(correlationResult.scoring_explanation.weights).map(([key, val]) => (
+                                                        <Badge key={key} variant="secondary" className="text-[9px] h-5 px-2 font-mono bg-background border-border">
+                                                            {key}: {val as React.ReactNode}
+                                                        </Badge>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-3">
+                                                {correlationResult?.scoring_explanation?.examples?.map((ex: any, idx: number) => (
+                                                    <div key={idx} className="bg-background/80 p-3 rounded-lg border border-border/50 text-xs shadow-sm">
+                                                        <div className="flex justify-between items-center mb-2">
+                                                            <span className="font-bold text-primary flex items-center gap-1.5">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                                                                {ex.pair}
+                                                            </span>
+                                                            <Badge className="h-5 text-[10px] font-bold bg-primary/10 text-primary border-primary/20">
+                                                                Score: {ex.total}
+                                                            </Badge>
+                                                        </div>
+                                                        <div className="font-mono text-[10px] text-muted-foreground mb-2 pl-2 border-l-2 border-primary/20 py-1 bg-muted/30 rounded-r">
+                                                            {ex.calc}
+                                                        </div>
+                                                        <p className="text-[10px] text-foreground/70 italic leading-relaxed">
+                                                            "{ex.breakdown}"
+                                                        </p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
                                     </TabsContent>
                                 </Tabs>
                             </div>

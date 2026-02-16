@@ -130,6 +130,24 @@ export const correlationResult = {
         { event: "E004", score: 0.44, device: "Edge-R4", code: "LATENCY_HIGH" },
         { event: "E005", score: 0.30, device: "App-GW1", code: "RESPONSE_TIME_HIGH" }
     ],
+    scoring_explanation: {
+        formula: "S_total = (w_t × S_t) + (w_s × S_s) + (w_topo × S_topo) + (w_c × S_causal)",
+        weights: { w_t: 0.25, w_s: 0.15, w_topo: 0.30, w_c: 0.30 },
+        examples: [
+            {
+                pair: "E001 (Util) → E002 (Drops)",
+                calc: "0.25(0.92) + 0.15(0.60) + 0.30(1.00) + 0.30(0.90)",
+                total: 0.90,
+                breakdown: "Temporal(0.92): <5s apart. Spatial(0.6): Same Site. Topo(1.0): Same Device. Causal(0.9): Utilization causes Drops."
+            },
+            {
+                pair: "E002 (Drops) → E003 (Latency)",
+                calc: "0.25(0.83) + 0.15(0.60) + 0.30(0.80) + 0.30(0.80)",
+                total: 0.81,
+                breakdown: "Temporal(0.83): 10s apart. Spatial(0.6): Same Site. Topo(0.8): 1 Hop (Agg->Edge). Causal(0.8): Drops cause Latency."
+            }
+        ]
+    },
     confidence: "High"
 };
 
