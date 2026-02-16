@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { MainLayout } from '@/components/layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ServiceTopology } from '@/components/topology/ServiceTopology';
+import { correlationDemoNodes, NODE_INSIGHTS_DEMO, correlationResult } from '@/data/correlationDemoData';
 import {
     Activity,
     AlertTriangle,
@@ -168,7 +169,8 @@ const Topology = () => {
 
     const activeInsights = useMemo(() => {
         if (!selectedNodeId) return null;
-        return NODE_INSIGHTS[selectedNodeId] || {
+        // Check demo insights first, then default insights
+        return NODE_INSIGHTS_DEMO[selectedNodeId] || NODE_INSIGHTS[selectedNodeId] || {
             actualEvents: [],
             predictedEvents: [],
             anomalyEvents: [],
@@ -226,6 +228,7 @@ const Topology = () => {
                             <ServiceTopology
                                 className="border-none rounded-none h-full bg-transparent"
                                 onNodeClick={(id) => setSelectedNodeId(id)}
+                                nodes={correlationDemoNodes}
                             />
                             {!selectedNodeId && (
                                 <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-background/80 backdrop-blur-sm border border-border px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-bounce">
@@ -267,10 +270,11 @@ const Topology = () => {
                         <ScrollArea className="flex-1">
                             <div className="p-4 space-y-6">
                                 <Tabs defaultValue="events" className="w-full">
-                                    <TabsList className="grid w-full grid-cols-3 mb-6 bg-muted/50 p-1 rounded-xl">
+                                    <TabsList className="grid w-full grid-cols-4 mb-6 bg-muted/50 p-1 rounded-xl">
                                         <TabsTrigger value="events" className="text-xs rounded-lg py-2 data-[state=active]:shadow-sm">Events</TabsTrigger>
                                         <TabsTrigger value="predict" className="text-xs rounded-lg py-2 data-[state=active]:shadow-sm">Predictions</TabsTrigger>
                                         <TabsTrigger value="metrics" className="text-xs rounded-lg py-2 data-[state=active]:shadow-sm">Metrics</TabsTrigger>
+                                        <TabsTrigger value="correlation" className="text-xs rounded-lg py-2 data-[state=active]:shadow-sm">Correlation</TabsTrigger>
                                     </TabsList>
 
                                     {/* EVENTS TAB */}
@@ -500,6 +504,74 @@ const Topology = () => {
                                             <p className="text-xs text-foreground/80 leading-relaxed font-medium">
                                                 "Forecasting models indicate a potential network congestion scenario between 14:00 - 16:00. Interface bandwidth is likely to peak at 350Mbps, triggering a warning state."
                                             </p>
+                                        </div>
+                                    </TabsContent>
+
+                                    {/* CORRELATION TAB */}
+                                    <TabsContent value="correlation" className="mt-0 space-y-6 outline-none pb-6 h-full overflow-y-auto">
+                                        <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background p-5 rounded-2xl border border-primary/20 relative overflow-hidden shadow-lg group hover:shadow-primary/10 transition-all">
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <div className="p-1.5 bg-primary/20 rounded-lg">
+                                                    <BrainCircuit className="h-5 w-5 text-primary" />
+                                                </div>
+                                                <h3 className="text-sm font-black text-primary uppercase tracking-tight">AI Signal Correlation</h3>
+                                            </div>
+                                            <p className="text-xs font-medium text-foreground/90 italic leading-relaxed mb-4 pl-1 border-l-2 border-primary/30">
+                                                "{correlationResult?.situation_summary}"
+                                            </p>
+
+                                            <div className="flex items-center gap-2">
+                                                <Badge variant="outline" className="bg-background/50 border-primary/20 text-[10px] py-1 shadow-sm">
+                                                    Compliance: <span className="font-bold ml-1 text-primary">{correlationResult?.confidence}</span>
+                                                </Badge>
+                                                <Badge variant="outline" className="bg-background/50 border-primary/20 text-[10px] py-1 shadow-sm">
+                                                    Events: <span className="font-bold ml-1 text-primary">{correlationResult?.grouping?.core_events?.length + correlationResult?.grouping?.downstream_symptoms?.length}</span>
+                                                </Badge>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                                <Layers className="h-3.5 w-3.5" /> Correlation Factors
+                                            </h4>
+                                            <div className="grid gap-3">
+                                                {correlationResult?.why_grouped?.map((text, idx) => (
+                                                    <div key={idx} className="bg-card p-3 rounded-xl border border-border/50 text-[11px] shadow-sm flex gap-3 hover:bg-muted/50 transition-colors">
+                                                        <div className="mt-1.5 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                                                        <p className="text-muted-foreground leading-relaxed">{text}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-4">
+                                            <h4 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                                                <Target className="h-3.5 w-3.5" /> Event Centrality
+                                            </h4>
+                                            <div className="space-y-3">
+                                                {correlationResult?.relative_importance?.map((item: any, idx: number) => (
+                                                    <div key={idx} className="flex items-center justify-between bg-muted/30 p-2 rounded-lg border border-border/50 hover:border-primary/30 transition-colors">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={cn(
+                                                                "w-8 h-8 rounded-lg flex items-center justify-center text-[10px] font-bold border",
+                                                                item.score > 0.8 ? "bg-primary/20 border-primary/30 text-primary" : "bg-muted border-border text-muted-foreground"
+                                                            )}>
+                                                                {(item.score * 100).toFixed(0)}%
+                                                            </div>
+                                                            <div className="flex flex-col">
+                                                                <span className="text-xs font-bold">{item.event}</span>
+                                                                <span className="text-[10px] text-muted-foreground">{item.code}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="w-16 h-1.5 bg-muted rounded-full overflow-hidden">
+                                                            <div
+                                                                className={cn("h-full rounded-full transition-all duration-1000", item.score > 0.8 ? "bg-primary" : "bg-muted-foreground/30")}
+                                                                style={{ width: `${item.score * 100}%` }}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     </TabsContent>
                                 </Tabs>

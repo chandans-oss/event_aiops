@@ -1,13 +1,13 @@
 import { useState, useCallback, useMemo } from 'react';
-import { Server, Database, Globe, Shield, Cpu, HardDrive, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Server, Database, Globe, Shield, Cpu, HardDrive, AlertCircle, CheckCircle2, Network } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
-interface ServiceNode {
+export interface ServiceNode {
   id: string;
   name: string;
-  type: 'api' | 'database' | 'web' | 'auth' | 'compute' | 'storage';
+  type: 'api' | 'database' | 'web' | 'auth' | 'compute' | 'storage' | 'network' | 'core' | 'edge';
   status: 'healthy' | 'degraded' | 'critical' | 'impacted';
   x: number;
   y: number;
@@ -20,6 +20,7 @@ interface ServiceNode {
 }
 
 interface ServiceTopologyProps {
+  nodes?: ServiceNode[];
   affectedServices?: string[];
   onNodeClick?: (nodeId: string) => void;
   className?: string;
@@ -47,6 +48,9 @@ const getIcon = (type: ServiceNode['type']) => {
     case 'auth': return Shield;
     case 'compute': return Cpu;
     case 'storage': return HardDrive;
+    case 'network': return Network;
+    case 'core': return Server; // Or a specific Core Router icon if improved
+    case 'edge': return Globe; // Or a specific Edge icon
     default: return Server;
   }
 };
@@ -71,18 +75,19 @@ const getNodeBg = (status: ServiceNode['status']) => {
   }
 };
 
-export function ServiceTopology({ affectedServices = [], onNodeClick, className }: ServiceTopologyProps) {
+export function ServiceTopology({ nodes: propNodes, affectedServices = [], onNodeClick, className }: ServiceTopologyProps) {
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
 
   const nodes = useMemo(() => {
-    return defaultNodes.map(node => ({
+    const nodesToUse = propNodes || defaultNodes;
+    return nodesToUse.map(node => ({
       ...node,
       status: affectedServices.includes(node.name) || affectedServices.includes(node.id)
         ? (affectedServices[0] === node.name || affectedServices[0] === node.id ? 'critical' : 'impacted') as ServiceNode['status']
         : node.status
     }));
-  }, [affectedServices]);
+  }, [affectedServices, propNodes]);
 
   const handleNodeClick = useCallback((nodeId: string) => {
     setSelectedNode(nodeId === selectedNode ? null : nodeId);
@@ -96,7 +101,7 @@ export function ServiceTopology({ affectedServices = [], onNodeClick, className 
       node.connections.forEach(targetId => {
         const targetNode = nodes.find(n => n.id === targetId);
         if (targetNode) {
-          const isAffected = 
+          const isAffected =
             (node.status === 'critical' || node.status === 'impacted') &&
             (targetNode.status === 'critical' || targetNode.status === 'impacted');
           lines.push({ from: node, to: targetNode, isAffected });
@@ -149,12 +154,12 @@ export function ServiceTopology({ affectedServices = [], onNodeClick, className 
           </marker>
         </defs>
         {connections.map((conn, index) => {
-          const isHighlighted = 
-            hoveredNode === conn.from.id || 
+          const isHighlighted =
+            hoveredNode === conn.from.id ||
             hoveredNode === conn.to.id ||
             selectedNode === conn.from.id ||
             selectedNode === conn.to.id;
-          
+
           return (
             <line
               key={index}
