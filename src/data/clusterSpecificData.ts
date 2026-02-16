@@ -517,9 +517,9 @@ export const CLU_LC_001_Data: ClusterSpecificData = {
         { source: 'Interface Logs', type: 'Logs', count: 5, samples: ['Gi0/1/0: Queue full - tail drops active', 'Gi0/1/0: High buffer utilization'], relevance: 88 }
     ],
     correlatedChildEvents: [
-        { id: 'EVT-LC-009', alertType: 'PACKET_DISCARD', source: 'core-router-dc1', severity: 'Critical', timestamp: '2025-10-28T14:30:00Z', correlationScore: 0.95, correlationReason: 'Spatial Correlation: Same host / service', message: 'Output packet discards on Gi0/1/0' },
-        { id: 'EVT-LC-011', alertType: 'HIGH_LATENCY', source: 'core-router-dc1', severity: 'Critical', timestamp: '2025-10-28T14:31:00Z', correlationScore: 0.92, correlationReason: 'Causal Correlation: Cause → effect chains', message: 'Latency to peer router 500 ms' },
-        { id: 'EVT-LC-008', alertType: 'CPU_HIGH', source: 'core-router-dc1', severity: 'Major', timestamp: '2025-10-28T14:27:00Z', correlationScore: 0.88, correlationReason: 'Rule-Based Correlation: Domain-specific heuristics', message: 'CPU usage reached 85%' }
+        { id: 'EVT-LC-009', alertType: 'PACKET_DISCARD', source: 'core-router-dc1', severity: 'Critical', timestamp: '2025-10-28T14:30:00Z', correlationScore: 0.95, correlationReason: 'Spatial Correlation: Co-located on core-router-dc1', message: 'Output packet discards on Gi0/1/0' },
+        { id: 'EVT-LC-011', alertType: 'HIGH_LATENCY', source: 'core-router-dc1', severity: 'Critical', timestamp: '2025-10-28T14:31:00Z', correlationScore: 0.92, correlationReason: 'Causal Correlation: Queue Depth → Latency Spike', message: 'Latency to peer router 500 ms' },
+        { id: 'EVT-LC-008', alertType: 'CPU_HIGH', source: 'core-router-dc1', severity: 'Major', timestamp: '2025-10-28T14:27:00Z', correlationScore: 0.88, correlationReason: 'Rule-Based Correlation: CPU High vs PPS Rate', message: 'CPU usage reached 85%' }
     ],
     impactedAssets: [
         { id: 'api-gw', name: 'API Gateway', type: 'Service', severity: 'Critical', status: 'Slow', dependencies: ['core-router-dc1'] },

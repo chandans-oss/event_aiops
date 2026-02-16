@@ -23,11 +23,22 @@ const getCorrelationStrategy = (reason: string) => {
     return 'GNN-Based Correlation (Advanced)';
 };
 
-const getCorrelationExplanation = (reason: string) => {
+const getCorrelationExplanation = (reason: string, event?: any) => {
+    // DEMO SPECIFIC OVERRIDES
+    if (event?.id === 'EVT-LC-009') { // Packet Discard
+        return "Spatial Co-location: High utilization on interface Gi0/1/0 (Primary Event) directly causes output queue exhaustion and packet drops (Secondary Event) on the same physical device 'core-router-dc1'.";
+    }
+    if (event?.id === 'EVT-LC-011') { // Latency
+        return "Causal Chain Verification: Granger Causality Test (p < 0.01) confirms that Queue Depth (Cause) precedes Latency Spike (Effect) with a 200ms lag. Buffering delay is the direct mechanism.";
+    }
+    if (event?.id === 'EVT-LC-008') { // CPU High
+        return "Heuristic Rule Match [R-NET-CPU]: Detected 'SoftIRQ' CPU spike correlating with high Packet-Per-Second (PPS) rate, indicating control plane stress due to traffic processing.";
+    }
+
     const strategy = getCorrelationStrategy(reason);
     switch (strategy) {
         case "Temporal Correlation":
-            return "Events A and B occurred within a sliding window of Δt = 5s. Probability P(A|B) > 0.85 calculated via temporal association mining.";
+            return "Events occurred within a sliding window of Δt = 5s. Probability P(A|B) > 0.85 calculated via temporal association mining.";
         case "Causal Correlation":
             return "Granger causality test indicates Event A precedes Event B with statistical significance (p < 0.05). Verified against causal graph schema v4.2.";
         case "Topological Correlation":
@@ -40,6 +51,7 @@ const getCorrelationExplanation = (reason: string) => {
         default:
             return "Graph Neural Network model (GATv2) predicts link with confidence 0.95. Embedding similarity cosine_sim(v_a, v_b) = 0.88.";
     }
+    return reason;
 };
 
 export function RCACorrelatedEvents({ data }: RCACorrelatedEventsProps) {
@@ -194,7 +206,7 @@ export function RCACorrelatedEvents({ data }: RCACorrelatedEventsProps) {
                                                                 <div className="space-y-1">
                                                                     <p className="text-[10px] font-bold text-primary uppercase">Strategy Logic</p>
                                                                     <p className="text-xs text-muted-foreground leading-relaxed font-mono">
-                                                                        {getCorrelationExplanation(event.correlationReason)}
+                                                                        {getCorrelationExplanation(event.correlationReason, event)}
                                                                     </p>
                                                                 </div>
                                                             </div>
