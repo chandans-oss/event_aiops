@@ -7,13 +7,13 @@ import { Cluster } from '@/types';
 import { getClusterData } from '@/data/clusterSpecificData';
 
 // Import new RCA components
-import { RCASummary } from '@/components/rca/RCASummary';
-import { RCACorrelatedEvents } from '@/components/rca/RCACorrelatedEvents';
-import { RCADataEvidence } from '@/components/rca/RCADataEvidence';
-import { RCAImpactMap } from '@/components/rca/RCAImpactMap';
-import { RCADiagnosisPath } from '@/components/rca/RCADiagnosisPath';
-import { RCARemediation } from '@/components/rca/RCARemediation';
-import { RCAAnalytics } from '@/components/rca/RCAAnalytics';
+import { RCASummary } from '@/components/rca/rcaSummary';
+import { RCACorrelatedEvents } from '@/components/rca/rcaCorrelatedEvents';
+import { RCADataEvidence } from '@/components/rca/rcaDataEvidence';
+import { RCAImpactMap } from '@/components/rca/rcaImpactMap';
+import { RCADiagnosisPath } from '@/components/rca/rcaDiagnosisPath';
+import { RCARemediation } from '@/components/rca/rcaRemediation';
+import { RCAAnalytics } from '@/components/rca/rcaAnalytics';
 
 interface RCASidebarProps {
   cluster: Cluster;
@@ -113,10 +113,10 @@ export function RCASidebar({ cluster, onClose, onOpenRemediation }: RCASidebarPr
           <div className="border-b border-border bg-background/50 sticky top-0 z-10 -mx-6 px-6 mb-6">
             <TabsList className="h-12 w-full grid grid-cols-5 bg-transparent p-0">
               <TabsTrigger value="summary" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">RCA Summary</TabsTrigger>
-              <TabsTrigger value="correlated" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">CorrelatedEvents</TabsTrigger>
-              <TabsTrigger value="evidence" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">DataEvidence</TabsTrigger>
-              <TabsTrigger value="impact" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">ImpactAnalysis</TabsTrigger>
-              <TabsTrigger value="analytics" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">EventAnalytics</TabsTrigger>
+              <TabsTrigger value="correlated" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">Correlated Events</TabsTrigger>
+              <TabsTrigger value="evidence" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">Data Evidence</TabsTrigger>
+              <TabsTrigger value="impact" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">Impact Analysis</TabsTrigger>
+              <TabsTrigger value="analytics" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">Event Analytics</TabsTrigger>
             </TabsList>
           </div>
 
