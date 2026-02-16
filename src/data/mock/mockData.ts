@@ -222,15 +222,15 @@ export const mockClusters: Cluster[] = [
         label: 'Child'
       },
       {
-        id: 'EVT-LC-008',
-        alertType: 'CPU_HIGH',
-        source: 'core-router-dc1',
-        severity: 'Major',
-        timestamp: '2025-10-28T14:27:00Z',
-        correlationScore: 0.88,
-        message: 'CPU usage reached 85%',
+        id: 'evt_007',
+        alertType: 'LINK_DOWN',
+        source: 'Edge-S10',
+        severity: 'Critical',
+        timestamp: '2025-12-26T10:01:22Z',
+        correlationScore: 0.85,
+        message: 'Uplink to Dist-R4 failed',
         label: 'Child'
-      },
+      }
     ],
     affectedServices: ['api-gateway', 'web-app', 'database-primary', 'backup-service'],
     affectedUsers: 2500,
@@ -266,19 +266,9 @@ export const mockClusters: Cluster[] = [
         correlationScore: 0.92,
         message: 'API request timeout after 30s',
         label: 'Child'
-      },
-      {
-        id: 'EVT-003',
-        alertType: 'WEB_5XX_ERROR',
-        source: 'web-server-01',
-        severity: 'Major',
-        timestamp: '2026-01-05T14:30:05Z',
-        correlationScore: 0.88,
-        message: 'HTTP 503 Service Unavailable',
-        label: 'Child'
-      },
+      }
     ],
-    affectedServices: ['web-app', 'api-gateway', 'auth-service', 'payment-service', 'user-service', 'notification-service', 'cache-service', 'search-service'],
+    affectedServices: ['web-app', 'api-gateway', 'auth-service', 'payment-service'],
     affectedUsers: 2500,
     status: 'Active',
     createdAt: '2026-01-05T14:30:00Z',
@@ -301,18 +291,8 @@ export const mockClusters: Cluster[] = [
       timestamp: '2026-01-05T13:15:00Z',
       message: 'Disk usage exceeded 95% threshold'
     },
-    childEvents: [
-      {
-        id: 'EVT-011',
-        alertType: 'WRITE_FAILURE',
-        source: 'log-aggregator-01',
-        severity: 'Minor',
-        timestamp: '2026-01-05T13:15:30Z',
-        correlationScore: 0.85,
-        message: 'Failed to write logs to storage'
-      }
-    ],
-    affectedServices: ['logging-service', 'metrics-collector', 'backup-service'],
+    childEvents: [],
+    affectedServices: ['logging-service', 'metrics-collector'],
     affectedUsers: 0,
     status: 'Resolved',
     createdAt: '2026-01-05T13:15:00Z',
@@ -329,39 +309,20 @@ export const mockClusters: Cluster[] = [
       id: 'EVT-020',
       alertType: 'NETWORK_LATENCY',
       source: 'router-dc-east-01',
-      severity: 'Minor',
+      severity: 'Major',
       timestamp: '2026-01-05T12:00:00Z',
-      message: 'Network latency spike detected - 500ms average'
+      message: 'Network latency spike detected - BGP route flapping'
     },
-    childEvents: [
-      {
-        id: 'EVT-021',
-        alertType: 'SLOW_RESPONSE',
-        source: 'api-server-east-02',
-        severity: 'Minor',
-        timestamp: '2026-01-05T12:00:10Z',
-        correlationScore: 0.78,
-        message: 'API response time exceeded SLA'
-      },
-      {
-        id: 'EVT-022',
-        alertType: 'TCP_RETRANSMIT',
-        source: 'load-balancer-01',
-        severity: 'Low',
-        timestamp: '2026-01-05T12:00:15Z',
-        correlationScore: 0.72,
-        message: 'High TCP retransmission rate detected'
-      }
-    ],
-    affectedServices: ['cdn-service', 'api-east', 'static-assets'],
+    childEvents: [],
+    affectedServices: ['cdn-service', 'api-east'],
     affectedUsers: 850,
     status: 'Active',
     createdAt: '2026-01-05T12:00:00Z',
     duration: '2h 30m',
     rca: {
-      rootCause: 'Network congestion due to BGP route flapping',
+      rootCause: 'Network congestion due to BGP route flapping on ISP-A peer',
       confidence: 0.75,
-      hypotheses: ['H_BGP_FLAP', 'H_DDOS_ATTACK', 'H_ISP_ISSUE']
+      hypotheses: ['H_BGP_FLAP', 'H_ISP_ISSUE']
     }
   },
   {
@@ -376,33 +337,25 @@ export const mockClusters: Cluster[] = [
     },
     childEvents: [
       {
-        id: 'EVT-031',
-        alertType: 'GC_PAUSE',
-        source: 'app-server-05',
-        severity: 'Major',
-        timestamp: '2026-01-05T10:45:05Z',
-        correlationScore: 0.95,
-        message: 'Full GC pause lasting 8.5 seconds'
-      },
-      {
-        id: 'EVT-032',
-        alertType: 'REQUEST_QUEUE_FULL',
-        source: 'app-server-05',
-        severity: 'Major',
-        timestamp: '2026-01-05T10:45:10Z',
-        correlationScore: 0.90,
-        message: 'Request queue capacity exceeded'
+        id: 'EVT-050',
+        alertType: 'CPU_SPIKE',
+        source: 'worker-node-12',
+        severity: 'Minor',
+        timestamp: '2026-01-05T08:30:00Z',
+        correlationScore: 0.82,
+        message: 'CPU utilization spiked to 95%',
+        label: 'Child'
       }
     ],
-    affectedServices: ['order-processing', 'inventory-check', 'pricing-engine'],
+    affectedServices: ['order-processing', 'inventory-check'],
     affectedUsers: 1200,
     status: 'Pending',
     createdAt: '2026-01-05T10:45:00Z',
     duration: '15m 22s',
     rca: {
-      rootCause: 'Memory leak in pricing calculation module',
+      rootCause: 'Memory leak in pricing calculation module causing cascading GC overhead',
       confidence: 0.82,
-      hypotheses: ['H_MEMORY_LEAK', 'H_CACHE_OVERFLOW', 'H_THREAD_DEADLOCK']
+      hypotheses: ['H_MEMORY_LEAK', 'H_CACHE_OVERFLOW']
     }
   },
   {
@@ -416,47 +369,15 @@ export const mockClusters: Cluster[] = [
       message: 'SSL certificate expires in 24 hours'
     },
     childEvents: [],
-    affectedServices: ['https-gateway', 'api-secure'],
+    affectedServices: ['https-gateway'],
     affectedUsers: 0,
     status: 'Active',
     createdAt: '2026-01-05T09:00:00Z',
     duration: '5h 30m',
     rca: {
-      rootCause: 'Certificate auto-renewal process failed',
+      rootCause: 'Certificate auto-renewal process failed due to DNS validation timeout',
       confidence: 0.95,
-      hypotheses: ['H_CERT_RENEWAL_FAILURE', 'H_DNS_VALIDATION_ISSUE']
-    }
-  },
-  {
-    id: 'CLU-12350',
-    rootEvent: {
-      id: 'EVT-050',
-      alertType: 'CPU_SPIKE',
-      source: 'worker-node-12',
-      severity: 'Minor',
-      timestamp: '2026-01-05T08:30:00Z',
-      message: 'CPU utilization at 95% for 10 minutes'
-    },
-    childEvents: [
-      {
-        id: 'EVT-051',
-        alertType: 'PROCESS_SLOW',
-        source: 'worker-node-12',
-        severity: 'Low',
-        timestamp: '2026-01-05T08:32:00Z',
-        correlationScore: 0.80,
-        message: 'Background job processing delayed'
-      }
-    ],
-    affectedServices: ['batch-processor', 'report-generator'],
-    affectedUsers: 50,
-    status: 'Resolved',
-    createdAt: '2026-01-05T08:30:00Z',
-    duration: '20m 15s',
-    rca: {
-      rootCause: 'Runaway regex in data validation causing CPU exhaustion',
-      confidence: 0.88,
-      hypotheses: ['H_REGEX_BACKTRACK', 'H_INFINITE_LOOP', 'H_CRYPTOMINER']
+      hypotheses: ['H_CERT_RENEWAL_FAILURE']
     }
   },
   {
@@ -488,65 +409,10 @@ export const mockClusters: Cluster[] = [
     createdAt: '2025-12-26T10:02:00Z',
     duration: '21d',
     rca: {
-      rootCause: 'Hardware Failure: Primary Power Supply Unit (PSU-1) failed on Core-R2 causing electrical instability on line cards.',
+      rootCause: 'Hardware Failure: Primary Power Supply Unit (PSU-1) failed on Core-R2 causing electrical instability.',
       confidence: 0.97,
-      hypotheses: ['H_PSU_FAILURE', 'H_ELECTRICAL_SPIKE']
+      hypotheses: ['H_PSU_FAILURE']
     }
-  },
-  {
-    id: 'CLU-002',
-    rootEvent: { id: 'evt_002', alertType: 'LINK_DOWN', source: 'Dist-R4', severity: 'Critical', timestamp: '2025-12-26T10:01:20Z', message: 'Uplink port down' },
-    childEvents: [],
-    affectedServices: ['Data-Center-Link'],
-    affectedUsers: 1200,
-    status: 'Active',
-    createdAt: '2025-12-26T10:01:20Z',
-    duration: '21d',
-    rca: { rootCause: 'Fiber Cut: Physical fiber damage on uplink to Dist-R4', confidence: 0.95, hypotheses: ['H_FIBER_CUT'] }
-  },
-  {
-    id: 'CLU-004',
-    rootEvent: { id: 'evt_018', alertType: 'CPU_HIGH', source: 'Dist-R6', severity: 'Major', timestamp: '2025-12-26T10:03:00Z', message: 'CPU spike' },
-    childEvents: [],
-    affectedServices: ['Control-Plane'],
-    affectedUsers: 500,
-    status: 'Active',
-    createdAt: '2025-12-26T10:03:00Z',
-    duration: '21d',
-    rca: { rootCause: 'Traffic Flood: Ingress packet storm on Dist-R6', confidence: 0.88, hypotheses: ['H_TRAFFIC_FLOOD'] }
-  },
-  {
-    id: 'CLU-005',
-    rootEvent: { id: 'evt_025', alertType: 'MAC_FLAP', source: 'Core-R1', severity: 'Critical', timestamp: '2025-12-26T10:05:00Z', message: 'MAC flapping' },
-    childEvents: [],
-    affectedServices: ['Internal-Network'],
-    affectedUsers: 3000,
-    status: 'Active',
-    createdAt: '2025-12-26T10:05:00Z',
-    duration: '21d',
-    rca: { rootCause: 'Switching Loop: Layer 2 loop detected on VLAN 100', confidence: 0.96, hypotheses: ['H_STP_LOOP'] }
-  },
-  {
-    id: 'CLU-006',
-    rootEvent: { id: 'evt_035', alertType: 'LINK_DOWN', source: 'Core-R1', severity: 'Critical', timestamp: '2025-12-26T10:08:00Z', message: 'Port down' },
-    childEvents: [],
-    affectedServices: ['Edge-Connectivity'],
-    affectedUsers: 800,
-    status: 'Active',
-    createdAt: '2025-12-26T10:08:00Z',
-    duration: '21d',
-    rca: { rootCause: 'Interface Failure: Transceiver failure on Core-R1 Gi0/2/0', confidence: 0.93, hypotheses: ['H_XCVR_FAILURE'] }
-  },
-  {
-    id: 'CLU-007',
-    rootEvent: { id: 'evt_040', alertType: 'LINK_DOWN', source: 'Core-R2', severity: 'Critical', timestamp: '2025-12-26T10:09:00Z', message: 'Interface down' },
-    childEvents: [],
-    affectedServices: ['Backup-Routes'],
-    affectedUsers: 400,
-    status: 'Active',
-    createdAt: '2025-12-26T10:09:00Z',
-    duration: '21d',
-    rca: { rootCause: 'Software Bug: Memory leak in linecard driver on Core-R2', confidence: 0.91, hypotheses: ['H_DRIVER_BUG'] }
   }
 ];
 

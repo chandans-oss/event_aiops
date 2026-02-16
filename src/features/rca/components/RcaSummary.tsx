@@ -1,7 +1,7 @@
 import { ClusterSpecificData } from '@/features/rca/data/clusterData';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/components/ui/card';
 import { Badge } from '@/shared/components/ui/badge';
-import { Activity, TrendingUp, Users, DollarSign, Clock, AlertTriangle, ArrowRight, ExternalLink } from 'lucide-react';
+import { Activity, TrendingUp, Users, DollarSign, Clock, AlertTriangle, ArrowRight, ExternalLink, Wrench } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Separator } from '@/shared/components/ui/separator';
 
@@ -32,10 +32,11 @@ export function RCASummary({ data, confidence = 0.95, onViewDetailedRCA }: RCASu
                     </Button>
                 </CardHeader>
                 <CardContent>
-                    <p className="text-foreground text-lg leading-relaxed">
+                    <p className="text-foreground text-lg leading-relaxed font-medium">
                         {data.rcaSummary}
                     </p>
-                    <div className="mt-6 flex flex-wrap gap-4">
+
+                    <div className="flex flex-wrap gap-4 mt-6">
                         <div className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-secondary/50 border border-border">
                             <span className="text-muted-foreground text-sm">Severity:</span>
                             <Badge variant={data.rcaMetadata.severity === 'Critical' ? 'destructive' : 'default'}>
@@ -46,7 +47,6 @@ export function RCASummary({ data, confidence = 0.95, onViewDetailedRCA }: RCASu
                             <span className="text-muted-foreground text-sm">Confidence:</span>
                             <span className="font-bold text-primary">{Math.round(confidence * 100)}%</span>
                         </div>
-
                     </div>
                 </CardContent>
             </Card>

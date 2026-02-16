@@ -53,6 +53,7 @@ export default function Events() {
   const [showResolved, setShowResolved] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<NetworkEvent | null>(null);
   const [activeSidebar, setActiveSidebar] = useState<SidebarType>(null);
+  const [selectedCauseId, setSelectedCauseId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -184,9 +185,9 @@ export default function Events() {
 
   return (
     <MainLayout>
-      <div className="p-6 space-y-6">
+      <div className="p-4 space-y-4">
         {/* Filters */}
-        <div className="glass-card rounded-xl p-4">
+        <div className="glass-card rounded-xl p-3">
           <div className="flex flex-wrap items-center gap-4">
             <div className="relative flex-1 min-w-[240px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -270,7 +271,7 @@ export default function Events() {
           <div className="overflow-x-auto">
             <div className="min-w-[1200px]">
               {/* Table Header */}
-              <div className="grid grid-cols-12 gap-4 px-6 py-4 bg-secondary/50 border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+              <div className="grid grid-cols-12 gap-4 px-4 py-2 bg-secondary/50 border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                 <div className="col-span-2">Event ID / Device</div>
                 <div className="col-span-1">Severity</div>
                 <div className="col-span-2">Event Message</div>
@@ -295,7 +296,7 @@ export default function Events() {
                     <div
                       key={event.event_id}
                       className={cn(
-                        "grid grid-cols-12 gap-4 px-6 py-4 hover:bg-secondary/30 transition-all border-l-4 cursor-pointer",
+                        "grid grid-cols-12 gap-4 px-4 py-2.5 hover:bg-secondary/30 transition-all border-l-4 cursor-pointer",
                         severity.border,
                         event.status === 'Resolved' && "opacity-60"
                       )}
@@ -369,7 +370,7 @@ export default function Events() {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-secondary/30">
+            <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-secondary/30">
               <div className="text-sm text-muted-foreground">
                 Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredEvents.length)} of {filteredEvents.length} events
               </div>
@@ -449,6 +450,7 @@ export default function Events() {
           {activeSidebar === 'rca' && currentCluster && (
             <RCASidebar
               cluster={currentCluster}
+              selectedCauseId={selectedCauseId}
               onClose={closeSidebar}
               onOpenRemediation={openRemediationFromRCA}
               onBack={() => setActiveSidebar('probable-cause')}
@@ -474,7 +476,10 @@ export default function Events() {
             <ProbableCauseSidebar
               cluster={currentCluster}
               onClose={closeSidebar}
-              onSelectCause={() => setActiveSidebar('rca')}
+              onSelectCause={(causeId) => {
+                setSelectedCauseId(causeId);
+                setActiveSidebar('rca');
+              }}
             />
           )}
         </>

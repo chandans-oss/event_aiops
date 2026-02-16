@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, ArrowRight, AlertCircle, ArrowLeft } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
+import { Badge } from '@/shared/components/ui/badge';
 import { Cluster } from '@/shared/types';
 import { getClusterData } from '@/features/rca/data/clusterData';
 
@@ -17,26 +18,28 @@ import { RCAAnalytics } from '@/features/rca/components/RcaAnalytics';
 
 interface RCASidebarProps {
   cluster: Cluster;
+  selectedCauseId?: string | null;
   onClose: () => void;
   onOpenRemediation?: () => void;
   onBack?: () => void;
 }
 
-export function RCASidebar({ cluster, onClose, onOpenRemediation, onBack }: RCASidebarProps) {
+export function RCASidebar({ cluster, selectedCauseId, onClose, onOpenRemediation, onBack }: RCASidebarProps) {
   const [currentTab, setCurrentTab] = useState('summary');
   const navigate = useNavigate();
 
   if (!cluster || !cluster.id) return null;
 
-  // Get cluster-specific data
-  const clusterData = cluster?.id ? getClusterData(cluster.id) : null;
+  // Get cluster-specific data based on selected cause ID or fallback to cluster ID
+  const dataKey = selectedCauseId || cluster.id;
+  const clusterData = getClusterData(dataKey) || getClusterData(cluster.id);
 
   if (!clusterData) return null;
 
   return (
     <div className="fixed inset-y-0 right-0 w-[85%] max-w-[1200px] bg-background border-l border-border shadow-2xl z-50 animate-slide-in-right flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-border bg-card/50 backdrop-blur shrink-0">
+      <div className="flex items-center justify-between p-4 border-b border-border bg-card/50 backdrop-blur shrink-0">
         <div className="flex items-center gap-4">
           <Button variant="ghost" size="icon" onClick={onBack || onClose} className="mr-2">
             <ArrowLeft className="h-5 w-5" />
@@ -51,13 +54,15 @@ export function RCASidebar({ cluster, onClose, onOpenRemediation, onBack }: RCAS
           </div>
         </div>
 
+        <Button variant="ghost" size="icon" onClick={onClose}>
+          <X className="h-5 w-5" />
+        </Button>
       </div>
-
 
       {/* Scrollable Content Area */}
       <div className="flex-1 overflow-y-auto scroll-smooth">
-        {/* Meta Data & Remedy Section */}
-        <div className="p-6 bg-card/30 backdrop-blur border-b border-border space-y-4">
+        {/* Meta Data & Summary Section */}
+        <div className="p-4 bg-card/30 backdrop-blur border-b border-border space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Column 1: Incident Meta Data */}
             <div className="lg:col-span-1 space-y-4 border-r border-border/50 pr-4">
@@ -73,28 +78,25 @@ export function RCASidebar({ cluster, onClose, onOpenRemediation, onBack }: RCAS
                 </div>
                 <div>
                   <span className="text-[10px] text-muted-foreground block">Severity</span>
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-red-500/10 text-red-500 border border-red-500/20">
+                  <Badge variant={clusterData.rcaMetadata.severity === 'Critical' ? 'destructive' : 'default'} className="uppercase text-[9px] h-4">
                     {clusterData.rcaMetadata.severity}
-                  </span>
+                  </Badge>
                 </div>
                 <div>
                   <span className="text-[10px] text-muted-foreground block">Confidence</span>
                   <span className="text-xs font-mono font-medium text-primary">{(cluster.rca?.confidence || 0.95) * 100}%</span>
                 </div>
               </div>
-
             </div>
 
-            {/* Column 2: Remedy Recommendation */}
+            {/* Column 2: Issue Summary & Remediation (Combined) */}
             <div className="lg:col-span-2 flex flex-col justify-between pl-2">
               <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <h3 className="text-sm font-semibold text-emerald-500 uppercase tracking-wide">Issue Summary & Remediation</h3>
-                </div>
-                <h4 className="text-base font-semibold text-foreground mb-1">{clusterData.remedyTitle || 'Review and Apply Remediation Plan'}</h4>
+                <h4 className="text-base font-bold text-foreground mb-1">{clusterData.remedyTitle || 'Apply Strategic Remediation'}</h4>
                 <p className="text-xs text-muted-foreground leading-relaxed max-w-2xl">
-                  {clusterData.rcaSummary}
+                  <span className="font-semibold text-foreground">Diagnosis:</span> {clusterData.rcaSummary}
+                  <br />
+                  <span className="font-semibold text-foreground mt-1 inline-block">Action:</span> {clusterData.remediationSteps?.[0]?.description || 'Initiate standard recovery protocols.'}
                 </p>
               </div>
               <div className="mt-4 flex items-center justify-end">
@@ -110,8 +112,8 @@ export function RCASidebar({ cluster, onClose, onOpenRemediation, onBack }: RCAS
         </div>
 
         {/* Tabs & Content */}
-        <Tabs value={currentTab} onValueChange={setCurrentTab} className="p-6 pt-2">
-          <div className="border-b border-border bg-background sticky top-0 z-10 -mx-6 px-6 mb-6">
+        <Tabs value={currentTab} onValueChange={setCurrentTab} className="p-4 pt-2">
+          <div className="border-b border-border bg-background sticky top-0 z-10 -mx-4 px-4 mb-4">
             <TabsList className="h-12 w-full grid grid-cols-5 bg-transparent p-0">
               <TabsTrigger value="summary" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">RCA Summary</TabsTrigger>
               <TabsTrigger value="correlated" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">Correlated Events</TabsTrigger>

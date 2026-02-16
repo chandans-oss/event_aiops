@@ -125,7 +125,7 @@ export function ImpactSidebar({ cluster, onClose }: ImpactSidebarProps) {
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 w-[70%] max-w-4xl bg-background border-l border-border shadow-2xl z-50 animate-slide-in-right">
+    <div className="fixed inset-y-0 right-0 w-[85%] max-w-[1200px] bg-background border-l border-border shadow-2xl z-50 animate-slide-in-right">
       <div className="flex flex-col h-full">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border bg-card/50">

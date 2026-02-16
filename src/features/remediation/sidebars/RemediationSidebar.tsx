@@ -589,10 +589,10 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
   );
 
   return (
-    <div className="fixed inset-y-0 right-0 w-[80%] max-w-[1400px] bg-background border-l-4 border-border shadow-[0_0_100px_rgba(0,0,0,0.5)] z-50 animate-slide-in-right flex flex-col">
+    <div className="fixed inset-y-0 right-0 w-[85%] max-w-[1200px] bg-background border-l-4 border-border shadow-[0_0_100px_rgba(0,0,0,0.5)] z-50 animate-slide-in-right flex flex-col">
       <div className="flex flex-col h-full">
         {/* Header */}
-        <div className="flex items-center justify-between p-8 border-b-2 border-border bg-card/30 backdrop-blur shadow-sm shrink-0">
+        <div className="flex items-center justify-between p-4 border-b-2 border-border bg-card/30 backdrop-blur shadow-sm shrink-0">
           <div className="flex items-center gap-6">
             <Button
               variant="ghost"
@@ -603,9 +603,9 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
               <ArrowLeft className="h-6 w-6 group-hover:-translate-x-1 transition-transform" />
             </Button>
             <div className="h-10 w-0.5 bg-border rounded-full" />
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border-2 border-primary/30 shadow-inner group overflow-hidden relative">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 border-2 border-primary/30 shadow-inner group overflow-hidden relative">
               <div className="absolute inset-0 bg-primary opacity-0 group-hover:opacity-10 transition-opacity" />
-              <Wrench className="h-8 w-8 text-primary group-hover:rotate-45 transition-transform duration-500" />
+              <Wrench className="h-6 w-6 text-primary group-hover:rotate-45 transition-transform duration-500" />
             </div>
             <div>
               <div className="flex items-center gap-3 mb-1">
@@ -635,8 +635,8 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
         </div>
 
         <Tabs value={currentTab} onValueChange={setCurrentTab} className="flex-1 flex flex-col min-h-0">
-          <div className="px-8 border-b-2 border-border bg-background/50 sticky top-0 z-20 shrink-0 shadow-sm">
-            <TabsList className="h-16 w-full max-w-2xl bg-transparent p-0 flex items-center justify-start gap-6">
+          <div className="px-4 border-b-2 border-border bg-background/50 sticky top-0 z-20 shrink-0 shadow-sm">
+            <TabsList className="h-12 w-full max-w-2xl bg-transparent p-0 flex items-center justify-start gap-6">
               <TabsTrigger value="steps" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-2 py-4 text-sm font-medium transition-all">
                 Remediation Steps
               </TabsTrigger>
@@ -651,7 +651,7 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
 
           <div className="flex-1 overflow-y-auto bg-secondary/5 min-h-0 relative">
             <ScrollArea className="h-full">
-              <div className="p-8">
+              <div className="p-4">
                 <TabsContent value="steps" className="m-0 border-none p-0 focus-visible:ring-0">
                   {viewMode === 'execution' && renderExecution()}
                   {viewMode === 'verification' && renderVerification()}

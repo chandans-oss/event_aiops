@@ -34,15 +34,24 @@ export function EventInfoSidebar({ event, onClose }: EventInfoSidebarProps) {
             Back
           </Button>
           <div className="h-6 w-px bg-border" />
-          <div className={cn("p-2 rounded-lg", config.bg, config.border, "border")}>
-            <LabelIcon className={cn("h-5 w-5", config.color)} />
-          </div>
           <div>
-            <h2 className="text-lg font-semibold text-foreground">Event Classification</h2>
-            <p className="text-sm text-muted-foreground">{event.event_id}</p>
+            <h2 className="text-lg font-semibold text-foreground leading-none mb-1">Event Classification</h2>
+            <p className="text-xs font-mono text-muted-foreground">{event.event_id}</p>
           </div>
         </div>
 
+        <div className={cn("flex items-center gap-3 px-4 py-2.5 rounded-xl border max-w-[320px]", config.bg, config.border)}>
+          <LabelIcon className={cn("h-5 w-5", config.color)} />
+          <div>
+            <h3 className="text-sm font-bold text-foreground leading-none mb-1">{label} Event</h3>
+            <p className="text-[11px] text-muted-foreground leading-tight">
+              {label === 'Root' && 'Identified as the root cause of a cluster'}
+              {label === 'Child' && 'Correlated event within a cluster'}
+              {label === 'Duplicate' && 'Duplicate of an existing event'}
+              {label === 'Suppressed' && 'Suppressed based on defined rules'}
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Content */}
@@ -50,7 +59,9 @@ export function EventInfoSidebar({ event, onClose }: EventInfoSidebarProps) {
         {/* Event Details */}
         <div className="glass-card rounded-xl p-4">
           <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-            <Info className="h-4 w-4 text-primary" />
+            <span className="p-1 px-2 rounded-lg bg-primary/10 border border-primary/20">
+              <Info className="h-4 w-4 text-primary" />
+            </span>
             Event Details
           </h3>
           <div className="space-y-3">
@@ -90,23 +101,7 @@ export function EventInfoSidebar({ event, onClose }: EventInfoSidebarProps) {
           </div>
           <div className="mt-3 pt-3 border-t border-border">
             <span className="text-sm text-muted-foreground">Message</span>
-            <p className="text-sm text-foreground mt-1">{event.message}</p>
-          </div>
-        </div>
-
-        {/* Classification Label */}
-        <div className={cn("rounded-xl p-4 border", config.bg, config.border)}>
-          <div className="flex items-center gap-3 mb-3">
-            <LabelIcon className={cn("h-6 w-6", config.color)} />
-            <div>
-              <h3 className="font-semibold text-foreground">{label} Event</h3>
-              <p className="text-sm text-muted-foreground">
-                {label === 'Root' && 'Identified as the root cause of a cluster'}
-                {label === 'Child' && 'Correlated event within a cluster'}
-                {label === 'Duplicate' && 'Duplicate of an existing event'}
-                {label === 'Suppressed' && 'Suppressed based on defined rules'}
-              </p>
-            </div>
+            <p className="text-sm text-foreground mt-1 font-medium">{event.message}</p>
           </div>
         </div>
 
@@ -208,7 +203,7 @@ export function EventInfoSidebar({ event, onClose }: EventInfoSidebarProps) {
       </div>
 
       {/* Footer */}
-      <div className="p-4 border-t border-border">
+      <div className="p-4 border-t border-border mt-auto">
         <div className="flex gap-3">
           {/* Footer actions removed as per request */}
         </div>
