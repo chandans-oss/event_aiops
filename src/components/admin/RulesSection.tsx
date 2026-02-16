@@ -96,9 +96,9 @@ export function RulesSection() {
 
   const hasActiveFilters = searchQuery !== '' || statusFilter !== 'all' || typeFilter !== 'all';
 
-  const filteredSuppressionRules = filterRules(mockSuppressionRules);
-  const filteredDeduplicationRules = filterRules(mockDeduplicationRules);
-  const filteredCorrelationRules = filterRules(mockCorrelationRules);
+  const filteredSuppressionRules = filterRules(mockSuppressionRules || []);
+  const filteredDeduplicationRules = filterRules(mockDeduplicationRules || []);
+  const filteredCorrelationRules = filterRules(mockCorrelationRules || []);
 
   // Handle add button click
   const handleAddRule = () => {
@@ -211,17 +211,17 @@ export function RulesSection() {
           <TabsTrigger value="suppression" className="gap-2">
             <ToggleLeft className="h-4 w-4" />
             Suppression
-            <Badge variant="secondary" className="ml-1 text-xs">{filteredSuppressionRules.length}</Badge>
+            <Badge variant="secondary" className="ml-1 text-xs">{(filteredSuppressionRules || []).length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="deduplication" className="gap-2">
             <Copy className="h-4 w-4" />
             Deduplication
-            <Badge variant="secondary" className="ml-1 text-xs">{filteredDeduplicationRules.length}</Badge>
+            <Badge variant="secondary" className="ml-1 text-xs">{(filteredDeduplicationRules || []).length}</Badge>
           </TabsTrigger>
           <TabsTrigger value="correlation" className="gap-2">
             <GitBranch className="h-4 w-4" />
             Correlation
-            <Badge variant="secondary" className="ml-1 text-xs">{filteredCorrelationRules.length}</Badge>
+            <Badge variant="secondary" className="ml-1 text-xs">{(filteredCorrelationRules || []).length}</Badge>
           </TabsTrigger>
         </TabsList>
 
@@ -234,7 +234,7 @@ export function RulesSection() {
               Add Rule
             </Button>
           </div>
-          {filteredSuppressionRules.length === 0 ? (
+          {(filteredSuppressionRules || []).length === 0 ? (
             <div className="glass-card rounded-xl p-12 text-center">
               <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">No rules found</h3>
@@ -242,7 +242,7 @@ export function RulesSection() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {filteredSuppressionRules.map((rule) => {
+              {(filteredSuppressionRules || []).map((rule) => {
                 const config = suppressionRuleConfig[rule.type] || { icon: ToggleLeft, label: rule.type };
                 const Icon = config.icon;
                 return (
@@ -294,7 +294,7 @@ export function RulesSection() {
               Add Rule
             </Button>
           </div>
-          {filteredDeduplicationRules.length === 0 ? (
+          {(filteredDeduplicationRules || []).length === 0 ? (
             <div className="glass-card rounded-xl p-12 text-center">
               <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">No rules found</h3>
@@ -302,7 +302,7 @@ export function RulesSection() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {filteredDeduplicationRules.map((rule) => {
+              {(filteredDeduplicationRules || []).map((rule) => {
                 const config = dedupRuleConfig[rule.type] || { icon: Copy, label: rule.type };
                 const Icon = config.icon;
                 return (
@@ -354,7 +354,7 @@ export function RulesSection() {
               Add Rule
             </Button>
           </div>
-          {filteredCorrelationRules.length === 0 ? (
+          {(filteredCorrelationRules || []).length === 0 ? (
             <div className="glass-card rounded-xl p-12 text-center">
               <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">No rules found</h3>
@@ -362,7 +362,7 @@ export function RulesSection() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {filteredCorrelationRules.map((rule) => {
+              {(filteredCorrelationRules || []).map((rule) => {
                 const config = correlationRuleConfig[rule.type] || { icon: GitBranch, label: rule.type };
                 const Icon = config.icon;
                 return (
