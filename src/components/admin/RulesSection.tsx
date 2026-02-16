@@ -148,12 +148,8 @@ export function RulesSection() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground">Rules Management</h1>
-          <p className="text-muted-foreground">Manage suppression, deduplication, and correlation rules</p>
-        </div>
-      </div>
+      {/* Removed Rules Management Title and Description for cleaner UI */}
+
 
       {/* Search and Filters */}
       <div className="flex flex-wrap items-center gap-3">
