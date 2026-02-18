@@ -1,6 +1,6 @@
 
 import { useState, useMemo } from 'react';
-import { X, ArrowRight, Brain, AlertTriangle, Target, LineChart, ShieldCheck, ChevronRight } from 'lucide-react';
+import { X, ArrowRight, Brain, AlertTriangle, Target, LineChart, ShieldCheck, ChevronRight, History as HistoryIcon } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/components/ui/card';
 import { Badge } from '@/shared/components/ui/badge';
@@ -112,7 +112,14 @@ export function ProbableCauseSidebar({ cluster, onClose, onSelectCause }: Probab
                                 <div className="flex justify-between items-start gap-4 flex-1">
                                     <div className="space-y-1.5 flex-1">
                                         <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors leading-tight">{cause.title}</h3>
-                                        <p className="text-sm text-muted-foreground">{cause.description}</p>
+                                        <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">{cause.description}</p>
+
+                                        {cause.occurrenceCount !== undefined && (
+                                            <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-primary/5 text-primary text-[10px] font-bold uppercase tracking-wider mt-2 border border-primary/10">
+                                                <HistoryIcon className="h-3 w-3" />
+                                                <span>{cause.occurrenceCount} Occurrences</span>
+                                            </div>
+                                        )}
                                     </div>
                                     <CircularProgress value={Math.round(cause.confidence * 100)} />
                                 </div>

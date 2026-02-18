@@ -25,14 +25,17 @@ const getCorrelationStrategy = (reason: string) => {
 
 const getCorrelationExplanation = (reason: string, event?: any) => {
     // DEMO SPECIFIC OVERRIDES
-    if (event?.id === 'EVT-LC-009') { // Packet Discard
-        return "Spatial Co-location: High utilization on interface Gi0/1/0 (Primary Event) directly causes output queue exhaustion and packet drops (Secondary Event) on the same physical device 'core-router-dc1'.";
+    if (event?.id === 'EVT-LC-002') { // QUEUE_DROP
+        return "Spatial Correlation: Device core-router-dc1 is the common location. High utilization on Gi0/1/0 (Root Cause) directly impacts output queue depth, causing drops.";
     }
-    if (event?.id === 'EVT-LC-011') { // Latency
-        return "Causal Chain Verification: Granger Causality Test (p < 0.01) confirms that Queue Depth (Cause) precedes Latency Spike (Effect) with a 200ms lag. Buffering delay is the direct mechanism.";
+    if (event?.id === 'EVT-LC-003') { // LATENCY_HIGH Edge-R3
+        return "Topological Correlation: Edge-R3 is directly connected downstream of core-router-dc1. Congestion on the core link propagates delay to downstream traffic.";
     }
-    if (event?.id === 'EVT-LC-008') { // CPU High
-        return "Heuristic Rule Match [R-NET-CPU]: Detected 'SoftIRQ' CPU spike correlating with high Packet-Per-Second (PPS) rate, indicating control plane stress due to traffic processing.";
+    if (event?.id === 'EVT-LC-004') { // LATENCY_HIGH Edge-R4
+        return "Topological Correlation: Edge-R4 is a peer downstream device sharing the congested path. Simultaneous latency spike confirms shared infrastructure issue.";
+    }
+    if (event?.id === 'EVT-LC-005') { // RESPONSE_TIME_HIGH App-GW1
+        return "Causal Correlation: API Gateway response time degradation is statistically correlated (Pearson > 0.9) with network latency. Service dependency graph confirms API GW depends on Core Router path.";
     }
 
     const strategy = getCorrelationStrategy(reason);

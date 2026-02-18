@@ -5,6 +5,7 @@ import { RulesSection } from '@/components/admin/RulesSection';
 import { IntentsSection } from '@/components/admin/IntentsSection';
 import { KBSection } from '@/components/admin/KBSection';
 import { AutoRemediationSection } from '@/components/admin/AutoRemediationSection';
+import { CorrelationAnalysisSection } from '@/components/admin/CorrelationAnalysisSection';
 
 export default function Admin() {
   const [activeSection, setActiveSection] = useState<AdminSection>('rules');
@@ -19,6 +20,8 @@ export default function Admin() {
         return <KBSection />;
       case 'auto-remediation':
         return <AutoRemediationSection />;
+      case 'correlation':
+        return <CorrelationAnalysisSection />;
       default:
         return <RulesSection />;
     }

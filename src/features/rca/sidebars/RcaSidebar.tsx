@@ -117,8 +117,8 @@ export function RCASidebar({ cluster, selectedCauseId, onClose, onOpenRemediatio
             <TabsList className="h-12 w-full grid grid-cols-5 bg-transparent p-0">
               <TabsTrigger value="summary" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">RCA Summary</TabsTrigger>
               <TabsTrigger value="correlated" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">Correlated Events</TabsTrigger>
-              <TabsTrigger value="evidence" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">Data Evidence</TabsTrigger>
               <TabsTrigger value="impact" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">Impact Analysis</TabsTrigger>
+              <TabsTrigger value="evidence" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">Data Evidence</TabsTrigger>
               <TabsTrigger value="analytics" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">Event Analytics</TabsTrigger>
             </TabsList>
           </div>
@@ -135,12 +135,12 @@ export function RCASidebar({ cluster, selectedCauseId, onClose, onOpenRemediatio
             <RCACorrelatedEvents data={clusterData} />
           </TabsContent>
 
-          <TabsContent value="evidence" className="m-0 focus-visible:ring-0 animate-fade-in space-y-4">
-            <RCADataEvidence data={clusterData} />
-          </TabsContent>
-
           <TabsContent value="impact" className="m-0 focus-visible:ring-0 animate-fade-in space-y-4">
             <RCAImpactMap data={clusterData} />
+          </TabsContent>
+
+          <TabsContent value="evidence" className="m-0 focus-visible:ring-0 animate-fade-in space-y-4">
+            <RCADataEvidence data={clusterData} />
           </TabsContent>
 
           <TabsContent value="analytics" className="m-0 focus-visible:ring-0 animate-fade-in space-y-4">

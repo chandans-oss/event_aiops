@@ -21,6 +21,7 @@ import ImpactAnalysis from "./pages/demo/ImpactAnalysis";
 import RCADetailPage from "@/features/rca/pages/RcaDetailPage";
 import ImpactDetailPage from "@/features/impact/pages/ImpactDetailPage";
 import EventCorrelationClustersPage from "@/features/events/pages/EventCorrelationPage";
+import CorrelationPage from "@/features/analytics/pages/CorrelationPage";
 import NotFound from "@/shared/components/common/NotFound";
 
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/remediation" element={<Remediation />} />
               <Route path="/topology" element={<Topology />} />
               <Route path="/event-correlation-clusters/:clusterId" element={<EventCorrelationClustersPage />} />
+              <Route path="/correlation" element={<CorrelationPage />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/admin/upload" element={<UploadData />} />
               <Route path="/upload" element={<EventUpload />} />

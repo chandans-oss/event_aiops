@@ -1,4 +1,6 @@
 import { Cluster, DeduplicationRule, SuppressionRule, CorrelationRule, KBArticle, Intent, FlowStage, IntentFull } from '@/shared/types';
+// Force refresh
+
 
 // ============= Link Congestion Use Case Data =============
 
@@ -558,7 +560,7 @@ export const mockCorrelationRules: CorrelationRule[] = [
     id: 'cor-006',
     type: 'llm_semantic',
     name: 'LLM Semantic Synthesis',
-    description: 'Use large language models to synthesize cross-domain alerts based on semantic meaning (not RCA).',
+    description: 'Use large language models to synthesize cross-domain alerts based on semantic meaning.',
     status: 'active',
     mlEnabled: true,
     gnnEnabled: false,

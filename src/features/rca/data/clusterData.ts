@@ -527,9 +527,10 @@ export const CLU_LC_001_Data: ClusterSpecificData = {
         { source: 'Interface Logs', type: 'Logs', count: 5, samples: ['Gi0/1/0: Queue full - tail drops active', 'Gi0/1/0: High buffer utilization'], relevance: 88 }
     ],
     correlatedChildEvents: [
-        { id: 'EVT-LC-009', alertType: 'PACKET_DISCARD', source: 'core-router-dc1', severity: 'Critical', timestamp: '2025-10-28T14:30:00Z', correlationScore: 0.95, correlationReason: 'Spatial Correlation: Co-located on core-router-dc1', message: 'Output packet discards on Gi0/1/0' },
-        { id: 'EVT-LC-011', alertType: 'HIGH_LATENCY', source: 'core-router-dc1', severity: 'Critical', timestamp: '2025-10-28T14:31:00Z', correlationScore: 0.92, correlationReason: 'Causal Correlation: Queue Depth → Latency Spike', message: 'Latency to peer router 500 ms' },
-        { id: 'EVT-LC-008', alertType: 'CPU_HIGH', source: 'core-router-dc1', severity: 'Major', timestamp: '2025-10-28T14:27:00Z', correlationScore: 0.88, correlationReason: 'Rule-Based Correlation: CPU High vs PPS Rate', message: 'CPU usage reached 85%' }
+        { id: 'EVT-LC-002', alertType: 'QUEUE_DROP', source: 'core-router-dc1', severity: 'Critical', timestamp: '2025-10-28T14:30:05Z', correlationScore: 0.96, correlationReason: 'Spatial Correlation: Co-located on core-router-dc1', message: 'Output queue drops on Gi0/1/0' },
+        { id: 'EVT-LC-003', alertType: 'LATENCY_HIGH', source: 'edge-router-03', severity: 'Major', timestamp: '2025-10-28T14:30:12Z', correlationScore: 0.92, correlationReason: 'Topological Correlation: Downstream of core-router-dc1', message: 'RTT increased to 150ms' },
+        { id: 'EVT-LC-004', alertType: 'LATENCY_HIGH', source: 'edge-router-04', severity: 'Major', timestamp: '2025-10-28T14:30:15Z', correlationScore: 0.91, correlationReason: 'Topological Correlation: Downstream of core-router-dc1', message: 'RTT increased to 145ms' },
+        { id: 'EVT-LC-005', alertType: 'RESPONSE_TIME_HIGH', source: 'api-gw', severity: 'Critical', timestamp: '2025-10-28T14:30:25Z', correlationScore: 0.89, correlationReason: 'Causal Correlation: Latency affecting App Response', message: 'HTTP 503 errors and high TTFB' }
     ],
     impactedAssets: [
         { id: 'api-gw', name: 'API Gateway', type: 'Service', severity: 'Critical', status: 'Slow', dependencies: ['core-router-dc1'] },
@@ -1065,6 +1066,7 @@ export interface ProbableCause {
     confidence: number;
     severity: 'Critical' | 'Major' | 'Minor';
     tags?: string[];
+    occurrenceCount?: number;
 }
 
 export const CLU_LC_001_Causes: ProbableCause[] = [
@@ -1073,33 +1075,36 @@ export const CLU_LC_001_Causes: ProbableCause[] = [
         title: 'Network Congestion (Backup Induced)',
         description: 'Unscheduled NFS backup traffic from agent-server-01 is consuming >35% link capacity on Gi0/1/0. This saturation results in queue tail drops and 400ms latency spikes, confirmed by NetFlow data with DSCP 0 classification.',
         confidence: 0.95,
-        severity: 'Major'
+        severity: 'Major',
+        occurrenceCount: 12
     },
     {
         id: 'RCA-LC-001-B',
         title: 'Microburst Traffic',
         description: 'High-intensity traffic bursts (<1ms) are causing instantaneous buffer exhaustion. Telemetry shows periodic spikes to 92% buffer usage, leading to sporadic packet drops even when average utilization appears normal.',
         confidence: 0.65,
-        severity: 'Major'
+        severity: 'Major',
+        occurrenceCount: 5
     },
     {
         id: 'RCA-LC-001-C',
         title: 'Interface Duplex Mismatch',
         description: 'Potential auto-negotiation failure between router and switch may be causing CRC errors. While currently less likely due to low error counts (20 pkts), a duplex mismatch would manifest as late collisions and packet drops.',
         confidence: 0.35,
-        severity: 'Minor'
-    }
+        severity: 'Minor',
+        occurrenceCount: 2
+    },
 ];
 
 // Probable Cause Definitions per Cluster
 export const CLU_002_Causes: ProbableCause[] = [
-    { id: 'CLU-002-RCA-01', title: 'External Fiber Cut', description: 'Excavation activity at 123 Main St has physically severed the backbone cable. Most likely cause due to reported construction.', confidence: 0.98, severity: 'Critical' },
+    { id: 'CLU-002-RCA-01', title: 'External Fiber Cut', description: 'Excavation activity at 123 Main St has physically severed the backbone cable. Most likely cause due to reported construction.', confidence: 0.98, severity: 'Critical', occurrenceCount: 1 },
     { id: 'CLU-002-RCA-02', title: 'Remote Chassis Failure', description: 'Power loss or chassis reload on Core-R1 could also manifest as a sudden link loss.', confidence: 0.15, severity: 'Major' },
     { id: 'CLU-002-RCA-03', title: 'Double SFP Failure', description: 'Probability of both ends failing simultaneously is low but possible due to shared environmental factors.', confidence: 0.05, severity: 'Minor' }
 ];
 
 export const CLU_003_Causes: ProbableCause[] = [
-    { id: 'CLU-003-RCA-01', title: 'PSU Internal Component Failure', description: 'Capacitor or voltage regulator failure within PSU-1. Thermal sensors recorded extreme heat prior to the trip.', confidence: 0.95, severity: 'Critical' },
+    { id: 'CLU-003-RCA-01', title: 'PSU Internal Component Failure', description: 'Capacitor or voltage regulator failure within PSU-1. Thermal sensors recorded extreme heat prior to the trip.', confidence: 0.95, severity: 'Critical', occurrenceCount: 3 },
     { id: 'CLU-003-RCA-02', title: 'PDU / Power Source Issue', description: 'Problem with the external power distribution unit or phase imbalance in the rack.', confidence: 0.25, severity: 'Major' },
     { id: 'CLU-003-RCA-03', title: 'Chassis Power Management Bug', description: 'Software-triggered shutdown of the PSU due to erroneous sensor readings.', confidence: 0.10, severity: 'Minor' }
 ];
@@ -1111,7 +1116,7 @@ export const CLU_004_Causes: ProbableCause[] = [
 ];
 
 export const CLU_005_Causes: ProbableCause[] = [
-    { id: 'CLU-005-RCA-01', title: 'STP Priority Misconfiguration', description: 'A new switch added to the network with default STP priority caused a root bridge shift and loop.', confidence: 0.94, severity: 'Critical' },
+    { id: 'CLU-005-RCA-01', title: 'STP Priority Misconfiguration', description: 'A new switch added to the network with default STP priority caused a root bridge shift and loop.', confidence: 0.94, severity: 'Critical', occurrenceCount: 8 },
     { id: 'CLU-005-RCA-02', title: 'Accidental Patching Loop', description: 'Physical cable looped between two ports on the same VLAN on Access-SW-02.', confidence: 0.70, severity: 'Major' },
     { id: 'CLU-005-RCA-03', title: 'Virtual Machine Bridging Loop', description: 'Misconfigured vSwitch on a hypervisor bridging two different physical networks.', confidence: 0.30, severity: 'Minor' }
 ];

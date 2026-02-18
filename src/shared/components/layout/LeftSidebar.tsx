@@ -17,6 +17,7 @@ import {
   Wrench,
   FolderArchive,
   Network,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
@@ -34,6 +35,7 @@ const navItems: NavItem[] = [
   { path: "/", label: "Dashboard", icon: LayoutDashboard },
   { path: "/events", label: "Events", icon: Activity },
   { path: "/topology", label: "Topology", icon: Network },
+  { path: "/correlation", label: "Correlation", icon: TrendingUp },
   {
     path: "/admin",
     label: "Admin",
