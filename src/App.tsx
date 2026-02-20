@@ -1,5 +1,7 @@
 import { Toaster } from "@/shared/components/ui/toaster";
 import { Toaster as Sonner } from "@/shared/components/ui/sonner";
+import AlarmPredictionDashboard from "@/features/analytics/pages/AlarmPredictionDashboard";
+
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -47,6 +49,7 @@ const App = () => (
               <Route path="/event-correlation-clusters/:clusterId" element={<EventCorrelationClustersPage />} />
               <Route path="/correlation" element={<CorrelationPage />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/dashboard/alarm-prediction" element={<AlarmPredictionDashboard />} />
               <Route path="/admin/upload" element={<UploadData />} />
               <Route path="/upload" element={<EventUpload />} />
               <Route path="/demo/rca-flow" element={<RCAFlow />} />

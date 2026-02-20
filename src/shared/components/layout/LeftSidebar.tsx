@@ -32,7 +32,15 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { path: "/", label: "Dashboard", icon: LayoutDashboard },
+  {
+    path: "/",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    children: [
+      { path: "/", label: "Overview", icon: LayoutDashboard },
+      { path: "/dashboard/alarm-prediction", label: "Alarm Prediction", icon: TrendingUp },
+    ]
+  },
   { path: "/events", label: "Events", icon: Activity },
   { path: "/topology", label: "Topology", icon: Network },
   { path: "/correlation", label: "Correlation", icon: TrendingUp },

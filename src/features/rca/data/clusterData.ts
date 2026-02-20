@@ -1038,6 +1038,47 @@ export const CLU_12350_Data: ClusterSpecificData = {
     remediationKB: [{ title: 'Avoiding ReDoS Patterns', relevance: 94, url: '#' }]
 };
 
+
+// CLU-NET-004: Pattern Match - Congestion Flap
+export const CLU_NET_004_Data: ClusterSpecificData = {
+    clusterId: 'CLU-NET-004',
+    rcaMetadata: { rootEventId: 'EVT-NET-004-1', rootEventType: 'LINK_CONGESTION', timestamp: '2026-02-18T08:00:00Z', device: 'Dist-Switch-02', severity: 'Critical' },
+    remedyTitle: 'Tune Buffer Allocation and Verify Interface Hardware',
+    rcaSummary: '[Pattern Recognized]: Congestion Buildup Before Interface Flap. The system detected a sequence of High Utilization -> Packet Drops -> Link Down. This indicates that traffic bursts are overwhelming the interface buffers, leading to a crash or reset of the port capability.',
+    rootCause: 'Hardware Buffer Exhaustion due to Traffic Saturation',
+    confidence: 0.99,
+    rcaProcessSteps: generateRCASteps('CLU-NET-004', 'LINK_CONGESTION', 'Dist-Switch-02'),
+    dataEvidence: [
+        { source: 'Pattern Engine', type: 'Events', count: 1, samples: ['Matched behavioral signature: Congestion -> Drops -> Flap'], relevance: 100 },
+        { source: 'Interface Metrics', type: 'Metrics', count: 60, samples: ['Utilization: 98%', 'Input Drops: 1500/sec'], relevance: 98 },
+        { source: 'Syslog', type: 'Logs', count: 3, samples: ['%ETH-4-EXCESSIVE_FLOW: Flow control active', '%LINK-3-UPDOWN: Interface Et0/0 down'], relevance: 95 }
+    ],
+    correlatedChildEvents: [
+        { id: 'EVT-NET-004-2', alertType: 'PACKET_DISCARD', source: 'Dist-Switch-02', severity: 'Major', timestamp: '2026-02-18T08:05:00Z', correlationScore: 0.98, correlationReason: 'Pattern Step 2', message: 'Input queue drops on Et0/0' },
+        { id: 'EVT-NET-004-3', alertType: 'LINK_FLAP', source: 'Dist-Switch-02', severity: 'Critical', timestamp: '2026-02-18T08:08:00Z', correlationScore: 0.99, correlationReason: 'Pattern Step 3', message: 'Interface Et0/0 changed state to Down' }
+    ],
+    impactedAssets: [
+        { id: 'internal-wifi', name: 'Internal WiFi', type: 'Service', severity: 'Major', status: 'Degraded', dependencies: ['Dist-Switch-02'] },
+        { id: 'voip-gw', name: 'VoIP Gateway', type: 'Service', severity: 'Critical', status: 'Unreachable', dependencies: ['Dist-Switch-02'] }
+    ],
+    impactTopology: {
+        nodes: [
+            { id: 'dist-sw-02', label: 'Dist-Switch-02', type: 'device', status: 'critical', severity: 'Critical' },
+            { id: 'internal-wifi', label: 'Internal WiFi', type: 'service', status: 'warning', severity: 'Major' },
+            { id: 'voip-gw', label: 'VoIP Gateway', type: 'service', status: 'critical', severity: 'Critical' }
+        ],
+        edges: [
+            { from: 'dist-sw-02', to: 'internal-wifi', type: 'dependency' },
+            { from: 'dist-sw-02', to: 'voip-gw', type: 'dependency' }
+        ]
+    },
+    remediationSteps: [
+        { id: 'REM-NET-004-1', phase: 'Immediate', action: 'Increase Buffer Limits', description: 'Apply "service-policy input POLICY-BUFFER-High" to Et0/0 to absorb bursts.', status: 'pending', duration: '2m', automated: true, command: 'conf t; int Et0/0; service-policy input POLICY-BUFFER-High', verification: ['Buffer depth increased'] },
+        { id: 'REM-NET-004-2', phase: 'Long-term', action: 'Review Traffic Shaping', description: 'Analyze traffic patterns to implement upstream shaping.', status: 'pending', duration: '1h', automated: false, verification: ['Shaping policy applied'] },
+    ],
+    remediationKB: [{ title: 'Troubleshooting Interface Flaps', relevance: 95, url: '#' }]
+};
+
 // Export a map for easy lookup
 export const clusterDataMap: Record<string, ClusterSpecificData> = {
     'CLU-LC-001': CLU_LC_001_Data,
@@ -1056,6 +1097,7 @@ export const clusterDataMap: Record<string, ClusterSpecificData> = {
     'CLU-005': CLU_005_Data,
     'CLU-006': CLU_006_Data,
     'CLU-007': CLU_007_Data,
+    'CLU-NET-004': CLU_NET_004_Data,
 };
 
 // Probable Cause Definitions
@@ -1186,6 +1228,26 @@ export const CLU_12349_Causes: ProbableCause[] = [
         confidence: 1.0,
         severity: 'Critical'
     }
+
+];
+
+export const CLU_NET_004_Causes: ProbableCause[] = [
+    {
+        id: 'RCA-NET-004-A',
+        title: 'Pattern Match: Congestion Before Flap',
+        description: 'The system recognized a known behavioral pattern where sustained congestion (>90% utilization) and queue drops precede a link flap. This signature strongly indicates hardware buffer exhaustion or backplane saturation rather than a simple cable fault.',
+        confidence: 0.99,
+        severity: 'Critical',
+        occurrenceCount: 3,
+        tags: ['Pattern Match', 'Hardware', 'Congestion']
+    },
+    {
+        id: 'RCA-NET-004-B',
+        title: 'Cable/Transceiver Fault',
+        description: 'Physical layer degradation could explain the link flap, but is less likely to cause the specific pre-cursor sequence of congestion and drops unless associated with significant error correction load.',
+        confidence: 0.15,
+        severity: 'Major'
+    }
 ];
 
 export const getProbableCauses = (clusterId: string): ProbableCause[] => {
@@ -1197,6 +1259,7 @@ export const getProbableCauses = (clusterId: string): ProbableCause[] => {
         case 'CLU-12347': return CLU_12347_Causes;
         case 'CLU-12348': return CLU_12348_Causes;
         case 'CLU-12349': return CLU_12349_Causes;
+        case 'CLU-NET-004': return CLU_NET_004_Causes;
         default:
             return [
                 { id: `${clusterId}-RCA-01`, title: 'Anomalous Behavior Detected', description: 'The system has identified abnormal patterns in resource utilization correlating with the initial event.', confidence: 0.85, severity: 'Critical' },

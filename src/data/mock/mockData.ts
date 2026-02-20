@@ -415,6 +415,52 @@ export const mockClusters: Cluster[] = [
       confidence: 0.97,
       hypotheses: ['H_PSU_FAILURE']
     }
+  },
+  {
+    id: 'CLU-NET-004',
+    rootEvent: {
+      id: 'EVT-NET-004-1',
+      alertType: 'LINK_CONGESTION',
+      source: 'Dist-Switch-02',
+      severity: 'Critical',
+      timestamp: '2026-02-18T08:00:00Z',
+      message: 'Interface Et0/0 utilization > 90% for 5 mins',
+      label: 'Root'
+    },
+    childEvents: [
+      {
+        id: 'EVT-NET-004-2',
+        alertType: 'PACKET_DISCARD',
+        source: 'Dist-Switch-02',
+        severity: 'Major',
+        timestamp: '2026-02-18T08:05:00Z',
+        correlationScore: 0.98,
+        message: 'Input queue drops on Et0/0',
+        label: 'Child'
+      },
+      {
+        id: 'EVT-NET-004-3',
+        alertType: 'LINK_FLAP',
+        source: 'Dist-Switch-02',
+        severity: 'Critical',
+        timestamp: '2026-02-18T08:08:00Z',
+        correlationScore: 0.99,
+        message: 'Interface Et0/0 changed state to Down',
+        label: 'Child'
+      }
+    ],
+    affectedServices: ['Internal-Wifi', 'VoIP-Gateway'],
+    affectedUsers: 450,
+    status: 'Active',
+    createdAt: '2026-02-18T08:00:00Z',
+    duration: '15m',
+    duplicateCount: 3,
+    suppressedCount: 1,
+    rca: {
+      rootCause: '[Pattern Recognized]: Congestion Buildup Before Interface Flap - Recognized highly correlated sequence indicating potential hardware buffer exhaustion.',
+      confidence: 0.99,
+      hypotheses: ['H_PATTERN_MATCH_CONGESTION_FLAP', 'H_CABLE_FAULT']
+    }
   }
 ];
 
