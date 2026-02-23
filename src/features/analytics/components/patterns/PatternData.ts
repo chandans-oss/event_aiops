@@ -43,7 +43,7 @@ export interface LogicStep {
 export interface PredictedEvent {
     name: string; // E.g., PACKET_DROP
     probability: number; // 0-1
-    severity: 'High' | 'Medium' | 'Low';
+    severity: 'Critical' | 'Major' | 'High' | 'Medium' | 'Low';
     title: string;
     subtitle: string;
 }
@@ -78,7 +78,7 @@ export interface Pattern {
     confidence: number;
     seenCount: number;
     lastSeen: string;
-    domain: 'Network' | 'Compute' | 'Storage' | 'Application';
+    domain: 'Network' | 'Compute' | 'Storage' | 'Application' | 'Data Center' | 'Security';
     appliesTo: string[];
     status: 'Enabled' | 'Disabled' | 'Learning';
     severity: 'Critical' | 'Major' | 'Warning';
@@ -90,7 +90,7 @@ export interface Pattern {
     logicSteps: LogicStep[];
     predictedEvents: PredictedEvent[];
     occurrences: PatternOccurrence[];
-    simulationType: 'congestion' | 'cpu_spike';
+    simulationType: 'congestion' | 'cpu_spike' | 'device_cpu_saturation' | 'link_physical_degradation' | 'firewall_overload' | 'qoe_jitter';
 }
 
 // --- Mock Data ---
@@ -159,6 +159,64 @@ const generateCpuData = (peak: number, variation: number = 1) => {
             time: `T-${15 - i}m`,
             cpu: Math.min(100, Math.max(0, cpu)),
             bgpState: bgpState
+        });
+    }
+    return data;
+};
+
+const generateCpuSaturation = (variation: number = 1) => {
+    const data = [];
+    for (let i = 0; i < 15; i++) {
+        const cpu = Math.min(100, 50 + (i * 2.8) + (Math.random() * 5 * variation));
+        const pingLoss = i > 10 ? Math.min(100, (i - 10) * 15 + (Math.random() * 10)) : 0;
+        data.push({
+            time: `T-${15 - i}m`,
+            cpuUtil: Math.round(cpu),
+            pingLoss: Math.round(pingLoss)
+        });
+    }
+    return data;
+};
+
+const generateLinkPhysData = (variation: number = 1) => {
+    const data = [];
+    for (let i = 0; i < 15; i++) {
+        const errors = i > 5 ? (i - 5) * 50 * variation + Math.random() * 20 : Math.random() * 5;
+        const discards = i > 8 ? (i - 8) * 15 * variation + Math.random() * 10 : 0;
+        data.push({
+            time: `T-${15 - i}m`,
+            inErrors: Math.round(errors),
+            discards: Math.round(discards)
+        });
+    }
+    return data;
+};
+
+const generateFwLoadData = (variation: number = 1) => {
+    const data = [];
+    for (let i = 0; i < 15; i++) {
+        const sessions = 10000 + (Math.pow(i, 2.7) * 40 * variation);
+        const cpu = Math.min(100, 30 + (i * 3.8) + (Math.random() * 8));
+        const latency = i > 10 ? 10 + Math.pow(i - 10, 2) * 5 + Math.random() * 10 : 10 + Math.random() * 5;
+        data.push({
+            time: `T-${15 - i}m`,
+            sessions: Math.round(sessions),
+            fwCpu: Math.round(cpu),
+            latency: Math.round(latency)
+        });
+    }
+    return data;
+};
+
+const generateQoeData = (variation: number = 1) => {
+    const data = [];
+    for (let i = 0; i < 15; i++) {
+        const jitter = 2 + (i * 1.5 * variation) + Math.random() * 3;
+        const latencyVar = 5 + (Math.pow(i, 1.3) * variation) + Math.random() * 5;
+        data.push({
+            time: `T-${15 - i}m`,
+            jitter: Math.round(jitter * 10) / 10,
+            latencyVar: Math.round(latencyVar * 10) / 10
         });
     }
     return data;
@@ -382,5 +440,181 @@ export const MOCK_PATTERNS: Pattern[] = [
         ],
         simulationType: 'cpu_spike'
     },
-
+    {
+        id: 'P-Dev-CPU-01',
+        name: 'Impending Device Failure Due to CPU Saturation',
+        description: 'Sustained CPU rise + intermittent reachability indicating high chance of device unreachable and reboot.',
+        confidence: 0.88,
+        seenCount: 9,
+        lastSeen: '12 hours ago',
+        domain: 'Data Center',
+        appliesTo: ['Core Routers', 'Aggregation Switches'],
+        status: 'Enabled',
+        severity: 'Critical',
+        tags: ['CPU Saturation', 'Reboot Prediction', 'Unreachable'],
+        steps: [
+            { id: 'S1', name: 'CPU Utilization Rise', description: 'Gradual rise from ~50% -> 90%+', icon: TrendingUp },
+            { id: 'S2', name: 'Status Code Change', description: 'Transitions Normal -> Warning', icon: ShieldCheck, delay: '+5m' },
+            { id: 'S3', name: 'Ping Intermittent', description: 'Ping status becomes intermittent', icon: Activity, delay: '+5m' },
+            { id: 'S4', name: 'Availability Drops', description: 'Brief drops before full outage', icon: AlertTriangle, delay: '+2m' },
+        ],
+        logicSummary: 'CPU Exhaustion to OS Failure:',
+        logicSteps: [
+            { order: 1, title: 'Compute Starvation', description: 'Sustained CPU rise limits control plane operations.', color: 'blue' },
+            { order: 2, title: 'ICMP Packet Loss', description: 'Intermittent reachability starts as process struggles.', color: 'amber' },
+            { order: 3, title: 'System Hang/Reboot', description: 'Device fails to process keepalives, resulting in node down or hardware watchdog reboot.', color: 'red' }
+        ],
+        predictedEvents: [
+            { name: 'DEVICE_UNREACHABLE', probability: 0.80, severity: 'Critical', title: 'Predicted Outage', subtitle: 'Strong Pattern Match' },
+            { name: 'DEVICE_REBOOT', probability: 0.50, severity: 'Major', title: 'Predicted Reboot', subtitle: 'Watchdog trigger likely' }
+        ],
+        occurrences: [
+            {
+                id: 'OCC-2026-101',
+                timestamp: 'Feb 12, 2026 11:15 AM',
+                severity: 'Critical',
+                summary: 'Core Router R3 Crash',
+                outcomes: ['Device Unreachable', 'Device Reboot'],
+                metricData: generateCpuSaturation(1),
+                events: [
+                    {
+                        id: '99011X10', timestamp: 'Feb 12, 2026 11:10 AM',
+                        title: 'CPU Warning', subtitle: 'CPU 83%', severity: 'Warning',
+                        nodeName: 'R3-Core', nodeIp: '10.0.0.3', resource: 'Control Plane',
+                        alertValue: '83%', threshold: '> 80%'
+                    }
+                ]
+            }
+        ],
+        simulationType: 'device_cpu_saturation'
+    },
+    {
+        id: 'P-Link-Phys-01',
+        name: 'Impending Link Failure Due to Physical Degradation',
+        description: 'Rising errors + discards resulting in interface instability then link down.',
+        confidence: 0.90,
+        seenCount: 14,
+        lastSeen: '4 days ago',
+        domain: 'Network',
+        appliesTo: ['Optical Links', 'WAN Interfaces'],
+        status: 'Enabled',
+        severity: 'Major',
+        tags: ['CRC Errors', 'Link Flap', 'Physical Layer'],
+        steps: [
+            { id: 'S1', name: 'In Errors Gradual Rise', description: 'CRC/Alignment errors increasing', icon: Activity },
+            { id: 'S2', name: 'Out Errors / Discards Rise', description: 'Discards begin accumulating', icon: AlertTriangle, delay: '+5m' },
+            { id: 'S3', name: 'Duplex Mismatch (Optional)', description: 'Negotiation issues detected', icon: Database, delay: '+2m' },
+            { id: 'S4', name: 'Interface Flapping', description: 'Protocol keepalives dropped', icon: Zap, delay: '+5m' },
+        ],
+        logicSummary: 'Physical Layer Decay:',
+        logicSteps: [
+            { order: 1, title: 'Signal Degradation', description: 'Optical transceiver or bad cable introduces framing errors.', color: 'blue' },
+            { order: 2, title: 'Frame Discards', description: 'Switch begins discarding corrupted frames at hardware level.', color: 'amber' },
+            { order: 3, title: 'Carrier Loss', description: 'Physical link drops and bounces dynamically.', color: 'red' }
+        ],
+        predictedEvents: [
+            { name: 'INTERFACE_FLAP', probability: 0.70, severity: 'Medium', title: 'Predicted Flap', subtitle: 'Error rate critical' },
+            { name: 'LINK_DOWN', probability: 0.60, severity: 'High', title: 'Predicted Outage', subtitle: 'Link failure imminent' }
+        ],
+        occurrences: [
+            {
+                id: 'OCC-2026-102',
+                timestamp: 'Feb 15, 2026 09:30 AM',
+                severity: 'Major',
+                summary: 'S1-Eth2 Optics Failure',
+                outcomes: ['Interface Flap', 'Link Down'],
+                metricData: generateLinkPhysData(1.5),
+                events: [
+                    {
+                        id: '99011X11', timestamp: 'Feb 15, 2026 09:20 AM',
+                        title: 'CRC Errors Rise', subtitle: 'Input Errors Spike', severity: 'Warning',
+                        nodeName: 'Sw-Aggregation-01', nodeIp: '10.5.2.1', resource: 'Eth2',
+                        alertValue: '120 cps', threshold: '> 50 cps'
+                    }
+                ]
+            }
+        ],
+        simulationType: 'link_physical_degradation'
+    },
+    {
+        id: 'P-FW-Load-01',
+        name: 'Firewall Overload Leading to Packet Loss',
+        description: 'Firewall sessions climbing, resulting in elevated CPU and latency leading to drops.',
+        confidence: 0.86,
+        seenCount: 6,
+        lastSeen: '1 week ago',
+        domain: 'Security',
+        appliesTo: ['Edge Firewalls', 'Datacenter Firewalls'],
+        status: 'Enabled',
+        severity: 'Critical',
+        tags: ['Firewall', 'Packet Loss', 'Session Exhaustion'],
+        steps: [
+            { id: 'S1', name: 'Total Sessions Spike', description: 'Rapid increase in conn table', icon: Grid },
+            { id: 'S2', name: 'CPU Utilization Rise', description: 'State inspection overhead', icon: Cpu, delay: '+2m' },
+            { id: 'S3', name: 'Latency Increases', description: 'Processing delays', icon: Clock, delay: '+3m' },
+            { id: 'S4', name: 'Packet Loss', description: 'Firewall dropping new packets', icon: AlertTriangle, delay: '+3m' },
+        ],
+        logicSummary: 'Session Table Exhaustion:',
+        logicSteps: [
+            { order: 1, title: 'Connection Flood', description: 'Sudden burst of new valid traffic sessions.', color: 'blue' },
+            { order: 2, title: 'Processing Bottleneck', description: 'Security policies peg Data Plane CPU.', color: 'amber' },
+            { order: 3, title: 'Tail Drop Failures', description: 'Buffers full; legitimate traffic discarded.', color: 'red' }
+        ],
+        predictedEvents: [
+            { name: 'PACKET_LOSS', probability: 0.85, severity: 'High', title: 'Predicted Drops', subtitle: 'Processing limits reached' },
+            { name: 'FIREWALL_UNRESPONSIVE', probability: 0.55, severity: 'Critical', title: 'Predicted Isolation', subtitle: 'Total control plane freeze' }
+        ],
+        occurrences: [
+            {
+                id: 'OCC-2026-103',
+                timestamp: 'Feb 10, 2026 14:00 PM',
+                severity: 'Critical',
+                summary: 'Edge FW Session Exhaustion',
+                outcomes: ['Packet Loss', 'High Latency'],
+                metricData: generateFwLoadData(1.2),
+                events: []
+            }
+        ],
+        simulationType: 'firewall_overload'
+    },
+    {
+        id: 'P-QoE-01',
+        name: 'Jitter Degradation Before Packet Loss',
+        description: 'Jitter patterns and latency variance that usually precede packet loss and SLA breach.',
+        confidence: 0.75,
+        seenCount: 22,
+        lastSeen: '2 days ago',
+        domain: 'Application',
+        appliesTo: ['VoIP Gateways', 'SD-WAN Tunnels'],
+        status: 'Learning',
+        severity: 'Warning',
+        tags: ['Jitter', 'QoE', 'SLA', 'VoIP'],
+        steps: [
+            { id: 'S1', name: 'Jitter Increases', description: 'Packet arrival variance spikes', icon: Activity },
+            { id: 'S2', name: 'Latency Variance Rise', description: 'Inconsistent path processing', icon: Clock, delay: '+1m' },
+            { id: 'S3', name: 'Utilization Near Threshold', description: 'Queue limits approached', icon: Database, delay: '+2m' }
+        ],
+        logicSummary: 'Micro-burst Congestion:',
+        logicSteps: [
+            { order: 1, title: 'Queuing Delays', description: 'Sub-second bursts cause irregular queuing.', color: 'blue' },
+            { order: 2, title: 'Jitter Saturation', description: 'Delay variation becomes untenable for real-time traffic.', color: 'amber' },
+            { order: 3, title: 'Active Queue Drop', description: 'Traffic shaper starts tail dropping.', color: 'red' }
+        ],
+        predictedEvents: [
+            { name: 'PACKET_LOSS', probability: 0.80, severity: 'Medium', title: 'Predicted Loss', subtitle: 'Shaping drop incoming' },
+            { name: 'SLA_BREACH', probability: 0.75, severity: 'Medium', title: 'Predicted SLA Breach', subtitle: 'Voice quality degraded' }
+        ],
+        occurrences: [
+            {
+                id: 'OCC-2026-104',
+                timestamp: 'Feb 18, 2026 08:30 AM',
+                severity: 'Warning',
+                summary: 'SD-WAN Voice Degradation',
+                outcomes: ['SLA Breach', 'RTP Loss'],
+                metricData: generateQoeData(1),
+                events: []
+            }
+        ],
+        simulationType: 'qoe_jitter'
+    }
 ];
