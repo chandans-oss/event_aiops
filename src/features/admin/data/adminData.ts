@@ -196,51 +196,106 @@ export const mockIntentsFull: IntentFull[] = [
   }
 ];
 
-// Knowledge Base Articles - Enhanced with categories
 export const mockKBArticlesEnhanced: KBArticle[] = [
   {
     id: 'kb-001',
-    title: 'Resolving Database Connection Pool Exhaustion',
-    category: 'Database',
-    subcategory: 'Connection Management',
-    content: 'This article covers the diagnosis and remediation of database connection pool exhaustion issues. Key steps include: 1. Identify connection leaks using monitoring tools. 2. Check application code for unclosed connections. 3. Tune pool size based on workload. 4. Implement connection timeout policies.',
-    tags: ['database', 'connection-pool', 'performance'],
-    linkedIntents: ['db.connection_pool_exhausted'],
-    lastUpdated: '2026-01-02T00:00:00Z',
-    effectiveness: 92
+    title: 'Mitigating Interface Saturation and Buffer Overflows',
+    category: 'Network',
+    subcategory: 'Link Layer',
+    content: 'Standard operating procedure for handling sustained traffic spikes that cause output queue exhaustion, CRC errors, and interface flaps.',
+    problem: 'An interface is experiencing sustained utilization above 85%. Traffic bursts are overwhelming the hardware packet buffers, causing queue depth surges. As the queues fill, the ASIC begins tail-dropping packets, which registers as output drops. Ultimately, the congestion degrades keepalives (like BFD or routing hellos), causing the interface protocol or routing neighbors to flap and fail over.',
+    area: 'Core Routing & Edge Aggregation Links',
+    remedyItems: [
+      'Examine top talkers using NetFlow/sFlow to determine if the traffic spike is legitimate (e.g. backups) or anomalous (DDoS).',
+      'Verify Quality of Service (QoS) queues. Ensure critical control-plane traffic (CS6/Network Control) is mapped to the strict priority queue.',
+      'Check if the hardware buffers are statically divided. Consider switching to dynamic buffer allocation if supported by your ASIC.',
+      'Temporarily shift traffic by tweaking IGP routing metrics (e.g., OSPF cost or BGP Local Preference) to offload the saturated path.',
+      'If congestion is chronic, initiate a capacity planning request to upgrade the link from 10G to 40G/100G or deploy Link Aggregation (LAG/LACP).'
+    ],
+    tags: ['congestion', 'buffer', 'qos', 'interface-flap'],
+    linkedIntents: ['link.flapping', 'link.unidirectional'],
+    lastUpdated: '2026-02-18T10:30:00Z',
+    effectiveness: 94
   },
   {
     id: 'kb-002',
-    title: 'Handling High CPU Utilization on Application Servers',
-    category: 'Compute',
-    subcategory: 'CPU',
-    content: 'Steps to diagnose and resolve high CPU issues on application servers. Includes profiling techniques, identifying hot code paths, and optimization strategies.',
-    tags: ['cpu', 'performance', 'application'],
-    linkedIntents: ['compute.cpu_spike'],
-    lastUpdated: '2025-12-28T00:00:00Z',
-    effectiveness: 88
+    title: 'BGP Neighbor Adjacency Failures & Route Flapping',
+    category: 'Network',
+    subcategory: 'Routing',
+    content: 'Diagnosis and recovery of abruptly failing BGP sessions, including hold-timer expiration and reachability issues.',
+    problem: 'A critical external or internal BGP peer adjacency has abruptly dropped. The router logged a "Hold timer expired" message. This causes immediate route withdrawals, massive prefix flapping, and diverted traffic paths, resulting in asymmetric routing and dropped traffic for specific external services. The CPU of the control plane might also have spiked leading up to the failure.',
+    area: 'Core Routing Protocol Boundaries & Edge Peering',
+    remedyItems: [
+      'Ping and trace the peer interface to ensure there is no low-level connectivity or transport (Layer 2/3) blockage.',
+      'Check the control plane CPU utilization (`show processes cpu hardware`). High CPU can prevent the routing process from replying to BGP keepalives in time.',
+      'Verify hold-timer and keep-alive intervals to assure they match the neighboring router configuration.',
+      'Ensure the CoPP (Control Plane Policing) policy is not inadvertently dropping TCP port 179 traffic during broadcast storms.',
+      'Perform a soft-clear (`clear ip bgp soft in`) to request a route refresh without tearing down the TCP session.'
+    ],
+    tags: ['bgp', 'routing', 'peering', 'outage'],
+    linkedIntents: ['routing.bgp_down'],
+    lastUpdated: '2026-02-15T08:00:00Z',
+    effectiveness: 91
   },
   {
     id: 'kb-003',
-    title: 'Network Latency Troubleshooting Guide',
-    category: 'Network',
-    subcategory: 'Link Layer',
-    content: 'Comprehensive guide to diagnosing network latency issues including MTU problems, duplex mismatches, and physical layer issues.',
-    tags: ['network', 'latency', 'troubleshooting'],
-    linkedIntents: ['link.unidirectional', 'link.flapping'],
-    lastUpdated: '2025-12-20T00:00:00Z',
-    effectiveness: 85
+    title: 'Resolving Database Connection Pool Exhaustion',
+    category: 'Database',
+    subcategory: 'Connection Management',
+    content: 'Action plan for recovering databases failing to hand out active connections due to pool exhaustion or zombie connections.',
+    problem: 'Applications are receiving connection timeout (`FATAL: sorry, too many clients already`) errors because the database connection pool has reached its maximum configured size. This typically happens during sudden traffic spikes, or due to connection leaks in the application code where active queries hang and connections are not properly closed and surrendered to the pool.',
+    area: 'Database Infrastructure & Connection Orchestration (PostgreSQL/MySQL)',
+    remedyItems: [
+      'Query `pg_stat_activity` or equivalent views to identify queries stuck in `idle in transaction` state for extended periods.',
+      'Aggressively kill zombie connections blocking the pool using `pg_terminate_backend(pid)`.',
+      'Check application code or ORM settings for unclosed connections, missing transaction commits, or lack of read-replicas for heavy analytic queries.',
+      'Temporarily increase the maximum pool size (`max_connections`), ensuring the host has adequate RAM to support the overhead.',
+      'Deploy a connection pooler like PgBouncer or ProxySQL to multiplex thousands of application connections over a small set of real DB connections.'
+    ],
+    tags: ['database', 'connection-pool', 'postgresql', 'outage'],
+    linkedIntents: ['db.connection_pool_exhausted'],
+    lastUpdated: '2026-01-20T14:15:00Z',
+    effectiveness: 89
   },
   {
     id: 'kb-004',
-    title: 'BGP Session Recovery Procedures',
+    title: 'Handling High CPU Utilization on Application Servers',
+    category: 'Compute',
+    subcategory: 'CPU',
+    content: 'Steps to diagnose and resolve runaway CPU exhaustion on compute instances running JVM or Node.js runtimes.',
+    problem: 'Application servers are experiencing sustained CPU utilization pegged at 100%, leading to slow response times, service degradation, and dropped HTTP requests. The compute workload is artificially elevated, often caused by infinite loops, catastrophic backtracking in regular expressions (ReDoS), or the runtime Garbage Collector continuously thrashing to free memory.',
+    area: 'Compute Instances, JVMs, & App Runtimes',
+    remedyItems: [
+      'Temporarily isolate the affected node from the load balancer to prevent user impact while diagnosing.',
+      'Take a thread dump (`jstack` for Java, `--cpu-prof` for Node) and generate a flamegraph to identify the specific code paths eagerly consuming CPU cycles.',
+      'Look for "OutOfMemoryError: GC Overhead Limit Exceeded" logs. If found, the CPU spike is a secondary symptom of a memory leak.',
+      'Ensure the server is not swapping to disk. High hypervisor steal time or high I/O wait times masquerade as high CPU load.',
+      'Scale out immediately by adding replicas if the CPU load is tied purely to an unexpected legitimate traffic surge.'
+    ],
+    tags: ['cpu', 'java', 'nodejs', 'performance', 'garbage-collection'],
+    linkedIntents: ['compute.cpu_spike'],
+    lastUpdated: '2025-12-10T09:45:00Z',
+    effectiveness: 86
+  },
+  {
+    id: 'kb-005',
+    title: 'MAC Address Flapping & Spanning Tree Instability',
     category: 'Network',
-    subcategory: 'Routing',
-    content: 'Detailed procedures for recovering from BGP session failures, including peer configuration verification and route table analysis.',
-    tags: ['bgp', 'routing', 'network'],
-    linkedIntents: ['routing.bgp_down'],
-    lastUpdated: '2025-12-15T00:00:00Z',
-    effectiveness: 90
+    subcategory: 'Switching',
+    content: 'Troubleshooting layer 2 loops and rapid MAC address moves between different switch ports.',
+    problem: 'The network core logs thousands of "MAC address flapping" warnings per minute. This indicates that a single MAC address is being learned alternately on two different switch ports. This is highly symptomatic of a Layer 2 network loop, which can rapidly culminate in a broadcast storm that completely paralyses the switching fabric and drops core network telemetry.',
+    area: 'Layer 2 Switching Fabric & Data Center Interconnects',
+    remedyItems: [
+      'Locate the flapping MAC address and the two ports fighting for it in the switch logging buffer (`show log | include FLAP`).',
+      'Verify the Spanning Tree Protocol (STP) topology. Look for ports unexpectedly transitioning into forwarding state (`show spanning-tree summary`).',
+      'Determine if someone has bridged two access ports together with a dummy switch or IP phone.',
+      'Enable loop-protection features: BPDU Guard on access ports, and Root Guard on designated downstream ports.',
+      'If it is a hypervisor (VMware/Hyper-V), verify the vSwitch load balancing policies are not sending traffic for one MAC out of multiple physical uplinks simultaneously.'
+    ],
+    tags: ['switching', 'mac-flap', 'stp', 'layer2', 'loop'],
+    linkedIntents: [],
+    lastUpdated: '2026-02-05T11:20:00Z',
+    effectiveness: 95
   }
 ];
 

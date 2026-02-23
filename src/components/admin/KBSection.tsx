@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Plus, Edit2, Trash2, ChevronRight, Search, BookOpen, Link2, Star, ExternalLink } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
@@ -13,9 +14,40 @@ import { KBArticle } from '@/shared/types';
 type ViewLevel = 'categories' | 'subcategories' | 'articles';
 
 export function KBSection() {
-  const [viewLevel, setViewLevel] = useState<ViewLevel>('categories');
-  const [selectedCategory, setSelectedCategory] = useState<typeof mockKBCategories[0] | null>(null);
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  const [viewLevel, setViewLevel] = useState<ViewLevel>(() => {
+    return (sessionStorage.getItem('kb-viewLevel') as ViewLevel) || 'categories';
+  });
+
+  const [selectedCategory, setSelectedCategory] = useState<typeof mockKBCategories[0] | null>(() => {
+    const saved = sessionStorage.getItem('kb-selectedCategory');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) { }
+    }
+    return null;
+  });
+
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(() => {
+    return sessionStorage.getItem('kb-selectedSubcategory') || null;
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem('kb-viewLevel', viewLevel);
+    if (selectedCategory) {
+      sessionStorage.setItem('kb-selectedCategory', JSON.stringify(selectedCategory));
+    } else {
+      sessionStorage.removeItem('kb-selectedCategory');
+    }
+    if (selectedSubcategory) {
+      sessionStorage.setItem('kb-selectedSubcategory', selectedSubcategory);
+    } else {
+      sessionStorage.removeItem('kb-selectedSubcategory');
+    }
+  }, [viewLevel, selectedCategory, selectedSubcategory]);
+
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedArticle, setSelectedArticle] = useState<KBArticle | null>(null);
@@ -201,7 +233,7 @@ export function KBSection() {
               .filter((article) =>
                 searchQuery
                   ? article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                    article.content.toLowerCase().includes(searchQuery.toLowerCase())
+                  article.content.toLowerCase().includes(searchQuery.toLowerCase())
                   : true
               )
               .map((article) => (
@@ -209,7 +241,7 @@ export function KBSection() {
                   key={article.id}
                   article={article}
                   onEdit={() => setSelectedArticle(article)}
-                  onView={() => setViewingArticle(article)}
+                  onView={() => navigate(`/admin/kb/${article.id}`)}
                 />
               ))
           )}
@@ -306,7 +338,7 @@ function KBArticleCard({
       </div>
       <h3 className="font-semibold text-foreground mb-2 line-clamp-2">{article.title}</h3>
       <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{article.content}</p>
-      
+
       {/* Tags */}
       <div className="flex flex-wrap gap-1 mb-3">
         {article.tags.slice(0, 3).map((tag) => (

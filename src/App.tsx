@@ -24,6 +24,7 @@ import RCADetailPage from "@/features/rca/pages/RcaDetailPage";
 import ImpactDetailPage from "@/features/impact/pages/ImpactDetailPage";
 import EventCorrelationClustersPage from "@/features/events/pages/EventCorrelationPage";
 import CorrelationPage from "@/features/analytics/pages/CorrelationPage";
+import KBDetailPage from "@/features/admin/pages/KBDetailPage";
 import NotFound from "@/shared/components/common/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => (
               <Route path="/admin" element={<Admin />} />
               <Route path="/dashboard/alarm-prediction" element={<AlarmPredictionDashboard />} />
               <Route path="/admin/upload" element={<UploadData />} />
+              <Route path="/admin/kb/:id" element={<KBDetailPage />} />
               <Route path="/upload" element={<EventUpload />} />
               <Route path="/demo/rca-flow" element={<RCAFlow />} />
               <Route path="/demo/playground" element={<Playground />} />

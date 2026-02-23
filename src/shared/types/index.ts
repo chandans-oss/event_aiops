@@ -82,7 +82,10 @@ export interface KBArticle {
   title: string;
   category: string;
   subcategory?: string;
-  content: string;
+  content: string; // Brief summary
+  problem: string;
+  area: string;
+  remedyItems: string[];
   tags: string[];
   linkedIntents: string[];
   lastUpdated: string;
