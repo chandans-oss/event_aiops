@@ -482,9 +482,31 @@ export const MOCK_PATTERNS: Pattern[] = [
                         title: 'CPU Warning', subtitle: 'CPU 83%', severity: 'Warning',
                         nodeName: 'R3-Core', nodeIp: '10.0.0.3', resource: 'Control Plane',
                         alertValue: '83%', threshold: '> 80%'
+                    },
+                    {
+                        id: '99011X11', timestamp: 'Feb 12, 2026 11:13 AM',
+                        title: 'Device Unreachable', subtitle: 'Ping Timeout', severity: 'Critical',
+                        nodeName: 'R3-Core', nodeIp: '10.0.0.3', resource: 'ICMP',
+                        alertValue: '100% Loss', threshold: 'Reachability'
                     }
                 ]
-            }
+            },
+            ...Array.from({ length: 8 }).map((_, i) => ({
+                id: `OCC-2026-10${i + 2}`,
+                timestamp: `Feb ${11 - i}, 2026 10:00 AM`,
+                severity: 'Critical' as const,
+                summary: `Historical CPU Crash #${i + 1}`,
+                outcomes: ['Device Unreachable'],
+                metricData: generateCpuSaturation(1.1 + (i * 0.1)),
+                events: [
+                    {
+                        id: `HYST_${i}1`, timestamp: `Feb ${11 - i}, 2026 09:50 AM`,
+                        title: 'CPU Warning', subtitle: 'CPU > 80%', severity: 'Warning' as const,
+                        nodeName: `Agg-Sw-0${i + 1}`, nodeIp: `10.1.${i}.1`, resource: 'System',
+                        alertValue: '88%', threshold: '> 80%'
+                    }
+                ]
+            }))
         ],
         simulationType: 'device_cpu_saturation'
     },
@@ -530,9 +552,31 @@ export const MOCK_PATTERNS: Pattern[] = [
                         title: 'CRC Errors Rise', subtitle: 'Input Errors Spike', severity: 'Warning',
                         nodeName: 'Sw-Aggregation-01', nodeIp: '10.5.2.1', resource: 'Eth2',
                         alertValue: '120 cps', threshold: '> 50 cps'
+                    },
+                    {
+                        id: '99011X12', timestamp: 'Feb 15, 2026 09:28 AM',
+                        title: 'Interface Flapping', subtitle: 'Link state changing', severity: 'Major',
+                        nodeName: 'Sw-Aggregation-01', nodeIp: '10.5.2.1', resource: 'Eth2',
+                        alertValue: 'Flap', threshold: 'State Stability'
                     }
                 ]
-            }
+            },
+            ...Array.from({ length: 13 }).map((_, i) => ({
+                id: `OCC-OPTICS-${i}`,
+                timestamp: `Jan ${28 - i}, 2026 04:00 PM`,
+                severity: 'Major' as const,
+                summary: `Transceiver Decay #${i + 1}`,
+                outcomes: ['Interface Flap'],
+                metricData: generateLinkPhysData(1.2 + (i * 0.05)),
+                events: [
+                    {
+                        id: `HYST_OPT_${i}1`, timestamp: `Jan ${28 - i}, 2026 03:45 PM`,
+                        title: 'CRC Errors', subtitle: 'Physical degradation', severity: 'Warning' as const,
+                        nodeName: `PE-Router-0${(i % 5) + 1}`, nodeIp: `10.20.${i}.1`, resource: `xe-0/0/${i}`,
+                        alertValue: 'Rising', threshold: '> 0 cps'
+                    }
+                ]
+            }))
         ],
         simulationType: 'link_physical_degradation'
     },
@@ -572,8 +616,31 @@ export const MOCK_PATTERNS: Pattern[] = [
                 summary: 'Edge FW Session Exhaustion',
                 outcomes: ['Packet Loss', 'High Latency'],
                 metricData: generateFwLoadData(1.2),
-                events: []
-            }
+                events: [
+                    {
+                        id: 'FW_EV_01', timestamp: 'Feb 10, 2026 13:58 PM',
+                        title: 'Packet Drop', subtitle: 'Buffer Exhaustion', severity: 'Critical' as const,
+                        nodeName: 'Edge-FW-01', nodeIp: '192.168.254.1', resource: 'DataPlane',
+                        alertValue: '1500 pps', threshold: '> 0 pps'
+                    }
+                ]
+            },
+            ...Array.from({ length: 5 }).map((_, i) => ({
+                id: `OCC-FW-${i}`,
+                timestamp: `Jan ${15 - i}, 2026 11:00 AM`,
+                severity: 'Critical' as const,
+                summary: `Firewall Overload #${i + 1}`,
+                outcomes: ['Packet Loss'],
+                metricData: generateFwLoadData(1.0 + (i * 0.2)),
+                events: [
+                    {
+                        id: `FW_EV_1${i}`, timestamp: `Jan ${15 - i}, 2026 10:55 AM`,
+                        title: 'High CPU', subtitle: 'Data Plane 99%', severity: 'Critical' as const,
+                        nodeName: `DC-FW-0${i % 2 + 1}`, nodeIp: `172.16.0.${i}`, resource: 'CPU1',
+                        alertValue: '99%', threshold: '> 90%'
+                    }
+                ]
+            }))
         ],
         simulationType: 'firewall_overload'
     },
@@ -612,8 +679,24 @@ export const MOCK_PATTERNS: Pattern[] = [
                 summary: 'SD-WAN Voice Degradation',
                 outcomes: ['SLA Breach', 'RTP Loss'],
                 metricData: generateQoeData(1),
+                events: [
+                    {
+                        id: 'QOE_EV_01', timestamp: 'Feb 18, 2026 08:28 AM',
+                        title: 'SLA Breach', subtitle: 'Jitter > 30ms', severity: 'Warning' as const,
+                        nodeName: 'SDWAN-Branch-5', nodeIp: '10.50.1.1', resource: 'Tunnel-01',
+                        alertValue: '35ms', threshold: '< 30ms'
+                    }
+                ]
+            },
+            ...Array.from({ length: 21 }).map((_, i) => ({
+                id: `OCC-QOE-${i}`,
+                timestamp: `Feb ${17 - Math.floor(i / 2)}, 2026 0${(i % 8) + 1}:00 PM`,
+                severity: 'Warning' as const,
+                summary: `Microburst Degradation #${i + 1}`,
+                outcomes: ['Jitter Spike'],
+                metricData: generateQoeData(0.8 + (Math.random() * 0.5)),
                 events: []
-            }
+            }))
         ],
         simulationType: 'qoe_jitter'
     }

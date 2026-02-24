@@ -576,7 +576,7 @@ export const mockCorrelationRules: CorrelationRule[] = [
     id: 'cor-003',
     type: 'topological',
     name: 'Topological Correlation',
-    description: 'Correlate events based on dependency graph (Upstream dominates Downstream).',
+    description: 'Correlate events based on dependency graph.',
     status: 'active',
     mlEnabled: false,
     gnnEnabled: false,

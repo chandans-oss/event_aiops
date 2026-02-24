@@ -45,12 +45,40 @@ import { useState, useEffect } from 'react';
 
 // --- Simulation Logic ---
 
-const getChartConfig = (type: 'congestion' | 'cpu_spike') => {
+const getChartConfig = (type: 'congestion' | 'cpu_spike' | 'device_cpu_saturation' | 'link_physical_degradation' | 'firewall_overload' | 'qoe_jitter') => {
     if (type === 'cpu_spike') {
         return {
             metric1: { name: 'CPU Usage %', color: '#ef4444' }, // Red
             metric2: { name: 'Control Pkt Loss', color: '#f59e0b' }, // Amber
             metric3: { name: 'BGP State (1=Up)', color: '#3b82f6' } // Blue
+        };
+    }
+    if (type === 'device_cpu_saturation') {
+        return {
+            metric1: { name: 'CPU Utilization', color: '#ef4444' },
+            metric2: { name: 'Ping Loss %', color: '#f59e0b' },
+            metric3: { name: 'Node State', color: '#3b82f6' }
+        };
+    }
+    if (type === 'link_physical_degradation') {
+        return {
+            metric1: { name: 'Input Errors', color: '#f59e0b' },
+            metric2: { name: 'Frame Discards', color: '#ef4444' },
+            metric3: { name: 'Link Flaps', color: '#10b981' }
+        };
+    }
+    if (type === 'firewall_overload') {
+        return {
+            metric1: { name: 'Sessions', color: '#3b82f6' },
+            metric2: { name: 'FW CPU %', color: '#ef4444' },
+            metric3: { name: 'Latency (ms)', color: '#f59e0b' }
+        };
+    }
+    if (type === 'qoe_jitter') {
+        return {
+            metric1: { name: 'Jitter (ms)', color: '#3b82f6' },
+            metric2: { name: 'Latency Var', color: '#f59e0b' },
+            metric3: { name: 'Drops', color: '#ef4444' }
         };
     }
     return {
@@ -60,7 +88,7 @@ const getChartConfig = (type: 'congestion' | 'cpu_spike') => {
     };
 };
 
-const generateSimulationData = (type: 'congestion' | 'cpu_spike') => {
+const generateSimulationData = (type: 'congestion' | 'cpu_spike' | 'device_cpu_saturation' | 'link_physical_degradation' | 'firewall_overload' | 'qoe_jitter') => {
     const data = [];
     for (let i = 0; i <= 20; i++) {
         let m1, m2, m3;
@@ -84,6 +112,22 @@ const generateSimulationData = (type: 'congestion' | 'cpu_spike') => {
 
             // Metric 3: BGP State (Binary)
             m3 = i > 14 ? 0 : 1;
+        } else if (type === 'device_cpu_saturation') {
+            m1 = Math.max(0, Math.min(100, 45 + drift + (i * 2.5)));
+            m2 = i > 10 ? (i - 10) * 12 + organicNoise() : 0;
+            m3 = i > 15 ? 0 : 1;
+        } else if (type === 'link_physical_degradation') {
+            m1 = i > 5 ? (i - 5) * 45 + (Math.random() * 20) : Math.random() * 5;
+            m2 = i > 8 ? (i - 8) * 15 + organicNoise() : 0;
+            m3 = i > 12 ? Math.floor(Math.random() * 3) : 0;
+        } else if (type === 'firewall_overload') {
+            m1 = 1500 + drift * 100 + (Math.pow(i, 2.7) * 40);
+            m2 = Math.min(100, 30 + (i * 3.5) + organicNoise());
+            m3 = i > 10 ? 10 + Math.pow(i - 10, 2) * 5 : 10;
+        } else if (type === 'qoe_jitter') {
+            m1 = 2 + (i * 1.5) + organicNoise() * 0.5;
+            m2 = 5 + Math.pow(i, 1.2) + organicNoise();
+            m3 = i > 12 ? (i - 12) * 5 : 0;
         } else {
             // Congestion
             // Metric 1: Utilization (Fluctuates heavily with load)
@@ -789,6 +833,27 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                                                         <Line type="monotone" dataKey="utilization" stroke="#3b82f6" strokeWidth={2} dot={false} name="Utilization %" activeDot={{ r: 4 }} />
                                                                                         <Line type="monotone" dataKey="drops" stroke="#ef4444" strokeWidth={2} dot={false} name="Buffer Util (Drops)" />
                                                                                         <Line type="monotone" dataKey="errors" stroke="#f59e0b" strokeWidth={2} dot={false} name="CRC Errors" />
+                                                                                    </>
+                                                                                ) : pattern.simulationType === 'device_cpu_saturation' ? (
+                                                                                    <>
+                                                                                        <Line type="monotone" dataKey="cpuUtil" stroke="#ef4444" strokeWidth={2} dot={false} name="CPU %" />
+                                                                                        <Line type="monotone" dataKey="pingLoss" stroke="#f59e0b" strokeWidth={2} dot={false} name="Ping Loss %" />
+                                                                                    </>
+                                                                                ) : pattern.simulationType === 'link_physical_degradation' ? (
+                                                                                    <>
+                                                                                        <Line type="monotone" dataKey="inErrors" stroke="#f59e0b" strokeWidth={2} dot={false} name="In Errors" />
+                                                                                        <Line type="monotone" dataKey="discards" stroke="#ef4444" strokeWidth={2} dot={false} name="Discards" />
+                                                                                    </>
+                                                                                ) : pattern.simulationType === 'firewall_overload' ? (
+                                                                                    <>
+                                                                                        <Line type="monotone" dataKey="sessions" stroke="#3b82f6" strokeWidth={2} dot={false} name="Sessions" />
+                                                                                        <Line type="monotone" dataKey="fwCpu" stroke="#ef4444" strokeWidth={2} dot={false} name="CPU %" />
+                                                                                        <Line type="monotone" dataKey="latency" stroke="#f59e0b" strokeWidth={2} dot={false} name="Latency" />
+                                                                                    </>
+                                                                                ) : pattern.simulationType === 'qoe_jitter' ? (
+                                                                                    <>
+                                                                                        <Line type="monotone" dataKey="jitter" stroke="#3b82f6" strokeWidth={2} dot={false} name="Jitter" />
+                                                                                        <Line type="monotone" dataKey="latencyVar" stroke="#f59e0b" strokeWidth={2} dot={false} name="Latency Var" />
                                                                                     </>
                                                                                 ) : (
                                                                                     <>

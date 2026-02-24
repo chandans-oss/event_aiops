@@ -55,7 +55,7 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                 </div>
             </div>
 
-            <div className="rounded-md border border-border/50 bg-card/40 overflow-hidden">
+            <div className="rounded-md border border-border/50 bg-card/40 overflow-y-auto h-[max(50vh,600px)] custom-scrollbar">
                 <Table>
                     <TableHeader className="bg-muted/50">
                         <TableRow>
