@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -118,6 +118,18 @@ export function DeduplicationRuleForm({ open, onOpenChange, rule, onSave }: Dedu
       matchCriteria: rule?.config?.matchCriteria?.join(', ') || '',
     },
   });
+
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        name: rule?.name || '',
+        description: rule?.description || '',
+        status: rule?.status || 'active',
+        type: rule?.type || 'exact_match',
+        matchCriteria: rule?.config?.matchCriteria?.join(', ') || '',
+      });
+    }
+  }, [rule, open]);
 
   const handleSubmit = (data: DeduplicationFormData) => {
     onSave(data);
@@ -269,6 +281,23 @@ export function SuppressionRuleForm({ open, onOpenChange, rule, onSave }: Suppre
       businessEndTime: rule?.config?.businessHours?.endTime || '18:00',
     },
   });
+
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        name: rule?.name || '',
+        description: rule?.description || '',
+        status: rule?.status || 'active',
+        type: rule?.type || 'business_hours',
+        affectedDevices: rule?.affectedDevices?.join(', ') || '',
+        scheduleStart: rule?.config?.schedule?.start || '',
+        scheduleEnd: rule?.config?.schedule?.end || '',
+        businessDays: rule?.config?.businessHours?.days?.join(', ') || 'Mon, Tue, Wed, Thu, Fri',
+        businessStartTime: rule?.config?.businessHours?.startTime || '09:00',
+        businessEndTime: rule?.config?.businessHours?.endTime || '18:00',
+      });
+    }
+  }, [rule, open]);
 
   const ruleType = form.watch('type');
 
@@ -558,6 +587,58 @@ export function CorrelationRuleForm({ open, onOpenChange, rule, onSave }: Correl
       feedbackWeight: rule?.config?.feedbackWeight || 'medium',
     },
   });
+
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        name: rule?.name || '',
+        description: rule?.description || '',
+        status: rule?.status || 'active',
+        type: ruleType,
+        mlEnabled: rule?.mlEnabled || false,
+        gnnEnabled: rule?.gnnEnabled || false,
+        windowMode: rule?.config?.windowMode || 'sliding',
+        timeWindowSeconds: rule?.config?.timeWindowSeconds || 600,
+        minEvents: rule?.config?.minEvents || 2,
+        maxGapSeconds: rule?.config?.maxGapSeconds || 180,
+        sequenceConstraint: rule?.config?.sequenceConstraint || 'any_order',
+        retriggerCooldownMin: rule?.config?.retriggerCooldownMin || 10,
+        dedupWindowMin: rule?.config?.dedupWindowMin || 2,
+        groupingCriteria: rule?.config?.groupingCriteria?.join(', ') || '',
+        correlationScope: rule?.config?.correlationScope || 'same_parent',
+        relationshipRadius: rule?.config?.relationshipRadius || 1,
+        minDistinctEntities: rule?.config?.minDistinctEntities || 2,
+        groupingPriority: rule?.config?.groupingPriority || 'entity',
+        traceDepth: rule?.config?.traceDepth || 2,
+        directionality: rule?.config?.directionality || 'upstream',
+        rootStrategy: rule?.config?.rootStrategy || 'most_upstream',
+        suppressChildren: rule?.config?.suppressChildren !== undefined ? rule.config.suppressChildren : true,
+        propagationWindowMin: rule?.config?.propagationWindowMin || 10,
+        maxGraphBreadth: rule?.config?.maxGraphBreadth || 25,
+        timeLagMin: rule?.config?.timeLagMin || 10,
+        confidenceThreshold: rule?.config?.confidenceThreshold || 0.7,
+        rulePriority: rule?.config?.rulePriority || 'medium',
+        repetitionThreshold: rule?.config?.repetitionThreshold || 3,
+        ruleExpiryDays: rule?.config?.ruleExpiryDays || 90,
+        learningWindowDays: rule?.config?.learningWindowDays || 30,
+        stabilityThreshold: rule?.config?.stabilityThreshold || 3,
+        similarityThreshold: rule?.config?.similarityThreshold || 0.8,
+        activationMode: rule?.config?.activationMode || 'manual',
+        driftSensitivity: rule?.config?.driftSensitivity || 'medium',
+        maxLearnedPatterns: rule?.config?.maxLearnedPatterns || 100,
+        modelVersion: rule?.config?.modelVersion || 'v2.4',
+        trainingWindowDays: rule?.config?.trainingWindowDays || 60,
+        retrainingFrequency: rule?.config?.retrainingFrequency || 'weekly',
+        explainabilityEnabled: rule?.config?.explainabilityEnabled !== undefined ? rule.config.explainabilityEnabled : true,
+        fallbackPolicy: rule?.config?.fallbackPolicy || 'rule_based',
+        crossDomainEnabled: rule?.config?.crossDomainEnabled || false,
+        vocabularyScope: rule?.config?.vocabularyScope || 'infra',
+        normalizationEnabled: rule?.config?.normalizationEnabled !== undefined ? rule.config.normalizationEnabled : true,
+        summaryLength: rule?.config?.summaryLength || 'short',
+        feedbackWeight: rule?.config?.feedbackWeight || 'medium',
+      });
+    }
+  }, [rule, open]);
 
   const handleSubmit = (data: CorrelationFormData) => {
     onSave(data);

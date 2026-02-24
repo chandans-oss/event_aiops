@@ -74,13 +74,13 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                 <Table>
                     <TableHeader className="bg-muted/50">
                         <TableRow>
-                            <TableHead className="w-[200px]">Pattern Name</TableHead>
-                            <TableHead className="w-[400px]">Details</TableHead>
-                            <TableHead>Domain</TableHead>
-                            <TableHead>Confidence</TableHead>
-                            <TableHead>Occurrences</TableHead>
-                            <TableHead>Last Seen</TableHead>
-                            <TableHead className="text-right">Active</TableHead>
+                            <TableHead className="w-[180px] text-[12px] font-bold uppercase text-muted-foreground/60">Pattern Name</TableHead>
+                            <TableHead className="w-[450px] text-[12px] font-bold uppercase text-muted-foreground/60">Details</TableHead>
+                            <TableHead className="text-[12px] font-bold uppercase text-muted-foreground/60">Domain</TableHead>
+                            <TableHead className="text-[12px] font-bold uppercase text-muted-foreground/60">Confidence</TableHead>
+                            <TableHead className="text-[12px] font-bold uppercase text-muted-foreground/60">Occurrences</TableHead>
+                            <TableHead className="text-[12px] font-bold uppercase text-muted-foreground/60">Last Seen</TableHead>
+                            <TableHead className="text-right text-[12px] font-bold uppercase text-muted-foreground/60">Active</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -94,45 +94,73 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                             filteredPatterns.map((pattern) => (
                                 <TableRow
                                     key={pattern.id}
-                                    className="cursor-pointer hover:bg-muted/50 group"
+                                    className="cursor-pointer hover:bg-muted/5 transition-colors group"
                                     onClick={() => onSelectPattern(pattern)}
                                 >
-                                    <TableCell className="align-top py-4">
-                                        <span className="text-sm font-semibold group-hover:text-primary transition-colors text-balance">{pattern.name}</span>
+                                    <TableCell className="py-2.5 pl-4">
+                                        <span className="text-[15px] font-bold text-foreground tracking-tight">
+                                            {pattern.name}
+                                        </span>
                                     </TableCell>
-                                    <TableCell className="align-top py-4">
-                                        <div className="flex flex-col gap-2">
-                                            <span className="text-xs text-muted-foreground leading-snug">{pattern.description}</span>
+                                    <TableCell className="py-2">
+                                        <div className="flex border border-border/40 rounded bg-card/40 group-hover:border-primary/30 transition-all max-w-[450px] min-h-[64px]">
+                                            {/* Right: Behavioral Grid Section */}
+                                            <div className="flex-1 flex flex-col">
+                                                {/* Top: Behavioral Sequence */}
+                                                <div className="flex-1 flex flex-col justify-center items-center gap-0 py-1">
+                                                    {pattern.steps.slice(0, 3).map((step, idx) => (
+                                                        <div key={idx} className="text-[9px] font-semibold text-muted-foreground/70 whitespace-nowrap flex items-center gap-1 justify-center w-full">
+                                                            <span className="text-foreground/80">{step.name} ↑</span>
+                                                            <span className="font-medium text-blue-400/80">({step.description})</span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                {/* Bottom: Predictive Outcomes */}
+                                                <div className="border-t border-border/30 px-2 py-0.5 bg-muted/20 flex justify-center items-center divide-x divide-border/30">
+                                                    {pattern.predictedEvents.slice(0, 2).map((evt, idx) => (
+                                                        <div key={idx} className="px-3 flex items-center gap-1.5 first:pl-0 last:pr-0">
+                                                            <span className="text-[8px] font-bold text-foreground/60 tracking-tighter uppercase">
+                                                                {evt.name}
+                                                            </span>
+                                                            <span className="text-[9px] font-mono font-bold text-blue-400">
+                                                                ({(evt.probability * 100).toFixed(0)}%)
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="align-top py-4">
+                                    <TableCell className="align-middle py-1">
                                         <div className="flex items-center gap-2">
-                                            <ShieldCheck className="h-4 w-4 text-muted-foreground" />
-                                            <span>{pattern.domain}</span>
+                                            <ShieldCheck className="h-4 w-4 text-muted-foreground/30" />
+                                            <span className="text-[13px] font-medium text-muted-foreground">{pattern.domain}</span>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="align-top py-4">
+                                    <TableCell className="align-middle py-1">
                                         <div className="flex items-center gap-2">
-                                            <BrainCircuit className="h-4 w-4 text-primary" />
-                                            <span className="font-semibold">{(pattern.confidence * 100).toFixed(0)}%</span>
+                                            <BrainCircuit className="h-4 w-4 text-primary/40" />
+                                            <span className="text-[14px] font-bold text-primary/90">{(pattern.confidence * 100).toFixed(0)}%</span>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="align-top py-4">
+                                    <TableCell className="align-middle py-1">
                                         <div className="flex items-center gap-2">
-                                            <Activity className="h-4 w-4 text-muted-foreground" />
-                                            <span>{pattern.seenCount} times</span>
+                                            <Activity className="h-4 w-4 text-muted-foreground/30" />
+                                            <span className="text-[13px] font-bold text-muted-foreground">{pattern.seenCount}×</span>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="align-top py-4">
-                                        <div className="flex items-center gap-2 text-muted-foreground">
-                                            <Clock className="h-4 w-4" />
-                                            <span>{pattern.lastSeen}</span>
+                                    <TableCell className="align-middle py-1">
+                                        <div className="flex items-center gap-2 text-muted-foreground/60">
+                                            <Clock className="h-3.5 w-3.5" />
+                                            <span className="text-[12px] font-medium">{pattern.lastSeen}</span>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-right align-top py-4" onClick={(e) => e.stopPropagation()}>
+                                    <TableCell className="text-right align-middle py-1 pr-6" onClick={(e) => e.stopPropagation()}>
                                         <Switch
                                             checked={enabledPatterns[pattern.id] ?? true}
                                             onCheckedChange={() => handleTogglePattern(pattern.id, pattern.name, !!enabledPatterns[pattern.id])}
+                                            className="h-4 w-8"
                                         />
                                     </TableCell>
                                 </TableRow>

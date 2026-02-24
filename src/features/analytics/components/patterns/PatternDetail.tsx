@@ -14,7 +14,8 @@ import {
     ArrowLeft,
     List,
     Server,
-    Globe
+    Globe,
+    Database
 } from 'lucide-react';
 import {
     Card,
@@ -41,7 +42,7 @@ import {
     ReferenceLine
 } from 'recharts';
 import { Pattern, PatternOccurrence } from './PatternData';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 
 // --- Simulation Logic ---
 
@@ -632,66 +633,73 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                     {/* Metric Visualization & Explanation */}
                     <div className="space-y-4">
 
-                        {/* Logic Section */}
-                        <Card className="border-border/50 bg-card/40">
-                            <CardContent className="space-y-4 pt-4">
-                                <p className="text-sm text-muted-foreground leading-relaxed">
-                                    {pattern.logicSummary || 'The AI identified a consistent "Saturation-to-Failure" sequence:'}
-                                </p>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    {pattern.logicSteps?.map((step) => (
-                                        <div key={step.order} className="flex gap-3 items-start p-3 rounded-lg bg-secondary/10 border border-border/50">
-                                            <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold mt-0.5 ${getColorClasses(step.color)}`}>
-                                                {step.order}
-                                            </span>
-                                            <div className="text-sm">
-                                                <span className="font-semibold text-foreground block mb-1">{step.title}</span>
-                                                <p className="text-muted-foreground text-xs leading-snug">{step.description}</p>
+                        {/* Consolidated Analytical Intelligence Section */}
+                        <Card className="border-border/50 bg-card/40 overflow-hidden">
+                            <CardContent className="p-0">
+                                <div className="flex flex-col">
+                                    <div className="p-6 bg-background/20">
+                                        {/* Header with styled line */}
+                                        <div className="flex items-center gap-4 mb-5">
+                                            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest whitespace-nowrap">
+                                                Incident Progression Lifecycle
                                             </div>
+                                            <div className="h-[1px] flex-grow bg-muted-foreground/10" />
                                         </div>
-                                    ))}
-                                </div>
-                            </CardContent>
-                        </Card>
 
-                        {/* Behavioral Signature (Horizontal) */}
-                        <Card className="border-border/50 bg-card/40">
-                            <CardHeader className="pb-2">
-                                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                                    <TrendingUp className="h-4 w-4 text-primary" />
-                                    Behavioral Signature
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="p-4">
-                                <div className="relative flex items-start justify-between max-w-3xl mx-auto px-4">
-                                    {/* Connectivity Line */}
-                                    <div className="absolute top-5 left-10 right-10 h-0.5 bg-gradient-to-r from-transparent via-border/60 to-transparent -z-10" />
+                                        <div className="flex items-stretch gap-3">
+                                            {(() => {
+                                                const behavioralSteps = pattern.steps.filter(s => s.name !== 'Critical Breach');
+                                                const outcomeSteps = pattern.predictedEvents.map(evt => ({
+                                                    name: evt.name,
+                                                    description: `${(evt.probability * 100).toFixed(0)}%`,
+                                                    delay: '(OUTCOME)'
+                                                }));
 
-                                    {pattern.steps.map((step, idx) => {
-                                        const StepIcon = step.icon;
-                                        return (
-                                            <div key={idx} className="flex flex-col items-center text-center relative max-w-[150px]">
-                                                {/* Icon Bubble */}
-                                                <div className="p-2.5 bg-card border border-border/50 rounded-xl shadow-sm z-10 mb-3 group-hover:border-primary/50 transition-colors">
-                                                    <StepIcon className="h-5 w-5 text-primary" />
-                                                </div>
+                                                const allFlowItems = [...behavioralSteps, ...outcomeSteps];
 
-                                                {/* Text Content */}
-                                                <div className="space-y-1.5 min-h-[60px]">
-                                                    <div className="text-sm font-semibold leading-tight">{step.name}</div>
-                                                    <p className="text-xs text-muted-foreground leading-snug">{step.description}</p>
-                                                </div>
+                                                return allFlowItems.map((item, idx) => {
+                                                    const isOutcome = idx >= behavioralSteps.length;
 
-                                                {/* Delay (if present) */}
-                                                {step.delay && (
-                                                    <div className="mt-2 text-[10px] font-medium text-muted-foreground bg-primary/5 border border-primary/10 px-2 py-0.5 rounded-full flex items-center gap-1.5">
-                                                        <Clock className="h-3 w-3 opacity-70" />
-                                                        <span>{step.delay}</span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        );
-                                    })}
+                                                    return (
+                                                        <Fragment key={idx}>
+                                                            {/* Segmented Block Container */}
+                                                            <div className="flex-1 flex flex-col items-center">
+                                                                {/* The Block Div */}
+                                                                <div className={`w-full border border-border/40 rounded-lg p-3 min-h-[60px] flex flex-col justify-center transition-all hover:bg-muted/5 group ${isOutcome ? 'bg-primary/5 border-primary/20' : 'bg-card/30'}`}>
+                                                                    <div className="text-[11px] font-bold text-foreground uppercase tracking-tight mb-1 text-center truncate w-full">
+                                                                        {item.name}
+                                                                    </div>
+                                                                    <div className="text-[10px] text-blue-400 font-bold text-center">
+                                                                        {isOutcome ? `Prob: ${item.description}` : `(${item.description})`}
+                                                                    </div>
+                                                                </div>
+
+                                                                {/* Timing Pill & Connection at Bottom */}
+                                                                {idx < allFlowItems.length - 1 && (
+                                                                    <div className="relative w-full h-10 flex items-center mt-2">
+                                                                        <div className="absolute left-[85%] translate-x-1/2 flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border/40 bg-muted/20 backdrop-blur-sm whitespace-nowrap z-10">
+                                                                            <Clock className="h-2.5 w-2.5 text-primary/40" />
+                                                                            <span className="text-[9px] font-bold text-primary/70">{allFlowItems[idx + 1].delay}</span>
+                                                                        </div>
+                                                                        {/* Joining line */}
+                                                                        <div className="w-[120%] h-[1px] bg-muted-foreground/10" />
+                                                                    </div>
+                                                                )}
+                                                            </div>
+
+                                                            {/* Centered Arrow Flow */}
+                                                            {idx < allFlowItems.length - 1 && (
+                                                                <div className="flex items-center justify-center h-[60px] opacity-40">
+                                                                    <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                                                                </div>
+                                                            )}
+                                                        </Fragment>
+                                                    );
+                                                });
+                                            })()}
+                                        </div>
+                                    </div>
+
                                 </div>
                             </CardContent>
                         </Card>
@@ -740,19 +748,13 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <span className="font-semibold truncate">{occurrence.summary}</span>
-
+                                                    <span className="font-semibold truncate">{occurrence.timestamp}</span>
                                                 </div>
                                                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                                    <span className="flex items-center gap-1">
-                                                        <Clock className="h-3 w-3" />
-                                                        {occurrence.timestamp}
-                                                    </span>
-                                                    <span className="flex items-center gap-1">
+                                                    <span className="flex items-center gap-1 shrink-0">
                                                         <Activity className="h-3 w-3" />
                                                         {occurrence.events.length} Events
                                                     </span>
-                                                    <span className="font-mono text-[10px] opacity-70">{occurrence.id}</span>
                                                 </div>
                                             </div>
                                             <div className={`transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>
@@ -795,7 +797,7 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                                                     </span>
                                                                                 </div>
                                                                                 <div className="text-xs text-muted-foreground mt-0.5 truncate">
-                                                                                    {evidence.subtitle} <span className="opacity-50 mx-1">|</span> <span className="text-foreground/80">{evidence.alertValue}</span>
+                                                                                    <span className="text-foreground/80 font-medium">{evidence.alertValue}</span>
                                                                                 </div>
                                                                                 <div className="flex items-center gap-1.5 mt-2 text-[10px] text-muted-foreground">
                                                                                     <Globe className="h-3 w-3 opacity-70" />

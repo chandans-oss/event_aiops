@@ -89,6 +89,12 @@ export interface Pattern {
     logicSummary: string;
     logicSteps: LogicStep[];
     predictedEvents: PredictedEvent[];
+    drillDownMetrics: {
+        label: string;
+        value: string;
+        icon: 'trending' | 'database' | 'alert';
+        color: 'blue' | 'amber' | 'red';
+    }[];
     occurrences: PatternOccurrence[];
     simulationType: 'congestion' | 'cpu_spike' | 'device_cpu_saturation' | 'link_physical_degradation' | 'firewall_overload' | 'qoe_jitter';
 }
@@ -225,8 +231,8 @@ const generateQoeData = (variation: number = 1) => {
 export const MOCK_PATTERNS: Pattern[] = [
     {
         id: 'P-Con-01',
-        name: 'Congestion buildup before interface instability',
-        description: 'Sustained utilization rise + queue growth + early errors leading to packet drops and interface instability.',
+        name: 'Interface Flap pattern',
+        description: 'Link Util ↑ | Buffer Util ↑ | CRC Errors ↑ |\n PACKET_LOSS / INTERFACE_FLAP ',
         confidence: 0.92,
         seenCount: 7,
         lastSeen: '2 hours ago',
@@ -236,23 +242,25 @@ export const MOCK_PATTERNS: Pattern[] = [
         severity: 'Major',
         tags: ['Congestion', 'Predictive', 'Interface'],
         steps: [
-            { id: 'S1', name: 'High Util Warning', description: 'Utilization increasing', icon: TrendingUp },
-            { id: 'S2', name: 'Queue Depth Surge', description: 'Queue follows util', icon: Database, delay: '+4m' },
-            { id: 'S3', name: 'CRC Errors Rise', description: 'Errors follow queue depth', icon: AlertTriangle, delay: '+2m' },
-            { id: 'S4', name: 'Packet Drop Event', description: 'Error to Packet Drop', icon: Activity, delay: '+1m' },
-            { id: 'S5', name: 'Interface Flap', description: 'P(Flap|Drop) ~ 0.72', icon: Activity, delay: '1-2 min' },
-            { id: 'S6', name: 'Link Down', description: 'P(Down|Flap) ~ 0.55', icon: Network }
+            { id: 'S1', name: 'Link Util', description: '50% -> 90%', icon: TrendingUp, delay: '~12m' },
+            { id: 'S2', name: 'Buffer Util', description: 'cross 80%', icon: Database, delay: '+4m' },
+            { id: 'S3', name: 'CRC Error', description: 'cross 70%', icon: AlertTriangle, delay: '+2m' },
+            { id: 'S4', name: 'Critical Breach', description: 'PACKET_LOSS / INTERFACE_FLAP', icon: Activity, delay: '(FINAL)' }
         ],
         logicSummary: 'Saturation-to-Failure Sequence:',
         logicSteps: [
-            { order: 1, title: 'Traffic Overload', description: 'Interface exceeds capacity limits.', color: 'blue' },
-            { order: 2, title: 'Buffer Saturation', description: 'Packet queues fill; memory exhaustion.', color: 'amber' },
-            { order: 3, title: 'Connection Collapse', description: 'Sustained drops cause link failure.', color: 'red' }
+            { order: 1, title: 'Traffic Overload', description: 'Util ↑', color: 'blue' },
+            { order: 2, title: 'Buffer Saturation', description: 'Buffer Util ↑', color: 'amber' },
+            { order: 3, title: 'Connection Collapse', description: 'Drops ↑', color: 'red' }
         ],
         predictedEvents: [
-            { name: 'PACKET_DROP', probability: 0.88, severity: 'High', title: 'Predicted Event', subtitle: 'Random Forest Accuracy' },
-            { name: 'INTERFACE_FLAP', probability: 0.85, severity: 'Medium', title: 'Predicted Event', subtitle: 'Random Forest Accuracy' },
-            { name: 'LINK_DOWN', probability: 0.55, severity: 'High', title: 'Predicted Event', subtitle: 'Co-occurrence Boost' }
+            { name: 'PACKET LOSS', probability: 0.55, severity: 'High', title: 'Predicted Event', subtitle: 'Random Forest Accuracy' },
+            { name: 'LINK_FLAP', probability: 0.90, severity: 'Medium', title: 'Predicted Event', subtitle: 'Random Forest Accuracy' }
+        ],
+        drillDownMetrics: [
+            { label: 'Utilization', value: 'Gradual rise from ~50% → ~90%', icon: 'trending', color: 'blue' },
+            { label: 'Buffer Utilization', value: 'Starts increasing after util crosses ~80%', icon: 'database', color: 'amber' },
+            { label: 'CRC / Drop errors', value: 'Begin to appear when queue > ~70% (Total Discards)', icon: 'alert', color: 'red' }
         ],
         occurrences: [
             {
@@ -368,8 +376,8 @@ export const MOCK_PATTERNS: Pattern[] = [
     },
     {
         id: 'PAT-NET-002',
-        name: 'BGP Session Flap correlated with CPU Spike',
-        description: 'Control plane CPU spike causing BGP hold-timer expiry.',
+        name: 'BGP Connection Loss pattern',
+        description: 'CPU ↑ | BGP_STATE ↓ | ROUTE_WITHDRAWAL',
         confidence: 0.87,
         seenCount: 4,
         lastSeen: 'Yesterday',
@@ -379,19 +387,24 @@ export const MOCK_PATTERNS: Pattern[] = [
         severity: 'Critical',
         tags: ['BGP', 'Control Plane', 'CPU'],
         steps: [
-            { id: 'S1', name: 'CPU Spike', description: 'CPU > 90%', icon: Cpu },
-            { id: 'S2', name: 'Keep-alive Missed', description: 'Peer unavailable', icon: Activity, delay: '60s' },
-            { id: 'S3', name: 'BGP Down', description: 'Route withdrawal', icon: Network }
+            { id: 'S1', name: 'CPU Spike', description: 'CPU ↑', icon: Cpu },
+            { id: 'S2', name: 'Keep-alive Missed', description: 'BGP_STATE ↓', icon: Activity, delay: '60s' },
+            { id: 'S3', name: 'BGP Down', description: 'ROUTE_WITHDRAWAL', icon: Network }
         ],
         logicSummary: 'Resource Starvation Pattern:',
         logicSteps: [
-            { order: 1, title: 'CPU Starvation', description: 'Process consumes 99% CPU.', color: 'blue' },
-            { order: 2, title: 'Protocol Block', description: 'BGP Keep-alives dropped.', color: 'amber' },
-            { order: 3, title: 'Session Timeout', description: 'Hold-timer expires; neighbor down.', color: 'red' }
+            { order: 1, title: 'CPU Starvation', description: 'CPU ↑', color: 'blue' },
+            { order: 2, title: 'Protocol Block', description: 'BGP_STATE ↓', color: 'amber' },
+            { order: 3, title: 'Session Timeout', description: 'ROUTE_WITHDRAWAL', color: 'red' }
         ],
         predictedEvents: [
             { name: 'BGP_SESSION_DOWN', probability: 0.92, severity: 'High', title: 'BGP Neighbor Down', subtitle: 'Peer Unreachable' },
             { name: 'ROUTE_WITHDRAWAL', probability: 0.88, severity: 'High', title: 'Route Withdrawal', subtitle: 'Prefixes Withdrawn' }
+        ],
+        drillDownMetrics: [
+            { label: 'CPU Utilization', value: 'Sustained spike > 95%', icon: 'trending', color: 'blue' },
+            { label: 'Control Plane Latency', value: 'Increases after CPU crosses 90%', icon: 'database', color: 'amber' },
+            { label: 'BGP Keep-alive Missed', value: 'Detected after 60s of starvation', icon: 'alert', color: 'red' }
         ],
         occurrences: [
             {
@@ -442,8 +455,8 @@ export const MOCK_PATTERNS: Pattern[] = [
     },
     {
         id: 'P-Dev-CPU-01',
-        name: 'Impending Device Failure Due to CPU Saturation',
-        description: 'Sustained CPU rise + intermittent reachability indicating high chance of device unreachable and reboot.',
+        name: 'Node Failure pattern',
+        description: 'CPU ↑ | STATUS_CHANGE | PING_LOSS ↑ | AVAILABILITY ↓',
         confidence: 0.88,
         seenCount: 9,
         lastSeen: '12 hours ago',
@@ -453,20 +466,25 @@ export const MOCK_PATTERNS: Pattern[] = [
         severity: 'Critical',
         tags: ['CPU Saturation', 'Reboot Prediction', 'Unreachable'],
         steps: [
-            { id: 'S1', name: 'CPU Utilization Rise', description: 'Gradual rise from ~50% -> 90%+', icon: TrendingUp },
-            { id: 'S2', name: 'Status Code Change', description: 'Transitions Normal -> Warning', icon: ShieldCheck, delay: '+5m' },
-            { id: 'S3', name: 'Ping Intermittent', description: 'Ping status becomes intermittent', icon: Activity, delay: '+5m' },
-            { id: 'S4', name: 'Availability Drops', description: 'Brief drops before full outage', icon: AlertTriangle, delay: '+2m' },
+            { id: 'S1', name: 'CPU Utilization Rise', description: 'CPU ↑', icon: TrendingUp },
+            { id: 'S2', name: 'Status Code Change', description: 'STATUS_CHANGE', icon: ShieldCheck, delay: '+5m' },
+            { id: 'S3', name: 'Ping Intermittent', description: 'PING_LOSS ↑', icon: Activity, delay: '+5m' },
+            { id: 'S4', name: 'Availability Drops', description: 'AVAILABILITY ↓', icon: AlertTriangle, delay: '+2m' },
         ],
         logicSummary: 'CPU Exhaustion to OS Failure:',
         logicSteps: [
-            { order: 1, title: 'Compute Starvation', description: 'Sustained CPU rise limits control plane operations.', color: 'blue' },
-            { order: 2, title: 'ICMP Packet Loss', description: 'Intermittent reachability starts as process struggles.', color: 'amber' },
-            { order: 3, title: 'System Hang/Reboot', description: 'Device fails to process keepalives, resulting in node down or hardware watchdog reboot.', color: 'red' }
+            { order: 1, title: 'Compute Starvation', description: 'CPU ↑', color: 'blue' },
+            { order: 2, title: 'ICMP Packet Loss', description: 'PING_LOSS ↑', color: 'amber' },
+            { order: 3, title: 'System Hang/Reboot', description: 'AVAILABILITY ↓', color: 'red' }
         ],
         predictedEvents: [
             { name: 'DEVICE_UNREACHABLE', probability: 0.80, severity: 'Critical', title: 'Predicted Outage', subtitle: 'Strong Pattern Match' },
             { name: 'DEVICE_REBOOT', probability: 0.50, severity: 'Major', title: 'Predicted Reboot', subtitle: 'Watchdog trigger likely' }
+        ],
+        drillDownMetrics: [
+            { label: 'CPU Saturation', value: 'Continuous rise to 100%', icon: 'trending', color: 'blue' },
+            { label: 'ICMP Response Time', value: 'Increases linearly with CPU load', icon: 'database', color: 'amber' },
+            { label: 'Watchdog Timeout', value: 'Likely after 5m of 100% CPU', icon: 'alert', color: 'red' }
         ],
         occurrences: [
             {
@@ -512,8 +530,8 @@ export const MOCK_PATTERNS: Pattern[] = [
     },
     {
         id: 'P-Link-Phys-01',
-        name: 'Impending Link Failure Due to Physical Degradation',
-        description: 'Rising errors + discards resulting in interface instability then link down.',
+        name: 'Link Degradation pattern',
+        description: 'ERRORS ↑ | DISCARDS ↑ | INTERFACE_FLAP | LINK_DOWN',
         confidence: 0.90,
         seenCount: 14,
         lastSeen: '4 days ago',
@@ -523,20 +541,25 @@ export const MOCK_PATTERNS: Pattern[] = [
         severity: 'Major',
         tags: ['CRC Errors', 'Link Flap', 'Physical Layer'],
         steps: [
-            { id: 'S1', name: 'In Errors Gradual Rise', description: 'CRC/Alignment errors increasing', icon: Activity },
-            { id: 'S2', name: 'Out Errors / Discards Rise', description: 'Discards begin accumulating', icon: AlertTriangle, delay: '+5m' },
-            { id: 'S3', name: 'Duplex Mismatch (Optional)', description: 'Negotiation issues detected', icon: Database, delay: '+2m' },
-            { id: 'S4', name: 'Interface Flapping', description: 'Protocol keepalives dropped', icon: Zap, delay: '+5m' },
+            { id: 'S1', name: 'In Errors Gradual Rise', description: 'ERRORS ↑', icon: Activity },
+            { id: 'S2', name: 'Out Errors / Discards Rise', description: 'DISCARDS ↑', icon: AlertTriangle, delay: '+5m' },
+            { id: 'S3', name: 'Duplex Mismatch (Optional)', description: 'DUPLEX_MISMATCH', icon: Database, delay: '+2m' },
+            { id: 'S4', name: 'Interface Flapping', description: 'INTERFACE_FLAP', icon: Zap, delay: '+5m' },
         ],
         logicSummary: 'Physical Layer Decay:',
         logicSteps: [
-            { order: 1, title: 'Signal Degradation', description: 'Optical transceiver or bad cable introduces framing errors.', color: 'blue' },
-            { order: 2, title: 'Frame Discards', description: 'Switch begins discarding corrupted frames at hardware level.', color: 'amber' },
-            { order: 3, title: 'Carrier Loss', description: 'Physical link drops and bounces dynamically.', color: 'red' }
+            { order: 1, title: 'Signal Degradation', description: 'ERRORS ↑', color: 'blue' },
+            { order: 2, title: 'Frame Discards', description: 'DISCARDS ↑', color: 'amber' },
+            { order: 3, title: 'Carrier Loss', description: 'INTERFACE_FLAP', color: 'red' }
         ],
         predictedEvents: [
             { name: 'INTERFACE_FLAP', probability: 0.70, severity: 'Medium', title: 'Predicted Flap', subtitle: 'Error rate critical' },
             { name: 'LINK_DOWN', probability: 0.60, severity: 'High', title: 'Predicted Outage', subtitle: 'Link failure imminent' }
+        ],
+        drillDownMetrics: [
+            { label: 'CRC Errors', value: 'Increasing at > 50 cps', icon: 'trending', color: 'blue' },
+            { label: 'Output Discards', value: 'Follows CRC error growth', icon: 'database', color: 'amber' },
+            { label: 'Link State Stability', value: 'FLAP expected when drops > 2%', icon: 'alert', color: 'red' }
         ],
         occurrences: [
             {
@@ -582,8 +605,8 @@ export const MOCK_PATTERNS: Pattern[] = [
     },
     {
         id: 'P-FW-Load-01',
-        name: 'Firewall Overload Leading to Packet Loss',
-        description: 'Firewall sessions climbing, resulting in elevated CPU and latency leading to drops.',
+        name: 'Firewall Load pattern',
+        description: 'SESSIONS ↑ | CPU ↑ | LATENCY ↑ | PACKET_LOSS',
         confidence: 0.86,
         seenCount: 6,
         lastSeen: '1 week ago',
@@ -593,20 +616,25 @@ export const MOCK_PATTERNS: Pattern[] = [
         severity: 'Critical',
         tags: ['Firewall', 'Packet Loss', 'Session Exhaustion'],
         steps: [
-            { id: 'S1', name: 'Total Sessions Spike', description: 'Rapid increase in conn table', icon: Grid },
-            { id: 'S2', name: 'CPU Utilization Rise', description: 'State inspection overhead', icon: Cpu, delay: '+2m' },
-            { id: 'S3', name: 'Latency Increases', description: 'Processing delays', icon: Clock, delay: '+3m' },
-            { id: 'S4', name: 'Packet Loss', description: 'Firewall dropping new packets', icon: AlertTriangle, delay: '+3m' },
+            { id: 'S1', name: 'Total Sessions Spike', description: 'SESSIONS ↑', icon: Grid },
+            { id: 'S2', name: 'CPU Utilization Rise', description: 'CPU ↑', icon: Cpu, delay: '+2m' },
+            { id: 'S3', name: 'Latency Increases', description: 'LATENCY ↑', icon: Clock, delay: '+3m' },
+            { id: 'S4', name: 'Packet Loss', description: 'PACKET_LOSS', icon: AlertTriangle, delay: '+3m' },
         ],
         logicSummary: 'Session Table Exhaustion:',
         logicSteps: [
-            { order: 1, title: 'Connection Flood', description: 'Sudden burst of new valid traffic sessions.', color: 'blue' },
-            { order: 2, title: 'Processing Bottleneck', description: 'Security policies peg Data Plane CPU.', color: 'amber' },
-            { order: 3, title: 'Tail Drop Failures', description: 'Buffers full; legitimate traffic discarded.', color: 'red' }
+            { order: 1, title: 'Connection Flood', description: 'SESSIONS ↑', color: 'blue' },
+            { order: 2, title: 'Processing Bottleneck', description: 'CPU ↑', color: 'amber' },
+            { order: 3, title: 'Tail Drop Failures', description: 'PACKET_LOSS', color: 'red' }
         ],
         predictedEvents: [
             { name: 'PACKET_LOSS', probability: 0.85, severity: 'High', title: 'Predicted Drops', subtitle: 'Processing limits reached' },
             { name: 'FIREWALL_UNRESPONSIVE', probability: 0.55, severity: 'Critical', title: 'Predicted Isolation', subtitle: 'Total control plane freeze' }
+        ],
+        drillDownMetrics: [
+            { label: 'Session Count', value: 'Approaching max connection limit', icon: 'trending', color: 'blue' },
+            { label: 'Packet Processing Latency', value: 'Rises above 50ms', icon: 'database', color: 'amber' },
+            { label: 'Policy Drop Rate', value: 'Active when session table is full', icon: 'alert', color: 'red' }
         ],
         occurrences: [
             {
@@ -646,8 +674,8 @@ export const MOCK_PATTERNS: Pattern[] = [
     },
     {
         id: 'P-QoE-01',
-        name: 'Jitter Degradation Before Packet Loss',
-        description: 'Jitter patterns and latency variance that usually precede packet loss and SLA breach.',
+        name: 'QoE Degradation pattern',
+        description: 'JITTER ↑ | LATENCY_VAR ↑ | UTIL ↑ | PACKET_LOSS',
         confidence: 0.75,
         seenCount: 22,
         lastSeen: '2 days ago',
@@ -657,19 +685,24 @@ export const MOCK_PATTERNS: Pattern[] = [
         severity: 'Warning',
         tags: ['Jitter', 'QoE', 'SLA', 'VoIP'],
         steps: [
-            { id: 'S1', name: 'Jitter Increases', description: 'Packet arrival variance spikes', icon: Activity },
-            { id: 'S2', name: 'Latency Variance Rise', description: 'Inconsistent path processing', icon: Clock, delay: '+1m' },
-            { id: 'S3', name: 'Utilization Near Threshold', description: 'Queue limits approached', icon: Database, delay: '+2m' }
+            { id: 'S1', name: 'Jitter Increases', description: 'JITTER ↑', icon: Activity },
+            { id: 'S2', name: 'Latency Variance Rise', description: 'LATENCY_VAR ↑', icon: Clock, delay: '+1m' },
+            { id: 'S3', name: 'Utilization Near Threshold', description: 'UTIL ↑', icon: Database, delay: '+2m' }
         ],
         logicSummary: 'Micro-burst Congestion:',
         logicSteps: [
-            { order: 1, title: 'Queuing Delays', description: 'Sub-second bursts cause irregular queuing.', color: 'blue' },
-            { order: 2, title: 'Jitter Saturation', description: 'Delay variation becomes untenable for real-time traffic.', color: 'amber' },
-            { order: 3, title: 'Active Queue Drop', description: 'Traffic shaper starts tail dropping.', color: 'red' }
+            { order: 1, title: 'Queuing Delays', description: 'LATENCY ↑', color: 'blue' },
+            { order: 2, title: 'Jitter Saturation', description: 'JITTER ↑', color: 'amber' },
+            { order: 3, title: 'Active Queue Drop', description: 'UTIL ↑', color: 'red' }
         ],
         predictedEvents: [
             { name: 'PACKET_LOSS', probability: 0.80, severity: 'Medium', title: 'Predicted Loss', subtitle: 'Shaping drop incoming' },
             { name: 'SLA_BREACH', probability: 0.75, severity: 'Medium', title: 'Predicted SLA Breach', subtitle: 'Voice quality degraded' }
+        ],
+        drillDownMetrics: [
+            { label: 'Packet Jitter', value: 'Variance exceeding 30ms', icon: 'trending', color: 'blue' },
+            { label: 'Link Utilization', value: 'Over 85% sustained', icon: 'database', color: 'amber' },
+            { label: 'QoS Queue Length', value: 'Near overflow on voice priority', icon: 'alert', color: 'red' }
         ],
         occurrences: [
             {
