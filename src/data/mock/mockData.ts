@@ -593,6 +593,16 @@ export const mockCorrelationRules: CorrelationRule[] = [
     config: { ruleset: 'standard_ops' }
   },
   {
+    id: 'cor-007',
+    type: 'dynamic_rule',
+    name: 'Dynamic Rule Correlation',
+    description: 'Use pattern and behavior-based analysis to correlate dynamic events on the fly.',
+    status: 'active',
+    mlEnabled: true,
+    gnnEnabled: false,
+    config: { behaviorAnalysis: true }
+  },
+  {
     id: 'cor-005',
     type: 'ml_gnn_refinement',
     name: 'ML / GNN Refinement',
@@ -605,7 +615,7 @@ export const mockCorrelationRules: CorrelationRule[] = [
   {
     id: 'cor-006',
     type: 'llm_semantic',
-    name: 'LLM Semantic Synthesis',
+    name: 'Semantic Synthesis',
     description: 'Use large language models to synthesize cross-domain alerts based on semantic meaning.',
     status: 'active',
     mlEnabled: true,
@@ -620,6 +630,13 @@ export const mockKBArticles: KBArticle[] = [
     title: 'Resolving Database Connection Pool Exhaustion',
     category: 'Database',
     content: 'This article covers the diagnosis and remediation of database connection pool exhaustion issues...',
+    problem: 'Database connection pool exhausted - max connections reached.',
+    area: 'Database Connections',
+    remedyItems: [
+      'Identify and fix connection leaks in the application code.',
+      'Increase the maximum allowed database connections if resources permit.',
+      'Implement connection pooling and ensure connections are closed properly.'
+    ],
     tags: ['database', 'connection-pool', 'performance'],
     linkedIntents: ['link.db_connection', 'link.pool_exhaustion'],
     lastUpdated: '2026-01-02T00:00:00Z',
@@ -630,6 +647,13 @@ export const mockKBArticles: KBArticle[] = [
     title: 'Handling High CPU Utilization on Application Servers',
     category: 'Performance',
     content: 'Steps to diagnose and resolve high CPU issues on application servers...',
+    problem: 'Application server CPU utilization crosses critical threshold.',
+    area: 'Application Servers',
+    remedyItems: [
+      'Profile the application to identify CPU-intensive methods.',
+      'Scale out the application server cluster.',
+      'Optimize application code (e.g., fix infinite loops or heavy regex).'
+    ],
     tags: ['cpu', 'performance', 'application'],
     linkedIntents: ['link.cpu_spike', 'link.performance_degradation'],
     lastUpdated: '2025-12-28T00:00:00Z',
@@ -640,6 +664,13 @@ export const mockKBArticles: KBArticle[] = [
     title: 'Network Latency Troubleshooting Guide',
     category: 'Network',
     content: 'Comprehensive guide to diagnosing network latency issues...',
+    problem: 'Network latency spikes affecting application performance.',
+    area: 'Network Infrastructure',
+    remedyItems: [
+      'Check BGP route stability and reset peering if flapping occurs.',
+      'Investigate network path for congestion or hardware faults.',
+      'Coordinate with ISP for external connectivity issues.'
+    ],
     tags: ['network', 'latency', 'troubleshooting'],
     linkedIntents: ['link.network_latency', 'link.packet_loss'],
     lastUpdated: '2025-12-20T00:00:00Z',
@@ -650,6 +681,13 @@ export const mockKBArticles: KBArticle[] = [
     title: 'Link Congestion and QoS Troubleshooting',
     category: 'Network',
     content: 'Guide for diagnosing and resolving interface congestion issues caused by backup traffic, DSCP0 traffic floods, and queue drops. Includes QoS policy recommendations and traffic shaping strategies.',
+    problem: 'Interface congestion with high utilization and queue drops.',
+    area: 'Network Interfaces',
+    remedyItems: [
+      'Throttle backup traffic or reschedule backups to off-peak hours.',
+      'Implement or adjust QoS policies to prioritize critical traffic.',
+      'Upgrade link capacity if congestion is due to overall traffic growth.'
+    ],
     tags: ['congestion', 'qos', 'backup', 'queue-drops', 'dscp', 'traffic-shaping'],
     linkedIntents: ['performance.congestion', 'link.network_latency'],
     lastUpdated: '2025-10-30T00:00:00Z',

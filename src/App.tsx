@@ -25,6 +25,7 @@ import ImpactDetailPage from "@/features/impact/pages/ImpactDetailPage";
 import EventCorrelationClustersPage from "@/features/events/pages/EventCorrelationPage";
 import CorrelationPage from "@/features/analytics/pages/CorrelationPage";
 import KBDetailPage from "@/features/admin/pages/KBDetailPage";
+import AgentsPage from "@/features/agents/pages/AgentsPage";
 import NotFound from "@/shared/components/common/NotFound";
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ const App = () => (
               <Route path="/event-correlation-clusters/:clusterId" element={<EventCorrelationClustersPage />} />
               <Route path="/correlation" element={<CorrelationPage />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/agents" element={<AgentsPage />} />
               <Route path="/dashboard/alarm-prediction" element={<AlarmPredictionDashboard />} />
               <Route path="/admin/upload" element={<UploadData />} />
               <Route path="/admin/kb/:id" element={<KBDetailPage />} />

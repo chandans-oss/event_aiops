@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Shield, Lightbulb, BookOpen, Zap, ChevronRight, ChevronLeft, TrendingUp } from 'lucide-react';
+import { Shield, Lightbulb, BookOpen, Zap, ChevronRight, ChevronLeft, TrendingUp, ToggleLeft, Copy, GitBranch } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 
-export type AdminSection = 'rules' | 'intents' | 'kb' | 'auto-remediation' | 'correlation';
+export type AdminSection = 'suppression' | 'deduplication' | 'correlation-types' | 'intents' | 'kb' | 'auto-remediation';
 
 interface AdminSidebarProps {
   activeSection: AdminSection;
@@ -10,11 +10,12 @@ interface AdminSidebarProps {
 }
 
 const menuItems = [
-  { id: 'rules' as AdminSection, label: 'Rules', icon: Shield },
+  { id: 'suppression' as AdminSection, label: 'Suppression', icon: ToggleLeft },
+  { id: 'deduplication' as AdminSection, label: 'Deduplication', icon: Copy },
+  { id: 'correlation-types' as AdminSection, label: 'Correlation Types', icon: GitBranch },
   { id: 'intents' as AdminSection, label: 'Intents & Hypothesis', icon: Lightbulb },
   { id: 'kb' as AdminSection, label: 'Knowledge Base', icon: BookOpen },
   { id: 'auto-remediation' as AdminSection, label: 'Auto Remediation', icon: Zap },
-  { id: 'correlation' as AdminSection, label: 'Correlation Analysis', icon: TrendingUp },
 ];
 
 export function AdminSidebar({ activeSection, onSectionChange }: AdminSidebarProps) {

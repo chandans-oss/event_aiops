@@ -40,7 +40,7 @@ export interface Cluster {
 // Rule Types
 export type DeduplicationRuleType = 'exact_match' | 'time_window' | 'source_based';
 export type SuppressionRuleType = 'maintenance' | 'business_hours' | 'reboot_pattern' | 'time_based';
-export type CorrelationRuleType = 'temporal' | 'causal' | 'topological' | 'spatial' | 'rule_based' | 'gnn';
+export type CorrelationRuleType = 'temporal' | 'causal' | 'topological' | 'spatial' | 'rule_based' | 'gnn' | 'dynamic_rule';
 
 export interface BaseRule {
   id: string;
@@ -83,6 +83,9 @@ export interface KBArticle {
   category: string;
   subcategory?: string;
   content: string;
+  problem: string;
+  area: string;
+  remedyItems: string[];
   tags: string[];
   linkedIntents: string[];
   lastUpdated: string;

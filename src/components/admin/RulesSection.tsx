@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Copy, Layers, GitBranch, Plus, Edit2, Trash2, GripVertical, ToggleLeft, Clock, Wrench, AlertTriangle, MapPin, Network, Brain, Search, X, Server, RefreshCw, Timer, ListChecks, ArrowRightCircle, Zap } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
@@ -7,7 +7,7 @@ import { Input } from '@/shared/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
 import { mockDeduplicationRules, mockSuppressionRules, mockCorrelationRules } from '@/data/mock/mockData';
-import { DeduplicationRuleForm, SuppressionRuleForm, CorrelationRuleForm, DeleteRuleDialog } from './RuleForms';
+import { DeduplicationRuleForm, SuppressionRuleForm, DeleteRuleDialog } from './RuleForms';
 import { DeduplicationRule, SuppressionRule, CorrelationRule } from '@/shared/types';
 
 // Deduplication rule icons and labels
@@ -31,23 +31,25 @@ const correlationRuleConfig: Record<string, { icon: any; label: string }> = {
   spatial: { icon: MapPin, label: 'Spatial' },
   topological: { icon: Network, label: 'Topological' },
   causal_rule_based: { icon: ArrowRightCircle, label: 'Causal / Rule-based' },
+  dynamic_rule: { icon: Layers, label: 'Dynamic Rule Correlation' },
   ml_gnn_refinement: { icon: Brain, label: 'ML/GNN Refinement' },
   llm_semantic: { icon: Zap, label: 'LLM Semantic Synthesis' },
 };
 
-export function RulesSection() {
-  const [currentTab, setCurrentTab] = useState('suppression');
+export function RulesSection({ section }: { section: 'suppression' | 'deduplication' | 'correlation-types' }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
 
+  useEffect(() => {
+    setTypeFilter('all');
+  }, [section]);
+
   // Form dialog states
   const [showDedupForm, setShowDedupForm] = useState(false);
   const [showSuppressionForm, setShowSuppressionForm] = useState(false);
-  const [showCorrelationForm, setShowCorrelationForm] = useState(false);
   const [editingDedupRule, setEditingDedupRule] = useState<DeduplicationRule | undefined>();
   const [editingSuppressionRule, setEditingSuppressionRule] = useState<SuppressionRule | undefined>();
-  const [editingCorrelationRule, setEditingCorrelationRule] = useState<CorrelationRule | undefined>();
 
   // Delete dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -68,24 +70,18 @@ export function RulesSection() {
     });
   };
 
-  // Get type options based on current tab
+  // Get type options based on current section
   const getTypeOptions = () => {
-    switch (currentTab) {
+    switch (section) {
       case 'suppression':
         return Object.entries(suppressionRuleConfig).map(([key, value]) => ({ value: key, label: value.label }));
       case 'deduplication':
         return Object.entries(dedupRuleConfig).map(([key, value]) => ({ value: key, label: value.label }));
-      case 'correlation':
+      case 'correlation-types':
         return Object.entries(correlationRuleConfig).map(([key, value]) => ({ value: key, label: value.label }));
       default:
         return [];
     }
-  };
-
-  // Reset type filter when tab changes
-  const handleTabChange = (tab: string) => {
-    setCurrentTab(tab);
-    setTypeFilter('all');
   };
 
   const clearFilters = () => {
@@ -102,7 +98,7 @@ export function RulesSection() {
 
   // Handle add button click
   const handleAddRule = () => {
-    switch (currentTab) {
+    switch (section) {
       case 'suppression':
         setEditingSuppressionRule(undefined);
         setShowSuppressionForm(true);
@@ -110,10 +106,6 @@ export function RulesSection() {
       case 'deduplication':
         setEditingDedupRule(undefined);
         setShowDedupForm(true);
-        break;
-      case 'correlation':
-        setEditingCorrelationRule(undefined);
-        setShowCorrelationForm(true);
         break;
     }
   };
@@ -127,11 +119,6 @@ export function RulesSection() {
   const handleEditSuppression = (rule: SuppressionRule) => {
     setEditingSuppressionRule(rule);
     setShowSuppressionForm(true);
-  };
-
-  const handleEditCorrelation = (rule: CorrelationRule) => {
-    setEditingCorrelationRule(rule);
-    setShowCorrelationForm(true);
   };
 
   // Handle delete
@@ -206,29 +193,11 @@ export function RulesSection() {
         )}
       </div>
 
-      <Tabs value={currentTab} onValueChange={handleTabChange}>
-        <TabsList className="grid w-full max-w-xl grid-cols-3">
-          <TabsTrigger value="suppression" className="gap-2">
-            <ToggleLeft className="h-4 w-4" />
-            Suppression
-            <Badge variant="secondary" className="ml-1 text-xs">{(filteredSuppressionRules || []).length}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="deduplication" className="gap-2">
-            <Copy className="h-4 w-4" />
-            Deduplication
-            <Badge variant="secondary" className="ml-1 text-xs">{(filteredDeduplicationRules || []).length}</Badge>
-          </TabsTrigger>
-          <TabsTrigger value="correlation" className="gap-2">
-            <GitBranch className="h-4 w-4" />
-            Correlation
-            <Badge variant="secondary" className="ml-1 text-xs">{(filteredCorrelationRules || []).length}</Badge>
-          </TabsTrigger>
-        </TabsList>
-
-        {/* Suppression Rules */}
-        <TabsContent value="suppression" className="mt-6">
+      {/* Suppression Rules */}
+      {section === 'suppression' && (
+        <div className="mt-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">Suppression Rules (Clean View)</h2>
+            <h2 className="text-lg font-semibold text-foreground">Suppression Rules </h2>
             <Button className="gap-2 gradient-primary" onClick={handleAddRule}>
               <Plus className="h-4 w-4" />
               Add Rule
@@ -257,9 +226,6 @@ export function RulesSection() {
                         </div>
                         <div>
                           <h3 className="font-semibold text-foreground">{rule.name}</h3>
-                          <Badge variant="secondary" className="text-xs capitalize">
-                            {config.label}
-                          </Badge>
                         </div>
                       </div>
                       <GripVertical className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-grab" />
@@ -283,10 +249,12 @@ export function RulesSection() {
               })}
             </div>
           )}
-        </TabsContent>
+        </div>
+      )}
 
-        {/* Deduplication Rules */}
-        <TabsContent value="deduplication" className="mt-6">
+      {/* Deduplication Rules */}
+      {section === 'deduplication' && (
+        <div className="mt-6">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-foreground">Deduplication Rules</h2>
             <Button className="gap-2 gradient-primary" onClick={handleAddRule}>
@@ -317,9 +285,6 @@ export function RulesSection() {
                         </div>
                         <div>
                           <h3 className="font-semibold text-foreground">{rule.name}</h3>
-                          <Badge variant="secondary" className="text-xs capitalize">
-                            {config.label}
-                          </Badge>
                         </div>
                       </div>
                       <GripVertical className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-grab" />
@@ -343,16 +308,14 @@ export function RulesSection() {
               })}
             </div>
           )}
-        </TabsContent>
+        </div>
+      )}
 
-        {/* Correlation Rules */}
-        <TabsContent value="correlation" className="mt-6">
+      {/* Correlation Rules */}
+      {section === 'correlation-types' && (
+        <div className="mt-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">Correlation Rules</h2>
-            <Button className="gap-2 gradient-primary" onClick={handleAddRule}>
-              <Plus className="h-4 w-4" />
-              Add Rule
-            </Button>
+            <h2 className="text-lg font-semibold text-foreground">Correlation Types</h2>
           </div>
           {(filteredCorrelationRules || []).length === 0 ? (
             <div className="glass-card rounded-xl p-12 text-center">
@@ -377,9 +340,6 @@ export function RulesSection() {
                         </div>
                         <div>
                           <h3 className="font-semibold text-foreground">{rule.name}</h3>
-                          <Badge variant="secondary" className="text-xs capitalize">
-                            {config.label}
-                          </Badge>
                         </div>
                       </div>
                     </div>
@@ -397,9 +357,6 @@ export function RulesSection() {
                     <div className="flex items-center justify-end pt-3 border-t border-border/50">
                       <div className="flex items-center gap-2">
                         <Switch checked={rule.status === 'active'} />
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditCorrelation(rule)}>
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
                         <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteClick(rule)}>
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -410,8 +367,8 @@ export function RulesSection() {
               })}
             </div>
           )}
-        </TabsContent>
-      </Tabs>
+        </div>
+      )}
 
       {/* Form Dialogs */}
       <DeduplicationRuleForm
@@ -428,12 +385,7 @@ export function RulesSection() {
         onSave={(data) => console.log('Save suppression rule:', data)}
       />
 
-      <CorrelationRuleForm
-        open={showCorrelationForm}
-        onOpenChange={setShowCorrelationForm}
-        rule={editingCorrelationRule}
-        onSave={(data) => console.log('Save correlation rule:', data)}
-      />
+
 
       {/* Delete Confirmation */}
       <DeleteRuleDialog

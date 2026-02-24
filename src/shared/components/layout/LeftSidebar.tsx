@@ -18,6 +18,7 @@ import {
   FolderArchive,
   Network,
   TrendingUp,
+  Bot,
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
@@ -53,6 +54,7 @@ const navItems: NavItem[] = [
       { path: "/admin/upload", label: "Upload Data", icon: Upload },
     ]
   },
+  { path: "/agents", label: "Agents", icon: Bot },
   {
     path: "/demo",
     label: "Demo",

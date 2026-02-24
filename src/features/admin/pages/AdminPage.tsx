@@ -5,25 +5,26 @@ import { RulesSection } from '@/components/admin/RulesSection';
 import { IntentsSection } from '@/components/admin/IntentsSection';
 import { KBSection } from '@/components/admin/KBSection';
 import { AutoRemediationSection } from '@/components/admin/AutoRemediationSection';
-import { CorrelationAnalysisSection } from '@/components/admin/CorrelationAnalysisSection';
 
 export default function Admin() {
-  const [activeSection, setActiveSection] = useState<AdminSection>('rules');
+  const [activeSection, setActiveSection] = useState<AdminSection>('suppression');
 
   const renderSection = () => {
     switch (activeSection) {
-      case 'rules':
-        return <RulesSection />;
+      case 'suppression':
+        return <RulesSection section="suppression" />;
+      case 'deduplication':
+        return <RulesSection section="deduplication" />;
+      case 'correlation-types':
+        return <RulesSection section="correlation-types" />;
       case 'intents':
         return <IntentsSection />;
       case 'kb':
         return <KBSection />;
       case 'auto-remediation':
         return <AutoRemediationSection />;
-      case 'correlation':
-        return <CorrelationAnalysisSection />;
       default:
-        return <RulesSection />;
+        return <RulesSection section="suppression" />;
     }
   };
 
