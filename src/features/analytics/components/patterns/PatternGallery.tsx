@@ -40,15 +40,6 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
         p.tags.some(t => t.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
-    const getSeverityColor = (severity: string) => {
-        switch (severity) {
-            case 'Critical': return 'bg-red-500/10 text-red-500 border-red-500/20';
-            case 'Major': return 'bg-orange-500/10 text-orange-500 border-orange-500/20';
-            case 'Warning': return 'bg-amber-500/10 text-amber-500 border-amber-500/20';
-            default: return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
-        }
-    };
-
     return (
         <div className="h-full flex flex-col space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -97,39 +88,38 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                                     className="cursor-pointer hover:bg-muted/5 transition-colors group"
                                     onClick={() => onSelectPattern(pattern)}
                                 >
-                                    <TableCell className="py-2.5 pl-4">
-                                        <span className="text-[15px] font-bold text-foreground tracking-tight">
+                                    <TableCell className="py-2 pl-4">
+                                        <span className="text-[13px] font-medium text-foreground/90 tracking-tight">
                                             {pattern.name}
                                         </span>
                                     </TableCell>
                                     <TableCell className="py-2">
-                                        <div className="flex border border-border/40 rounded bg-card/40 group-hover:border-primary/30 transition-all max-w-[450px] min-h-[64px]">
-                                            {/* Right: Behavioral Grid Section */}
-                                            <div className="flex-1 flex flex-col">
-                                                {/* Top: Behavioral Sequence */}
-                                                <div className="flex-1 flex flex-col justify-center items-center gap-0 py-1">
-                                                    {pattern.steps.slice(0, 3).map((step, idx) => (
-                                                        <div key={idx} className="text-[9px] font-semibold text-muted-foreground/70 whitespace-nowrap flex items-center gap-1 justify-center w-full">
-                                                            <span className="text-foreground/80">{step.name} ↑</span>
-                                                            <span className="font-medium text-blue-400/80">({step.description})</span>
-                                                        </div>
-                                                    ))}
-                                                </div>
+                                        <div className="flex flex-wrap items-center gap-y-1.5 gap-x-2 px-3 py-1.5 font-mono text-[12px]">
+                                            {/* Behavioral Steps */}
+                                            {pattern.steps.filter(s => s.name !== 'Critical Breach').map((step, idx) => {
+                                                const isRising = /util|rise|spike|up|cross|error|discard|drop/i.test(step.name + step.description);
+                                                return (
+                                                    <div key={`step-${idx}`} className="flex items-center gap-1.5">
+                                                        <span className="text-indigo-200/90 lowercase">
+                                                            {step.name.replace(' ', '_')}
+                                                            {isRising && <span className="text-rose-500 font-bold ml-0.5">↑</span>}
+                                                        </span>
+                                                        <span className="text-primary/50 font-bold">{'->'}</span>
+                                                    </div>
+                                                );
+                                            })}
 
-                                                {/* Bottom: Predictive Outcomes */}
-                                                <div className="border-t border-border/30 px-2 py-0.5 bg-muted/20 flex justify-center items-center divide-x divide-border/30">
-                                                    {pattern.predictedEvents.slice(0, 2).map((evt, idx) => (
-                                                        <div key={idx} className="px-3 flex items-center gap-1.5 first:pl-0 last:pr-0">
-                                                            <span className="text-[8px] font-bold text-foreground/60 tracking-tighter uppercase">
-                                                                {evt.name}
-                                                            </span>
-                                                            <span className="text-[9px] font-mono font-bold text-blue-400">
-                                                                ({(evt.probability * 100).toFixed(0)}%)
-                                                            </span>
-                                                        </div>
-                                                    ))}
+                                            {/* Predicted Outcomes */}
+                                            {pattern.predictedEvents.map((evt, idx) => (
+                                                <div key={`out-${idx}`} className="flex items-center gap-1.5">
+                                                    <span className={`font-bold lowercase ${idx === pattern.predictedEvents.length - 1 ? 'text-rose-400' : 'text-sky-400'}`}>
+                                                        {evt.name.replace(' ', '_')}
+                                                    </span>
+                                                    {idx < pattern.predictedEvents.length - 1 && (
+                                                        <span className="text-primary/50 font-bold">{'->'}</span>
+                                                    )}
                                                 </div>
-                                            </div>
+                                            ))}
                                         </div>
                                     </TableCell>
                                     <TableCell className="align-middle py-1">

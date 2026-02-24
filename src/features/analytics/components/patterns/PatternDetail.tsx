@@ -648,11 +648,14 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
 
                                         <div className="flex items-stretch gap-3">
                                             {(() => {
-                                                const behavioralSteps = pattern.steps.filter(s => s.name !== 'Critical Breach');
+                                                const behavioralSteps = pattern.steps.filter(s => s.name !== 'Critical Breach').map(s => ({
+                                                    ...s,
+                                                    description: s.description.replace('cross', '>').replace('->', '->')
+                                                }));
                                                 const outcomeSteps = pattern.predictedEvents.map(evt => ({
                                                     name: evt.name,
-                                                    description: `${(evt.probability * 100).toFixed(0)}%`,
-                                                    delay: '(OUTCOME)'
+                                                    description: '', // Removing probability values
+                                                    delay: '(EVENT)'
                                                 }));
 
                                                 const allFlowItems = [...behavioralSteps, ...outcomeSteps];
@@ -666,12 +669,14 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                             <div className="flex-1 flex flex-col items-center">
                                                                 {/* The Block Div */}
                                                                 <div className={`w-full border border-border/40 rounded-lg p-3 min-h-[60px] flex flex-col justify-center transition-all hover:bg-muted/5 group ${isOutcome ? 'bg-primary/5 border-primary/20' : 'bg-card/30'}`}>
-                                                                    <div className="text-[11px] font-bold text-foreground uppercase tracking-tight mb-1 text-center truncate w-full">
+                                                                    <div className="text-[11px] font-bold text-foreground uppercase tracking-tight text-center truncate w-full">
                                                                         {item.name}
                                                                     </div>
-                                                                    <div className="text-[10px] text-blue-400 font-bold text-center">
-                                                                        {isOutcome ? `Prob: ${item.description}` : `(${item.description})`}
-                                                                    </div>
+                                                                    {item.description && (
+                                                                        <div className="text-[10px] text-blue-400 font-bold text-center mt-1">
+                                                                            ({item.description})
+                                                                        </div>
+                                                                    )}
                                                                 </div>
 
                                                                 {/* Timing Pill & Connection at Bottom */}
@@ -679,7 +684,9 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                                     <div className="relative w-full h-10 flex items-center mt-2">
                                                                         <div className="absolute left-[85%] translate-x-1/2 flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border/40 bg-muted/20 backdrop-blur-sm whitespace-nowrap z-10">
                                                                             <Clock className="h-2.5 w-2.5 text-primary/40" />
-                                                                            <span className="text-[9px] font-bold text-primary/70">{allFlowItems[idx + 1].delay}</span>
+                                                                            <span className="text-[9px] font-bold text-primary/70 uppercase">
+                                                                                {allFlowItems[idx + 1].delay}
+                                                                            </span>
                                                                         </div>
                                                                         {/* Joining line */}
                                                                         <div className="w-[120%] h-[1px] bg-muted-foreground/10" />
