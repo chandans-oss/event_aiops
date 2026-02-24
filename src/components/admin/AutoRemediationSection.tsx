@@ -8,11 +8,13 @@ import { Textarea } from '@/shared/components/ui/textarea';
 import { Label } from '@/shared/components/ui/label';
 import { mockRemediationPermissions } from '@/features/admin/data/adminData';
 import { RemediationPermission } from '@/shared/types';
+import { useToast } from '@/shared/hooks/use-toast';
 
 export function AutoRemediationSection() {
   const [permissions, setPermissions] = useState(mockRemediationPermissions);
   const [approvalDialog, setApprovalDialog] = useState<RemediationPermission | null>(null);
   const [justification, setJustification] = useState('');
+  const { toast } = useToast();
 
   const getRiskBadge = (risk: 'low' | 'medium' | 'high') => {
     const styles = {
@@ -40,25 +42,35 @@ export function AutoRemediationSection() {
       prev.map((p) =>
         p.id === approvalDialog.id
           ? {
-              ...p,
-              approved: true,
-              approvedBy: 'current.user@company.com',
-              approvedAt: new Date().toISOString(),
-            }
+            ...p,
+            approved: true,
+            approvedBy: 'current.user@company.com',
+            approvedAt: new Date().toISOString(),
+          }
           : p
       )
     );
+    toast({
+      title: 'Action Approved',
+      description: `"${approvalDialog.name}" has been enabled for auto-remediation.`,
+      variant: 'success',
+    });
     setApprovalDialog(null);
   };
 
-  const handleRevoke = (permissionId: string) => {
+  const handleRevoke = (permission: RemediationPermission) => {
     setPermissions((prev) =>
       prev.map((p) =>
-        p.id === permissionId
+        p.id === permission.id
           ? { ...p, approved: false, approvedBy: undefined, approvedAt: undefined }
           : p
       )
     );
+    toast({
+      title: 'Action Revoked',
+      description: `"${permission.name}" has been disabled.`,
+      variant: 'destructive',
+    });
   };
 
   const groupedPermissions = permissions.reduce((acc, perm) => {
@@ -155,7 +167,7 @@ export function AutoRemediationSection() {
                         if (checked) {
                           handleApprove(permission);
                         } else {
-                          handleRevoke(permission.id);
+                          handleRevoke(permission);
                         }
                       }}
                     />

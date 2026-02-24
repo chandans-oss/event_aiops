@@ -25,6 +25,7 @@ import { mockClusters } from '@/data/mock/mockData';
 import { Severity } from '@/shared/types';
 import { cn } from '@/shared/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
+import { useToast } from '@/shared/hooks/use-toast';
 
 type SidebarType = 'info' | 'rca' | 'impact' | 'remediation' | 'probable-cause' | null;
 
@@ -56,6 +57,16 @@ export default function Events() {
   const [selectedCauseId, setSelectedCauseId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchParams, setSearchParams] = useSearchParams();
+  const { toast } = useToast();
+
+  const handleShowResolvedChange = (checked: boolean) => {
+    setShowResolved(checked);
+    toast({
+      title: checked ? 'Historical Events Shown' : 'Historical Events Hidden',
+      description: `Resolved events are now ${checked ? 'visible' : 'hidden'} in the list.`,
+      variant: checked ? 'success' : 'destructive',
+    });
+  };
 
   useEffect(() => {
     const clusterId = searchParams.get('cluster');
@@ -229,7 +240,7 @@ export default function Events() {
               <Switch
                 id="show-resolved"
                 checked={showResolved}
-                onCheckedChange={setShowResolved}
+                onCheckedChange={handleShowResolvedChange}
               />
               <Label htmlFor="show-resolved" className="text-sm text-muted-foreground">
                 Show Resolved (History)

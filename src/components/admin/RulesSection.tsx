@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { mockDeduplicationRules, mockSuppressionRules, mockCorrelationRules } from '@/data/mock/mockData';
 import { DeduplicationRuleForm, SuppressionRuleForm, CorrelationRuleForm, DeleteRuleDialog } from './RuleForms';
 import { DeduplicationRule, SuppressionRule, CorrelationRule } from '@/shared/types';
+import { useToast } from '@/shared/hooks/use-toast';
 
 // Deduplication rule icons and labels
 const dedupRuleConfig: Record<string, { icon: any; label: string }> = {
@@ -40,6 +41,16 @@ export function RulesSection({ section }: { section: 'suppression' | 'deduplicat
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
+  const { toast } = useToast();
+
+  const handleStatusChange = (name: string, currentStatus: boolean) => {
+    const nextStatus = !currentStatus;
+    toast({
+      title: `Rule ${nextStatus ? 'Activated' : 'Deactivated'}`,
+      description: `"${name}" has been ${nextStatus ? 'enabled' : 'disabled'}.`,
+      variant: nextStatus ? 'success' : 'destructive',
+    });
+  };
 
   useEffect(() => {
     setTypeFilter('all');
@@ -242,7 +253,10 @@ export function RulesSection({ section }: { section: 'suppression' | 'deduplicat
                     </p>
                     <div className="flex items-center justify-end pt-3 border-t border-border/50">
                       <div className="flex items-center gap-2">
-                        <Switch checked={rule.status === 'active'} />
+                        <Switch
+                          checked={rule.status === 'active'}
+                          onCheckedChange={() => handleStatusChange(rule.name, rule.status === 'active')}
+                        />
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditSuppression(rule)}>
                           <Edit2 className="h-4 w-4" />
                         </Button>
@@ -301,7 +315,10 @@ export function RulesSection({ section }: { section: 'suppression' | 'deduplicat
                     </p>
                     <div className="flex items-center justify-end pt-3 border-t border-border/50">
                       <div className="flex items-center gap-2">
-                        <Switch checked={rule.status === 'active'} />
+                        <Switch
+                          checked={rule.status === 'active'}
+                          onCheckedChange={() => handleStatusChange(rule.name, rule.status === 'active')}
+                        />
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditDedup(rule)}>
                           <Edit2 className="h-4 w-4" />
                         </Button>
@@ -364,7 +381,10 @@ export function RulesSection({ section }: { section: 'suppression' | 'deduplicat
                       </div>
                     </div>
                     <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                      <Switch checked={rule.status === 'active'} />
+                      <Switch
+                        checked={rule.status === 'active'}
+                        onCheckedChange={() => handleStatusChange(rule.name, rule.status === 'active')}
+                      />
                       <div className="flex items-center gap-1">
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEditCorrelation(rule)}>
                           <Edit2 className="h-3 w-3" />

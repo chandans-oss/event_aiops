@@ -3,6 +3,7 @@ import { Search, BrainCircuit, Activity, Clock, ShieldCheck } from 'lucide-react
 import { Input } from '@/shared/components/ui/input';
 import { Badge } from '@/shared/components/ui/badge';
 import { Switch } from '@/shared/components/ui/switch';
+import { useToast } from '@/shared/hooks/use-toast';
 import {
     Table,
     TableBody,
@@ -19,13 +20,19 @@ interface PatternGalleryProps {
 
 export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
     const [searchTerm, setSearchTerm] = useState('');
+    const { toast } = useToast();
     const [enabledPatterns, setEnabledPatterns] = useState<Record<string, boolean>>(
         () => Object.fromEntries(MOCK_PATTERNS.map(p => [p.id, true]))
     );
 
-    const togglePattern = (id: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        setEnabledPatterns(prev => ({ ...prev, [id]: !prev[id] }));
+    const handleTogglePattern = (id: string, name: string, currentStatus: boolean) => {
+        const nextStatus = !currentStatus;
+        setEnabledPatterns(prev => ({ ...prev, [id]: nextStatus }));
+        toast({
+            title: `Pattern ${nextStatus ? 'Enabled' : 'Disabled'}`,
+            description: `${name} has been ${nextStatus ? 'activated' : 'deactivated'}.`,
+            variant: nextStatus ? 'success' : 'destructive',
+        });
     };
 
     const filteredPatterns = MOCK_PATTERNS.filter(p =>
@@ -125,7 +132,7 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                                     <TableCell className="text-right align-top py-4" onClick={(e) => e.stopPropagation()}>
                                         <Switch
                                             checked={enabledPatterns[pattern.id] ?? true}
-                                            onCheckedChange={() => setEnabledPatterns(prev => ({ ...prev, [pattern.id]: !prev[pattern.id] }))}
+                                            onCheckedChange={() => handleTogglePattern(pattern.id, pattern.name, !!enabledPatterns[pattern.id])}
                                         />
                                     </TableCell>
                                 </TableRow>

@@ -9,6 +9,7 @@ import { Label } from '@/shared/components/ui/label';
 import { ComposedChart, Line, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { RefreshCw, ArrowRightLeft, Activity, Network, TrendingUp, AlertTriangle, GitCompare } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
+import { useToast } from '@/shared/hooks/use-toast';
 
 type ScenarioType = 'baseline' | 'congestion';
 
@@ -109,6 +110,16 @@ export function CorrelationAnalysisSection() {
     const [scenario, setScenario] = useState<ScenarioType>('baseline');
     const [seed, setSeed] = useState(1);
     const [compareMode, setCompareMode] = useState(false);
+    const { toast } = useToast();
+
+    const handleCompareChange = (checked: boolean) => {
+        setCompareMode(checked);
+        toast({
+            title: checked ? 'Comparison Mode Enabled' : 'Comparison Mode Disabled',
+            description: `Visual comparison of metrics is now ${checked ? 'active' : 'inactive'}.`,
+            variant: checked ? 'success' : 'destructive',
+        });
+    };
 
     // Current Data
     const data = useMemo(() => generateData(scenario, seed), [scenario, seed]);
@@ -172,7 +183,7 @@ export function CorrelationAnalysisSection() {
 
                     {/* Compare Switch */}
                     <div className="flex items-center gap-2 bg-secondary/30 px-2 h-8 rounded-md border border-border/50">
-                        <Switch id="compare" checked={compareMode} onCheckedChange={setCompareMode} className="scale-75 origin-left" />
+                        <Switch id="compare" checked={compareMode} onCheckedChange={handleCompareChange} className="scale-75 origin-left" />
                         <Label htmlFor="compare" className="cursor-pointer text-xs font-medium whitespace-nowrap -ml-1">
                             Compare
                         </Label>

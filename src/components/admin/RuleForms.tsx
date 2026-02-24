@@ -497,8 +497,8 @@ const typeLabels: Record<string, string> = {
 };
 
 export function CorrelationRuleForm({ open, onOpenChange, rule, onSave }: CorrelationRuleFormProps) {
-  const { toast } = useToast();
   const isEditing = !!rule;
+  const { toast } = useToast();
   const ruleType = rule?.type || 'temporal';
 
   const form = useForm<CorrelationFormData>({
@@ -844,7 +844,19 @@ export function CorrelationRuleForm({ open, onOpenChange, rule, onSave }: Correl
                     render={({ field }) => (
                       <FormItem className="flex items-center justify-between rounded-lg border border-border/50 p-3">
                         <FormLabel className="text-sm font-medium">Suppress Child Events</FormLabel>
-                        <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked);
+                              toast({
+                                title: checked ? 'Child Suppression Enabled' : 'Child Suppression Disabled',
+                                description: `Child event suppression is now ${checked ? 'active' : 'inactive'}.`,
+                                variant: checked ? 'success' : 'destructive',
+                              });
+                            }}
+                          />
+                        </FormControl>
                       </FormItem>
                     )}
                   />
@@ -1052,7 +1064,19 @@ export function CorrelationRuleForm({ open, onOpenChange, rule, onSave }: Correl
                     render={({ field }) => (
                       <FormItem className="flex items-center justify-between rounded-lg border border-border/50 p-3">
                         <FormLabel className="text-sm font-medium">Explainability Mode</FormLabel>
-                        <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked);
+                              toast({
+                                title: checked ? 'Explainability Enabled' : 'Explainability Disabled',
+                                description: `Model explainability is now ${checked ? 'active' : 'inactive'}.`,
+                                variant: checked ? 'success' : 'destructive',
+                              });
+                            }}
+                          />
+                        </FormControl>
                       </FormItem>
                     )}
                   />
@@ -1123,7 +1147,19 @@ export function CorrelationRuleForm({ open, onOpenChange, rule, onSave }: Correl
                     render={({ field }) => (
                       <FormItem className="flex items-center justify-between rounded-lg border border-border/50 p-3">
                         <FormLabel className="text-sm font-medium">Cross-domain Correlation</FormLabel>
-                        <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked);
+                              toast({
+                                title: checked ? 'Cross-domain Enabled' : 'Cross-domain Disabled',
+                                description: `Cross-domain correlation is now ${checked ? 'active' : 'inactive'}.`,
+                                variant: checked ? 'success' : 'destructive',
+                              });
+                            }}
+                          />
+                        </FormControl>
                       </FormItem>
                     )}
                   />
@@ -1131,7 +1167,19 @@ export function CorrelationRuleForm({ open, onOpenChange, rule, onSave }: Correl
                     render={({ field }) => (
                       <FormItem className="flex items-center justify-between rounded-lg border border-border/50 p-3">
                         <FormLabel className="text-sm font-medium">Message Normalization</FormLabel>
-                        <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={(checked) => {
+                              field.onChange(checked);
+                              toast({
+                                title: checked ? 'Normalization Enabled' : 'Normalization Disabled',
+                                description: `Message normalization is now ${checked ? 'active' : 'inactive'}.`,
+                                variant: checked ? 'success' : 'destructive',
+                              });
+                            }}
+                          />
+                        </FormControl>
                       </FormItem>
                     )}
                   />
