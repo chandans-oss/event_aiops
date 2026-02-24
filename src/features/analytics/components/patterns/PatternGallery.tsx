@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Search, BrainCircuit, Eye, ArrowRight, Activity, Clock, ShieldCheck } from 'lucide-react';
+import { Search, BrainCircuit, Activity, Clock, ShieldCheck } from 'lucide-react';
 import { Input } from '@/shared/components/ui/input';
 import { Badge } from '@/shared/components/ui/badge';
-import { Button } from '@/shared/components/ui/button';
+import { Switch } from '@/shared/components/ui/switch';
 import {
     Table,
     TableBody,
@@ -19,6 +19,14 @@ interface PatternGalleryProps {
 
 export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
     const [searchTerm, setSearchTerm] = useState('');
+    const [enabledPatterns, setEnabledPatterns] = useState<Record<string, boolean>>(
+        () => Object.fromEntries(MOCK_PATTERNS.map(p => [p.id, true]))
+    );
+
+    const togglePattern = (id: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        setEnabledPatterns(prev => ({ ...prev, [id]: !prev[id] }));
+    };
 
     const filteredPatterns = MOCK_PATTERNS.filter(p =>
         p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -65,7 +73,7 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                             <TableHead>Confidence</TableHead>
                             <TableHead>Occurrences</TableHead>
                             <TableHead>Last Seen</TableHead>
-                            <TableHead className="text-right">Action</TableHead>
+                            <TableHead className="text-right">Active</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -114,10 +122,11 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                                             <span>{pattern.lastSeen}</span>
                                         </div>
                                     </TableCell>
-                                    <TableCell className="text-right align-top py-4">
-                                        <Button variant="ghost" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                            Review <ArrowRight className="ml-2 h-4 w-4" />
-                                        </Button>
+                                    <TableCell className="text-right align-top py-4" onClick={(e) => e.stopPropagation()}>
+                                        <Switch
+                                            checked={enabledPatterns[pattern.id] ?? true}
+                                            onCheckedChange={() => setEnabledPatterns(prev => ({ ...prev, [pattern.id]: !prev[pattern.id] }))}
+                                        />
                                     </TableCell>
                                 </TableRow>
                             ))
