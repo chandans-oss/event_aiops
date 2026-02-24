@@ -12,7 +12,7 @@ interface AdminSidebarProps {
 const menuItems = [
   { id: 'suppression' as AdminSection, label: 'Suppression', icon: ToggleLeft },
   { id: 'deduplication' as AdminSection, label: 'Deduplication', icon: Copy },
-  { id: 'correlation-types' as AdminSection, label: 'Correlation Types', icon: GitBranch },
+  { id: 'correlation-types' as AdminSection, label: 'Correlation', icon: GitBranch },
   { id: 'intents' as AdminSection, label: 'Intents & Hypothesis', icon: Lightbulb },
   { id: 'kb' as AdminSection, label: 'Knowledge Base', icon: BookOpen },
   { id: 'auto-remediation' as AdminSection, label: 'Auto Remediation', icon: Zap },

@@ -41,11 +41,55 @@ const suppressionRuleSchema = baseRuleSchema.extend({
 
 // Correlation rule schema
 const correlationRuleSchema = baseRuleSchema.extend({
-  type: z.enum(['temporal', 'spatial', 'topological', 'causal_rule_based', 'ml_gnn_refinement', 'llm_semantic']),
+  type: z.enum(['temporal', 'spatial', 'topological', 'causal_rule_based', 'ml_gnn_refinement', 'llm_semantic', 'dynamic_rule']),
   mlEnabled: z.boolean(),
   gnnEnabled: z.boolean(),
-  traceDepth: z.coerce.number().min(1).max(10).optional(),
+  // Temporal
+  windowMode: z.enum(['fixed', 'sliding']).optional(),
+  timeWindowSeconds: z.coerce.number().optional(),
+  minEvents: z.coerce.number().optional(),
+  maxGapSeconds: z.coerce.number().optional(),
+  sequenceConstraint: z.enum(['any_order', 'ordered']).optional(),
+  retriggerCooldownMin: z.coerce.number().optional(),
+  dedupWindowMin: z.coerce.number().optional(),
+  // Spatial
   groupingCriteria: z.string().optional(),
+  correlationScope: z.enum(['same_entity', 'same_parent', 'same_group', 'same_tag']).optional(),
+  relationshipRadius: z.coerce.number().optional(),
+  minDistinctEntities: z.coerce.number().optional(),
+  groupingPriority: z.string().optional(),
+  // Topological
+  traceDepth: z.coerce.number().min(1).max(10).optional(),
+  directionality: z.enum(['upstream', 'downstream', 'both']).optional(),
+  rootStrategy: z.enum(['first_event', 'highest_severity', 'most_upstream']).optional(),
+  suppressChildren: z.boolean().optional(),
+  propagationWindowMin: z.coerce.number().optional(),
+  maxGraphBreadth: z.coerce.number().optional(),
+  // Causal
+  timeLagMin: z.coerce.number().optional(),
+  confidenceThreshold: z.coerce.number().optional(),
+  rulePriority: z.enum(['low', 'medium', 'high']).optional(),
+  repetitionThreshold: z.coerce.number().optional(),
+  ruleExpiryDays: z.coerce.number().optional(),
+  // Dynamic
+  learningWindowDays: z.coerce.number().optional(),
+  stabilityThreshold: z.coerce.number().optional(),
+  similarityThreshold: z.coerce.number().optional(),
+  activationMode: z.enum(['auto', 'manual']).optional(),
+  driftSensitivity: z.enum(['low', 'medium', 'high']).optional(),
+  maxLearnedPatterns: z.coerce.number().optional(),
+  // ML/GNN
+  modelVersion: z.string().optional(),
+  trainingWindowDays: z.coerce.number().optional(),
+  retrainingFrequency: z.enum(['daily', 'weekly', 'monthly']).optional(),
+  explainabilityEnabled: z.boolean().optional(),
+  fallbackPolicy: z.enum(['rule_based', 'suppress', 'pass_through']).optional(),
+  // Semantic
+  crossDomainEnabled: z.boolean().optional(),
+  vocabularyScope: z.enum(['infra', 'infra_app', 'infra_app_cloud']).optional(),
+  normalizationEnabled: z.boolean().optional(),
+  summaryLength: z.enum(['short', 'medium', 'detailed']).optional(),
+  feedbackWeight: z.enum(['low', 'medium', 'high']).optional(),
 });
 
 type DeduplicationFormData = z.infer<typeof deduplicationRuleSchema>;
@@ -442,9 +486,20 @@ interface CorrelationRuleFormProps {
   onSave: (data: CorrelationFormData) => void;
 }
 
+const typeLabels: Record<string, string> = {
+  temporal: 'Temporal Correlation',
+  spatial: 'Spatial Correlation',
+  topological: 'Topological Correlation',
+  causal_rule_based: 'Causal / Rule-based Correlation',
+  dynamic_rule: 'Dynamic Rule Correlation',
+  ml_gnn_refinement: 'ML / GNN Refinement',
+  llm_semantic: 'LLM Semantic Synthesis',
+};
+
 export function CorrelationRuleForm({ open, onOpenChange, rule, onSave }: CorrelationRuleFormProps) {
   const { toast } = useToast();
   const isEditing = !!rule;
+  const ruleType = rule?.type || 'temporal';
 
   const form = useForm<CorrelationFormData>({
     resolver: zodResolver(correlationRuleSchema),
@@ -452,90 +507,99 @@ export function CorrelationRuleForm({ open, onOpenChange, rule, onSave }: Correl
       name: rule?.name || '',
       description: rule?.description || '',
       status: rule?.status || 'active',
-      type: rule?.type || 'temporal',
+      type: ruleType,
       mlEnabled: rule?.mlEnabled || false,
       gnnEnabled: rule?.gnnEnabled || false,
-      traceDepth: rule?.config?.traceDepth || 3,
+      // Temporal
+      windowMode: rule?.config?.windowMode || 'sliding',
+      timeWindowSeconds: rule?.config?.timeWindowSeconds || 600,
+      minEvents: rule?.config?.minEvents || 2,
+      maxGapSeconds: rule?.config?.maxGapSeconds || 180,
+      sequenceConstraint: rule?.config?.sequenceConstraint || 'any_order',
+      retriggerCooldownMin: rule?.config?.retriggerCooldownMin || 10,
+      dedupWindowMin: rule?.config?.dedupWindowMin || 2,
+      // Spatial
       groupingCriteria: rule?.config?.groupingCriteria?.join(', ') || '',
+      correlationScope: rule?.config?.correlationScope || 'same_parent',
+      relationshipRadius: rule?.config?.relationshipRadius || 1,
+      minDistinctEntities: rule?.config?.minDistinctEntities || 2,
+      groupingPriority: rule?.config?.groupingPriority || 'entity',
+      // Topological
+      traceDepth: rule?.config?.traceDepth || 2,
+      directionality: rule?.config?.directionality || 'upstream',
+      rootStrategy: rule?.config?.rootStrategy || 'most_upstream',
+      suppressChildren: rule?.config?.suppressChildren !== undefined ? rule.config.suppressChildren : true,
+      propagationWindowMin: rule?.config?.propagationWindowMin || 10,
+      maxGraphBreadth: rule?.config?.maxGraphBreadth || 25,
+      // Causal
+      timeLagMin: rule?.config?.timeLagMin || 10,
+      confidenceThreshold: rule?.config?.confidenceThreshold || 0.7,
+      rulePriority: rule?.config?.rulePriority || 'medium',
+      repetitionThreshold: rule?.config?.repetitionThreshold || 3,
+      ruleExpiryDays: rule?.config?.ruleExpiryDays || 90,
+      // Dynamic
+      learningWindowDays: rule?.config?.learningWindowDays || 30,
+      stabilityThreshold: rule?.config?.stabilityThreshold || 3,
+      similarityThreshold: rule?.config?.similarityThreshold || 0.8,
+      activationMode: rule?.config?.activationMode || 'manual',
+      driftSensitivity: rule?.config?.driftSensitivity || 'medium',
+      maxLearnedPatterns: rule?.config?.maxLearnedPatterns || 100,
+      // ML/GNN
+      modelVersion: rule?.config?.modelVersion || 'v2.4',
+      trainingWindowDays: rule?.config?.trainingWindowDays || 60,
+      retrainingFrequency: rule?.config?.retrainingFrequency || 'weekly',
+      explainabilityEnabled: rule?.config?.explainabilityEnabled !== undefined ? rule.config.explainabilityEnabled : true,
+      fallbackPolicy: rule?.config?.fallbackPolicy || 'rule_based',
+      // Semantic
+      crossDomainEnabled: rule?.config?.crossDomainEnabled || false,
+      vocabularyScope: rule?.config?.vocabularyScope || 'infra',
+      normalizationEnabled: rule?.config?.normalizationEnabled !== undefined ? rule.config.normalizationEnabled : true,
+      summaryLength: rule?.config?.summaryLength || 'short',
+      feedbackWeight: rule?.config?.feedbackWeight || 'medium',
     },
   });
-
-  const ruleType = form.watch('type');
 
   const handleSubmit = (data: CorrelationFormData) => {
     onSave(data);
     toast({
-      title: isEditing ? 'Rule updated' : 'Rule created',
-      description: `Correlation rule "${data.name}" has been ${isEditing ? 'updated' : 'created'} successfully.`,
+      title: isEditing ? 'Configuration updated' : 'Rule created',
+      description: `"${data.name}" has been ${isEditing ? 'updated' : 'created'} successfully.`,
     });
     onOpenChange(false);
     form.reset();
   };
 
+  const SectionTitle = ({ children }: { children: React.ReactNode }) => (
+    <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground pt-2 pb-1 border-b border-border/40">{children}</p>
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{isEditing ? 'Edit' : 'Create'} Correlation Rule</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            {isEditing ? 'Configure' : 'Create'}: {typeLabels[ruleType] || ruleType}
+          </DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Rule Name *</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Database Cascade Detection" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
-            <FormField
-              control={form.control}
-              name="type"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Rule Type *</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+            {/* Base fields */}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Rule Name *</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
+                      <Input placeholder="e.g., Temporal Window 10m" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="temporal">Temporal</SelectItem>
-                      <SelectItem value="spatial">Spatial</SelectItem>
-                      <SelectItem value="topological">Topological</SelectItem>
-                      <SelectItem value="causal_rule_based">Causal / Rule-based</SelectItem>
-                      <SelectItem value="ml_gnn_refinement">ML/GNN Refinement</SelectItem>
-                      <SelectItem value="llm_semantic">LLM Semantic Synthesis</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description *</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Describe what this rule does..." rows={3} {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="grid grid-cols-1 gap-4">
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <FormField
                 control={form.control}
                 name="status"
@@ -544,9 +608,7 @@ export function CorrelationRuleForm({ open, onOpenChange, rule, onSave }: Correl
                     <FormLabel>Status *</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="active">Active</SelectItem>
@@ -559,67 +621,522 @@ export function CorrelationRuleForm({ open, onOpenChange, rule, onSave }: Correl
               />
             </div>
 
-            {/* ML and GNN toggles */}
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="mlEnabled"
-                render={({ field }) => (
-                  <FormItem className="flex items-center justify-between rounded-lg border border-border/50 p-3">
-                    <FormLabel className="text-sm font-medium">Enable ML</FormLabel>
-                    <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Describe what this configuration does..." rows={2} {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="gnnEnabled"
-                render={({ field }) => (
-                  <FormItem className="flex items-center justify-between rounded-lg border border-border/50 p-3">
-                    <FormLabel className="text-sm font-medium">Enable GNN</FormLabel>
-                    <FormControl>
-                      <Switch checked={field.value} onCheckedChange={field.onChange} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
-
-            {/* Trace Depth for topological/causal/gnn */}
-            {(ruleType === 'topological' || ruleType === 'causal_rule_based' || ruleType === 'ml_gnn_refinement') && (
-              <FormField
-                control={form.control}
-                name="traceDepth"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Trace Depth</FormLabel>
-                    <FormControl>
-                      <Input type="number" min={1} max={10} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            {/* ── TEMPORAL ────────────────────────────── */}
+            {ruleType === 'temporal' && (
+              <>
+                <SectionTitle>Temporal Parameters</SectionTitle>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="windowMode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Window Mode</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="fixed">Fixed</SelectItem>
+                            <SelectItem value="sliding">Sliding</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="timeWindowSeconds"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Window Size (sec)</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="minEvents"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Min Events to Correlate</FormLabel>
+                        <FormControl><Input type="number" min={2} {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="maxGapSeconds"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Max Gap Between Events (sec)</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="sequenceConstraint"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Sequence Constraint</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="any_order">Any Order</SelectItem>
+                            <SelectItem value="ordered">Ordered Sequence</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="retriggerCooldownMin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Re-trigger Cooldown (min)</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="dedupWindowMin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Event Deduplication Window (min)</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </>
             )}
 
-            {/* Grouping Criteria for spatial */}
+            {/* ── SPATIAL ─────────────────────────────── */}
             {ruleType === 'spatial' && (
-              <FormField
-                control={form.control}
-                name="groupingCriteria"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Grouping Criteria (comma-separated)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., datacenter, rack, region" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <>
+                <SectionTitle>Spatial Parameters</SectionTitle>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="groupingCriteria"
+                    render={({ field }) => (
+                      <FormItem className="col-span-2">
+                        <FormLabel>Entity Matching Keys (comma-separated)</FormLabel>
+                        <FormControl><Input placeholder="device_id, node_id, interface_id, link_id, service_id" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="correlationScope"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Correlation Scope</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="same_entity">Same Entity</SelectItem>
+                            <SelectItem value="same_parent">Same Parent</SelectItem>
+                            <SelectItem value="same_group">Same Group</SelectItem>
+                            <SelectItem value="same_tag">Same Tag</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="relationshipRadius"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Relationship Radius (hops)</FormLabel>
+                        <FormControl><Input type="number" min={0} {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="minDistinctEntities"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Min Distinct Entities</FormLabel>
+                        <FormControl><Input type="number" min={1} {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="groupingPriority"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Grouping Attribute Priority</FormLabel>
+                        <FormControl><Input placeholder="entity, parent, group" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* ── TOPOLOGICAL ─────────────────────────── */}
+            {ruleType === 'topological' && (
+              <>
+                <SectionTitle>Topological Parameters</SectionTitle>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="traceDepth"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Dependency Depth (hops)</FormLabel>
+                        <FormControl><Input type="number" min={1} max={10} {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="directionality"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Directionality</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="upstream">Upstream</SelectItem>
+                            <SelectItem value="downstream">Downstream</SelectItem>
+                            <SelectItem value="both">Both</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="rootStrategy"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Root Candidate Strategy</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="first_event">First Event</SelectItem>
+                            <SelectItem value="highest_severity">Highest Severity</SelectItem>
+                            <SelectItem value="most_upstream">Most Upstream</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="propagationWindowMin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Propagation Window (min)</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="maxGraphBreadth"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Max Graph Breadth (entities)</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="suppressChildren"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border border-border/50 p-3">
+                        <FormLabel className="text-sm font-medium">Suppress Child Events</FormLabel>
+                        <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* ── CAUSAL ──────────────────────────────── */}
+            {ruleType === 'causal_rule_based' && (
+              <>
+                <SectionTitle>Causal / Rule-based Parameters</SectionTitle>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="timeLagMin"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Allowed Time Lag (min)</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="confidenceThreshold"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Match Confidence Threshold</FormLabel>
+                        <FormControl><Input type="number" step="0.01" min={0} max={1} {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="rulePriority"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Rule Priority</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="low">Low</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="repetitionThreshold"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Rule Repetition Threshold</FormLabel>
+                        <FormControl><Input type="number" min={1} {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="ruleExpiryDays"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Rule Expiry (days)</FormLabel>
+                        <FormControl><Input type="number" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* ── DYNAMIC ─────────────────────────────── */}
+            {ruleType === 'dynamic_rule' && (
+              <>
+                <SectionTitle>Dynamic Rule Parameters</SectionTitle>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="learningWindowDays"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Learning Window (days)</FormLabel>
+                        <FormControl><Input type="number" min={1} {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="stabilityThreshold"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Pattern Stability (min repeat count)</FormLabel>
+                        <FormControl><Input type="number" min={1} {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="similarityThreshold"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Similarity Threshold</FormLabel>
+                        <FormControl><Input type="number" step="0.01" min={0} max={1} {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="activationMode"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Pattern Activation Mode</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="auto">Auto</SelectItem>
+                            <SelectItem value="manual">Manual Approval</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="driftSensitivity"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Drift Detection Sensitivity</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="low">Low</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="maxLearnedPatterns"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Max Active Learned Patterns</FormLabel>
+                        <FormControl><Input type="number" min={1} {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* ── ML / GNN ────────────────────────────── */}
+            {ruleType === 'ml_gnn_refinement' && (
+              <>
+                <SectionTitle>ML / GNN Parameters</SectionTitle>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="confidenceThreshold"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Confidence Threshold</FormLabel>
+                        <FormControl><Input type="number" step="0.01" min={0} max={1} {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="modelVersion"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Model Version</FormLabel>
+                        <FormControl><Input placeholder="e.g., v2.4" {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="trainingWindowDays"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Training Data Window (days)</FormLabel>
+                        <FormControl><Input type="number" min={1} {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="retrainingFrequency"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Retraining Frequency</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="daily">Daily</SelectItem>
+                            <SelectItem value="weekly">Weekly</SelectItem>
+                            <SelectItem value="monthly">Monthly</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="fallbackPolicy"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Fallback Policy</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="rule_based">Rule-based</SelectItem>
+                            <SelectItem value="suppress">Suppress</SelectItem>
+                            <SelectItem value="pass_through">Pass Through</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="explainabilityEnabled"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border border-border/50 p-3">
+                        <FormLabel className="text-sm font-medium">Explainability Mode</FormLabel>
+                        <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </>
+            )}
+
+            {/* ── LLM SEMANTIC ────────────────────────── */}
+            {ruleType === 'llm_semantic' && (
+              <>
+                <SectionTitle>Semantic Synthesis Parameters</SectionTitle>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField control={form.control} name="confidenceThreshold"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Semantic Similarity Threshold</FormLabel>
+                        <FormControl><Input type="number" step="0.01" min={0} max={1} {...field} /></FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="vocabularyScope"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Vocabulary Scope</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="infra">Infra Only</SelectItem>
+                            <SelectItem value="infra_app">Infra + App</SelectItem>
+                            <SelectItem value="infra_app_cloud">Infra + App + Cloud</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="summaryLength"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Auto-summary Length</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="short">Short</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="detailed">Detailed</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="feedbackWeight"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Feedback Loop Weight</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl><SelectTrigger><SelectValue /></SelectTrigger></FormControl>
+                          <SelectContent>
+                            <SelectItem value="low">Low</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="crossDomainEnabled"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border border-border/50 p-3">
+                        <FormLabel className="text-sm font-medium">Cross-domain Correlation</FormLabel>
+                        <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField control={form.control} name="normalizationEnabled"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center justify-between rounded-lg border border-border/50 p-3">
+                        <FormLabel className="text-sm font-medium">Message Normalization</FormLabel>
+                        <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </>
             )}
 
             <DialogFooter className="pt-4">
@@ -627,7 +1144,7 @@ export function CorrelationRuleForm({ open, onOpenChange, rule, onSave }: Correl
                 Cancel
               </Button>
               <Button type="submit" className="gradient-primary">
-                {isEditing ? 'Update Rule' : 'Create Rule'}
+                {isEditing ? 'Save Configuration' : 'Create Rule'}
               </Button>
             </DialogFooter>
           </form>

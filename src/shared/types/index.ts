@@ -48,6 +48,7 @@ export interface BaseRule {
   description: string;
   priority?: number;
   status: 'active' | 'inactive';
+  frequency?: number;
   createdAt?: string;
   modifiedAt?: string;
 }

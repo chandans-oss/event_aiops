@@ -558,6 +558,7 @@ export const mockCorrelationRules: CorrelationRule[] = [
     name: 'Temporal Correlation',
     description: 'Correlate events occurring within a defined rolling time window across any source.',
     status: 'active',
+    frequency: 12450,
     mlEnabled: false,
     gnnEnabled: false,
     config: { timeWindowSeconds: 300 }
@@ -568,6 +569,7 @@ export const mockCorrelationRules: CorrelationRule[] = [
     name: 'Spatial Correlation',
     description: 'Group events by location: Same host, service, region, or datacenter.',
     status: 'active',
+    frequency: 5620,
     mlEnabled: false,
     gnnEnabled: false,
     config: { groupingCriteria: ['datacenter', 'rack', 'region'] }
@@ -578,6 +580,7 @@ export const mockCorrelationRules: CorrelationRule[] = [
     name: 'Topological Correlation',
     description: 'Correlate events based on dependency graph.',
     status: 'active',
+    frequency: 3125,
     mlEnabled: false,
     gnnEnabled: false,
     config: { traceDepth: 3 }
@@ -588,6 +591,7 @@ export const mockCorrelationRules: CorrelationRule[] = [
     name: 'Causal / Rule-based Correlation',
     description: 'Apply domain-specific heuristics and expert rules for grouping.',
     status: 'active',
+    frequency: 8432,
     mlEnabled: false,
     gnnEnabled: false,
     config: { ruleset: 'standard_ops' }
@@ -598,6 +602,7 @@ export const mockCorrelationRules: CorrelationRule[] = [
     name: 'Dynamic Rule Correlation',
     description: 'Use pattern and behavior-based analysis to correlate dynamic events on the fly.',
     status: 'active',
+    frequency: 1450,
     mlEnabled: true,
     gnnEnabled: false,
     config: { behaviorAnalysis: true }
@@ -608,6 +613,7 @@ export const mockCorrelationRules: CorrelationRule[] = [
     name: 'ML / GNN Refinement',
     description: 'Graph Neural Network learning propagation patterns on nodes=events, edges=topology/causal.',
     status: 'active',
+    frequency: 840,
     mlEnabled: true,
     gnnEnabled: true,
     config: { traceDepth: 5, modelVersion: 'v2.4' }
@@ -615,9 +621,10 @@ export const mockCorrelationRules: CorrelationRule[] = [
   {
     id: 'cor-006',
     type: 'llm_semantic',
-    name: 'Semantic Synthesis',
+    name: 'LLM Semantic Synthesis',
     description: 'Use large language models to synthesize cross-domain alerts based on semantic meaning.',
     status: 'active',
+    frequency: 215,
     mlEnabled: true,
     gnnEnabled: false,
     config: { model: 'gpt-4-turbo', temperature: 0.1 }

@@ -7,7 +7,7 @@ import { Input } from '@/shared/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
 import { mockDeduplicationRules, mockSuppressionRules, mockCorrelationRules } from '@/data/mock/mockData';
-import { DeduplicationRuleForm, SuppressionRuleForm, DeleteRuleDialog } from './RuleForms';
+import { DeduplicationRuleForm, SuppressionRuleForm, CorrelationRuleForm, DeleteRuleDialog } from './RuleForms';
 import { DeduplicationRule, SuppressionRule, CorrelationRule } from '@/shared/types';
 
 // Deduplication rule icons and labels
@@ -48,8 +48,10 @@ export function RulesSection({ section }: { section: 'suppression' | 'deduplicat
   // Form dialog states
   const [showDedupForm, setShowDedupForm] = useState(false);
   const [showSuppressionForm, setShowSuppressionForm] = useState(false);
+  const [showCorrelationForm, setShowCorrelationForm] = useState(false);
   const [editingDedupRule, setEditingDedupRule] = useState<DeduplicationRule | undefined>();
   const [editingSuppressionRule, setEditingSuppressionRule] = useState<SuppressionRule | undefined>();
+  const [editingCorrelationRule, setEditingCorrelationRule] = useState<CorrelationRule | undefined>();
 
   // Delete dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -119,6 +121,11 @@ export function RulesSection({ section }: { section: 'suppression' | 'deduplicat
   const handleEditSuppression = (rule: SuppressionRule) => {
     setEditingSuppressionRule(rule);
     setShowSuppressionForm(true);
+  };
+
+  const handleEditCorrelation = (rule: CorrelationRule) => {
+    setEditingCorrelationRule(rule);
+    setShowCorrelationForm(true);
   };
 
   // Handle delete
@@ -313,52 +320,57 @@ export function RulesSection({ section }: { section: 'suppression' | 'deduplicat
 
       {/* Correlation Rules */}
       {section === 'correlation-types' && (
-        <div className="mt-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">Correlation Types</h2>
+        <div className="mt-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-foreground">Correlation</h2>
           </div>
           {(filteredCorrelationRules || []).length === 0 ? (
-            <div className="glass-card rounded-xl p-12 text-center">
-              <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No rules found</h3>
-              <p className="text-muted-foreground">Try adjusting your search or filters</p>
+            <div className="glass-card rounded-xl p-8 text-center">
+              <Search className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
+              <h3 className="text-lg font-semibold text-foreground mb-1">No rules found</h3>
+              <p className="text-muted-foreground text-sm">Try adjusting your search or filters</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
               {(filteredCorrelationRules || []).map((rule) => {
                 const config = correlationRuleConfig[rule.type] || { icon: GitBranch, label: rule.type };
                 const Icon = config.icon;
                 return (
                   <div
                     key={rule.id}
-                    className="glass-card rounded-xl p-5 hover-lift cursor-pointer group"
+                    className="glass-card rounded-lg p-3 hover-lift cursor-pointer group flex flex-col justify-between"
                   >
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-status-success/20">
-                          <Icon className="h-5 w-5 text-status-success" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-foreground">{rule.name}</h3>
+                    <div>
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-status-success/20">
+                            <Icon className="h-4 w-4 text-status-success" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-foreground text-sm">{rule.name}</h3>
+                          </div>
                         </div>
                       </div>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        {rule.description}
+                      </p>
+                      <div className="flex items-center gap-1 mb-2">
+                        {rule.mlEnabled && (
+                          <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] px-1 py-0">ML</Badge>
+                        )}
+                        {rule.gnnEnabled && (
+                          <Badge className="bg-severity-medium/20 text-severity-medium border-severity-medium/30 text-[10px] px-1 py-0">GNN</Badge>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                      {rule.description}
-                    </p>
-                    <div className="flex items-center gap-2 mb-3">
-                      {rule.mlEnabled && (
-                        <Badge className="bg-primary/20 text-primary border-primary/30">ML</Badge>
-                      )}
-                      {rule.gnnEnabled && (
-                        <Badge className="bg-severity-medium/20 text-severity-medium border-severity-medium/30">GNN</Badge>
-                      )}
-                    </div>
-                    <div className="flex items-center justify-end pt-3 border-t border-border/50">
-                      <div className="flex items-center gap-2">
-                        <Switch checked={rule.status === 'active'} />
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => handleDeleteClick(rule)}>
-                          <Trash2 className="h-4 w-4" />
+                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                      <Switch checked={rule.status === 'active'} />
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleEditCorrelation(rule)}>
+                          <Edit2 className="h-3 w-3" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={() => handleDeleteClick(rule)}>
+                          <Trash2 className="h-3 w-3" />
                         </Button>
                       </div>
                     </div>
@@ -385,7 +397,12 @@ export function RulesSection({ section }: { section: 'suppression' | 'deduplicat
         onSave={(data) => console.log('Save suppression rule:', data)}
       />
 
-
+      <CorrelationRuleForm
+        open={showCorrelationForm}
+        onOpenChange={setShowCorrelationForm}
+        rule={editingCorrelationRule}
+        onSave={(data) => console.log('Save correlation rule:', data)}
+      />
 
       {/* Delete Confirmation */}
       <DeleteRuleDialog
