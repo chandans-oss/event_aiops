@@ -1039,33 +1039,41 @@ export const CLU_12350_Data: ClusterSpecificData = {
 };
 
 
-// CLU-NET-004: Pattern Match - Congestion Flap
+// CLU-NET-004: Pattern Match - Complex Interface Flap Sequence
 export const CLU_NET_004_Data: ClusterSpecificData = {
     clusterId: 'CLU-NET-004',
-    rcaMetadata: { rootEventId: 'EVT-NET-004-1', rootEventType: 'LINK_CONGESTION', timestamp: '2026-02-18T08:00:00Z', device: 'Dist-Switch-02', severity: 'Critical' },
-    remedyTitle: 'Tune Buffer Allocation and Verify Interface Hardware',
-    rcaSummary: '[Pattern Recognized]: Congestion Buildup Before Interface Flap. The system detected a sequence of High Utilization -> Packet Drops -> Link Down. This indicates that traffic bursts are overwhelming the interface buffers, leading to a crash or reset of the port capability.',
-    rootCause: 'Hardware Buffer Exhaustion due to Traffic Saturation',
+    rcaMetadata: {
+        rootEventId: 'EVT-NET-004-1',
+        rootEventType: 'LINK_CONGESTION',
+        timestamp: '2026-02-18T08:00:00Z',
+        device: 'Dist-Switch-02',
+        severity: 'Critical'
+    },
+    remedyTitle: 'Interface Hardware Stabilization & Traffic Shaping',
+    rcaSummary: '[Pattern Match] - Interface Degradation Lifecycle. The system identifies a high-confidence correlation between initial congestion and terminal link failure. The sequence of Buffer Saturation (8:05), CRC Errors (8:06), and Packet Loss (8:07) confirmed a physical-layer/buffer instability leading to the Interface Flap at 8:08.',
+    rootCause: 'Saturation-Induced Physical Layer Instability leading to Link Flap',
     confidence: 0.99,
     rcaProcessSteps: generateRCASteps('CLU-NET-004', 'LINK_CONGESTION', 'Dist-Switch-02'),
     dataEvidence: [
-        { source: 'Pattern Engine', type: 'Events', count: 1, samples: ['Matched behavioral signature: Congestion -> Drops -> Flap'], relevance: 100 },
-        { source: 'Interface Metrics', type: 'Metrics', count: 60, samples: ['Utilization: 98%', 'Input Drops: 1500/sec'], relevance: 98 },
-        { source: 'Syslog', type: 'Logs', count: 3, samples: ['%ETH-4-EXCESSIVE_FLOW: Flow control active', '%LINK-3-UPDOWN: Interface Et0/0 down'], relevance: 95 }
+        { source: 'Pattern Discovery', type: 'Events', count: 1, samples: ['Signature Match: Saturation -> Error -> Loss -> Flap'], relevance: 100 },
+        { source: 'Buffer Telemetry', type: 'Metrics', count: 45, samples: ['Peak egress buffer: 85%', 'Queue wait time: 120ms'], relevance: 98 },
+        { source: 'Physical Layer (PHY)', type: 'Metrics', count: 120, samples: ['CRC Error Rate: 1.2k/min', 'Input discards: 5%'], relevance: 95 }
     ],
     correlatedChildEvents: [
-        { id: 'EVT-NET-004-2', alertType: 'PACKET_DISCARD', source: 'Dist-Switch-02', severity: 'Major', timestamp: '2026-02-18T08:05:00Z', correlationScore: 0.98, correlationReason: 'Pattern Step 2', message: 'Input queue drops on Et0/0' },
-        { id: 'EVT-NET-004-3', alertType: 'LINK_FLAP', source: 'Dist-Switch-02', severity: 'Critical', timestamp: '2026-02-18T08:08:00Z', correlationScore: 0.99, correlationReason: 'Pattern Step 3', message: 'Interface Et0/0 changed state to Down' }
+        { id: 'EVT-NET-004-2', alertType: 'BUFFER_SATURATION', source: 'Dist-Switch-02', severity: 'Major', timestamp: '2026-02-18T08:05:00Z', correlationScore: 0.98, correlationReason: 'Pattern-Based Correlation: Step 2 - Buffer Exhaustion', message: 'Output queue buffers reaching threshold (85%)' },
+        { id: 'EVT-NET-004-3', alertType: 'CRC_ERRORS', source: 'Dist-Switch-02', severity: 'Major', timestamp: '2026-02-18T08:06:00Z', correlationScore: 0.99, correlationReason: 'Pattern-Based Correlation: Step 3 - Signal Instability', message: 'High CRC error rate detected on Et0/0' },
+        { id: 'EVT-NET-004-4', alertType: 'PACKET_LOSS', source: 'Dist-Switch-02', severity: 'Critical', timestamp: '2026-02-18T08:07:00Z', correlationScore: 0.99, correlationReason: 'Pattern-Based Correlation: Step 4 - Data Plane Fault', message: 'Packet loss exceeds 5% on Et0/0' },
+        { id: 'EVT-NET-004-5', alertType: 'INTERFACE_FLAP', source: 'Dist-Switch-02', severity: 'Critical', timestamp: '2026-02-18T08:08:00Z', correlationScore: 0.99, correlationReason: 'Pattern-Based Correlation: Step 5 - Terminal Failure', message: 'Interface transition to Down state' }
     ],
     impactedAssets: [
-        { id: 'internal-wifi', name: 'Internal WiFi', type: 'Service', severity: 'Major', status: 'Degraded', dependencies: ['Dist-Switch-02'] },
-        { id: 'voip-gw', name: 'VoIP Gateway', type: 'Service', severity: 'Critical', status: 'Unreachable', dependencies: ['Dist-Switch-02'] }
+        { id: 'internal-wifi', name: 'Corporate WiFi Backbone', type: 'Service', severity: 'Major', status: 'Degraded', dependencies: ['Dist-Switch-02'] },
+        { id: 'voip-gw', name: 'VoIP Gateway Cluster', type: 'Service', severity: 'Critical', status: 'Unreachable', dependencies: ['Dist-Switch-02'] }
     ],
     impactTopology: {
         nodes: [
             { id: 'dist-sw-02', label: 'Dist-Switch-02', type: 'device', status: 'critical', severity: 'Critical' },
-            { id: 'internal-wifi', label: 'Internal WiFi', type: 'service', status: 'warning', severity: 'Major' },
-            { id: 'voip-gw', label: 'VoIP Gateway', type: 'service', status: 'critical', severity: 'Critical' }
+            { id: 'internal-wifi', label: 'WiFi Service', type: 'service', status: 'warning', severity: 'Major' },
+            { id: 'voip-gw', label: 'VoIP Cluster', type: 'service', status: 'critical', severity: 'Critical' }
         ],
         edges: [
             { from: 'dist-sw-02', to: 'internal-wifi', type: 'dependency' },
@@ -1073,10 +1081,11 @@ export const CLU_NET_004_Data: ClusterSpecificData = {
         ]
     },
     remediationSteps: [
-        { id: 'REM-NET-004-1', phase: 'Immediate', action: 'Increase Buffer Limits', description: 'Apply "service-policy input POLICY-BUFFER-High" to Et0/0 to absorb bursts.', status: 'pending', duration: '2m', automated: true, command: 'conf t; int Et0/0; service-policy input POLICY-BUFFER-High', verification: ['Buffer depth increased'] },
-        { id: 'REM-NET-004-2', phase: 'Long-term', action: 'Review Traffic Shaping', description: 'Analyze traffic patterns to implement upstream shaping.', status: 'pending', duration: '1h', automated: false, verification: ['Shaping policy applied'] },
+        { id: 'REM-NET-004-1', phase: 'Immediate', action: 'Adaptive Buffer Reallocation', description: 'Applying emergency buffer expansion on Et0/0 to dissipate microburst pressure.', status: 'pending', duration: '1m', automated: true, command: 'interface Et0/0; buffer-size 256k', verification: ['Allocated buffers: 256k OK'] },
+        { id: 'REM-NET-004-2', phase: 'Immediate', action: 'Interface Reset', description: 'Performing hardware-level power-cycle of the SFP/PHY to clear error states.', status: 'pending', duration: '2m', automated: true, command: 'hw-module int Et0/0 reset', verification: ['PHY re-link successful'] },
+        { id: 'REM-NET-004-3', phase: 'Long-term', action: 'Traffic Profile Audit', description: 'Generating deep packet inspection report to identify upstream sources causing burst saturation.', status: 'pending', duration: '1h', automated: false, verification: ['Audit report generated'] },
     ],
-    remediationKB: [{ title: 'Troubleshooting Interface Flaps', relevance: 95, url: '#' }]
+    remediationKB: [{ title: 'Pattern-Based RCA: Interface Flap Sequence', relevance: 98, url: '#' }]
 };
 
 // Export a map for easy lookup
@@ -1234,17 +1243,17 @@ export const CLU_12349_Causes: ProbableCause[] = [
 export const CLU_NET_004_Causes: ProbableCause[] = [
     {
         id: 'RCA-NET-004-A',
-        title: 'Pattern Match: Congestion Before Flap',
-        description: 'The system recognized a known behavioral pattern where sustained congestion (>90% utilization) and queue drops precede a link flap. This signature strongly indicates hardware buffer exhaustion or backplane saturation rather than a simple cable fault.',
+        title: 'Pattern Match: Interface Flap Sequence',
+        description: 'High-confidence match of the 5-phase degradation lifecycle (link util → Buffer util → CRC Errors → Loss → Flap). This behavioral fingerprint indicates a systemic buffer-to-physical layer collapse rather than isolated hardware failure.',
         confidence: 0.99,
         severity: 'Critical',
-        occurrenceCount: 3,
-        tags: ['Pattern Match', 'Hardware', 'Congestion']
+        occurrenceCount: 7,
+        tags: ['Pattern Match', 'Complex Sequence', 'Buffer Saturation']
     },
     {
         id: 'RCA-NET-004-B',
-        title: 'Cable/Transceiver Fault',
-        description: 'Physical layer degradation could explain the link flap, but is less likely to cause the specific pre-cursor sequence of congestion and drops unless associated with significant error correction load.',
+        title: 'Physical Layer / Transceiver Fault',
+        description: 'Physical degradation of the SFP or cable. While possible, the absence of early-stage link instability signatures makes this less likely than the recognized congestion-driven pattern.',
         confidence: 0.15,
         severity: 'Major'
     }

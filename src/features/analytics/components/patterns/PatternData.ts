@@ -231,31 +231,36 @@ const generateQoeData = (variation: number = 1) => {
 export const MOCK_PATTERNS: Pattern[] = [
     {
         id: 'P-Con-01',
-        name: 'Interface Flap pattern',
-        description: 'Link Util ↑ | Buffer Util ↑ | CRC Errors ↑ |\n PACKET_LOSS / INTERFACE_FLAP ',
-        confidence: 0.92,
+        name: 'Interface Flap Sequence',
+        description: 'Link Util ↑ | Buffer Saturation ↑ | CRC Errors ↑ |\n PACKET_LOSS / INTERFACE_FLAP ',
+        confidence: 0.99,
         seenCount: 7,
         lastSeen: '2 hours ago',
         domain: 'Network',
         appliesTo: ['Routers', 'Switches'],
         status: 'Enabled',
-        severity: 'Major',
-        tags: ['Congestion', 'Predictive', 'Interface'],
+        severity: 'Critical',
+        tags: ['Congestion', 'Predictive', 'Interface', 'Pattern Match'],
         steps: [
-            { id: 'S1', name: 'Link Util', description: '50% -> 90%', icon: TrendingUp, delay: '~12m' },
-            { id: 'S2', name: 'Buffer Util', description: 'cross 80%', icon: Database, delay: '+4m' },
-            { id: 'S3', name: 'CRC Error', description: 'cross 70%', icon: AlertTriangle, delay: '+2m' },
-            { id: 'S4', name: 'Critical Breach', description: 'PACKET_LOSS / INTERFACE_FLAP', icon: Activity, delay: '(FINAL)' }
+            { id: 'S1', name: 'Link Util', description: 'cross 90%', icon: TrendingUp, delay: '~min' },
+            { id: 'S2', name: 'Buffer Saturation', description: 'cross 85%', icon: Database, delay: '+~min' },
+            { id: 'S3', name: 'CRC Errors', description: 'cross 70%', icon: AlertTriangle, delay: '+~min' },
+            { id: 'S4', name: 'Packet Loss', description: 'cross 5%', icon: Activity, delay: '+~min' },
+            { id: 'S5', name: 'Critical Breach', description: 'INTERFACE_FLAP', icon: ShieldCheck, delay: '(FINAL)' }
         ],
         logicSummary: 'Saturation-to-Failure Sequence:',
         logicSteps: [
             { order: 1, title: 'Traffic Overload', description: 'Util ↑', color: 'blue' },
             { order: 2, title: 'Buffer Saturation', description: 'Buffer Util ↑', color: 'amber' },
-            { order: 3, title: 'Connection Collapse', description: 'Drops ↑', color: 'red' }
+            { order: 3, title: 'Physical Layer Errors', description: 'CRC Errors ↑', color: 'amber' },
+            { order: 4, title: 'Packet Loss', description: 'Discards ↑', color: 'amber' },
+            { order: 5, title: 'Connection Collapse', description: 'Link Flap', color: 'red' }
         ],
         predictedEvents: [
-            { name: 'PACKET LOSS', probability: 0.55, severity: 'High', title: 'Predicted Event', subtitle: 'Random Forest Accuracy' },
-            { name: 'LINK_FLAP', probability: 0.90, severity: 'Medium', title: 'Predicted Event', subtitle: 'Random Forest Accuracy' }
+            { name: 'BUFFER_SATURATION', probability: 0.95, severity: 'High', title: 'Threshold Breach', subtitle: 'Buffer Exhaustion' },
+            { name: 'CRC_ERRORS', probability: 0.88, severity: 'High', title: 'PHY Alarm', subtitle: 'Signal Instability' },
+            { name: 'PACKET LOSS', probability: 0.82, severity: 'High', title: 'Predicted Event', subtitle: 'Accuracy 91%' },
+            { name: 'INTERFACE_FLAP', probability: 0.99, severity: 'Critical', title: 'Predicted Outage', subtitle: 'Accuracy 99%' }
         ],
         drillDownMetrics: [
             { label: 'Utilization', value: 'Gradual rise from ~50% → ~90%', icon: 'trending', color: 'blue' },

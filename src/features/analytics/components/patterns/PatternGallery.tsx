@@ -110,16 +110,22 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                                             })}
 
                                             {/* Predicted Outcomes */}
-                                            {pattern.predictedEvents.map((evt, idx) => (
-                                                <div key={`out-${idx}`} className="flex items-center gap-1.5">
-                                                    <span className={`font-bold lowercase ${idx === pattern.predictedEvents.length - 1 ? 'text-rose-400' : 'text-sky-400'}`}>
-                                                        {evt.name.replace(' ', '_')}
-                                                    </span>
-                                                    {idx < pattern.predictedEvents.length - 1 && (
-                                                        <span className="text-primary/50 font-bold">{'->'}</span>
-                                                    )}
-                                                </div>
-                                            ))}
+                                            {pattern.predictedEvents.map((evt, idx) => {
+                                                const isLast = idx === pattern.predictedEvents.length - 1;
+                                                // All intermediate predicted events should be orange
+                                                const textColor = isLast ? 'text-rose-400' : 'text-orange-400';
+
+                                                return (
+                                                    <div key={`out-${idx}`} className="flex items-center gap-1.5">
+                                                        <span className={`font-bold lowercase ${textColor}`}>
+                                                            {evt.name.replace(' ', '_')}
+                                                        </span>
+                                                        {idx < pattern.predictedEvents.length - 1 && (
+                                                            <span className="text-primary/50 font-bold">{'->'}</span>
+                                                        )}
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     </TableCell>
                                     <TableCell className="align-middle py-1">

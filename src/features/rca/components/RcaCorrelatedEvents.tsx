@@ -18,9 +18,9 @@ const getCorrelationStrategy = (reason: string) => {
     if (reason.includes("Topological Correlation")) return "Topological Correlation";
     if (reason.includes("Spatial Correlation")) return "Spatial Correlation";
     if (reason.includes("Rule-Based Correlation")) return "Rule-Based Correlation";
-    if (reason.includes("GNN-Based Correlation")) return "GNN-Based Correlation (Advanced)";
+    if (reason.includes("Pattern-Based Correlation")) return "Pattern-Based Correlation";
 
-    return 'GNN-Based Correlation (Advanced)';
+    return 'Pattern-Based Correlation';
 };
 
 const getCorrelationExplanation = (reason: string, event?: any) => {
@@ -50,9 +50,9 @@ const getCorrelationExplanation = (reason: string, event?: any) => {
             return "Events satisfy spatial constraint S(e1, e2) = 1 (Same Host/Rack). Co-location increases joint probability of failure.";
         case "Rule-Based Correlation":
             return "Matches expert system rule heuristics rule_id: R-1024 'Resource Exhaustion Pattern'. Confidence score derived from rule antecedent match strength.";
-        case "GNN-Based Correlation (Advanced)":
+        case "Pattern-Based Correlation":
         default:
-            return "Graph Neural Network model (GATv2) predicts link with confidence 0.95. Embedding similarity cosine_sim(v_a, v_b) = 0.88.";
+            return "Pattern recognition engine identifies high-confidence sequence match (0.95). Sequence alignment score = 0.88.";
     }
     return reason;
 };

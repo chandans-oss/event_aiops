@@ -669,12 +669,20 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                             <div className="flex-1 flex flex-col items-center">
                                                                 {/* The Block Div */}
                                                                 <div className={`w-full border border-border/40 rounded-lg p-3 min-h-[60px] flex flex-col justify-center transition-all hover:bg-muted/5 group ${isOutcome ? 'bg-primary/5 border-primary/20' : 'bg-card/30'}`}>
-                                                                    <div className="text-[11px] font-bold text-foreground uppercase tracking-tight text-center truncate w-full">
-                                                                        {item.name}
+                                                                    <div className={`text-[13px] font-bold uppercase tracking-tight text-center truncate w-full ${(() => {
+                                                                        if (!isOutcome) return 'text-foreground';
+                                                                        if (idx === allFlowItems.length - 1) return 'text-rose-400';
+                                                                        // Use orange for all intermediate predicted events
+                                                                        return 'text-orange-400';
+                                                                    })()}`}>
+                                                                        {item.name.replace(' ', '_').toLowerCase()}
+                                                                        {!isOutcome && /util|rise|spike|up|cross|error|discard|drop/i.test(item.name + item.description) && (
+                                                                            <span className="text-rose-500 ml-1">↑</span>
+                                                                        )}
                                                                     </div>
-                                                                    {item.description && (
-                                                                        <div className="text-[10px] text-blue-400 font-bold text-center mt-1">
-                                                                            ({item.description})
+                                                                    {item.description && !isOutcome && (
+                                                                        <div className="text-[11px] text-blue-300/90 font-mono font-bold text-center mt-1">
+                                                                            {item.description.replace('cross', '>')}
                                                                         </div>
                                                                     )}
                                                                 </div>
@@ -682,22 +690,22 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                                 {/* Timing Pill & Connection at Bottom */}
                                                                 {idx < allFlowItems.length - 1 && (
                                                                     <div className="relative w-full h-10 flex items-center mt-2">
-                                                                        <div className="absolute left-[85%] translate-x-1/2 flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border border-border/40 bg-muted/20 backdrop-blur-sm whitespace-nowrap z-10">
-                                                                            <Clock className="h-2.5 w-2.5 text-primary/40" />
-                                                                            <span className="text-[9px] font-bold text-primary/70 uppercase">
+                                                                        <div className={`absolute left-[85%] translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full border backdrop-blur-sm whitespace-nowrap z-10 ${allFlowItems[idx + 1].delay === '(EVENT)' ? 'border-red-500/40 bg-red-500/10' : 'border-primary/30 bg-primary/5'}`}>
+                                                                            <Clock className={`h-3 w-3 ${allFlowItems[idx + 1].delay === '(EVENT)' ? 'text-red-500/60' : 'text-primary/50'}`} />
+                                                                            <span className={`text-[10px] font-bold uppercase ${allFlowItems[idx + 1].delay === '(EVENT)' ? 'text-red-400' : 'text-primary/80'}`}>
                                                                                 {allFlowItems[idx + 1].delay}
                                                                             </span>
                                                                         </div>
                                                                         {/* Joining line */}
-                                                                        <div className="w-[120%] h-[1px] bg-muted-foreground/10" />
+                                                                        <div className="w-[120%] h-[1px] bg-primary/10" />
                                                                     </div>
                                                                 )}
                                                             </div>
 
                                                             {/* Centered Arrow Flow */}
                                                             {idx < allFlowItems.length - 1 && (
-                                                                <div className="flex items-center justify-center h-[60px] opacity-40">
-                                                                    <ArrowRight className="w-4 h-4 text-muted-foreground" />
+                                                                <div className="flex items-center justify-center h-[60px] opacity-60">
+                                                                    <ArrowRight className="w-5 h-5 text-primary/60" />
                                                                 </div>
                                                             )}
                                                         </Fragment>
