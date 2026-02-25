@@ -95,50 +95,63 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                                     </TableCell>
                                     <TableCell className="py-2">
                                         <div className="flex flex-wrap items-center gap-y-1.5 gap-x-2 px-3 py-1.5 font-mono text-[12px]">
-                                            {/* Behavioral Steps */}
-                                            {pattern.steps.filter(s => s.name !== 'Critical Breach').map((step, idx) => {
-                                                const isRising = /util|rise|spike|up|cross|error|discard|drop|loss|mismatch|flapping/i.test(step.name + step.description);
-                                                const isFailure = /flap|down|reboot|withdrawal|collapse|breach|outage|unresponsive|sla/i.test(step.name) && !/flapping/i.test(step.name);
-                                                const isCritical = /loss|drop|jitter|latency|timeout|intermittent|missed|flapping|mismatch/i.test(step.name);
-
-                                                let textColor = 'text-indigo-200/90';
-                                                if (isFailure) textColor = 'text-rose-400 font-bold';
-                                                else if (isCritical) textColor = 'text-orange-400 font-bold';
+                                            {(() => {
+                                                const visibleSteps = pattern.steps.filter(s => s.name !== 'Critical Breach');
+                                                const visibleOutcomes = pattern.predictedEvents.filter(evt =>
+                                                    !pattern.steps.some(s => s.name.toLowerCase() === evt.name.replace('_', ' ').toLowerCase())
+                                                );
 
                                                 return (
-                                                    <div key={`step-${idx}`} className="flex items-center gap-1.5">
-                                                        <span className={`${textColor} lowercase`}>
-                                                            {step.name.replace(' ', '_')}
-                                                            {isRising && <span className="text-rose-500 font-bold ml-0.5">↑</span>}
-                                                        </span>
-                                                        <span className="text-primary/50 font-bold">{'->'}</span>
-                                                    </div>
+                                                    <>
+                                                        {/* Behavioral Steps */}
+                                                        {visibleSteps.map((step, idx) => {
+                                                            const isRising = /util|rise|spike|up|cross|error|discard|drop|loss|mismatch|flapping/i.test(step.name + step.description);
+                                                            const isFailure = /flap|down|reboot|withdrawal|collapse|breach|outage|unresponsive|sla/i.test(step.name) && !/flapping/i.test(step.name);
+                                                            const isCritical = /loss|drop|jitter|latency|timeout|intermittent|missed|flapping|mismatch/i.test(step.name);
+
+                                                            let textColor = 'text-indigo-200/90';
+                                                            if (isFailure) textColor = 'text-rose-400 font-bold';
+                                                            else if (isCritical) textColor = 'text-orange-400 font-bold';
+
+                                                            const isAbsoluteLast = idx === visibleSteps.length - 1 && visibleOutcomes.length === 0;
+
+                                                            return (
+                                                                <div key={`step-${idx}`} className="flex items-center gap-1.5">
+                                                                    <span className={`${textColor} lowercase`}>
+                                                                        {step.name.replace(' ', '_')}
+                                                                        {isRising && <span className="text-rose-500 font-bold ml-0.5">↑</span>}
+                                                                    </span>
+                                                                    {!isAbsoluteLast && (
+                                                                        <span className="text-primary/50 font-bold">{'->'}</span>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+
+                                                        {/* Predicted Outcomes */}
+                                                        {visibleOutcomes.map((evt, idx) => {
+                                                            const isLastOutcome = idx === visibleOutcomes.length - 1;
+                                                            const isFailure = /flap|down|reboot|withdrawal|collapse|breach|outage|unresponsive|sla/i.test(evt.name) && !/flapping/i.test(evt.name);
+                                                            const isCritical = /loss|drop|jitter|latency|timeout|intermittent|missed|flapping|mismatch/i.test(evt.name);
+
+                                                            let textColor = 'text-indigo-200/90';
+                                                            if (isFailure || isLastOutcome) textColor = 'text-rose-400 font-bold';
+                                                            else if (isCritical) textColor = 'text-orange-400 font-bold';
+
+                                                            return (
+                                                                <div key={`out-${idx}`} className="flex items-center gap-1.5">
+                                                                    <span className={`font-bold lowercase ${textColor}`}>
+                                                                        {evt.name.replace(' ', '_')}
+                                                                    </span>
+                                                                    {!isLastOutcome && (
+                                                                        <span className="text-primary/50 font-bold">{'->'}</span>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </>
                                                 );
-                                            })}
-
-                                            {/* Predicted Outcomes */}
-                                            {pattern.predictedEvents
-                                                .filter(evt => !pattern.steps.some(s => s.name.toLowerCase() === evt.name.replace('_', ' ').toLowerCase()))
-                                                .map((evt, idx) => {
-                                                    const isLast = idx === pattern.predictedEvents.length - 1;
-                                                    const isFailure = /flap|down|reboot|withdrawal|collapse|breach|outage|unresponsive|sla/i.test(evt.name) && !/flapping/i.test(evt.name);
-                                                    const isCritical = /loss|drop|jitter|latency|timeout|intermittent|missed|flapping|mismatch/i.test(evt.name);
-
-                                                    let textColor = 'text-indigo-200/90';
-                                                    if (isFailure || isLast) textColor = 'text-rose-400 font-bold';
-                                                    else if (isCritical) textColor = 'text-orange-400 font-bold';
-
-                                                    return (
-                                                        <div key={`out-${idx}`} className="flex items-center gap-1.5">
-                                                            <span className={`font-bold lowercase ${textColor}`}>
-                                                                {evt.name.replace(' ', '_')}
-                                                            </span>
-                                                            {idx < pattern.predictedEvents.length - 1 && (
-                                                                <span className="text-primary/50 font-bold">{'->'}</span>
-                                                            )}
-                                                        </div>
-                                                    );
-                                                })}
+                                            })()}
                                         </div>
                                     </TableCell>
                                     <TableCell className="align-middle py-1">
