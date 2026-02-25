@@ -32,7 +32,7 @@ export const sampleNetworkEvents: NetworkEvent[] = [
     event_id: 'EVT-NET-004-1',
     device: 'Dist-Switch-02',
     event_code: 'LINK_CONGESTION',
-    timestamp: '2026-02-18T08:00:00Z',
+    timestamp: '2026-02-25T08:00:00Z',
     severity: 'Critical',
     metric: 'utilization',
     value: '98',
@@ -45,15 +45,15 @@ export const sampleNetworkEvents: NetworkEvent[] = [
     clusterId: 'CLU-NET-004',
     classificationReason: {
       rule: 'Pattern Match',
-      description: 'Matched Pattern: Interface Flap Sequence (Congestion → Saturation → Errors → Loss → Flap)',
+      description: 'Matched Pattern: Interface Flap Pattern (Congestion → Saturation → Errors → Loss → Flap)',
       confidence: 0.99
     }
   },
   {
     event_id: 'EVT-NET-004-2',
     device: 'Dist-Switch-02',
-    event_code: 'BUFFER_SATURATION',
-    timestamp: '2026-02-18T08:05:00Z',
+    event_code: 'BUFFER_UTILIZATION',
+    timestamp: '2026-02-25T08:05:00Z',
     severity: 'Major',
     metric: 'buffer_util',
     value: '85%',
@@ -70,7 +70,7 @@ export const sampleNetworkEvents: NetworkEvent[] = [
     event_id: 'EVT-NET-004-3',
     device: 'Dist-Switch-02',
     event_code: 'CRC_ERRORS',
-    timestamp: '2026-02-18T08:06:00Z',
+    timestamp: '2026-02-25T08:06:00Z',
     severity: 'Major',
     metric: 'errors',
     value: '1200',
@@ -87,7 +87,7 @@ export const sampleNetworkEvents: NetworkEvent[] = [
     event_id: 'EVT-NET-004-4',
     device: 'Dist-Switch-02',
     event_code: 'PACKET_LOSS',
-    timestamp: '2026-02-18T08:07:00Z',
+    timestamp: '2026-02-25T08:07:00Z',
     severity: 'Critical',
     metric: 'drops',
     value: '5%',
@@ -104,7 +104,7 @@ export const sampleNetworkEvents: NetworkEvent[] = [
     event_id: 'EVT-NET-004-5',
     device: 'Dist-Switch-02',
     event_code: 'INTERFACE_FLAP',
-    timestamp: '2026-02-18T08:08:00Z',
+    timestamp: '2026-02-25T08:08:00Z',
     severity: 'Critical',
     metric: 'state',
     value: 'Down',
@@ -119,15 +119,15 @@ export const sampleNetworkEvents: NetworkEvent[] = [
   },
 
   // --- Other Root Causes (Reduced to fulfill 6 total Root events max) ---
-  { event_id: 'EVT-LC-010', device: 'core-router-dc1', event_code: 'LINK_CONGESTION', timestamp: '2025-10-28T14:30:00Z', severity: 'Critical', metric: 'utilization', value: '96', site: 'DC1', region: 'NA', rack: 'R3', message: 'Gi0/1/0 interface congestion - 96% utilization', label: 'Root', status: 'Active', clusterId: 'CLU-LC-001' },
-  { event_id: 'EVT-001', device: 'db-server-01', event_code: 'DB_CONNECTION_FAILED', timestamp: '2026-01-05T14:30:00Z', severity: 'Critical', metric: 'connections', value: '100', site: 'DC1', region: 'NA', rack: 'S1', message: 'Database connection pool exhausted', label: 'Root', status: 'Active', clusterId: 'CLU-12345' },
-  { event_id: 'evt_011', device: 'Core-R2', event_code: 'POWER_SUPPLY_FAIL', timestamp: '2025-12-26T10:02:00Z', severity: 'Critical', metric: '', value: '', site: 'DC2', region: 'NA', rack: 'R2', message: 'PSU-1 failed', label: 'Root', status: 'Active', clusterId: 'CLU-003' },
-  { event_id: 'EVT-020', device: 'router-dc-east-01', event_code: 'NETWORK_LATENCY', timestamp: '2026-02-15T12:00:00Z', severity: 'Major', metric: 'latency', value: '500ms', site: 'DC-East', region: 'NA', rack: 'R10', message: 'BGP route flapping detected', label: 'Root', status: 'Active', clusterId: 'CLU-12347' },
-  { event_id: 'EVT-030', device: 'app-server-05', event_code: 'MEMORY_EXHAUSTION', timestamp: '2026-02-15T10:45:00Z', severity: 'Critical', metric: 'heap_usage', value: '98', site: 'DC1', region: 'NA', rack: 'R10', message: 'JVM heap exhausted - 7.8GB/8GB used', label: 'Root', status: 'Active', clusterId: 'CLU-12348' },
+  { event_id: 'EVT-LC-010', device: 'core-router-dc1', event_code: 'LINK_CONGESTION', timestamp: new Date(Date.now() - (12 * 3600000)).toISOString(), severity: 'Critical', metric: 'utilization', value: '96', site: 'DC1', region: 'NA', rack: 'R3', message: 'Gi0/1/0 interface congestion - 96% utilization', label: 'Root', status: 'Active', clusterId: 'CLU-LC-001' },
+  { event_id: 'EVT-001', device: 'db-server-01', event_code: 'DB_CONNECTION_FAILED', timestamp: new Date(Date.now() - (5 * 3600000)).toISOString(), severity: 'Critical', metric: 'connections', value: '100', site: 'DC1', region: 'NA', rack: 'S1', message: 'Database connection pool exhausted', label: 'Root', status: 'Active', clusterId: 'CLU-12345' },
+  { event_id: 'evt_011', device: 'Core-R2', event_code: 'POWER_SUPPLY_FAIL', timestamp: new Date(Date.now() - (24 * 3600000)).toISOString(), severity: 'Critical', metric: '', value: '', site: 'DC2', region: 'NA', rack: 'R2', message: 'PSU-1 failed', label: 'Root', status: 'Active', clusterId: 'CLU-003' },
+  { event_id: 'EVT-020', device: 'router-dc-east-01', event_code: 'NETWORK_LATENCY', timestamp: '2026-02-25T06:00:00Z', severity: 'Major', metric: 'latency', value: '500ms', site: 'DC-East', region: 'NA', rack: 'R10', message: 'BGP route flapping detected', label: 'Root', status: 'Active', clusterId: 'CLU-12347' },
+  { event_id: 'EVT-030', device: 'app-server-05', event_code: 'MEMORY_EXHAUSTION', timestamp: '2026-02-25T04:45:00Z', severity: 'Critical', metric: 'heap_usage', value: '98', site: 'DC1', region: 'NA', rack: 'R10', message: 'JVM heap exhausted - 7.8GB/8GB used', label: 'Root', status: 'Active', clusterId: 'CLU-12348' },
 
   // --- Supporting Child Events ---
-  { event_id: 'EVT-LC-009', device: 'core-router-dc1', event_code: 'PACKET_DISCARD', timestamp: '2025-10-28T14:30:00Z', severity: 'Critical', metric: 'drops', value: '500', site: 'DC1', region: 'NA', rack: 'R3', message: 'Output discards on Gi0/1/0', label: 'Child', status: 'Active', clusterId: 'CLU-LC-001' },
-  { event_id: 'EVT-002', device: 'api-gateway-01', event_code: 'API_TIMEOUT', timestamp: '2026-01-05T14:30:03Z', severity: 'Major', metric: '', value: '', site: 'DC1', region: 'NA', rack: 'R7', message: 'API timeout - upstream service unavailable', label: 'Child', status: 'Active', clusterId: 'CLU-12345' },
+  { event_id: 'EVT-LC-009', device: 'core-router-dc1', event_code: 'PACKET_DISCARD', timestamp: new Date(Date.now() - (12 * 3600000 + 300000)).toISOString(), severity: 'Critical', metric: 'drops', value: '500', site: 'DC1', region: 'NA', rack: 'R3', message: 'Output discards on Gi0/1/0', label: 'Child', status: 'Active', clusterId: 'CLU-LC-001' },
+  { event_id: 'EVT-002', device: 'api-gateway-01', event_code: 'API_TIMEOUT', timestamp: new Date(Date.now() - (5 * 3600000 + 60000)).toISOString(), severity: 'Major', metric: '', value: '', site: 'DC1', region: 'NA', rack: 'R7', message: 'API timeout - upstream service unavailable', label: 'Child', status: 'Active', clusterId: 'CLU-12345' },
 
   // --- Bulk Non-Root Data ---
   ...Array.from({ length: 40 }).map((_, i) => ({

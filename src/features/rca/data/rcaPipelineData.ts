@@ -8,7 +8,7 @@ export const orchestrationStep = {
   input: {
     label: 'NMS Trigger Event',
     data: {
-      timestamp: '2025-10-28T14:30:00Z',
+      timestamp: new Date(Date.now() - 3600000).toISOString(),
       device: 'core-router-dc1',
       alarm_id: 'ALARM-12345',
       resource_name: 'Gi0/1/0',
@@ -39,14 +39,14 @@ export const orchestrationStep = {
       },
       logs: [
         'High interface utilization detected on Gi0/0/0',
-        'Device: core-router-dc1 | Timestamp: 2025-10-28T14:20:00Z | Message: Backup job started on agent-server-01 and tail drop observed',
-        'Device: core-router-dc1 | Timestamp: 2025-10-28T14:21:30Z | Message: Backup traffic detected on Gi0/1/0 (source: agent-server-01, destination: backup-server-02)',
-        'Device: core-router-dc1 | Timestamp: 2025-10-28T14:25:00Z | Message: Interface Gi0/1/0 output queue full',
-        'Device: core-router-dc1 | Timestamp: 2025-10-28T14:30:00Z | Message: CPU utilization crossed 85% threshold',
-        'Device: core-router-dc1 | Timestamp: 2025-10-28T14:28:00Z | Message: Interface Gi0/1/1 link status: up, duplex: full, speed: 1Gbps',
-        'Device: core-router-dc1 | Timestamp: 2025-10-28T14:30:00Z | Message: Normal packet forwarding observed on Gi0/1/1'
+        `Device: core-router-dc1 | Timestamp: ${new Date(Date.now() - 4200000).toISOString()} | Message: Backup job started on agent-server-01 and tail drop observed`,
+        `Device: core-router-dc1 | Timestamp: ${new Date(Date.now() - 4110000).toISOString()} | Message: Backup traffic detected on Gi0/1/0 (source: agent-server-01, destination: backup-server-02)`,
+        `Device: core-router-dc1 | Timestamp: ${new Date(Date.now() - 3900000).toISOString()} | Message: Interface Gi0/1/0 output queue full`,
+        `Device: core-router-dc1 | Timestamp: ${new Date(Date.now() - 3600000).toISOString()} | Message: CPU utilization crossed 85% threshold`,
+        `Device: core-router-dc1 | Timestamp: ${new Date(Date.now() - 3720000).toISOString()} | Message: Interface Gi0/1/1 link status: up, duplex: full, speed: 1Gbps`,
+        `Device: core-router-dc1 | Timestamp: ${new Date(Date.now() - 3600000).toISOString()} | Message: Normal packet forwarding observed on Gi0/1/1`
       ],
-      timestamp: '2025-10-28T14:30:00Z',
+      timestamp: new Date(Date.now() - 3600000).toISOString(),
       goal: 'Investigate interface Gi0/1/0 queue full and high CPU utilization on core-router-dc1 possibly related to the Backup job processing traffic.'
     }
   }
@@ -123,8 +123,8 @@ export const hypothesisScoringStep = {
           log_score: 0.6,
           total_score: 1.5,
           matched_logs: [
-            'Device: core-router-dc1 | Timestamp: 2025-10-28T14:20:00Z | Message: Backup job started on agent-server-01 and tail drop observed',
-            'Device: core-router-dc1 | Timestamp: 2025-10-28T14:25:00Z | Message: Interface Gi0/1/0 output queue full'
+            `Device: core-router-dc1 | Timestamp: ${new Date(Date.now() - 4200000).toISOString()} | Message: Backup job started on agent-server-01 and tail drop observed`,
+            `Device: core-router-dc1 | Timestamp: ${new Date(Date.now() - 3900000).toISOString()} | Message: Interface Gi0/1/0 output queue full`
           ]
         },
         {
@@ -134,8 +134,8 @@ export const hypothesisScoringStep = {
           log_score: 0.3,
           total_score: 1.1,
           matched_logs: [
-            'Device: core-router-dc1 | Timestamp: 2025-10-28T14:20:00Z | Message: Backup job started on agent-server-01 and tail drop observed',
-            'Device: core-router-dc1 | Timestamp: 2025-10-28T14:21:30Z | Message: Backup traffic detected on Gi0/1/0 (source: agent-server-01, destination: backup-server-02)'
+            `Device: core-router-dc1 | Timestamp: ${new Date(Date.now() - 4200000).toISOString()} | Message: Backup job started on agent-server-01 and tail drop observed`,
+            `Device: core-router-dc1 | Timestamp: ${new Date(Date.now() - 4110000).toISOString()} | Message: Backup traffic detected on Gi0/1/0 (source: agent-server-01, destination: backup-server-02)`
           ]
         },
         {
@@ -297,7 +297,7 @@ export const dataCorrelationStep = {
     data: {
       retrieved_cases: [
         {
-          case_id: 'NET-2025-001',
+          case_id: 'NET-2026-001',
           intent: 'performance',
           rca: 'Unthrottled backup traffic saturated the link due to missing QoS policy, causing tail drops and increased CPU.',
           sim_score: 0.8667,
@@ -305,7 +305,7 @@ export const dataCorrelationStep = {
           sit_summary: 'Interface Gi0/1/0 shows 96% utilization and 500 output queue drops during nightly backup window.'
         },
         {
-          case_id: 'NET-2025-604',
+          case_id: 'NET-2026-604',
           intent: 'performance',
           rca: 'Real-time traffic competing with bulk traffic in class-default, causing congestion and drops in default queue.',
           sim_score: 0.8489,
@@ -313,7 +313,7 @@ export const dataCorrelationStep = {
           sit_summary: 'Link utilization peaks at 93% with QoS class-default drops during video conferencing.'
         },
         {
-          case_id: 'NET-2025-319',
+          case_id: 'NET-2026-319',
           intent: 'performance',
           rca: 'Unshaped application traffic saturating link, supported by high utilization and absence of DSCP marking.',
           sim_score: 0.8474,
@@ -321,7 +321,7 @@ export const dataCorrelationStep = {
           sit_summary: 'Sustained 92% utilization; latency spikes to 180ms. NetFlow shows unclassified bulk traffic.'
         },
         {
-          case_id: 'NET-2025-418',
+          case_id: 'NET-2026-418',
           intent: 'performance',
           rca: "Link oversubscription without traffic shaping, supported by utilization_percent > 90 and log 'tail drop'.",
           sim_score: 0.8471,
@@ -329,7 +329,7 @@ export const dataCorrelationStep = {
           sit_summary: "Utilization at 96%; output discards > 800/min. Logs: 'tail drop on Gi0/1/1'."
         },
         {
-          case_id: 'NET-2025-563',
+          case_id: 'NET-2026-563',
           intent: 'performance',
           rca: 'Interface congestion due to bursty traffic and lack of proper queue shaping.',
           sim_score: 0.8456,
@@ -337,7 +337,7 @@ export const dataCorrelationStep = {
           sit_summary: 'Sustained utilization above 92% with queue depth spikes and 750+ output drops during peak hours.'
         }
       ],
-      top_case: 'NET-2025-001',
+      top_case: 'NET-2026-001',
       average_similarity: 0.8481
     }
   }
@@ -364,10 +364,10 @@ export const rcaCorrelatorStep = {
         'Upgrade to a 10G link if necessary'
       ],
       evidence_used: [
-        { id: 'NET-2025-001', metric: 'utilization_percent', value: '96.0' },
-        { id: 'NET-2025-004', metric: 'out_discards', value: '500.0' },
-        { id: 'NET-2025-563', metric: 'out_discards', value: '750.0' },
-        { id: 'NET-2025-004', metric: 'utilization_percent', value: '85.0' }
+        { id: 'NET-2026-001', metric: 'utilization_percent', value: '96.0' },
+        { id: 'NET-2026-004', metric: 'out_discards', value: '500.0' },
+        { id: 'NET-2026-563', metric: 'out_discards', value: '750.0' },
+        { id: 'NET-2026-004', metric: 'utilization_percent', value: '85.0' }
       ],
       explanation: 'The combination of high CPU utilization (96%) and frequent queue discards indicates insufficient QoS policy enforcement, leading to congestion and traffic imbalance. Remedies include prioritizing backup traffic and adjusting QoS parameters to manage traffic flow.'
     }

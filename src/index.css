@@ -237,4 +237,33 @@
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted-foreground;
   }
+  /* Flow animation for topology lines */
+  .animate-flow {
+    animation: flow 2s linear infinite;
+  }
+
+  @keyframes flow {
+    from {
+      stroke-dashoffset: 32;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* Pulse glow for critical states */
+  .animate-pulse-glow {
+    animation: pulseGlowLarge 2s ease-in-out infinite;
+  }
+
+  @keyframes pulseGlowLarge {
+    0%, 100% {
+      box-shadow: 0 0 10px hsl(var(--severity-critical) / 0.3), inset 0 0 5px hsl(var(--severity-critical) / 0.2);
+      border-color: hsl(var(--severity-critical) / 0.5);
+    }
+    50% {
+      box-shadow: 0 0 30px hsl(var(--severity-critical) / 0.6), inset 0 0 15px hsl(var(--severity-critical) / 0.4);
+      border-color: hsl(var(--severity-critical) / 1);
+    }
+  }
 }

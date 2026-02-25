@@ -231,8 +231,8 @@ const generateQoeData = (variation: number = 1) => {
 export const MOCK_PATTERNS: Pattern[] = [
     {
         id: 'P-Con-01',
-        name: 'Interface Flap Sequence',
-        description: 'Link Util ↑ | Buffer Saturation ↑ | CRC Errors ↑ |\n PACKET_LOSS / INTERFACE_FLAP ',
+        name: 'Interface Flap Pattern',
+        description: 'Link Util ↑ | Buffer Util ↑ | CRC Errors ↑ |\n PACKET_LOSS / INTERFACE_FLAP ',
         confidence: 0.99,
         seenCount: 7,
         lastSeen: '2 hours ago',
@@ -243,7 +243,7 @@ export const MOCK_PATTERNS: Pattern[] = [
         tags: ['Congestion', 'Predictive', 'Interface', 'Pattern Match'],
         steps: [
             { id: 'S1', name: 'Link Util', description: 'cross 90%', icon: TrendingUp, delay: '~min' },
-            { id: 'S2', name: 'Buffer Saturation', description: 'cross 85%', icon: Database, delay: '+~min' },
+            { id: 'S2', name: 'Buffer Util', description: 'cross 85%', icon: Database, delay: '+~min' },
             { id: 'S3', name: 'CRC Errors', description: 'cross 70%', icon: AlertTriangle, delay: '+~min' },
             { id: 'S4', name: 'Packet Loss', description: 'cross 5%', icon: Activity, delay: '+~min' },
             { id: 'S5', name: 'Critical Breach', description: 'INTERFACE_FLAP', icon: ShieldCheck, delay: '(FINAL)' }
@@ -253,13 +253,10 @@ export const MOCK_PATTERNS: Pattern[] = [
             { order: 1, title: 'Traffic Overload', description: 'Util ↑', color: 'blue' },
             { order: 2, title: 'Buffer Saturation', description: 'Buffer Util ↑', color: 'amber' },
             { order: 3, title: 'Physical Layer Errors', description: 'CRC Errors ↑', color: 'amber' },
-            { order: 4, title: 'Packet Loss', description: 'Discards ↑', color: 'amber' },
+            { order: 4, title: 'Packet Loss', description: 'Loss ↑', color: 'amber' },
             { order: 5, title: 'Connection Collapse', description: 'Link Flap', color: 'red' }
         ],
         predictedEvents: [
-            { name: 'BUFFER_SATURATION', probability: 0.95, severity: 'High', title: 'Threshold Breach', subtitle: 'Buffer Exhaustion' },
-            { name: 'CRC_ERRORS', probability: 0.88, severity: 'High', title: 'PHY Alarm', subtitle: 'Signal Instability' },
-            { name: 'PACKET LOSS', probability: 0.82, severity: 'High', title: 'Predicted Event', subtitle: 'Accuracy 91%' },
             { name: 'INTERFACE_FLAP', probability: 0.99, severity: 'Critical', title: 'Predicted Outage', subtitle: 'Accuracy 99%' }
         ],
         drillDownMetrics: [
@@ -270,26 +267,26 @@ export const MOCK_PATTERNS: Pattern[] = [
         occurrences: [
             {
                 id: 'OCC-2026-001',
-                timestamp: 'Feb 19, 2026 02:43 PM',
+                timestamp: new Date(Date.now() - 3600000).toLocaleString(),
                 severity: 'Major',
                 summary: 'Full Sequence: Congestion to Flap',
                 outcomes: ['Packet Loss', 'Link Down', 'BGP Flap'],
                 metricData: generateCongestionData('High', 1),
                 events: [
                     {
-                        id: '260501197808', timestamp: 'Feb 19, 2026 02:40 PM',
+                        id: '260501197808', timestamp: 'Feb 25, 2026 02:40 PM',
                         title: 'High Utilization', subtitle: 'Traffic burst detected', severity: 'Warning',
                         nodeName: '111004203', nodeIp: '10.0.4.203', resource: 'Gi1/0/1',
                         alertValue: '85%', threshold: '> 80%'
                     },
                     {
-                        id: '260501197809', timestamp: 'Feb 19, 2026 02:41 PM',
+                        id: '260501197809', timestamp: 'Feb 25, 2026 02:41 PM',
                         title: 'Buffer Overflow', subtitle: 'Output queue drops', severity: 'Major',
                         nodeName: '111004203', nodeIp: '10.0.4.203', resource: 'Gi1/0/1',
                         alertValue: '1450', threshold: '> 1000'
                     },
                     {
-                        id: '260501197810', timestamp: 'Feb 19, 2026 02:43 PM',
+                        id: '260501197810', timestamp: 'Feb 25, 2026 02:43 PM',
                         title: 'Availability', subtitle: 'Interface Reset', severity: 'Critical',
                         nodeName: '111004203', nodeIp: '10.0.4.203', resource: 'Gi1/0/1',
                         alertValue: 'Down', threshold: 'State'
@@ -298,7 +295,7 @@ export const MOCK_PATTERNS: Pattern[] = [
             },
             {
                 id: 'OCC-2026-002',
-                timestamp: 'Feb 18, 2026 11:30 AM',
+                timestamp: new Date(Date.now() - 86400000).toLocaleString(),
                 severity: 'Warning',
                 summary: 'Partial: Saturation',
                 outcomes: ['High Latency', 'Jitter'],
@@ -320,7 +317,7 @@ export const MOCK_PATTERNS: Pattern[] = [
             },
             {
                 id: 'OCC-2026-003',
-                timestamp: 'Feb 17, 2026 09:15 AM',
+                timestamp: new Date(Date.now() - 172800000).toLocaleString(),
                 severity: 'Critical',
                 summary: 'Critical Failure: Buffer Overflow',
                 outcomes: ['Packet Loss', 'Service Degraded'],
@@ -382,7 +379,7 @@ export const MOCK_PATTERNS: Pattern[] = [
     {
         id: 'PAT-NET-002',
         name: 'BGP Connection Loss pattern',
-        description: 'CPU ↑ | BGP_STATE ↓ | ROUTE_WITHDRAWAL',
+        description: 'CPU UTIL↑ | BGP_STATE ↓ | ROUTE_WITHDRAWAL',
         confidence: 0.87,
         seenCount: 4,
         lastSeen: 'Yesterday',
@@ -392,7 +389,7 @@ export const MOCK_PATTERNS: Pattern[] = [
         severity: 'Critical',
         tags: ['BGP', 'Control Plane', 'CPU'],
         steps: [
-            { id: 'S1', name: 'CPU Spike', description: 'CPU ↑', icon: Cpu },
+            { id: 'S1', name: 'CPU Util', description: 'CPU Util↑', icon: Cpu },
             { id: 'S2', name: 'Keep-alive Missed', description: 'BGP_STATE ↓', icon: Activity, delay: '60s' },
             { id: 'S3', name: 'BGP Down', description: 'ROUTE_WITHDRAWAL', icon: Network }
         ],
@@ -403,7 +400,6 @@ export const MOCK_PATTERNS: Pattern[] = [
             { order: 3, title: 'Session Timeout', description: 'ROUTE_WITHDRAWAL', color: 'red' }
         ],
         predictedEvents: [
-            { name: 'BGP_SESSION_DOWN', probability: 0.92, severity: 'High', title: 'BGP Neighbor Down', subtitle: 'Peer Unreachable' },
             { name: 'ROUTE_WITHDRAWAL', probability: 0.88, severity: 'High', title: 'Route Withdrawal', subtitle: 'Prefixes Withdrawn' }
         ],
         drillDownMetrics: [
@@ -414,14 +410,14 @@ export const MOCK_PATTERNS: Pattern[] = [
         occurrences: [
             {
                 id: 'OCC-2026-050',
-                timestamp: 'Feb 14, 2026 10:00 AM',
+                timestamp: new Date(Date.now() - 259200000).toLocaleString(),
                 severity: 'Critical',
                 summary: 'Outage: Core-01 BGP Failure',
                 outcomes: ['BGP Session Down', 'Route Withdrawals'],
                 metricData: generateCpuData(95, 1),
                 events: [
                     {
-                        id: '260501199001', timestamp: 'Feb 14, 2026 10:00 AM',
+                        id: '260501199001', timestamp: new Date(Date.now() - 259200000 - 600000).toLocaleString(),
                         title: 'BGP Neighbor Change', subtitle: 'Neighbor 10.10.10.5 Down', severity: 'Critical',
                         nodeName: 'Core-01', nodeIp: '10.10.10.1', resource: 'bgp-100',
                         alertValue: 'Down', threshold: 'State != Established'
@@ -430,7 +426,7 @@ export const MOCK_PATTERNS: Pattern[] = [
             },
             {
                 id: 'OCC-2026-042',
-                timestamp: 'Feb 02, 2026 04:20 PM',
+                timestamp: new Date(Date.now() - 604800000).toLocaleString(),
                 severity: 'Critical',
                 summary: 'Repeated Flap: Core-02',
                 outcomes: ['BGP Flap', 'High CPU'],
@@ -439,7 +435,7 @@ export const MOCK_PATTERNS: Pattern[] = [
             },
             {
                 id: 'OCC-2026-039',
-                timestamp: 'Jan 28, 2026 11:00 AM',
+                timestamp: new Date(Date.now() - 1209600000).toLocaleString(),
                 severity: 'Major',
                 summary: 'Transient CPU Spike',
                 outcomes: ['High CPU'],
@@ -448,7 +444,7 @@ export const MOCK_PATTERNS: Pattern[] = [
             },
             {
                 id: 'OCC-2025-045',
-                timestamp: 'Oct 10, 2025 09:20 AM',
+                timestamp: new Date(Date.now() - 2592000000).toLocaleString(),
                 severity: 'Major',
                 summary: 'Previous CPU Anomaly',
                 outcomes: ['High CPU'],
@@ -460,7 +456,7 @@ export const MOCK_PATTERNS: Pattern[] = [
     },
     {
         id: 'P-Dev-CPU-01',
-        name: 'Node Failure pattern',
+        name: 'Device Reboot Pattern',
         description: 'CPU ↑ | STATUS_CHANGE | PING_LOSS ↑ | AVAILABILITY ↓',
         confidence: 0.88,
         seenCount: 9,
@@ -483,7 +479,6 @@ export const MOCK_PATTERNS: Pattern[] = [
             { order: 3, title: 'System Hang/Reboot', description: 'AVAILABILITY ↓', color: 'red' }
         ],
         predictedEvents: [
-            { name: 'DEVICE_UNREACHABLE', probability: 0.80, severity: 'Critical', title: 'Predicted Outage', subtitle: 'Strong Pattern Match' },
             { name: 'DEVICE_REBOOT', probability: 0.50, severity: 'Major', title: 'Predicted Reboot', subtitle: 'Watchdog trigger likely' }
         ],
         drillDownMetrics: [
@@ -494,7 +489,7 @@ export const MOCK_PATTERNS: Pattern[] = [
         occurrences: [
             {
                 id: 'OCC-2026-101',
-                timestamp: 'Feb 12, 2026 11:15 AM',
+                timestamp: new Date(Date.now() - 345600000).toLocaleString(),
                 severity: 'Critical',
                 summary: 'Core Router R3 Crash',
                 outcomes: ['Device Unreachable', 'Device Reboot'],
@@ -516,14 +511,14 @@ export const MOCK_PATTERNS: Pattern[] = [
             },
             ...Array.from({ length: 8 }).map((_, i) => ({
                 id: `OCC-2026-10${i + 2}`,
-                timestamp: `Feb ${11 - i}, 2026 10:00 AM`,
+                timestamp: new Date(Date.now() - (i + 5) * 86400000).toLocaleString(),
                 severity: 'Critical' as const,
                 summary: `Historical CPU Crash #${i + 1}`,
                 outcomes: ['Device Unreachable'],
                 metricData: generateCpuSaturation(1.1 + (i * 0.1)),
                 events: [
                     {
-                        id: `HYST_${i}1`, timestamp: `Feb ${11 - i}, 2026 09:50 AM`,
+                        id: `HYST_${i}1`, timestamp: new Date(Date.now() - (i + 5) * 86400000 - 3600000).toLocaleString(),
                         title: 'CPU Warning', subtitle: 'CPU > 80%', severity: 'Warning' as const,
                         nodeName: `Agg-Sw-0${i + 1}`, nodeIp: `10.1.${i}.1`, resource: 'System',
                         alertValue: '88%', threshold: '> 80%'
@@ -558,7 +553,6 @@ export const MOCK_PATTERNS: Pattern[] = [
             { order: 3, title: 'Carrier Loss', description: 'INTERFACE_FLAP', color: 'red' }
         ],
         predictedEvents: [
-            { name: 'INTERFACE_FLAP', probability: 0.70, severity: 'Medium', title: 'Predicted Flap', subtitle: 'Error rate critical' },
             { name: 'LINK_DOWN', probability: 0.60, severity: 'High', title: 'Predicted Outage', subtitle: 'Link failure imminent' }
         ],
         drillDownMetrics: [
@@ -569,20 +563,20 @@ export const MOCK_PATTERNS: Pattern[] = [
         occurrences: [
             {
                 id: 'OCC-2026-102',
-                timestamp: 'Feb 15, 2026 09:30 AM',
+                timestamp: new Date(Date.now() - 432000000).toLocaleString(),
                 severity: 'Major',
                 summary: 'S1-Eth2 Optics Failure',
                 outcomes: ['Interface Flap', 'Link Down'],
                 metricData: generateLinkPhysData(1.5),
                 events: [
                     {
-                        id: '99011X11', timestamp: 'Feb 15, 2026 09:20 AM',
+                        id: '99011X11', timestamp: new Date(Date.now() - 432000000 - 600000).toLocaleString(),
                         title: 'CRC Errors Rise', subtitle: 'Input Errors Spike', severity: 'Warning',
                         nodeName: 'Sw-Aggregation-01', nodeIp: '10.5.2.1', resource: 'Eth2',
                         alertValue: '120 cps', threshold: '> 50 cps'
                     },
                     {
-                        id: '99011X12', timestamp: 'Feb 15, 2026 09:28 AM',
+                        id: '99011X12', timestamp: new Date(Date.now() - 432000000 - 120000).toLocaleString(),
                         title: 'Interface Flapping', subtitle: 'Link state changing', severity: 'Major',
                         nodeName: 'Sw-Aggregation-01', nodeIp: '10.5.2.1', resource: 'Eth2',
                         alertValue: 'Flap', threshold: 'State Stability'
@@ -591,14 +585,14 @@ export const MOCK_PATTERNS: Pattern[] = [
             },
             ...Array.from({ length: 13 }).map((_, i) => ({
                 id: `OCC-OPTICS-${i}`,
-                timestamp: `Jan ${28 - i}, 2026 04:00 PM`,
+                timestamp: new Date(Date.now() - (i + 10) * 86400000).toLocaleString(),
                 severity: 'Major' as const,
                 summary: `Transceiver Decay #${i + 1}`,
                 outcomes: ['Interface Flap'],
                 metricData: generateLinkPhysData(1.2 + (i * 0.05)),
                 events: [
                     {
-                        id: `HYST_OPT_${i}1`, timestamp: `Jan ${28 - i}, 2026 03:45 PM`,
+                        id: `HYST_OPT_${i}1`, timestamp: new Date(Date.now() - (i + 10) * 86400000 - 900000).toLocaleString(),
                         title: 'CRC Errors', subtitle: 'Physical degradation', severity: 'Warning' as const,
                         nodeName: `PE-Router-0${(i % 5) + 1}`, nodeIp: `10.20.${i}.1`, resource: `xe-0/0/${i}`,
                         alertValue: 'Rising', threshold: '> 0 cps'
@@ -633,7 +627,6 @@ export const MOCK_PATTERNS: Pattern[] = [
             { order: 3, title: 'Tail Drop Failures', description: 'PACKET_LOSS', color: 'red' }
         ],
         predictedEvents: [
-            { name: 'PACKET_LOSS', probability: 0.85, severity: 'High', title: 'Predicted Drops', subtitle: 'Processing limits reached' },
             { name: 'FIREWALL_UNRESPONSIVE', probability: 0.55, severity: 'Critical', title: 'Predicted Isolation', subtitle: 'Total control plane freeze' }
         ],
         drillDownMetrics: [
@@ -644,14 +637,14 @@ export const MOCK_PATTERNS: Pattern[] = [
         occurrences: [
             {
                 id: 'OCC-2026-103',
-                timestamp: 'Feb 10, 2026 14:00 PM',
+                timestamp: new Date(Date.now() - 1296000000).toLocaleString(),
                 severity: 'Critical',
                 summary: 'Edge FW Session Exhaustion',
                 outcomes: ['Packet Loss', 'High Latency'],
                 metricData: generateFwLoadData(1.2),
                 events: [
                     {
-                        id: 'FW_EV_01', timestamp: 'Feb 10, 2026 13:58 PM',
+                        id: 'FW_EV_01', timestamp: new Date(Date.now() - 1296000000 - 120000).toLocaleString(),
                         title: 'Packet Drop', subtitle: 'Buffer Exhaustion', severity: 'Critical' as const,
                         nodeName: 'Edge-FW-01', nodeIp: '192.168.254.1', resource: 'DataPlane',
                         alertValue: '1500 pps', threshold: '> 0 pps'
@@ -660,14 +653,14 @@ export const MOCK_PATTERNS: Pattern[] = [
             },
             ...Array.from({ length: 5 }).map((_, i) => ({
                 id: `OCC-FW-${i}`,
-                timestamp: `Jan ${15 - i}, 2026 11:00 AM`,
+                timestamp: new Date(Date.now() - (i + 15) * 86400000).toLocaleString(),
                 severity: 'Critical' as const,
                 summary: `Firewall Overload #${i + 1}`,
                 outcomes: ['Packet Loss'],
                 metricData: generateFwLoadData(1.0 + (i * 0.2)),
                 events: [
                     {
-                        id: `FW_EV_1${i}`, timestamp: `Jan ${15 - i}, 2026 10:55 AM`,
+                        id: `FW_EV_1${i}`, timestamp: new Date(Date.now() - (i + 15) * 86400000 - 300000).toLocaleString(),
                         title: 'High CPU', subtitle: 'Data Plane 99%', severity: 'Critical' as const,
                         nodeName: `DC-FW-0${i % 2 + 1}`, nodeIp: `172.16.0.${i}`, resource: 'CPU1',
                         alertValue: '99%', threshold: '> 90%'
@@ -690,15 +683,15 @@ export const MOCK_PATTERNS: Pattern[] = [
         severity: 'Warning',
         tags: ['Jitter', 'QoE', 'SLA', 'VoIP'],
         steps: [
-            { id: 'S1', name: 'Jitter Increases', description: 'JITTER ↑', icon: Activity },
+            { id: 'S1', name: 'Utilization Near Threshold', description: 'UTIL ↑', icon: Database },
             { id: 'S2', name: 'Latency Variance Rise', description: 'LATENCY_VAR ↑', icon: Clock, delay: '+1m' },
-            { id: 'S3', name: 'Utilization Near Threshold', description: 'UTIL ↑', icon: Database, delay: '+2m' }
+            { id: 'S3', name: 'Jitter Increases', description: 'JITTER ↑', icon: Activity, delay: '+2m' }
         ],
         logicSummary: 'Micro-burst Congestion:',
         logicSteps: [
-            { order: 1, title: 'Queuing Delays', description: 'LATENCY ↑', color: 'blue' },
-            { order: 2, title: 'Jitter Saturation', description: 'JITTER ↑', color: 'amber' },
-            { order: 3, title: 'Active Queue Drop', description: 'UTIL ↑', color: 'red' }
+            { order: 1, title: 'Traffic Burst', description: 'UTIL ↑', color: 'blue' },
+            { order: 2, title: 'Queuing Delays', description: 'LATENCY ↑', color: 'amber' },
+            { order: 3, title: 'Jitter Saturation', description: 'JITTER ↑', color: 'amber' }
         ],
         predictedEvents: [
             { name: 'PACKET_LOSS', probability: 0.80, severity: 'Medium', title: 'Predicted Loss', subtitle: 'Shaping drop incoming' },
@@ -712,14 +705,14 @@ export const MOCK_PATTERNS: Pattern[] = [
         occurrences: [
             {
                 id: 'OCC-2026-104',
-                timestamp: 'Feb 18, 2026 08:30 AM',
+                timestamp: new Date(Date.now() - 518400000).toLocaleString(),
                 severity: 'Warning',
                 summary: 'SD-WAN Voice Degradation',
                 outcomes: ['SLA Breach', 'RTP Loss'],
                 metricData: generateQoeData(1),
                 events: [
                     {
-                        id: 'QOE_EV_01', timestamp: 'Feb 18, 2026 08:28 AM',
+                        id: 'QOE_EV_01', timestamp: new Date(Date.now() - 518400000 - 120000).toLocaleString(),
                         title: 'SLA Breach', subtitle: 'Jitter > 30ms', severity: 'Warning' as const,
                         nodeName: 'SDWAN-Branch-5', nodeIp: '10.50.1.1', resource: 'Tunnel-01',
                         alertValue: '35ms', threshold: '< 30ms'
@@ -728,7 +721,7 @@ export const MOCK_PATTERNS: Pattern[] = [
             },
             ...Array.from({ length: 21 }).map((_, i) => ({
                 id: `OCC-QOE-${i}`,
-                timestamp: `Feb ${17 - Math.floor(i / 2)}, 2026 0${(i % 8) + 1}:00 PM`,
+                timestamp: new Date(Date.now() - (i + 1) * 43200000).toLocaleString(),
                 severity: 'Warning' as const,
                 summary: `Microburst Degradation #${i + 1}`,
                 outcomes: ['Jitter Spike'],

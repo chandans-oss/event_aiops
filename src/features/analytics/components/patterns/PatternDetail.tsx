@@ -670,18 +670,28 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                                 {/* The Block Div */}
                                                                 <div className={`w-full border border-border/40 rounded-lg p-3 min-h-[60px] flex flex-col justify-center transition-all hover:bg-muted/5 group ${isOutcome ? 'bg-primary/5 border-primary/20' : 'bg-card/30'}`}>
                                                                     <div className={`text-[13px] font-bold uppercase tracking-tight text-center truncate w-full ${(() => {
-                                                                        if (!isOutcome) return 'text-foreground';
-                                                                        if (idx === allFlowItems.length - 1) return 'text-rose-400';
-                                                                        // Use orange for all intermediate predicted events
-                                                                        return 'text-orange-400';
+                                                                        const isFailure = /flap|down|reboot|withdrawal|collapse|breach|outage|unresponsive|sla/i.test(item.name) && !/flapping/i.test(item.name);
+                                                                        const isCritical = /loss|drop|jitter|latency|timeout|intermittent|missed|flapping|mismatch/i.test(item.name);
+
+                                                                        if (isOutcome) {
+                                                                            if (isFailure || idx === allFlowItems.length - 1) return 'text-rose-400';
+                                                                            return 'text-orange-400';
+                                                                        }
+
+                                                                        if (isFailure) return 'text-rose-400';
+                                                                        if (isCritical) return 'text-orange-400';
+                                                                        return 'text-foreground';
                                                                     })()}`}>
                                                                         {item.name.replace(' ', '_').toLowerCase()}
-                                                                        {!isOutcome && /util|rise|spike|up|cross|error|discard|drop/i.test(item.name + item.description) && (
+                                                                        {!isOutcome && /util|rise|spike|up|cross|error|discard|drop|loss|mismatch|flapping/i.test(item.name + item.description) && (
                                                                             <span className="text-rose-500 ml-1">↑</span>
                                                                         )}
                                                                     </div>
                                                                     {item.description && !isOutcome && (
-                                                                        <div className="text-[11px] text-blue-300/90 font-mono font-bold text-center mt-1">
+                                                                        <div className={`text-[11px] font-mono font-bold text-center mt-1 ${(/flap|down|reboot|withdrawal|collapse|breach|outage|unresponsive|sla/i.test(item.name) && !/flapping/i.test(item.name)) ? 'text-rose-300/80' :
+                                                                            /loss|drop|jitter|latency|timeout|intermittent|missed|flapping|mismatch/i.test(item.name) ? 'text-orange-300/80' :
+                                                                                'text-blue-300/90'
+                                                                            }`}>
                                                                             {item.description.replace('cross', '>')}
                                                                         </div>
                                                                     )}

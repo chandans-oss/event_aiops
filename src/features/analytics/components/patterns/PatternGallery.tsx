@@ -97,10 +97,17 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                                         <div className="flex flex-wrap items-center gap-y-1.5 gap-x-2 px-3 py-1.5 font-mono text-[12px]">
                                             {/* Behavioral Steps */}
                                             {pattern.steps.filter(s => s.name !== 'Critical Breach').map((step, idx) => {
-                                                const isRising = /util|rise|spike|up|cross|error|discard|drop/i.test(step.name + step.description);
+                                                const isRising = /util|rise|spike|up|cross|error|discard|drop|loss|mismatch|flapping/i.test(step.name + step.description);
+                                                const isFailure = /flap|down|reboot|withdrawal|collapse|breach|outage|unresponsive|sla/i.test(step.name) && !/flapping/i.test(step.name);
+                                                const isCritical = /loss|drop|jitter|latency|timeout|intermittent|missed|flapping|mismatch/i.test(step.name);
+
+                                                let textColor = 'text-indigo-200/90';
+                                                if (isFailure) textColor = 'text-rose-400 font-bold';
+                                                else if (isCritical) textColor = 'text-orange-400 font-bold';
+
                                                 return (
                                                     <div key={`step-${idx}`} className="flex items-center gap-1.5">
-                                                        <span className="text-indigo-200/90 lowercase">
+                                                        <span className={`${textColor} lowercase`}>
                                                             {step.name.replace(' ', '_')}
                                                             {isRising && <span className="text-rose-500 font-bold ml-0.5">↑</span>}
                                                         </span>
@@ -112,8 +119,12 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                                             {/* Predicted Outcomes */}
                                             {pattern.predictedEvents.map((evt, idx) => {
                                                 const isLast = idx === pattern.predictedEvents.length - 1;
-                                                // All intermediate predicted events should be orange
-                                                const textColor = isLast ? 'text-rose-400' : 'text-orange-400';
+                                                const isFailure = /flap|down|reboot|withdrawal|collapse|breach|outage|unresponsive|sla/i.test(evt.name) && !/flapping/i.test(evt.name);
+                                                const isCritical = /loss|drop|jitter|latency|timeout|intermittent|missed|flapping|mismatch/i.test(evt.name);
+
+                                                let textColor = 'text-indigo-200/90';
+                                                if (isFailure || isLast) textColor = 'text-rose-400 font-bold';
+                                                else if (isCritical) textColor = 'text-orange-400 font-bold';
 
                                                 return (
                                                     <div key={`out-${idx}`} className="flex items-center gap-1.5">

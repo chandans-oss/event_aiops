@@ -65,16 +65,26 @@ export function PatternCard({ pattern, onClick }: PatternCardProps) {
                     {/* Visual Signature Mini-View */}
                     <div className="w-full overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-secondary/50 scrollbar-track-transparent">
                         <div className="flex items-center gap-2 min-w-max px-0.5">
-                            {pattern.steps.map((step, idx) => (
-                                <div key={idx} className="flex items-center">
-                                    <span className="bg-secondary/50 px-2 py-1 rounded text-[10px] border border-border/50 whitespace-nowrap">
-                                        {step.name}
-                                    </span>
-                                    {idx < pattern.steps.length - 1 && (
-                                        <ArrowRight className="h-3 w-3 mx-1 opacity-50 flex-shrink-0" />
-                                    )}
-                                </div>
-                            ))}
+                            {pattern.steps.map((step, idx) => {
+                                const isFailure = /flap|down|reboot|withdrawal|collapse|breach|outage|unresponsive|sla/i.test(step.name) && !/flapping/i.test(step.name);
+                                const isCritical = /loss|drop|jitter|latency|timeout|intermittent|missed|flapping|mismatch/i.test(step.name);
+
+                                return (
+                                    <div key={idx} className="flex items-center">
+                                        <span className={`px-2 py-1 rounded text-[10px] border whitespace-nowrap transition-colors ${isFailure
+                                                ? 'bg-rose-500/10 border-rose-500/30 text-rose-400 font-bold'
+                                                : isCritical
+                                                    ? 'bg-orange-500/10 border-orange-500/30 text-orange-400 font-bold'
+                                                    : 'bg-secondary/50 border-border/50 text-muted-foreground'
+                                            }`}>
+                                            {step.name}
+                                        </span>
+                                        {idx < pattern.steps.length - 1 && (
+                                            <ArrowRight className="h-3 w-3 mx-1 opacity-50 flex-shrink-0" />
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
 

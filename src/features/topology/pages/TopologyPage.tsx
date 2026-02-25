@@ -210,9 +210,9 @@ const Topology = () => {
                     <Card className="border border-border/50 bg-card/30 backdrop-blur-md shadow-2xl overflow-hidden h-[calc(100vh-180px)]">
                         <CardHeader className="pb-2 border-b border-border/10 bg-muted/20">
                             <div className="flex items-center justify-between">
-                                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                                    <Network className="h-4 w-4 text-primary" />
-                                    Cluster Deployment View
+                                <CardTitle className="text-xs font-bold flex items-center gap-2 text-primary uppercase tracking-widest">
+                                    <Network className="h-3.5 w-3.5" />
+                                    Fabric Infrastructure Topology
                                 </CardTitle>
                                 <div className="flex gap-4">
                                     <div className="flex items-center gap-1.5 text-[10px] font-medium text-muted-foreground">
@@ -242,12 +242,12 @@ const Topology = () => {
 
                 {/* Insights Sidebar */}
                 <div className={cn(
-                    "fixed top-[64px] right-0 bottom-0 w-[450px] bg-card/95 backdrop-blur-xl border-l border-border transition-all duration-500 transform shadow-[-20px_0_50px_-10px_rgba(0,0,0,0.1)] z-40",
+                    "fixed top-[64px] right-0 bottom-0 w-[450px] bg-card/40 backdrop-blur-3xl border-l border-border/50 transition-all duration-700 transform shadow-[-20px_0_80px_-20px_rgba(0,0,0,0.3)] z-40",
                     selectedNodeId ? "translate-x-0" : "translate-x-full"
                 )}>
                     <div className="flex flex-col h-full">
                         {/* Sidebar Header */}
-                        <div className="p-4 border-b border-border flex items-center justify-between bg-gradient-to-r from-muted/50 to-transparent">
+                        <div className="p-5 border-b border-border/10 flex items-center justify-between bg-gradient-to-br from-primary/5 via-transparent to-transparent">
                             <div className="flex items-center gap-3">
                                 <div className="p-2.5 rounded-xl bg-primary/10 shadow-inner">
                                     <BrainCircuit className="h-6 w-6 text-primary" />
@@ -289,54 +289,56 @@ const Topology = () => {
                                             </div>
 
                                             {activeInsights?.actualEvents.length > 0 ? (
-                                                activeInsights.actualEvents.map((evt: any) => (
-                                                    <Card key={evt.id} className="bg-muted/30 border-none shadow-none mb-4 overflow-hidden group hover:bg-muted/50 transition-colors">
-                                                        <div className={cn(
-                                                            "absolute left-0 top-0 bottom-0 w-1.5",
-                                                            evt.severity === 'critical' ? 'bg-severity-critical' : 'bg-severity-high'
-                                                        )} />
-                                                        <CardContent className="p-4">
-                                                            <div className="flex justify-between items-start mb-3">
-                                                                <Badge variant="outline" className={cn(
-                                                                    "text-[10px] h-5 font-bold",
-                                                                    evt.severity === 'critical' ? 'bg-severity-critical/10 text-severity-critical' : 'bg-severity-high/10 text-severity-high'
-                                                                )}>
-                                                                    {evt.severity.toUpperCase()}
-                                                                </Badge>
-                                                                <span className="text-[10px] text-muted-foreground font-medium flex items-center gap-1.5">
-                                                                    <Clock className="h-3 w-3" /> {evt.time}
-                                                                </span>
-                                                            </div>
-                                                            <h4 className="font-bold text-base mb-3 text-foreground">{evt.type}</h4>
-                                                            <div className="space-y-3">
-                                                                <div className="bg-background/60 p-3 rounded-xl text-xs shadow-sm border border-border/50">
-                                                                    <p className="text-primary font-bold mb-1.5 flex items-center gap-1.5 text-[11px]">
-                                                                        <Target className="h-3.5 w-3.5" /> Event Analysis
-                                                                    </p>
-                                                                    <p className="text-foreground/90 leading-relaxed font-medium">{evt.analysis}</p>
+                                                <div className="space-y-4">
+                                                    {activeInsights.actualEvents.map((evt: any) => (
+                                                        <Card key={evt.id} className="bg-card/40 glass-card border-none shadow-lg mb-4 overflow-hidden group hover:bg-card/60 transition-all duration-300">
+                                                            <div className={cn(
+                                                                "absolute left-0 top-0 bottom-0 w-1.5",
+                                                                evt.severity === 'critical' ? 'bg-severity-critical' : 'bg-severity-high'
+                                                            )} />
+                                                            <CardContent className="p-4">
+                                                                <div className="flex justify-between items-start mb-3">
+                                                                    <Badge variant="outline" className={cn(
+                                                                        "text-[10px] h-5 font-bold",
+                                                                        evt.severity === 'critical' ? 'bg-severity-critical/10 text-severity-critical' : 'bg-severity-high/10 text-severity-high'
+                                                                    )}>
+                                                                        {evt.severity.toUpperCase()}
+                                                                    </Badge>
+                                                                    <span className="text-[10px] text-muted-foreground font-medium flex items-center gap-1.5">
+                                                                        <Clock className="h-3 w-3" /> {evt.time}
+                                                                    </span>
                                                                 </div>
-                                                                <div className="grid grid-cols-1 gap-3">
-                                                                    <div className="bg-background/40 p-3 rounded-xl text-xs border-l-2 border-primary/50">
-                                                                        <p className="text-muted-foreground font-bold mb-1 text-[10px] uppercase tracking-tighter">Impact Analysis</p>
-                                                                        <p className="text-foreground/80 leading-relaxed">{evt.impact}</p>
-                                                                    </div>
-                                                                    <div className="bg-background/40 p-3 rounded-xl text-xs border-l-2 border-orange-500/50">
-                                                                        <p className="text-muted-foreground font-bold mb-1 text-[10px] uppercase tracking-tighter flex items-center gap-1">
-                                                                            <History className="h-3 w-3" /> Historical Pattern Correlation
+                                                                <h4 className="font-bold text-base mb-3 text-foreground">{evt.type}</h4>
+                                                                <div className="space-y-3">
+                                                                    <div className="bg-background/60 p-3 rounded-xl text-xs shadow-sm border border-border/50">
+                                                                        <p className="text-primary font-bold mb-1.5 flex items-center gap-1.5 text-[11px]">
+                                                                            <Target className="h-3.5 w-3.5" /> Event Analysis
                                                                         </p>
-                                                                        <p className="text-foreground/80 leading-relaxed italic">{evt.correlation}</p>
+                                                                        <p className="text-foreground/90 leading-relaxed font-medium">{evt.analysis}</p>
+                                                                    </div>
+                                                                    <div className="grid grid-cols-1 gap-3">
+                                                                        <div className="bg-background/40 p-3 rounded-xl text-xs border-l-2 border-primary/50">
+                                                                            <p className="text-muted-foreground font-bold mb-1 text-[10px] uppercase tracking-tighter">Impact Analysis</p>
+                                                                            <p className="text-foreground/80 leading-relaxed">{evt.impact}</p>
+                                                                        </div>
+                                                                        <div className="bg-background/40 p-3 rounded-xl text-xs border-l-2 border-orange-500/50">
+                                                                            <p className="text-muted-foreground font-bold mb-1 text-[10px] uppercase tracking-tighter flex items-center gap-1">
+                                                                                <History className="h-3 w-3" /> Historical Pattern Correlation
+                                                                            </p>
+                                                                            <p className="text-foreground/80 leading-relaxed italic">{evt.correlation}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="bg-primary/10 p-3 rounded-xl text-xs border border-primary/20 shadow-sm shadow-primary/5">
+                                                                        <p className="text-primary font-black mb-1.5 flex items-center gap-1.5 text-[11px] uppercase">
+                                                                            <Zap className="h-3.5 w-3.5 fill-primary" /> AI Recommendation
+                                                                        </p>
+                                                                        <p className="text-foreground/90 font-bold italic leading-relaxed">"{evt.recommendation}"</p>
                                                                     </div>
                                                                 </div>
-                                                                <div className="bg-primary/10 p-3 rounded-xl text-xs border border-primary/20 shadow-sm shadow-primary/5">
-                                                                    <p className="text-primary font-black mb-1.5 flex items-center gap-1.5 text-[11px] uppercase">
-                                                                        <Zap className="h-3.5 w-3.5 fill-primary" /> AI Recommendation
-                                                                    </p>
-                                                                    <p className="text-foreground/90 font-bold italic leading-relaxed">"{evt.recommendation}"</p>
-                                                                </div>
-                                                            </div>
-                                                        </CardContent>
-                                                    </Card>
-                                                ))
+                                                            </CardContent>
+                                                        </Card>
+                                                    ))}
+                                                </div>
                                             ) : (
                                                 <div className="text-center py-10 bg-muted/20 rounded-2xl border-2 border-dashed border-border/50">
                                                     <div className="h-12 w-12 rounded-full bg-status-success/10 flex items-center justify-center mx-auto mb-3">

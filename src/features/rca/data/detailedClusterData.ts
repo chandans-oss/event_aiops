@@ -17,7 +17,7 @@ export const CLU_002_DetailedData: ClusterSpecificData = {
     rcaMetadata: {
         rootEventId: 'EVT-FC-001',
         rootEventType: 'FIBER_CUT',
-        timestamp: '2025-11-15T09:42:00Z',
+        timestamp: new Date(Date.now() - 7200000).toISOString(),
         device: 'Dist-R4',
         severity: 'Critical'
     },
@@ -129,8 +129,8 @@ export const CLU_002_DetailedData: ClusterSpecificData = {
                             { key: 'similarity', label: 'Similarity', align: 'right' }
                         ],
                         content: [
-                            { id: 'INC-2024-422', date: '2024-08-12', cause: 'Excavation damage', similarity: '92%' },
-                            { id: 'INC-2023-156', date: '2023-11-03', cause: 'Construction cut', similarity: '88%' }
+                            { id: 'INC-2026-422', date: '2026-08-12', cause: 'Excavation damage', similarity: '92%' },
+                            { id: 'INC-2026-156', date: '2026-11-03', cause: 'Construction cut', similarity: '88%' }
                         ]
                     }
                 ]
@@ -215,7 +215,7 @@ export const CLU_002_DetailedData: ClusterSpecificData = {
             alertType: 'BGP_PEER_DOWN',
             source: 'Dist-R4',
             severity: 'Critical',
-            timestamp: '2025-11-15T09:42:16Z',
+            timestamp: new Date(Date.now() - 7199000).toISOString(),
             correlationScore: 0.97,
             correlationReason: 'Causal Relationship: Link down caused BGP session loss',
             message: 'BGP neighbor 10.1.1.1 (Core-R1) down'
@@ -225,7 +225,7 @@ export const CLU_002_DetailedData: ClusterSpecificData = {
             alertType: 'ROUTE_WITHDRAWN',
             source: 'Core-R1',
             severity: 'Major',
-            timestamp: '2025-11-15T09:42:18Z',
+            timestamp: new Date(Date.now() - 7197000).toISOString(),
             correlationScore: 0.95,
             correlationReason: 'Downstream Impact: Routes withdrawn after link failure',
             message: '3 prefixes withdrawn from BGP'
@@ -235,7 +235,7 @@ export const CLU_002_DetailedData: ClusterSpecificData = {
             alertType: 'REACHABILITY_LOSS',
             source: 'Monitoring-System',
             severity: 'Critical',
-            timestamp: '2025-11-15T09:42:25Z',
+            timestamp: new Date(Date.now() - 7190000).toISOString(),
             correlationScore: 0.93,
             correlationReason: 'Service Impact: Users unreachable',
             message: '450 endpoints unreachable in subnet 10.20.0.0/16'

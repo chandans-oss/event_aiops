@@ -236,7 +236,7 @@ const generateRemediationSteps = (id: string, type: string, device: string): Rem
 
 const createPlaceholderData = (id: string, type: string, device: string, summary?: string, remedyTitle?: string): ClusterSpecificData => ({
     clusterId: id,
-    rcaMetadata: { rootEventId: `evt_${id}`, rootEventType: type, timestamp: new Date().toISOString(), device, severity: 'Critical' },
+    rcaMetadata: { rootEventId: `evt_${id}`, rootEventType: type, timestamp: new Date(Date.now() - 300000).toISOString(), device, severity: 'Critical' },
     rcaSummary: summary || `System analysis for ${type} on ${device}. High-confidence correlation indicates persistent module failure causing downstream service degradation.`,
     rootCause: `${type.replace(/_/g, ' ')}: System degradation on ${device}`,
     confidence: 0.88,
@@ -248,8 +248,8 @@ const createPlaceholderData = (id: string, type: string, device: string, summary
         { source: 'Chassis Telemetry', type: 'Metrics', count: 25, samples: ['Internal temp: 45C', 'CPU: 88%', 'Buffer usage: 92%'], relevance: 90 }
     ],
     correlatedChildEvents: [
-        { id: `EVT-${id}-CH-01`, alertType: 'INTERFACE_UP_DOWN', source: device, severity: 'Major', timestamp: new Date().toISOString(), correlationScore: 0.96, correlationReason: 'Temporal Correlation: Events within time window', message: `Interface Gi0/1 on ${device} is flapping` },
-        { id: `EVT-${id}-CH-02`, alertType: 'BGP_ADJACENCY_CHANGE', source: device, severity: 'Critical', timestamp: new Date().toISOString(), correlationScore: 0.89, correlationReason: 'Topological Correlation: Upstream dominates downstream', message: 'BGP session lost with peer 10.1.1.2' }
+        { id: `EVT-${id}-CH-01`, alertType: 'INTERFACE_UP_DOWN', source: device, severity: 'Major', timestamp: new Date(Date.now() - 240000).toISOString(), correlationScore: 0.96, correlationReason: 'Temporal Correlation: Events within time window', message: `Interface Gi0/1 on ${device} is flapping` },
+        { id: `EVT-${id}-CH-02`, alertType: 'BGP_ADJACENCY_CHANGE', source: device, severity: 'Critical', timestamp: new Date(Date.now() - 180000).toISOString(), correlationScore: 0.89, correlationReason: 'Topological Correlation: Upstream dominates downstream', message: 'BGP session lost with peer 10.1.1.2' }
     ],
     impactedAssets: [
         { id: 'auth-service', name: 'Auth Service', type: 'Microservice', severity: 'Critical', status: 'Degraded', dependencies: [device] },
@@ -284,7 +284,7 @@ const createPlaceholderData = (id: string, type: string, device: string, summary
 // CLU-LC-001: Link Congestion (The Master Sample)
 export const CLU_LC_001_Data: ClusterSpecificData = {
     clusterId: 'CLU-LC-001',
-    rcaMetadata: { rootEventId: 'EVT-LC-010', rootEventType: 'LINK_CONGESTION', timestamp: '2025-10-28T14:30:00Z', device: 'core-router-dc1', severity: 'Critical' },
+    rcaMetadata: { rootEventId: 'EVT-LC-010', rootEventType: 'LINK_CONGESTION', timestamp: new Date(Date.now() - 3600000).toISOString(), device: 'core-router-dc1', severity: 'Critical' },
     remedyTitle: 'Reconfigure and Stabilize DNS Resolution',
     rcaSummary: 'Unscheduled NFS backup from agent-server-01 is consuming >35% link capacity on Gi0/1/0, causing queue drops and latency spikes during business hours.',
     rootCause: 'Backup-Induced Congestion: Unscheduled NFS traffic',
@@ -304,7 +304,7 @@ export const CLU_LC_001_Data: ClusterSpecificData = {
                             "Incident ID": "ALARM-12345",
                             "Device": "core-router-dc1",
                             "Interface": "N/A",
-                            "Correlation Window": "Last 15 min from 2025-10-28T14:30:00Z",
+                            "Correlation Window": `Last 15 min from ${new Date(Date.now() - 3600000).toISOString()}`,
                             "Initial Severity": "Critical"
                         }
                     },
@@ -484,8 +484,8 @@ export const CLU_LC_001_Data: ClusterSpecificData = {
                         type: "table",
                         columns: [{ key: "id", label: "Incident ID" }, { key: "cause", label: "Root Cause" }, { key: "match", label: "Match %", align: "right" }, { key: "res", label: "Resolution" }],
                         content: [
-                            { id: "INC-2024-001", cause: "Backup Traffic Congestion", match: "88%", res: "Apply QoS Policy" },
-                            { id: "INC-2023-899", cause: "Unscheduled Data Transfer", match: "72%", res: "Reschedule Job" }
+                            { id: "INC-2026-001", cause: "Backup Traffic Congestion", match: "88%", res: "Apply QoS Policy" },
+                            { id: "INC-2026-899", cause: "Unscheduled Data Transfer", match: "72%", res: "Reschedule Job" }
                         ]
                     }
                 ]
@@ -527,10 +527,10 @@ export const CLU_LC_001_Data: ClusterSpecificData = {
         { source: 'Interface Logs', type: 'Logs', count: 5, samples: ['Gi0/1/0: Queue full - tail drops active', 'Gi0/1/0: High buffer utilization'], relevance: 88 }
     ],
     correlatedChildEvents: [
-        { id: 'EVT-LC-002', alertType: 'QUEUE_DROP', source: 'core-router-dc1', severity: 'Critical', timestamp: '2025-10-28T14:30:05Z', correlationScore: 0.96, correlationReason: 'Spatial Correlation: Co-located on core-router-dc1', message: 'Output queue drops on Gi0/1/0' },
-        { id: 'EVT-LC-003', alertType: 'LATENCY_HIGH', source: 'edge-router-03', severity: 'Major', timestamp: '2025-10-28T14:30:12Z', correlationScore: 0.92, correlationReason: 'Topological Correlation: Downstream of core-router-dc1', message: 'RTT increased to 150ms' },
-        { id: 'EVT-LC-004', alertType: 'LATENCY_HIGH', source: 'edge-router-04', severity: 'Major', timestamp: '2025-10-28T14:30:15Z', correlationScore: 0.91, correlationReason: 'Topological Correlation: Downstream of core-router-dc1', message: 'RTT increased to 145ms' },
-        { id: 'EVT-LC-005', alertType: 'RESPONSE_TIME_HIGH', source: 'api-gw', severity: 'Critical', timestamp: '2025-10-28T14:30:25Z', correlationScore: 0.89, correlationReason: 'Causal Correlation: Latency affecting App Response', message: 'HTTP 503 errors and high TTFB' }
+        { id: 'EVT-LC-002', alertType: 'QUEUE_DROP', source: 'core-router-dc1', severity: 'Critical', timestamp: new Date(Date.now() - 3595000).toISOString(), correlationScore: 0.96, correlationReason: 'Spatial Correlation: Co-located on core-router-dc1', message: 'Output queue drops on Gi0/1/0' },
+        { id: 'EVT-LC-003', alertType: 'LATENCY_HIGH', source: 'edge-router-03', severity: 'Major', timestamp: new Date(Date.now() - 3588000).toISOString(), correlationScore: 0.92, correlationReason: 'Topological Correlation: Downstream of core-router-dc1', message: 'RTT increased to 150ms' },
+        { id: 'EVT-LC-004', alertType: 'LATENCY_HIGH', source: 'edge-router-04', severity: 'Major', timestamp: new Date(Date.now() - 3585000).toISOString(), correlationScore: 0.91, correlationReason: 'Topological Correlation: Downstream of core-router-dc1', message: 'RTT increased to 145ms' },
+        { id: 'EVT-LC-005', alertType: 'RESPONSE_TIME_HIGH', source: 'api-gw', severity: 'Critical', timestamp: new Date(Date.now() - 3575000).toISOString(), correlationScore: 0.89, correlationReason: 'Causal Correlation: Latency affecting App Response', message: 'HTTP 503 errors and high TTFB' }
     ],
     impactedAssets: [
         { id: 'api-gw', name: 'API Gateway', type: 'Service', severity: 'Critical', status: 'Slow', dependencies: ['core-router-dc1'] },
@@ -664,7 +664,7 @@ export const RCA_LC_001_C_Data: ClusterSpecificData = {
 // CLU-002: Fiber Cut
 export const CLU_002_Data: ClusterSpecificData = {
     clusterId: 'CLU-002',
-    rcaMetadata: { rootEventId: 'EVT-FC-001', rootEventType: 'FIBER_CUT', timestamp: '2025-11-15T09:42:00Z', device: 'Dist-R4', severity: 'Critical' },
+    rcaMetadata: { rootEventId: 'EVT-FC-001', rootEventType: 'FIBER_CUT', timestamp: new Date(Date.now() - 7200000).toISOString(), device: 'Dist-R4', severity: 'Critical' },
     remedyTitle: 'Dispatch Field Technician for Fiber Repair',
     rcaSummary: 'Physical fiber cut detected on uplink interface Gi0/0/1 connecting Dist-R4 to Core-R1. Optical signal loss (LOS) alarm triggered immediately, preceded by rapid light level degradation from -8dBm to complete loss. Correlation with construction activity 500m from fiber route suggests excavation damage.',
     rootCause: 'Physical Fiber Optic Cable Severance',
@@ -675,7 +675,7 @@ export const CLU_002_Data: ClusterSpecificData = {
         { source: 'Interface Logs', type: 'Logs', count: 12, samples: ['%LINK-3-UPDOWN: Interface Gi0/0/1, changed state to down'], relevance: 95 }
     ],
     correlatedChildEvents: [
-        { id: 'EVT-FC-002', alertType: 'BGP_PEER_DOWN', source: 'Dist-R4', severity: 'Critical', timestamp: '2025-11-15T09:42:16Z', correlationScore: 0.97, correlationReason: 'Causal Correlation', message: 'BGP neighbor 10.1.1.1 down' }
+        { id: 'EVT-FC-002', alertType: 'BGP_PEER_DOWN', source: 'Dist-R4', severity: 'Critical', timestamp: new Date(Date.now() - 7199000).toISOString(), correlationScore: 0.97, correlationReason: 'Causal Correlation', message: 'BGP neighbor 10.1.1.1 down' }
     ],
     impactedAssets: [
         { id: 'building-a', name: 'Building A Users', type: 'Subnet', severity: 'Critical', status: 'Offline', dependencies: ['Dist-R4'] }
@@ -697,7 +697,7 @@ export const CLU_002_Data: ClusterSpecificData = {
 // CLU-003: Power Supply Failure
 export const CLU_003_Data: ClusterSpecificData = {
     clusterId: 'CLU-003',
-    rcaMetadata: { rootEventId: 'EVT-PS-001', rootEventType: 'POWER_SUPPLY_FAIL', timestamp: '2025-11-18T11:20:00Z', device: 'Core-R2', severity: 'Critical' },
+    rcaMetadata: { rootEventId: 'EVT-PS-001', rootEventType: 'POWER_SUPPLY_FAIL', timestamp: new Date(Date.now() - 86400000).toISOString(), device: 'Core-R2', severity: 'Critical' },
     remedyTitle: 'Replace Power Supply Unit (PSU-1)',
     rcaSummary: 'Hardware Failure: Primary Power Supply Unit (PSU-1) failed on Core-R2. Voltage telemetry dropped below 10.5V before complete power loss. Internal thermal sensors reported a spike to 85°C prior to shutdown, indicating a probable component short-circuit.',
     rootCause: 'Internal Component Failure in PSU-1',
@@ -708,7 +708,7 @@ export const CLU_003_Data: ClusterSpecificData = {
         { source: 'Environment Logs', type: 'Logs', count: 8, samples: ['%ENVM-3-PSFAIL: Power supply 1 failed'], relevance: 95 }
     ],
     correlatedChildEvents: [
-        { id: 'EVT-PS-002', alertType: 'FAN_FAILURE', source: 'Core-R2', severity: 'Major', timestamp: '2025-11-18T11:20:05Z', correlationScore: 0.88, correlationReason: 'Linked Power Domain', message: 'PSU Fan stopped' }
+        { id: 'EVT-PS-002', alertType: 'FAN_FAILURE', source: 'Core-R2', severity: 'Major', timestamp: new Date(Date.now() - 86395000).toISOString(), correlationScore: 0.88, correlationReason: 'Linked Power Domain', message: 'PSU Fan stopped' }
     ],
     impactedAssets: [
         { id: 'core-r2-chassis', name: 'Core-R2 Chassis', type: 'Device', severity: 'Major', status: 'Reduced Redundancy', dependencies: [] }
@@ -730,7 +730,7 @@ export const CLU_003_Data: ClusterSpecificData = {
 // CLU-004: Traffic Flood
 export const CLU_004_Data: ClusterSpecificData = {
     clusterId: 'CLU-004',
-    rcaMetadata: { rootEventId: 'EVT-TF-001', rootEventType: 'CPU_HIGH', timestamp: '2025-11-20T14:15:00Z', device: 'Dist-R6', severity: 'Critical' },
+    rcaMetadata: { rootEventId: 'EVT-TF-001', rootEventType: 'CPU_HIGH', timestamp: new Date(Date.now() - 172800000).toISOString(), device: 'Dist-R6', severity: 'Critical' },
     remedyTitle: 'Identify and Mitigate Ingress Traffic Flood',
     rcaSummary: 'Control Plane Exhaustion: Ingress packet storm (source 192.168.50.12) on Dist-R6 Gi0/1 causing CPU spikes to 98%. Most CPU cycles consumed by "IP Input" process, indicating a massive volume of punts to CPU.',
     rootCause: 'Unfiltered Ingress UDP Flood from Internal Host',
@@ -741,7 +741,7 @@ export const CLU_004_Data: ClusterSpecificData = {
         { source: 'CPU Monitor', type: 'Metrics', count: 60, samples: ['CPU: 98%', 'Process: IP Input (85%)'], relevance: 94 }
     ],
     correlatedChildEvents: [
-        { id: 'EVT-TF-002', alertType: 'SERVICE_LATENCY', source: 'DNS-Srv', severity: 'Major', timestamp: '2025-11-20T14:16:00Z', correlationScore: 0.85, correlationReason: 'Symptomatic Impact', message: 'DNS resolution slow' }
+        { id: 'EVT-TF-002', alertType: 'SERVICE_LATENCY', source: 'DNS-Srv', severity: 'Major', timestamp: new Date(Date.now() - 172740000).toISOString(), correlationScore: 0.85, correlationReason: 'Symptomatic Impact', message: 'DNS resolution slow' }
     ],
     impactedAssets: [
         { id: 'dns-service', name: 'DNS Services', type: 'Service', severity: 'Major', status: 'Degraded', dependencies: ['Dist-R6'] }
@@ -762,7 +762,7 @@ export const CLU_004_Data: ClusterSpecificData = {
 // CLU-005: Switching Loop
 export const CLU_005_Data: ClusterSpecificData = {
     clusterId: 'CLU-005',
-    rcaMetadata: { rootEventId: 'EVT-SL-001', rootEventType: 'MAC_FLAP', timestamp: '2025-11-22T08:30:00Z', device: 'Core-R1', severity: 'Critical' },
+    rcaMetadata: { rootEventId: 'EVT-SL-001', rootEventType: 'MAC_FLAP', timestamp: new Date(Date.now() - 259200000).toISOString(), device: 'Core-R1', severity: 'Critical' },
     remedyTitle: 'Identify and Break Switching Loop on VLAN 100',
     rcaSummary: 'Layer 2 Switching Loop: Rapid MAC address flapping detected on VLAN 100 between ports Gi0/1 and Gi0/2. Broadcast traffic has reached 85% of total interface capacity, causing control plane instability and high CPU on Core-R1.',
     rootCause: 'Improper STP Configuration on Downstream Access switch',
@@ -773,7 +773,7 @@ export const CLU_005_Data: ClusterSpecificData = {
         { source: 'Traffic Stats', type: 'Metrics', count: 120, samples: ['Broadcast: 850Mbps', 'Multicast: 120Mbps'], relevance: 95 }
     ],
     correlatedChildEvents: [
-        { id: 'EVT-SL-002', alertType: 'STP_CHANGE', source: 'Core-R1', severity: 'Major', timestamp: '2025-11-22T08:30:05Z', correlationScore: 0.91, correlationReason: 'Topology Change', message: 'VLAN 100 STP root changed' }
+        { id: 'EVT-SL-002', alertType: 'STP_CHANGE', source: 'Core-R1', severity: 'Major', timestamp: new Date(Date.now() - 259195000).toISOString(), correlationScore: 0.91, correlationReason: 'Topology Change', message: 'VLAN 100 STP root changed' }
     ],
     impactedAssets: [
         { id: 'vlan-100', name: 'Users on VLAN 100', type: 'Network Segment', severity: 'Critical', status: 'Saturated', dependencies: ['Core-R1'] }
@@ -797,7 +797,7 @@ export const CLU_005_Data: ClusterSpecificData = {
 // CLU-006: Transceiver Failure
 export const CLU_006_Data: ClusterSpecificData = {
     clusterId: 'CLU-006',
-    rcaMetadata: { rootEventId: 'EVT-TR-001', rootEventType: 'LINK_DOWN', timestamp: '2025-11-25T16:45:00Z', device: 'Core-R1', severity: 'Critical' },
+    rcaMetadata: { rootEventId: 'EVT-TR-001', rootEventType: 'LINK_DOWN', timestamp: new Date(Date.now() - 345600000).toISOString(), device: 'Core-R1', severity: 'Critical' },
     remedyTitle: 'Replace Faulty SFP Transceiver on Gi0/2/0',
     rcaSummary: 'Physical Interface Failure: The SFP transceiver on Gi0/2/0 has failed. DOM (Digital Optical Monitoring) report shows TX fault and temperature out of range (95°C) just before the link dropped.',
     rootCause: 'Hardware Failure: SFP TX Laser Burnout',
@@ -827,7 +827,7 @@ export const CLU_006_Data: ClusterSpecificData = {
 // CLU-007: Driver Bug
 export const CLU_007_Data: ClusterSpecificData = {
     clusterId: 'CLU-007',
-    rcaMetadata: { rootEventId: 'EVT-DB-001', rootEventType: 'LINK_DOWN', timestamp: '2025-11-28T10:10:00Z', device: 'Core-R2', severity: 'Critical' },
+    rcaMetadata: { rootEventId: 'EVT-DB-001', rootEventType: 'LINK_DOWN', timestamp: new Date(Date.now() - 432000000).toISOString(), device: 'Core-R2', severity: 'Critical' },
     remedyTitle: 'Update Linecard Driver / Patch IOS-XE',
     rcaSummary: 'Software Crash: Linecard 2 experienced a fatal error in the ASIC driver. Memory registers showed an overflow condition consistent with Caveat CSCvm12345 (Mem Leak in Buffer Manager).',
     rootCause: 'Software Bug: Memory Leak in Linecard ASIC Driver',
@@ -857,7 +857,7 @@ export const CLU_007_Data: ClusterSpecificData = {
 // CLU-12345: DB Connection Failed
 export const CLU_12345_Data: ClusterSpecificData = {
     clusterId: 'CLU-12345',
-    rcaMetadata: { rootEventId: 'EVT-DB-101', rootEventType: 'DB_CONNECTION_FAILED', timestamp: '2025-11-30T09:00:00Z', device: 'db-server-01', severity: 'Critical' },
+    rcaMetadata: { rootEventId: 'EVT-DB-101', rootEventType: 'DB_CONNECTION_FAILED', timestamp: new Date(Date.now() - 518400000).toISOString(), device: 'db-server-01', severity: 'Critical' },
     remedyTitle: 'Restart Connection Pool and Release Leaked Connections',
     rcaSummary: 'Database connection pool exhaustion on db-server-01. Payment processing service (app-pay-01) is holding 80% of pool connections in "IDLE in transaction" state, preventing other services from connecting.',
     rootCause: 'Connection Leak in payment-processing-service v2.4.1',
@@ -868,7 +868,7 @@ export const CLU_12345_Data: ClusterSpecificData = {
         { source: 'App Logs', type: 'Logs', count: 250, samples: ['HikariPool-1 - Connection is not available'], relevance: 95 }
     ],
     correlatedChildEvents: [
-        { id: 'EVT-DB-102', alertType: 'SERVICE_DOWN', source: 'Checkout-UI', severity: 'Critical', timestamp: '2025-11-30T09:01:00Z', correlationScore: 0.92, correlationReason: 'Cascade Failure', message: 'Checkout backend unreachable' }
+        { id: 'EVT-DB-102', alertType: 'SERVICE_DOWN', source: 'Checkout-UI', severity: 'Critical', timestamp: new Date(Date.now() - 518340000).toISOString(), correlationScore: 0.92, correlationReason: 'Cascade Failure', message: 'Checkout backend unreachable' }
     ],
     impactedAssets: [
         { id: 'payment-service', name: 'Payment Service', type: 'Microservice', severity: 'Critical', status: 'Deadlocked', dependencies: ['db-server-01'] }
@@ -889,7 +889,7 @@ export const CLU_12345_Data: ClusterSpecificData = {
 // CLU-12346: Disk Full
 export const CLU_12346_Data: ClusterSpecificData = {
     clusterId: 'CLU-12346',
-    rcaMetadata: { rootEventId: 'EVT-DF-101', rootEventType: 'DISK_FULL', timestamp: '2025-12-01T22:30:00Z', device: 'storage-node-03', severity: 'Critical' },
+    rcaMetadata: { rootEventId: 'EVT-DF-101', rootEventType: 'DISK_FULL', timestamp: new Date(Date.now() - 604800000).toISOString(), device: 'storage-node-03', severity: 'Critical' },
     remedyTitle: 'Prune Old Logs and Fix Rotation Script',
     rcaSummary: 'Filesystem Exhaustion: The /var/log partition is 100% full. Log rotation script failed to gzip old files, causing /var/log/syslog to grow to 45GB. This has stalled the syslog daemon and dependent application logging.',
     rootCause: 'Log Rotation Script Failure (Exit Code 1)',
@@ -919,7 +919,7 @@ export const CLU_12346_Data: ClusterSpecificData = {
 // CLU-12347: Network Latency
 export const CLU_12347_Data: ClusterSpecificData = {
     clusterId: 'CLU-12347',
-    rcaMetadata: { rootEventId: 'EVT-NL-101', rootEventType: 'NETWORK_LATENCY', timestamp: '2025-12-03T15:45:00Z', device: 'router-dc-east-01', severity: 'Major' },
+    rcaMetadata: { rootEventId: 'EVT-NL-101', rootEventType: 'NETWORK_LATENCY', timestamp: new Date(Date.now() - 691200000).toISOString(), device: 'router-dc-east-01', severity: 'Major' },
     remedyTitle: 'Stabilize BGP Peer and Mitigate Flapping',
     rcaSummary: 'Intermittent Latency: RTT spikes of 500ms observed between East DC and West DC. BGP session with AS 65001 is flapping every 120 seconds, causing recursive route re-calculation and packet drops across the backbone.',
     rootCause: 'BGP Flapping due to Layer 1 errors on Peer Link',
@@ -930,7 +930,7 @@ export const CLU_12347_Data: ClusterSpecificData = {
         { source: 'Ping Monitor', type: 'Metrics', count: 600, samples: ['Latency: 500ms (Avg)', 'Loss: 2.5%'], relevance: 90 }
     ],
     correlatedChildEvents: [
-        { id: 'EVT-NL-102', alertType: 'ROUTE_FLAP', source: 'Core-R1', severity: 'Major', timestamp: '2025-12-03T15:46:00Z', correlationScore: 0.85, correlationReason: 'Re-routing Latency', message: 'Backbone route instability' }
+        { id: 'EVT-NL-102', alertType: 'ROUTE_FLAP', source: 'Core-R1', severity: 'Major', timestamp: new Date(Date.now() - 691140000).toISOString(), correlationScore: 0.85, correlationReason: 'Re-routing Latency', message: 'Backbone route instability' }
     ],
     impactedAssets: [
         { id: 'dc-connectivity', name: 'Inter-DC Link', type: 'Infrastructure', severity: 'Major', status: 'Unstable', dependencies: [] }
@@ -951,7 +951,7 @@ export const CLU_12347_Data: ClusterSpecificData = {
 // CLU-12348: Memory Exhaustion
 export const CLU_12348_Data: ClusterSpecificData = {
     clusterId: 'CLU-12348',
-    rcaMetadata: { rootEventId: 'EVT-ME-101', rootEventType: 'MEMORY_EXHAUSTION', timestamp: '2025-12-05T04:20:00Z', device: 'app-server-05', severity: 'Critical' },
+    rcaMetadata: { rootEventId: 'EVT-ME-101', rootEventType: 'MEMORY_EXHAUSTION', timestamp: new Date(Date.now() - 777600000).toISOString(), device: 'app-server-05', severity: 'Critical' },
     remedyTitle: 'Scale Up JVM Heap and Investigate Memory Leak',
     rcaSummary: 'Application Failure: JVM heap memory exhausted on app-server-05. Garbage collection overhead is exceeding 95%, causing frequent "Stop-the-world" pauses and request timeouts for the order-service.',
     rootCause: 'JVM Heap Leak in order-service (Old Gen accumulation)',
@@ -981,7 +981,7 @@ export const CLU_12348_Data: ClusterSpecificData = {
 // CLU-12349: SSL Cert Expiry
 export const CLU_12349_Data: ClusterSpecificData = {
     clusterId: 'CLU-12349',
-    rcaMetadata: { rootEventId: 'EVT-SSL-101', rootEventType: 'SSL_CERT_EXPIRY', timestamp: '2025-12-07T00:01:00Z', device: 'proxy-ssl-01', severity: 'Critical' },
+    rcaMetadata: { rootEventId: 'EVT-SSL-101', rootEventType: 'SSL_CERT_EXPIRY', timestamp: new Date(Date.now() - 864000000).toISOString(), device: 'proxy-ssl-01', severity: 'Critical' },
     remedyTitle: 'Renew and Deploy SSL Certificate for domain.com',
     rcaSummary: 'Security Breach: The SSL certificate for api.production.com expired at 00:00:00 UTC. Load balancers are rejecting TLS handshakes, resulting in 100% service unavailability for external clients.',
     rootCause: 'Automated Certificate Renewal Script Failure',
@@ -1011,7 +1011,7 @@ export const CLU_12349_Data: ClusterSpecificData = {
 // CLU-12350: CPU Spike
 export const CLU_12350_Data: ClusterSpecificData = {
     clusterId: 'CLU-12350',
-    rcaMetadata: { rootEventId: 'EVT-CS-101', rootEventType: 'CPU_SPIKE', timestamp: '2025-12-09T18:30:00Z', device: 'worker-node-12', severity: 'Critical' },
+    rcaMetadata: { rootEventId: 'EVT-CS-101', rootEventType: 'CPU_SPIKE', timestamp: new Date(Date.now() - 950400000).toISOString(), device: 'worker-node-12', severity: 'Critical' },
     remedyTitle: 'Terminate Runaway Process and Optimize Code',
     rcaSummary: 'Performance Degradation: Worker-node-12 CPU usage sustained at 100%. A single Python process (PID 4421) is consuming 99.5% CPU executing a regex matching task against a malformed 2GB log file.',
     rootCause: 'ReDoS (Regular Expression Denial of Service) in log-parser-service',
@@ -1039,18 +1039,19 @@ export const CLU_12350_Data: ClusterSpecificData = {
 };
 
 
-// CLU-NET-004: Pattern Match - Complex Interface Flap Sequence
+// CLU-NET-004: Pattern Match - Complex Interface Flap Pattern
+
 export const CLU_NET_004_Data: ClusterSpecificData = {
     clusterId: 'CLU-NET-004',
     rcaMetadata: {
         rootEventId: 'EVT-NET-004-1',
         rootEventType: 'LINK_CONGESTION',
-        timestamp: '2026-02-18T08:00:00Z',
+        timestamp: new Date(Date.now() - 3600000).toISOString(),
         device: 'Dist-Switch-02',
         severity: 'Critical'
     },
     remedyTitle: 'Interface Hardware Stabilization & Traffic Shaping',
-    rcaSummary: '[Pattern Match] - Interface Degradation Lifecycle. The system identifies a high-confidence correlation between initial congestion and terminal link failure. The sequence of Buffer Saturation (8:05), CRC Errors (8:06), and Packet Loss (8:07) confirmed a physical-layer/buffer instability leading to the Interface Flap at 8:08.',
+    rcaSummary: `[Pattern Match] - Interface Degradation Lifecycle. The system identifies a high-confidence correlation between initial congestion and terminal link failure. The sequence of Buffer Saturation, CRC Errors, and Packet Loss confirmed a physical-layer/buffer instability leading to the Interface Flap.`,
     rootCause: 'Saturation-Induced Physical Layer Instability leading to Link Flap',
     confidence: 0.99,
     rcaProcessSteps: generateRCASteps('CLU-NET-004', 'LINK_CONGESTION', 'Dist-Switch-02'),
@@ -1060,10 +1061,10 @@ export const CLU_NET_004_Data: ClusterSpecificData = {
         { source: 'Physical Layer (PHY)', type: 'Metrics', count: 120, samples: ['CRC Error Rate: 1.2k/min', 'Input discards: 5%'], relevance: 95 }
     ],
     correlatedChildEvents: [
-        { id: 'EVT-NET-004-2', alertType: 'BUFFER_SATURATION', source: 'Dist-Switch-02', severity: 'Major', timestamp: '2026-02-18T08:05:00Z', correlationScore: 0.98, correlationReason: 'Pattern-Based Correlation: Step 2 - Buffer Exhaustion', message: 'Output queue buffers reaching threshold (85%)' },
-        { id: 'EVT-NET-004-3', alertType: 'CRC_ERRORS', source: 'Dist-Switch-02', severity: 'Major', timestamp: '2026-02-18T08:06:00Z', correlationScore: 0.99, correlationReason: 'Pattern-Based Correlation: Step 3 - Signal Instability', message: 'High CRC error rate detected on Et0/0' },
-        { id: 'EVT-NET-004-4', alertType: 'PACKET_LOSS', source: 'Dist-Switch-02', severity: 'Critical', timestamp: '2026-02-18T08:07:00Z', correlationScore: 0.99, correlationReason: 'Pattern-Based Correlation: Step 4 - Data Plane Fault', message: 'Packet loss exceeds 5% on Et0/0' },
-        { id: 'EVT-NET-004-5', alertType: 'INTERFACE_FLAP', source: 'Dist-Switch-02', severity: 'Critical', timestamp: '2026-02-18T08:08:00Z', correlationScore: 0.99, correlationReason: 'Pattern-Based Correlation: Step 5 - Terminal Failure', message: 'Interface transition to Down state' }
+        { id: 'EVT-NET-004-2', alertType: 'BUFFER_UTILIZATION', source: 'Dist-Switch-02', severity: 'Major', timestamp: new Date(Date.now() - 3300000).toISOString(), correlationScore: 0.98, correlationReason: 'Pattern-Based Correlation: Step 2 - Buffer Exhaustion', message: 'Output queue buffers reaching threshold (85%)' },
+        { id: 'EVT-NET-004-3', alertType: 'CRC_ERRORS', source: 'Dist-Switch-02', severity: 'Major', timestamp: new Date(Date.now() - 3240000).toISOString(), correlationScore: 0.99, correlationReason: 'Pattern-Based Correlation: Step 3 - Signal Instability', message: 'High CRC error rate detected on Et0/0' },
+        { id: 'EVT-NET-004-4', alertType: 'PACKET_LOSS', source: 'Dist-Switch-02', severity: 'Critical', timestamp: new Date(Date.now() - 3180000).toISOString(), correlationScore: 0.99, correlationReason: 'Pattern-Based Correlation: Step 4 - Data Plane Fault', message: 'Packet loss exceeds 5% on Et0/0' },
+        { id: 'EVT-NET-004-5', alertType: 'INTERFACE_FLAP', source: 'Dist-Switch-02', severity: 'Critical', timestamp: new Date(Date.now() - 3120000).toISOString(), correlationScore: 0.99, correlationReason: 'Pattern-Based Correlation: Step 5 - Terminal Failure', message: 'Interface transition to Down state' }
     ],
     impactedAssets: [
         { id: 'internal-wifi', name: 'Corporate WiFi Backbone', type: 'Service', severity: 'Major', status: 'Degraded', dependencies: ['Dist-Switch-02'] },
@@ -1085,7 +1086,7 @@ export const CLU_NET_004_Data: ClusterSpecificData = {
         { id: 'REM-NET-004-2', phase: 'Immediate', action: 'Interface Reset', description: 'Performing hardware-level power-cycle of the SFP/PHY to clear error states.', status: 'pending', duration: '2m', automated: true, command: 'hw-module int Et0/0 reset', verification: ['PHY re-link successful'] },
         { id: 'REM-NET-004-3', phase: 'Long-term', action: 'Traffic Profile Audit', description: 'Generating deep packet inspection report to identify upstream sources causing burst saturation.', status: 'pending', duration: '1h', automated: false, verification: ['Audit report generated'] },
     ],
-    remediationKB: [{ title: 'Pattern-Based RCA: Interface Flap Sequence', relevance: 98, url: '#' }]
+    remediationKB: [{ title: 'Pattern-Based RCA: Interface Flap Pattern', relevance: 98, url: '#' }]
 };
 
 // Export a map for easy lookup
@@ -1243,7 +1244,7 @@ export const CLU_12349_Causes: ProbableCause[] = [
 export const CLU_NET_004_Causes: ProbableCause[] = [
     {
         id: 'RCA-NET-004-A',
-        title: 'Pattern Match: Interface Flap Sequence',
+        title: 'Pattern Match: Interface Flap Pattern',
         description: 'High-confidence match of the 5-phase degradation lifecycle (link util → Buffer util → CRC Errors → Loss → Flap). This behavioral fingerprint indicates a systemic buffer-to-physical layer collapse rather than isolated hardware failure.',
         confidence: 0.99,
         severity: 'Critical',
