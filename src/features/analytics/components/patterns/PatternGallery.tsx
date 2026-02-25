@@ -117,26 +117,28 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                                             })}
 
                                             {/* Predicted Outcomes */}
-                                            {pattern.predictedEvents.map((evt, idx) => {
-                                                const isLast = idx === pattern.predictedEvents.length - 1;
-                                                const isFailure = /flap|down|reboot|withdrawal|collapse|breach|outage|unresponsive|sla/i.test(evt.name) && !/flapping/i.test(evt.name);
-                                                const isCritical = /loss|drop|jitter|latency|timeout|intermittent|missed|flapping|mismatch/i.test(evt.name);
+                                            {pattern.predictedEvents
+                                                .filter(evt => !pattern.steps.some(s => s.name.toLowerCase() === evt.name.replace('_', ' ').toLowerCase()))
+                                                .map((evt, idx) => {
+                                                    const isLast = idx === pattern.predictedEvents.length - 1;
+                                                    const isFailure = /flap|down|reboot|withdrawal|collapse|breach|outage|unresponsive|sla/i.test(evt.name) && !/flapping/i.test(evt.name);
+                                                    const isCritical = /loss|drop|jitter|latency|timeout|intermittent|missed|flapping|mismatch/i.test(evt.name);
 
-                                                let textColor = 'text-indigo-200/90';
-                                                if (isFailure || isLast) textColor = 'text-rose-400 font-bold';
-                                                else if (isCritical) textColor = 'text-orange-400 font-bold';
+                                                    let textColor = 'text-indigo-200/90';
+                                                    if (isFailure || isLast) textColor = 'text-rose-400 font-bold';
+                                                    else if (isCritical) textColor = 'text-orange-400 font-bold';
 
-                                                return (
-                                                    <div key={`out-${idx}`} className="flex items-center gap-1.5">
-                                                        <span className={`font-bold lowercase ${textColor}`}>
-                                                            {evt.name.replace(' ', '_')}
-                                                        </span>
-                                                        {idx < pattern.predictedEvents.length - 1 && (
-                                                            <span className="text-primary/50 font-bold">{'->'}</span>
-                                                        )}
-                                                    </div>
-                                                );
-                                            })}
+                                                    return (
+                                                        <div key={`out-${idx}`} className="flex items-center gap-1.5">
+                                                            <span className={`font-bold lowercase ${textColor}`}>
+                                                                {evt.name.replace(' ', '_')}
+                                                            </span>
+                                                            {idx < pattern.predictedEvents.length - 1 && (
+                                                                <span className="text-primary/50 font-bold">{'->'}</span>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
                                         </div>
                                     </TableCell>
                                     <TableCell className="align-middle py-1">

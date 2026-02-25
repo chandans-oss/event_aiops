@@ -106,11 +106,11 @@ const PATTERNS: Pattern[] = [
             { time: '6m', util: 75, buffer: 45, errors: 2 },
             { time: '9m', util: 89, buffer: 68, errors: 7 },
             { time: '12m', util: 94, buffer: 85, errors: 15 },
-            { time: '15m', util: 98, buffer: 92, errors: 45, event: 'PACKET_DROP' },
+            { time: '15m', util: 98, buffer: 92, errors: 45, event: 'PACKET_LOSS' },
         ],
         prediction: {
             if: 'Util > 85% + Buffer Rise',
-            then: 'PACKET_DROP -> LINK_FLAP',
+            then: 'PACKET_LOSS -> LINK_FLAP',
             probability: 78
         },
         history: [

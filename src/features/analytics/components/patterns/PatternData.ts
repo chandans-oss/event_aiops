@@ -103,38 +103,35 @@ export interface Pattern {
 
 const generateCongestionData = (severity: 'High' | 'Med' | 'Low', variation: number = 1) => {
     const data = [];
-    // variation acts as a seed for randomness shape
-    const baseUtil = severity === 'High' ? 75 : severity === 'Med' ? 60 : 40;
+    const baseUtil = severity === 'High' ? 65 : severity === 'Med' ? 45 : 25;
+    const pointCount = 24; // ~2 mins of data at 5s intervals
 
-    // Different slopes based on variation
-    const slope = 1.5 + (variation % 3) * 0.5;
-    const noiseLevel = 2 + (variation % 4);
+    for (let i = 0; i < pointCount; i++) {
+        // Organic multi-frequency noise
+        const primaryNoise = Math.sin(i * 0.5 + variation) * 4;
+        const jitter = (Math.random() - 0.5) * (severity === 'High' ? 12 : 6);
+        const microJitter = (Math.random() - 0.5) * 3;
 
-    for (let i = 0; i < 15; i++) {
-        const t = i;
-        // Make some curves linear, some exponential based on variation
-        const rise = (variation % 2 === 0) ? (t * slope) : (Math.pow(t, 1.3) * (slope / 2));
+        // Pattern logic
+        let utilProgress = (i / pointCount) * (severity === 'High' ? 35 : 20);
+        let util = baseUtil + utilProgress + primaryNoise + jitter + microJitter;
 
-        const randomNoise = (Math.random() - 0.5) * noiseLevel * 2;
-
-        let util = baseUtil + rise + randomNoise;
-
-        // Drops kick in late
+        // Drops kicks in exponentially after 60% progress
         let drops = 0;
-        if (i > 10) {
-            drops = (i - 10) * 10 * ((variation % 2) + 0.5) + Math.random() * 5;
-        } else if (severity === 'High') {
-            drops = Math.max(0, (Math.random() * 5));
+        if (i > pointCount * 0.6) {
+            const dropImpact = Math.pow(i - (pointCount * 0.6), 1.8) * (variation % 2 === 0 ? 1.5 : 0.8);
+            drops = dropImpact + (Math.random() * 5);
+            if (severity === 'High') drops += 10;
         }
 
-        // Errors
+        // CRC errors appear late and bursty
         let errors = 0;
-        if (i > 12) {
-            errors = (i - 12) * 5 + Math.random() * 2;
+        if (i > pointCount * 0.8 && severity !== 'Low') {
+            errors = (i - pointCount * 0.8) * 2 + (Math.random() > 0.7 ? 5 : 0);
         }
 
         data.push({
-            time: `T-${15 - i}m`,
+            time: `${i * 5}s`,
             utilization: Math.min(100, Math.max(0, util)),
             drops: Math.round(drops),
             errors: Math.round(errors)
@@ -145,24 +142,27 @@ const generateCongestionData = (severity: 'High' | 'Med' | 'Low', variation: num
 
 const generateCpuData = (peak: number, variation: number = 1) => {
     const data = [];
-    const spikeStart = 8 + (variation % 4); // Spike starts at different times
-    const baseLoad = 20 + (variation * 5) % 20;
+    const pointCount = 25;
+    const spikeStart = Math.floor(pointCount * 0.5) + (variation % 5);
+    const baseLoad = 15 + (variation * 7) % 15;
 
-    for (let i = 0; i < 15; i++) {
-        let cpu = baseLoad + (Math.random() * 5);
+    for (let i = 0; i < pointCount; i++) {
+        const jitter = (Math.random() - 0.5) * 8;
+        let cpu = baseLoad + (Math.sin(i * 0.4) * 5) + jitter;
 
         if (i >= spikeStart) {
-            // steep rise
-            cpu = peak - (Math.random() * 10);
-        } else if (i >= spikeStart - 2) {
-            // pre-spike rise
-            cpu = baseLoad + ((peak - baseLoad) / 2) + (Math.random() * 10);
+            // Plateau/Saturation phase
+            cpu = peak - (Math.random() * 6);
+        } else if (i >= spikeStart - 4) {
+            // Aggressive ramp-up
+            const progress = (i - (spikeStart - 4)) / 4;
+            cpu = baseLoad + (peak - baseLoad) * progress + jitter;
         }
 
-        const bgpState = i > spikeStart + 2 ? 0 : 1;
+        const bgpState = i > spikeStart + 5 ? 0 : 1;
 
         data.push({
-            time: `T-${15 - i}m`,
+            time: `${i * 5}s`,
             cpu: Math.min(100, Math.max(0, cpu)),
             bgpState: bgpState
         });
@@ -172,11 +172,14 @@ const generateCpuData = (peak: number, variation: number = 1) => {
 
 const generateCpuSaturation = (variation: number = 1) => {
     const data = [];
-    for (let i = 0; i < 15; i++) {
-        const cpu = Math.min(100, 50 + (i * 2.8) + (Math.random() * 5 * variation));
-        const pingLoss = i > 10 ? Math.min(100, (i - 10) * 15 + (Math.random() * 10)) : 0;
+    const pointCount = 25;
+    for (let i = 0; i < pointCount; i++) {
+        const noise = (Math.random() - 0.5) * 6;
+        const cpu = Math.min(100, 40 + (i * 2.8) + noise + (Math.sin(i * 0.5) * 4));
+        const lossThreshold = Math.floor(pointCount * 0.7);
+        const pingLoss = i > lossThreshold ? Math.min(100, (i - lossThreshold) * 12 + (Math.random() * 15)) : (Math.random() > 0.8 ? 2 : 0);
         data.push({
-            time: `T-${15 - i}m`,
+            time: `${i * 5}s`,
             cpuUtil: Math.round(cpu),
             pingLoss: Math.round(pingLoss)
         });
@@ -186,11 +189,17 @@ const generateCpuSaturation = (variation: number = 1) => {
 
 const generateLinkPhysData = (variation: number = 1) => {
     const data = [];
-    for (let i = 0; i < 15; i++) {
-        const errors = i > 5 ? (i - 5) * 50 * variation + Math.random() * 20 : Math.random() * 5;
-        const discards = i > 8 ? (i - 8) * 15 * variation + Math.random() * 10 : 0;
+    const pointCount = 25;
+    for (let i = 0; i < pointCount; i++) {
+        const baseNoise = Math.random() * 5;
+        const errThreshold = Math.floor(pointCount * 0.4);
+        const errors = i > errThreshold ? (i - errThreshold) * 45 * variation + (Math.random() * 40) : baseNoise;
+
+        const discThreshold = Math.floor(pointCount * 0.6);
+        const discards = i > discThreshold ? (i - discThreshold) * 15 * variation + (Math.random() * 20) : 0;
+
         data.push({
-            time: `T-${15 - i}m`,
+            time: `${i * 5}s`,
             inErrors: Math.round(errors),
             discards: Math.round(discards)
         });
@@ -200,12 +209,15 @@ const generateLinkPhysData = (variation: number = 1) => {
 
 const generateFwLoadData = (variation: number = 1) => {
     const data = [];
-    for (let i = 0; i < 15; i++) {
-        const sessions = 10000 + (Math.pow(i, 2.7) * 40 * variation);
-        const cpu = Math.min(100, 30 + (i * 3.8) + (Math.random() * 8));
-        const latency = i > 10 ? 10 + Math.pow(i - 10, 2) * 5 + Math.random() * 10 : 10 + Math.random() * 5;
+    const pointCount = 25;
+    for (let i = 0; i < pointCount; i++) {
+        const sessions = 10000 + (Math.pow(i, 2.7) * 40 * variation) + (Math.random() * 500);
+        const noise = (Math.random() - 0.5) * 10;
+        const cpu = Math.min(100, 25 + (i * 3.2) + noise + (Math.sin(i * 0.4) * 5));
+        const latThreshold = Math.floor(pointCount * 0.7);
+        const latency = i > latThreshold ? 12 + Math.pow(i - latThreshold, 2) * 4 + (Math.random() * 15) : 10 + (Math.random() * 5);
         data.push({
-            time: `T-${15 - i}m`,
+            time: `${i * 5}s`,
             sessions: Math.round(sessions),
             fwCpu: Math.round(cpu),
             latency: Math.round(latency)
@@ -216,11 +228,14 @@ const generateFwLoadData = (variation: number = 1) => {
 
 const generateQoeData = (variation: number = 1) => {
     const data = [];
-    for (let i = 0; i < 15; i++) {
-        const jitter = 2 + (i * 1.5 * variation) + Math.random() * 3;
-        const latencyVar = 5 + (Math.pow(i, 1.3) * variation) + Math.random() * 5;
+    const pointCount = 25;
+    for (let i = 0; i < pointCount; i++) {
+        const jitNoise = (Math.random() - 0.5) * 4;
+        const jitter = 2 + (i * 1.4 * variation) + jitNoise + (Math.sin(i * 0.6) * 3);
+        const varNoise = (Math.random() - 0.5) * 6;
+        const latencyVar = 5 + (Math.pow(i, 1.25) * variation) + varNoise + (Math.sin(i * 0.3) * 5);
         data.push({
-            time: `T-${15 - i}m`,
+            time: `${i * 5}s`,
             jitter: Math.round(jitter * 10) / 10,
             latencyVar: Math.round(latencyVar * 10) / 10
         });
@@ -242,10 +257,10 @@ export const MOCK_PATTERNS: Pattern[] = [
         severity: 'Critical',
         tags: ['Congestion', 'Predictive', 'Interface', 'Pattern Match'],
         steps: [
-            { id: 'S1', name: 'Link Util', description: 'cross 90%', icon: TrendingUp, delay: '~min' },
-            { id: 'S2', name: 'Buffer Util', description: 'cross 85%', icon: Database, delay: '+~min' },
-            { id: 'S3', name: 'CRC Errors', description: 'cross 70%', icon: AlertTriangle, delay: '+~min' },
-            { id: 'S4', name: 'Packet Loss', description: 'cross 5%', icon: Activity, delay: '+~min' },
+            { id: 'S1', name: 'Link Util', description: '50% -> 90%', icon: TrendingUp, delay: '0m' },
+            { id: 'S2', name: 'Buffer Util', description: '20% -> 85%', icon: Database, delay: '+4m' },
+            { id: 'S3', name: 'CRC Errors', description: '0 -> 70', icon: AlertTriangle, delay: '+2m' },
+            { id: 'S4', name: 'Packet Loss', description: '0% -> 5%', icon: Activity, delay: '+5m' },
             { id: 'S5', name: 'Critical Breach', description: 'INTERFACE_FLAP', icon: ShieldCheck, delay: '(FINAL)' }
         ],
         logicSummary: 'Saturation-to-Failure Sequence:',
@@ -257,7 +272,8 @@ export const MOCK_PATTERNS: Pattern[] = [
             { order: 5, title: 'Connection Collapse', description: 'Link Flap', color: 'red' }
         ],
         predictedEvents: [
-            { name: 'INTERFACE_FLAP', probability: 0.99, severity: 'Critical', title: 'Predicted Outage', subtitle: 'Accuracy 99%' }
+            { name: 'PACKET_LOSS', probability: 0.92, severity: 'Major', title: '', subtitle: 'Edge congestion detected' },
+            { name: 'INTERFACE_FLAP', probability: 0.99, severity: 'Critical', title: '', subtitle: 'Interface stability failure' }
         ],
         drillDownMetrics: [
             { label: 'Utilization', value: 'Gradual rise from ~50% → ~90%', icon: 'trending', color: 'blue' },
@@ -381,7 +397,7 @@ export const MOCK_PATTERNS: Pattern[] = [
         name: 'BGP Connection Loss pattern',
         description: 'CPU UTIL↑ | BGP_STATE ↓ | ROUTE_WITHDRAWAL',
         confidence: 0.87,
-        seenCount: 4,
+        seenCount: 5,
         lastSeen: 'Yesterday',
         domain: 'Network',
         appliesTo: ['Core Routers'],
@@ -389,9 +405,9 @@ export const MOCK_PATTERNS: Pattern[] = [
         severity: 'Critical',
         tags: ['BGP', 'Control Plane', 'CPU'],
         steps: [
-            { id: 'S1', name: 'CPU Util', description: 'CPU Util↑', icon: Cpu },
-            { id: 'S2', name: 'Keep-alive Missed', description: 'BGP_STATE ↓', icon: Activity, delay: '60s' },
-            { id: 'S3', name: 'BGP Down', description: 'ROUTE_WITHDRAWAL', icon: Network }
+            { id: 'S1', name: 'CPU Util', description: '20% -> 98%', icon: Cpu, delay: '0s' },
+            { id: 'S2', name: 'Keep-alive Missed', description: 'Active -> Timeout', icon: Activity, delay: '+60s' },
+            { id: 'S3', name: 'BGP Down', description: 'Established -> IDLE', icon: Network, delay: '+30s' }
         ],
         logicSummary: 'Resource Starvation Pattern:',
         logicSteps: [
@@ -450,6 +466,15 @@ export const MOCK_PATTERNS: Pattern[] = [
                 outcomes: ['High CPU'],
                 metricData: generateCpuData(80, 4),
                 events: []
+            },
+            {
+                id: 'OCC-2025-032',
+                timestamp: new Date(Date.now() - 3456000000).toLocaleString(),
+                severity: 'Warning',
+                summary: 'Minor BGP Fluctuation',
+                outcomes: ['High CPU'],
+                metricData: generateCpuData(75, 5),
+                events: []
             }
         ],
         simulationType: 'cpu_spike'
@@ -467,10 +492,10 @@ export const MOCK_PATTERNS: Pattern[] = [
         severity: 'Critical',
         tags: ['CPU Saturation', 'Reboot Prediction', 'Unreachable'],
         steps: [
-            { id: 'S1', name: 'CPU Utilization Rise', description: 'CPU ↑', icon: TrendingUp },
-            { id: 'S2', name: 'Status Code Change', description: 'STATUS_CHANGE', icon: ShieldCheck, delay: '+5m' },
-            { id: 'S3', name: 'Ping Intermittent', description: 'PING_LOSS ↑', icon: Activity, delay: '+5m' },
-            { id: 'S4', name: 'Availability Drops', description: 'AVAILABILITY ↓', icon: AlertTriangle, delay: '+2m' },
+            { id: 'S1', name: 'CPU Utilization Rise', description: '40% -> 95%', icon: TrendingUp, delay: '0m' },
+            { id: 'S2', name: 'Status Code Change', description: '200 -> 503', icon: ShieldCheck, delay: '+5m' },
+            { id: 'S3', name: 'Ping Intermittent', description: '0% -> 15% Loss', icon: Activity, delay: '+5m' },
+            { id: 'S4', name: 'Availability Drops', description: '100% -> 0%', icon: AlertTriangle, delay: '+2m' },
         ],
         logicSummary: 'CPU Exhaustion to OS Failure:',
         logicSteps: [
@@ -541,10 +566,10 @@ export const MOCK_PATTERNS: Pattern[] = [
         severity: 'Major',
         tags: ['CRC Errors', 'Link Flap', 'Physical Layer'],
         steps: [
-            { id: 'S1', name: 'In Errors Gradual Rise', description: 'ERRORS ↑', icon: Activity },
-            { id: 'S2', name: 'Out Errors / Discards Rise', description: 'DISCARDS ↑', icon: AlertTriangle, delay: '+5m' },
-            { id: 'S3', name: 'Duplex Mismatch (Optional)', description: 'DUPLEX_MISMATCH', icon: Database, delay: '+2m' },
-            { id: 'S4', name: 'Interface Flapping', description: 'INTERFACE_FLAP', icon: Zap, delay: '+5m' },
+            { id: 'S1', name: 'In Errors Gradual Rise', description: '0 -> 120 cps', icon: Activity, delay: '0m' },
+            { id: 'S2', name: 'Out Errors / Discards Rise', description: '5 -> 50 discards', icon: AlertTriangle, delay: '+5m' },
+            { id: 'S3', name: 'Duplex Mismatch (Optional)', description: 'Full -> Half', icon: Database, delay: '+2m' },
+            { id: 'S4', name: 'Interface Flapping', description: 'Up -> Down / Flap', icon: Zap, delay: '+5m' },
         ],
         logicSummary: 'Physical Layer Decay:',
         logicSteps: [
@@ -615,10 +640,10 @@ export const MOCK_PATTERNS: Pattern[] = [
         severity: 'Critical',
         tags: ['Firewall', 'Packet Loss', 'Session Exhaustion'],
         steps: [
-            { id: 'S1', name: 'Total Sessions Spike', description: 'SESSIONS ↑', icon: Grid },
-            { id: 'S2', name: 'CPU Utilization Rise', description: 'CPU ↑', icon: Cpu, delay: '+2m' },
-            { id: 'S3', name: 'Latency Increases', description: 'LATENCY ↑', icon: Clock, delay: '+3m' },
-            { id: 'S4', name: 'Packet Loss', description: 'PACKET_LOSS', icon: AlertTriangle, delay: '+3m' },
+            { id: 'S1', name: 'Total Sessions Spike', description: '10k -> 80k', icon: Grid, delay: '0m' },
+            { id: 'S2', name: 'CPU Utilization Rise', description: '30% -> 99%', icon: Cpu, delay: '+2m' },
+            { id: 'S3', name: 'Latency Increases', description: '10ms -> 150ms', icon: Clock, delay: '+3m' },
+            { id: 'S4', name: 'Packet Loss', description: '0% -> 2%', icon: AlertTriangle, delay: '+3m' },
         ],
         logicSummary: 'Session Table Exhaustion:',
         logicSteps: [
@@ -683,9 +708,9 @@ export const MOCK_PATTERNS: Pattern[] = [
         severity: 'Warning',
         tags: ['Jitter', 'QoE', 'SLA', 'VoIP'],
         steps: [
-            { id: 'S1', name: 'Utilization Near Threshold', description: 'UTIL ↑', icon: Database },
-            { id: 'S2', name: 'Latency Variance Rise', description: 'LATENCY_VAR ↑', icon: Clock, delay: '+1m' },
-            { id: 'S3', name: 'Jitter Increases', description: 'JITTER ↑', icon: Activity, delay: '+2m' }
+            { id: 'S1', name: 'Utilization Near Threshold', description: '60% -> 85%', icon: Database, delay: '0m' },
+            { id: 'S2', name: 'Latency Variance Rise', description: '5ms -> 45ms', icon: Clock, delay: '+1m' },
+            { id: 'S3', name: 'Jitter Increases', description: '2ms -> 35ms', icon: Activity, delay: '+2m' }
         ],
         logicSummary: 'Micro-burst Congestion:',
         logicSteps: [

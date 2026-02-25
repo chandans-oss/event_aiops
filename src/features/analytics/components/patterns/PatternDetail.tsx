@@ -15,7 +15,8 @@ import {
     List,
     Server,
     Globe,
-    Database
+    Database,
+    Zap
 } from 'lucide-react';
 import {
     Card,
@@ -147,7 +148,6 @@ const generateSimulationData = (type: 'congestion' | 'cpu_spike' | 'device_cpu_s
             const errorRise = i > 14 ? (i - 14) * 1.5 + Math.random() : 0;
             m3 = Math.floor(Math.max(0, errorBase + errorRise));
         }
-
         data.push({
             time: `T+${i}m`,
             metric1: Math.round(m1),
@@ -158,12 +158,86 @@ const generateSimulationData = (type: 'congestion' | 'cpu_spike' | 'device_cpu_s
     return data;
 };
 
+const SIM_METRICS: Record<string, { key: string, name: string, color: string }[]> = {
+    'congestion': [
+        { key: 'utilization', name: 'Util %', color: '#3b82f6' },
+        { key: 'drops', name: 'Drops', color: '#ef4444' },
+        { key: 'errors', name: 'CRC Errors', color: '#f59e0b' }
+    ],
+    'cpu_spike': [
+        { key: 'cpu', name: 'CPU %', color: '#ef4444' },
+        { key: 'bgpState', name: 'BGP', color: '#3b82f6' }
+    ],
+    'device_cpu_saturation': [
+        { key: 'cpuUtil', name: 'CPU %', color: '#ef4444' },
+        { key: 'pingLoss', name: 'Ping Loss', color: '#f59e0b' }
+    ],
+    'link_physical_degradation': [
+        { key: 'inErrors', name: 'Errors', color: '#f59e0b' },
+        { key: 'discards', name: 'Discards', color: '#ef4444' }
+    ],
+    'firewall_overload': [
+        { key: 'sessions', name: 'Sessions', color: '#3b82f6' },
+        { key: 'fwCpu', name: 'FW CPU', color: '#ef4444' },
+        { key: 'latency', name: 'Lat(ms)', color: '#f59e0b' }
+    ],
+    'qoe_jitter': [
+        { key: 'jitter', name: 'Jitter', color: '#3b82f6' },
+        { key: 'latencyVar', name: 'Lat Var', color: '#f59e0b' }
+    ]
+};
+
+const MiniMetricPlot = ({ data, dataKey, color, name, occId }: { data: any[], dataKey: string, color: string, name: string, occId: string }) => {
+    return (
+        <div className="flex flex-col gap-2 flex-1 min-w-[140px] h-full group">
+            <div className="flex items-center justify-between px-0.5">
+                <div className="flex items-center gap-1.5">
+                    <div className="w-1 h-3 rounded-full" style={{ backgroundColor: color }} />
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground/70 tracking-tight group-hover:text-foreground/90 transition-colors">{name}</span>
+                </div>
+                <span className="text-[11px] font-mono font-bold text-foreground/60">
+                    {data && data.length > 0 ? (data[data.length - 1][dataKey] ?? 0) : 0}
+                </span>
+            </div>
+
+            <div className="flex-1 h-20 w-full bg-background/40 border-l border-b border-white/10 relative overflow-hidden group-hover:border-white/20 transition-colors">
+                {/* Technical Grid Overlay */}
+                <div className="absolute inset-0 pointer-events-none" style={{
+                    backgroundImage: `linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px)`,
+                    backgroundSize: '20px 20px'
+                }} />
+
+                <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={data} margin={{ top: 10, right: 5, left: 0, bottom: 0 }}>
+                        <Area
+                            type="linear"
+                            dataKey={dataKey}
+                            stroke={color}
+                            fill={color}
+                            fillOpacity={0.08}
+                            strokeWidth={1.5}
+                            dot={{ r: 1.5, fill: color, strokeWidth: 0, fillOpacity: 0.8 }}
+                            activeDot={{ r: 3, fill: color, strokeWidth: 0 }}
+                            isAnimationActive={false}
+                        />
+                    </AreaChart>
+                </ResponsiveContainer>
+
+                <div className="absolute right-1 top-1 text-[8px] font-mono text-muted-foreground/30 pointer-events-none">
+                    MAX
+                </div>
+            </div>
+        </div>
+    );
+};
+
 interface PatternDetailProps {
     pattern: Pattern;
     onClose: () => void;
 }
 
 export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
+
     const [chartData, setChartData] = useState<any[]>([]);
     const [activeTab, setActiveTab] = useState<'overview' | 'simulation'>('overview');
     const [manualInputs, setManualInputs] = useState({ metric1: 0, metric2: 0, metric3: 0 });
@@ -652,11 +726,13 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                     ...s,
                                                     description: s.description.replace('cross', '>').replace('->', '->')
                                                 }));
-                                                const outcomeSteps = pattern.predictedEvents.map(evt => ({
-                                                    name: evt.name,
-                                                    description: '', // Removing probability values
-                                                    delay: '(EVENT)'
-                                                }));
+                                                const outcomeSteps = pattern.predictedEvents
+                                                    .filter(evt => !behavioralSteps.some(bs => bs.name.toLowerCase() === evt.name.replace('_', ' ').toLowerCase()))
+                                                    .map(evt => ({
+                                                        name: evt.name,
+                                                        description: '', // Removing probability values
+                                                        delay: '(EVENT)'
+                                                    }));
 
                                                 const allFlowItems = [...behavioralSteps, ...outcomeSteps];
 
@@ -682,6 +758,7 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                                         if (isCritical) return 'text-orange-400';
                                                                         return 'text-foreground';
                                                                     })()}`}>
+                                                                        <span className="opacity-50 mr-1">{idx + 1}.</span>
                                                                         {item.name.replace(' ', '_').toLowerCase()}
                                                                         {!isOutcome && /util|rise|spike|up|cross|error|discard|drop|loss|mismatch|flapping/i.test(item.name + item.description) && (
                                                                             <span className="text-rose-500 ml-1">↑</span>
@@ -728,10 +805,79 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                 </div>
                             </CardContent>
                         </Card>
+                    </div>
 
+                    {/* Top Evidence Analysis (NEW) */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-4">
+                            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest whitespace-nowrap">
+                                Top Evidence Analysis (LATEST 5 OCCURRENCES)
+                            </div>
+                            <div className="h-[1px] flex-grow bg-muted-foreground/10" />
+                        </div>
+
+                        <div className="flex flex-col gap-4">
+                            {pattern.occurrences.slice(0, 5).map((occ, idx) => (
+                                <div
+                                    key={occ.id}
+                                    onClick={() => setExpandedOccurrenceId(expandedOccurrenceId === occ.id ? null : occ.id)}
+                                    className="relative bg-card/40 border border-border/50 rounded-xl p-4 flex flex-col lg:flex-row items-center gap-6 group hover:border-primary/30 transition-all hover:shadow-xl hover:shadow-primary/5 cursor-pointer"
+                                >
+                                    {/* Occurrence Info Sidebar */}
+                                    <div className="flex flex-col min-w-[140px] border-r border-white/5 pr-6">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <div className="w-2 h-2 rounded-full bg-primary/60" />
+                                            <span className="text-[10px] font-bold text-muted-foreground uppercase">Case #{pattern.occurrences.length - idx}</span>
+                                        </div>
+                                        <div className="text-sm font-bold text-foreground mb-1">{occ.timestamp.split(',')[0]}</div>
+                                        <div className="text-[10px] font-mono text-muted-foreground">{occ.timestamp.split(',')[1]?.trim()}</div>
+                                        <Badge variant="outline" className={`mt-3 py-0 h-4 text-[9px] w-fit ${occ.severity === 'Critical' ? 'border-red-500/30 text-red-400 bg-red-400/5' : 'border-orange-500/30 text-orange-400 bg-orange-400/5'}`}>
+                                            {occ.severity}
+                                        </Badge>
+                                    </div>
+
+                                    {/* Metrics Horizontal Row */}
+                                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-8 min-h-[140px]">
+                                        {SIM_METRICS[pattern.simulationType || 'congestion']?.map(m => (
+                                            <div key={m.key} className="h-full">
+                                                <MiniMetricPlot
+                                                    data={occ.metricData}
+                                                    dataKey={m.key}
+                                                    color={m.color}
+                                                    name={m.name}
+                                                    occId={occ.id}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
+
+                                    <div className="flex flex-col min-w-[200px] border-l border-white/5 pl-6">
+                                        <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                                            <Zap className="h-2.5 w-2.5 text-rose-400" /> outcome events
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            {pattern.predictedEvents.slice(0, 2).map((evt, eIdx) => (
+                                                <div key={eIdx} className="flex items-center gap-2 group/item">
+                                                    <div className="w-1 h-3 rounded-full bg-rose-500/30 group-hover/item:bg-rose-500/60 transition-colors" />
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[11px] font-bold text-rose-400/90 leading-none">{evt.name}</span>
+                                                        <span className="text-[9px] text-muted-foreground mt-0.5 line-clamp-1">{evt.title}</span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            {pattern.predictedEvents.length === 0 && (
+                                                <div className="text-[10px] italic text-muted-foreground">No predictions recorded</div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Historical Occurrences */}
+
                     <div className="space-y-4">
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
