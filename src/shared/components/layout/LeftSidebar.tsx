@@ -19,6 +19,7 @@ import {
   Network,
   TrendingUp,
   Bot,
+  Target,
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
@@ -40,6 +41,7 @@ const navItems: NavItem[] = [
     children: [
       { path: "/", label: "Overview", icon: LayoutDashboard },
       { path: "/dashboard/alarm-prediction", label: "Alarm Prediction", icon: TrendingUp },
+      { path: "/dashboard/roi", label: "ROI Dashboard", icon: Target },
     ]
   },
   { path: "/events", label: "Events", icon: Activity },

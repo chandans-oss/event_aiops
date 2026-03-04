@@ -10,7 +10,7 @@ export default function CorrelationPage() {
 
     return (
         <MainLayout>
-            <div className="h-full p-6 overflow-hidden">
+            <div className="h-full p-6 overflow-hidden relative">
                 <AnimatePresence mode="wait">
                     {!selectedPattern ? (
                         <motion.div

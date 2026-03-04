@@ -1,22 +1,33 @@
-
 import {
     X,
     TrendingUp,
-    ArrowRight,
     BrainCircuit,
     CheckCircle2,
     Clock,
-    Activity,
-    MoreHorizontal,
-    PlayCircle,
+    Cpu,
+    Database,
+    FlaskConical,
+    Grid,
+    LayoutList,
+    List,
+    Network,
+    Search,
+    Server,
+    Zap,
     AlertTriangle,
     ShieldCheck,
+    Workflow,
+    Calculator,
+    Binary,
     ArrowLeft,
-    List,
-    Server,
-    Globe,
-    Database,
-    Zap
+    ArrowRight,
+    Activity,
+    PlayCircle,
+    Calendar,
+    Terminal as TerminalIcon,
+    BarChart3 as BarChart3Icon,
+    Plus,
+    ChevronDown
 } from 'lucide-react';
 import {
     Card,
@@ -25,6 +36,13 @@ import {
     CardHeader,
     CardTitle
 } from '@/shared/components/ui/card';
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger
+} from '@/shared/components/ui/tabs';
+import { format } from 'date-fns';
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
 import { Separator } from '@/shared/components/ui/separator';
@@ -42,8 +60,51 @@ import {
     Area,
     ReferenceLine
 } from 'recharts';
-import { Pattern, PatternOccurrence } from './PatternData';
+import { Pattern, PatternOccurrence, EvidenceItem } from './PatternData';
 import { useState, useEffect, Fragment } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+// --- Module-level store: persists custom occurrences across re-mounts ---
+const _patternCustomOccurrences: Record<string, PatternOccurrence[]> = {};
+
+function generateMockEventsForType(simType: string, occId: string, occTimestamp: string): EvidenceItem[] {
+    const offset = (ms: number) => {
+        const base = new Date(occTimestamp);
+        return new Date(isNaN(base.getTime()) ? Date.now() - ms : base.getTime() - ms).toISOString();
+    };
+    const map: Record<string, EvidenceItem[]> = {
+        congestion: [
+            { id: `${occId}-E1`, timestamp: offset(600000), title: 'High Utilization', subtitle: 'Traffic burst detected', severity: 'Warning', nodeName: 'Core-Router-01', nodeIp: '10.0.1.1', resource: 'Gi1/0/1', alertValue: '87%', threshold: '> 80%' },
+            { id: `${occId}-E2`, timestamp: offset(300000), title: 'Buffer Overflow', subtitle: 'Output queue drops', severity: 'Major', nodeName: 'Core-Router-01', nodeIp: '10.0.1.1', resource: 'Gi1/0/1', alertValue: '1280', threshold: '> 1000' },
+            { id: `${occId}-E3`, timestamp: offset(0), title: 'Interface Flap', subtitle: 'Interface state changed to Down', severity: 'Critical', nodeName: 'Core-Router-01', nodeIp: '10.0.1.1', resource: 'Gi1/0/1', alertValue: 'Down', threshold: 'State' },
+        ],
+        cpu_spike: [
+            { id: `${occId}-E1`, timestamp: offset(600000), title: 'CPU Spike', subtitle: 'Sustained high CPU utilization', severity: 'Warning', nodeName: 'Core-Router-02', nodeIp: '10.10.10.2', resource: 'CPU', alertValue: '88%', threshold: '> 80%' },
+            { id: `${occId}-E2`, timestamp: offset(180000), title: 'BGP Keep-alive Missed', subtitle: 'Control plane degraded', severity: 'Major', nodeName: 'Core-Router-02', nodeIp: '10.10.10.2', resource: 'bgp-100', alertValue: 'Timeout', threshold: '> 60s' },
+            { id: `${occId}-E3`, timestamp: offset(0), title: 'BGP Session Down', subtitle: 'Neighbor keepalive timeout', severity: 'Critical', nodeName: 'Core-Router-02', nodeIp: '10.10.10.2', resource: 'bgp-100', alertValue: 'Down', threshold: 'State != Established' },
+        ],
+        device_cpu_saturation: [
+            { id: `${occId}-E1`, timestamp: offset(600000), title: 'CPU Warning', subtitle: 'CPU exceeding threshold', severity: 'Warning', nodeName: 'Agg-Switch-01', nodeIp: '10.1.1.1', resource: 'System', alertValue: '85%', threshold: '> 80%' },
+            { id: `${occId}-E2`, timestamp: offset(120000), title: 'ICMP Intermittent', subtitle: 'Ping response delays', severity: 'Major', nodeName: 'Agg-Switch-01', nodeIp: '10.1.1.1', resource: 'ICMP', alertValue: '15% loss', threshold: '> 5%' },
+            { id: `${occId}-E3`, timestamp: offset(0), title: 'Device Unreachable', subtitle: 'No ping response', severity: 'Critical', nodeName: 'Agg-Switch-01', nodeIp: '10.1.1.1', resource: 'ICMP', alertValue: '100% Loss', threshold: 'Reachability' },
+        ],
+        link_physical_degradation: [
+            { id: `${occId}-E1`, timestamp: offset(900000), title: 'CRC Errors Rise', subtitle: 'Input errors rising rapidly', severity: 'Warning', nodeName: 'PE-Router-01', nodeIp: '10.20.1.1', resource: 'xe-0/0/1', alertValue: '95 cps', threshold: '> 50 cps' },
+            { id: `${occId}-E2`, timestamp: offset(300000), title: 'Frame Discards', subtitle: 'Output discards elevated', severity: 'Major', nodeName: 'PE-Router-01', nodeIp: '10.20.1.1', resource: 'xe-0/0/1', alertValue: '45', threshold: '> 10' },
+            { id: `${occId}-E3`, timestamp: offset(0), title: 'Interface Flapping', subtitle: 'Link state unstable', severity: 'Major', nodeName: 'PE-Router-01', nodeIp: '10.20.1.1', resource: 'xe-0/0/1', alertValue: 'Flap', threshold: 'State Stability' },
+        ],
+        firewall_overload: [
+            { id: `${occId}-E1`, timestamp: offset(600000), title: 'Session Table Near Capacity', subtitle: 'Connection rate spike', severity: 'Warning', nodeName: 'Edge-FW-01', nodeIp: '192.168.254.1', resource: 'DataPlane', alertValue: '72k sessions', threshold: '75k max' },
+            { id: `${occId}-E2`, timestamp: offset(180000), title: 'CPU Saturation', subtitle: 'Firewall CPU overloaded', severity: 'Major', nodeName: 'Edge-FW-01', nodeIp: '192.168.254.1', resource: 'CPU1', alertValue: '96%', threshold: '> 90%' },
+            { id: `${occId}-E3`, timestamp: offset(0), title: 'Packet Drop', subtitle: 'Buffer exhaustion — policy drops active', severity: 'Critical', nodeName: 'Edge-FW-01', nodeIp: '192.168.254.1', resource: 'DataPlane', alertValue: '2000 pps', threshold: '> 0 pps' },
+        ],
+        qoe_jitter: [
+            { id: `${occId}-E1`, timestamp: offset(300000), title: 'Latency Variance Spike', subtitle: 'Jitter baseline exceeded', severity: 'Warning', nodeName: 'SDWAN-Branch-01', nodeIp: '10.50.1.1', resource: 'Tunnel-01', alertValue: '28ms', threshold: '< 30ms' },
+            { id: `${occId}-E2`, timestamp: offset(0), title: 'SLA Breach', subtitle: 'Voice quality degradation detected', severity: 'Major', nodeName: 'SDWAN-Branch-01', nodeIp: '10.50.1.1', resource: 'Tunnel-01', alertValue: '38ms jitter', threshold: '< 30ms' },
+        ],
+    };
+    return map[simType] ?? map['congestion'];
+}
 
 // --- Simulation Logic ---
 
@@ -242,11 +303,130 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
     const [activeTab, setActiveTab] = useState<'overview' | 'simulation'>('overview');
     const [manualInputs, setManualInputs] = useState({ metric1: 0, metric2: 0, metric3: 0 });
     const [hasUserInteracted, setHasUserInteracted] = useState(false);
-    const [expandedOccurrenceId, setExpandedOccurrenceId] = useState<string | null>(null);
     const [dynamicPredictions, setDynamicPredictions] = useState(pattern.predictedEvents);
     const [timeFilter, setTimeFilter] = useState<'7D' | '1M' | '3M' | '6M' | 'ALL'>('ALL');
+    const [subTab, setSubTab] = useState<'occurrence' | 'history' | 'analysis'>('occurrence');
+    const navigate = useNavigate();
+
+    // Custom occurrences: initialized from module-level store so they persist across re-mounts
+    const [customOccurrences, setCustomOccurrences] = useState<PatternOccurrence[]>(
+        () => _patternCustomOccurrences[pattern.id] ?? []
+    );
+
+    // Re-hydrate custom occurrences when the selected pattern changes
+    useEffect(() => {
+        setCustomOccurrences(_patternCustomOccurrences[pattern.id] ?? []);
+    }, [pattern.id]);
+
+    // Persist custom occurrences to the module-level store on every change
+    useEffect(() => {
+        _patternCustomOccurrences[pattern.id] = customOccurrences;
+    }, [pattern.id, customOccurrences]);
 
     const chartConfig = getChartConfig(pattern.simulationType || 'congestion');
+
+    // Internal helper component to keep the tabs clean and reusable
+    const OccurrenceCard = ({ occ, idx, showMatch = true }: { occ: PatternOccurrence, idx: number, showMatch?: boolean }) => {
+        const [showEvents, setShowEvents] = useState(false);
+        // Auto-resolve events: use existing ones or generate mock events if empty
+        const resolvedEvents = occ.events && occ.events.length > 0
+            ? occ.events
+            : generateMockEventsForType(pattern.simulationType || 'congestion', occ.id, occ.timestamp);
+
+        const getSeverityStyle = (sev: string) => {
+            if (sev === 'Critical') return 'border-red-500/30 text-red-400 bg-red-400/5';
+            if (sev === 'Major') return 'border-orange-500/30 text-orange-400 bg-orange-400/5';
+            return 'border-yellow-500/30 text-yellow-400 bg-yellow-400/5';
+        };
+
+        // Date & Time Formatting using date-fns
+        let dateDisplay = 'N/A';
+        let timeDisplay = '';
+        try {
+            const d = new Date(occ.timestamp);
+            if (!isNaN(d.getTime())) {
+                dateDisplay = format(d, 'MMM dd, yyyy');
+                timeDisplay = format(d, 'hh:mm:ss a');
+            } else {
+                // Fallback for old strings
+                dateDisplay = occ.timestamp.split(',')[0] || 'N/A';
+                timeDisplay = occ.timestamp.split(',')[1]?.trim() || '';
+            }
+        } catch (e) {
+            dateDisplay = occ.timestamp;
+        }
+
+        return (
+            <div
+                key={occ.id}
+                className="relative bg-card/30 border border-white/5 rounded-xl p-5 flex flex-col lg:flex-row items-stretch gap-6 group hover:border-primary/20 transition-all shadow-sm max-w-7xl mx-auto w-full"
+            >
+                {/* Occurrence Info Sidebar */}
+                <div className="flex flex-col min-w-[200px] border-r border-white/5 pr-6 justify-center">
+                    <div className="flex items-center gap-2 mb-3">
+                        <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
+                        <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">Case #{pattern.occurrences.length - idx}</span>
+                    </div>
+
+                    <div className="space-y-0.5">
+                        <div className="text-sm font-bold text-muted-foreground/40 uppercase tracking-tighter">Event Date</div>
+                        <div className="text-lg font-black text-foreground tracking-tight leading-none mb-2">
+                            {dateDisplay}
+                        </div>
+                        <div className="text-sm font-bold text-muted-foreground/40 uppercase tracking-tighter">Trigger Time</div>
+                        <div className="text-[12px] font-mono font-bold text-primary/80 uppercase bg-primary/5 px-2 py-1 rounded w-fit">
+                            {timeDisplay}
+                        </div>
+                    </div>
+
+                    <div className="mt-5 flex flex-wrap gap-2">
+                        <Badge variant="outline" className={`py-0.5 h-5 text-[10px] font-bold px-3 ${occ.severity === 'Critical' ? 'border-red-500/30 text-red-400 bg-red-400/5' :
+                            'border-orange-500/30 text-orange-400 bg-orange-400/5'
+                            }`}>
+                            {occ.severity}
+                        </Badge>
+                        {showMatch && (
+                            <Badge variant="outline" className="border-emerald-500/20 text-emerald-400 bg-emerald-400/5 py-0.5 h-5 text-[10px] font-bold px-3">
+                                {(94 + (Math.sin(idx + 10) * 4.5)).toFixed(1)}% Match
+                            </Badge>
+                        )}
+                    </div>
+                </div>
+
+                {/* Metrics Row - Constrained and tidy */}
+                <div className="flex-1 max-w-[800px]">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 h-full items-center">
+                        {SIM_METRICS[pattern.simulationType || 'congestion']?.map(m => (
+                            <div key={m.key} className="h-[120px]">
+                                <MiniMetricPlot
+                                    data={occ.metricData}
+                                    dataKey={m.key}
+                                    color={m.color}
+                                    name={m.name}
+                                    occId={occ.id}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                {/* Outcomes */}
+                <div className="min-w-[180px] border-l border-white/5 pl-6 flex flex-col justify-center">
+                    <div className="text-[10px] uppercase font-bold text-muted-foreground/50 mb-4 flex items-center gap-2 tracking-widest">
+                        <Zap className="h-3 w-3 text-primary/70" /> Predictions
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        {occ.outcomes?.map((out, i) => (
+                            <div key={i} className="flex items-center gap-2 group/item">
+                                <div className="w-[3px] h-3 bg-red-500/60 rounded-full" />
+                                <span className="text-[10px] font-black text-red-400 uppercase tracking-widest">{out}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    };
 
     const filterOccurrences = (occurrences: PatternOccurrence[]) => {
         if (timeFilter === 'ALL') return occurrences;
@@ -268,6 +448,24 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
     };
 
     const filteredOccurrences = pattern.occurrences ? filterOccurrences(pattern.occurrences) : [];
+
+    // All occurrences combined: custom ones first (most recent), then pattern ones
+    const allOccurrences = [...customOccurrences, ...pattern.occurrences];
+
+    const handleAddOccurrence = () => {
+        const nowTs = new Date().toISOString();
+        const newId = `OCC-CUSTOM-${Date.now()}`;
+        const newOcc: PatternOccurrence = {
+            id: newId,
+            timestamp: nowTs,
+            severity: 'Major',
+            summary: 'Manually Added Occurrence',
+            outcomes: pattern.predictedEvents.map(e => e.name.replace(/_/g, ' ')),
+            metricData: generateSimulationData(pattern.simulationType || 'congestion'),
+            events: generateMockEventsForType(pattern.simulationType || 'congestion', newId, nowTs),
+        };
+        setCustomOccurrences(prev => [newOcc, ...prev]);
+    };
 
     // Initialize with some historical context, but allow manual extension
     useEffect(() => {
@@ -655,7 +853,7 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
     }
 
     return (
-        <div className="h-full flex flex-col bg-background/95 backdrop-blur-sm animate-in slide-in-from-right-4 duration-300">
+        <div className="absolute inset-0 z-50 flex flex-col bg-background/95 backdrop-blur-sm animate-in slide-in-from-right-4 duration-300 min-h-0">
 
             {/* Header */}
             <div className="border-b border-border/50 p-4 flex items-center justify-between bg-card/50">
@@ -680,13 +878,17 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                     <ShieldCheck className="h-3 w-3" />
                                     {pattern.domain}
                                 </span>
+                                <span className="flex items-center gap-1 text-primary/80 font-medium">
+                                    <Calendar className="h-3 w-3" />
+                                    Rule Identified: {pattern.ruleCreationDate}
+                                </span>
                                 <span className="flex items-center gap-1">
                                     <Activity className="h-3 w-3" />
-                                    {pattern.seenCount} seen
+                                    {pattern.seenCount} occurrences since created
                                 </span>
                                 <span className="flex items-center gap-1">
                                     <Clock className="h-3 w-3" />
-                                    {pattern.lastSeen}
+                                    Last seen: {pattern.lastSeen}
                                 </span>
                             </div>
                         </div>
@@ -713,11 +915,20 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                 <div className="flex flex-col">
                                     <div className="p-6 bg-background/20">
                                         {/* Header with styled line */}
-                                        <div className="flex items-center gap-4 mb-5">
+                                        <div className="flex items-center gap-4 mb-5 w-full">
                                             <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest whitespace-nowrap">
                                                 Incident Progression Lifecycle
                                             </div>
                                             <div className="h-[1px] flex-grow bg-muted-foreground/10" />
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-6 text-[10px] font-bold tracking-widest uppercase border-primary/30 text-primary hover:bg-primary/10 gap-1"
+                                                onClick={() => navigate(`/events?correlation=${encodeURIComponent(pattern.name)}`)}
+                                            >
+                                                Related events
+                                                <ArrowRight className="h-3 w-3" />
+                                            </Button>
                                         </div>
 
                                         <div className="flex items-stretch gap-3">
@@ -805,256 +1016,284 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                 </div>
                             </CardContent>
                         </Card>
-                    </div>
 
-                    {/* Top Evidence Analysis (NEW) */}
-                    <div className="space-y-4">
-                        <div className="flex items-center gap-4">
-                            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest whitespace-nowrap">
-                                Top Evidence Analysis (LATEST 5 OCCURRENCES)
-                            </div>
-                            <div className="h-[1px] flex-grow bg-muted-foreground/10" />
-                        </div>
+                        {/* TABS SECTION (Refactored) */}
+                        <div className="mt-8 space-y-6">
+                            <Tabs value={subTab} onValueChange={(v) => setSubTab(v as 'occurrence' | 'history' | 'analysis')} className="w-full">
+                                <div className="flex items-center justify-between mb-4 border-b border-white/5 pb-2">
+                                    <TabsList className="bg-transparent gap-8 h-auto p-0 justify-start">
+                                        <TabsTrigger
+                                            value="occurrence"
+                                            className="px-0 py-2 bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary rounded-none font-bold uppercase text-[11px] tracking-widest transition-all"
+                                        >
+                                            Result / Accuracy ({Math.min(5, pattern.occurrences.length)})
+                                        </TabsTrigger>
+                                        <TabsTrigger
+                                            value="history"
+                                            className="px-0 py-2 bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary rounded-none font-bold uppercase text-[11px] tracking-widest transition-all"
+                                        >
+                                            History / Proof ({Math.max(0, pattern.occurrences.length - 5)})
+                                        </TabsTrigger>
+                                        <TabsTrigger
+                                            value="analysis"
+                                            className="px-0 py-2 bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary rounded-none font-bold uppercase text-[11px] tracking-widest transition-all"
+                                        >
+                                            Analysis
+                                        </TabsTrigger>
+                                    </TabsList>
 
-                        <div className="flex flex-col gap-4">
-                            {pattern.occurrences.slice(0, 5).map((occ, idx) => (
-                                <div
-                                    key={occ.id}
-                                    onClick={() => setExpandedOccurrenceId(expandedOccurrenceId === occ.id ? null : occ.id)}
-                                    className="relative bg-card/40 border border-border/50 rounded-xl p-4 flex flex-col lg:flex-row items-center gap-6 group hover:border-primary/30 transition-all hover:shadow-xl hover:shadow-primary/5 cursor-pointer"
-                                >
-                                    {/* Occurrence Info Sidebar */}
-                                    <div className="flex flex-col min-w-[140px] border-r border-white/5 pr-6">
-                                        <div className="flex items-center gap-2 mb-2">
-                                            <div className="w-2 h-2 rounded-full bg-primary/60" />
-                                            <span className="text-[10px] font-bold text-muted-foreground uppercase">Case #{pattern.occurrences.length - idx}</span>
+                                    {subTab === 'history' && (
+                                        <div className="flex items-center gap-2">
+                                            {(['7D', '1M', '3M', '6M', 'ALL'] as const).map((tf) => (
+                                                <button
+                                                    key={tf}
+                                                    onClick={() => setTimeFilter(tf)}
+                                                    className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${timeFilter === tf ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-muted'}`}
+                                                >
+                                                    {tf}
+                                                </button>
+                                            ))}
                                         </div>
-                                        <div className="text-sm font-bold text-foreground mb-1">{occ.timestamp.split(',')[0]}</div>
-                                        <div className="text-[10px] font-mono text-muted-foreground">{occ.timestamp.split(',')[1]?.trim()}</div>
-                                        <Badge variant="outline" className={`mt-3 py-0 h-4 text-[9px] w-fit ${occ.severity === 'Critical' ? 'border-red-500/30 text-red-400 bg-red-400/5' : 'border-orange-500/30 text-orange-400 bg-orange-400/5'}`}>
-                                            {occ.severity}
-                                        </Badge>
-                                    </div>
+                                    )}
+                                </div>
 
-                                    {/* Metrics Horizontal Row */}
-                                    <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-8 min-h-[140px]">
-                                        {SIM_METRICS[pattern.simulationType || 'congestion']?.map(m => (
-                                            <div key={m.key} className="h-full">
-                                                <MiniMetricPlot
-                                                    data={occ.metricData}
-                                                    dataKey={m.key}
-                                                    color={m.color}
-                                                    name={m.name}
-                                                    occId={occ.id}
-                                                />
-                                            </div>
+                                {/* Tab Contents */}
+                                <TabsContent value="occurrence" className="mt-0 outline-none">
+                                    <div className="flex flex-col gap-4">
+                                        {allOccurrences.slice(0, 5 + customOccurrences.length).map((occ, idx) => (
+                                            <OccurrenceCard key={occ.id} occ={occ} idx={idx} showMatch={true} />
                                         ))}
                                     </div>
+                                </TabsContent>
 
-                                    <div className="flex flex-col min-w-[200px] border-l border-white/5 pl-6">
-                                        <div className="text-[9px] font-bold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                                            <Zap className="h-2.5 w-2.5 text-rose-400" /> outcome events
-                                        </div>
-                                        <div className="space-y-1.5">
-                                            {pattern.predictedEvents.slice(0, 2).map((evt, eIdx) => (
-                                                <div key={eIdx} className="flex items-center gap-2 group/item">
-                                                    <div className="w-1 h-3 rounded-full bg-rose-500/30 group-hover/item:bg-rose-500/60 transition-colors" />
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[11px] font-bold text-rose-400/90 leading-none">{evt.name}</span>
-                                                        <span className="text-[9px] text-muted-foreground mt-0.5 line-clamp-1">{evt.title}</span>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                            {pattern.predictedEvents.length === 0 && (
-                                                <div className="text-[10px] italic text-muted-foreground">No predictions recorded</div>
-                                            )}
-                                        </div>
+                                <TabsContent value="history" className="mt-0 outline-none">
+                                    <div className="flex flex-col gap-4">
+                                        {filteredOccurrences.length > 5 ? (
+                                            filteredOccurrences.slice(5).map((occ, idx) => (
+                                                <OccurrenceCard key={occ.id} occ={occ} idx={idx + 5} showMatch={false} />
+                                            ))
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center py-16 text-muted-foreground/40 bg-card/20 rounded-xl border border-dashed border-border/30">
+                                                <Clock className="h-10 w-10 mb-2 opacity-20" />
+                                                <p className="text-sm italic">No additional historical occurrences found for this pattern.</p>
+                                            </div>
+                                        )}
                                     </div>
+                                </TabsContent>
 
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                                <TabsContent value="analysis" className="mt-0 outline-none">
+                                    <div className="flex flex-col gap-6">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            {/* Logic Description */}
+                                            <Card className="bg-card/30 border-border/40">
+                                                <CardHeader className="pb-3">
+                                                    <CardTitle className="text-sm font-bold flex items-center gap-2">
+                                                        <BrainCircuit className="h-4 w-4 text-primary" />
+                                                        Causal Logic Profile
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent className="space-y-4">
+                                                    <div className="bg-muted/30 p-3 rounded-lg text-xs leading-relaxed text-muted-foreground border border-border/20 italic">
+                                                        "{pattern.logicSummary || "Multivariate correlation logic identifies cascading failures across layers using semantic proximity and temporal clustering."}"
+                                                    </div>
+                                                    <div className="space-y-3">
+                                                        {pattern.logicSteps?.map((step, idx) => (
+                                                            <div key={idx} className="flex gap-3">
+                                                                <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 font-bold text-[10px] ${getColorClasses(step.color)}`}>
+                                                                    {step.order}
+                                                                </div>
+                                                                <div>
+                                                                    <div className="text-xs font-bold text-foreground">{step.title}</div>
+                                                                    <div className="text-[10px] text-muted-foreground leading-snug">{step.description}</div>
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
 
-                    {/* Historical Occurrences */}
-
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
-                                <List className="h-4 w-4" />
-                                Historical Occurrences
-                            </h3>
-                            <div className="flex items-center gap-3">
-                                <div className="flex items-center gap-0.5 bg-secondary/20 p-0.5 rounded-md border border-border/50">
-                                    {(['7D', '1M', '3M', '6M', 'ALL'] as const).map((tf) => (
-                                        <button
-                                            key={tf}
-                                            onClick={() => setTimeFilter(tf)}
-                                            className={`text-[10px] px-2 py-1 rounded transition-all ${timeFilter === tf
-                                                ? 'bg-background shadow-sm text-primary font-medium'
-                                                : 'text-muted-foreground hover:text-foreground hover:bg-secondary/40'
-                                                }`}
-                                        >
-                                            {tf}
-                                        </button>
-                                    ))}
-                                </div>
-                                <Badge variant="secondary" className="font-mono text-[10px] h-6 px-2">
-                                    {filteredOccurrences.length} Occurrences
-                                </Badge>
-                            </div>
-                        </div>
-                        <div className="border border-border/50 rounded-lg overflow-hidden bg-card/40 divide-y divide-border/50">
-                            {filteredOccurrences.map((occurrence) => {
-                                const isExpanded = expandedOccurrenceId === occurrence.id;
-                                return (
-                                    <div key={occurrence.id} className="group transition-colors bg-card/20">
-                                        {/* Occurrence Header */}
-                                        <div
-                                            className="flex items-center gap-4 p-3 hover:bg-secondary/10 cursor-pointer select-none"
-                                            onClick={() => setExpandedOccurrenceId(isExpanded ? null : occurrence.id)}
-                                        >
-                                            <div className={`p-1.5 rounded-md border transition-colors ${isExpanded ? 'bg-primary/10 border-primary/20 text-primary' : 'bg-secondary/20 border-border/50 text-muted-foreground'}`}>
-                                                {isExpanded ? <List className="h-4 w-4" /> : <List className="h-4 w-4" />}
-                                            </div>
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2 mb-1">
-                                                    <span className="font-semibold truncate">{occurrence.timestamp}</span>
-                                                </div>
-                                                <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                                    <span className="flex items-center gap-1 shrink-0">
-                                                        <Activity className="h-3 w-3" />
-                                                        {occurrence.events.length} Events
-                                                    </span>
-                                                </div>
-                                            </div>
-                                            <div className={`transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`}>
-                                                <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                                            </div>
+                                            {/* Drill-down Analytics */}
+                                            <Card className="bg-card/30 border-border/40">
+                                                <CardHeader className="pb-3">
+                                                    <CardTitle className="text-sm font-bold flex items-center gap-2">
+                                                        <TrendingUp className="h-4 w-4 text-emerald-400" />
+                                                        Pattern Reliability Analysis
+                                                    </CardTitle>
+                                                </CardHeader>
+                                                <CardContent>
+                                                    <div className="grid grid-cols-1 gap-4">
+                                                        {pattern.drillDownMetrics?.map((metric, idx) => (
+                                                            <div key={idx} className="bg-muted/20 p-4 rounded-xl flex items-center justify-between border border-border/20">
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className={`p-2 rounded-lg ${getColorClasses(metric.color)}`}>
+                                                                        {metric.icon === 'trending' ? <TrendingUp className="h-4 w-4" /> : metric.icon === 'database' ? <Database className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className="text-xs font-bold text-foreground">{metric.label}</div>
+                                                                        <div className="text-[10px] text-muted-foreground">Historical Benchmark</div>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="text-lg font-bold text-foreground">{metric.value}</div>
+                                                            </div>
+                                                        ))}
+                                                        <div className="bg-primary/5 p-4 rounded-xl border border-primary/20 flex flex-col gap-2">
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-[10px] font-bold uppercase text-primary tracking-widest">Composite Confidence Score</span>
+                                                                <CheckCircle2 className="h-4 w-4 text-primary" />
+                                                            </div>
+                                                            <div className="flex items-baseline gap-1">
+                                                                <span className="text-2xl font-bold">{(pattern.confidence * 100).toFixed(0)}%</span>
+                                                                <span className="text-[10px] font-medium text-primary/70">Verified Accuracy</span>
+                                                            </div>
+                                                            <div className="w-full h-1 bg-primary/10 rounded-full overflow-hidden mt-1">
+                                                                <div className="h-full bg-primary" style={{ width: `${pattern.confidence * 100}%` }} />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
                                         </div>
 
-                                        {/* Expanded Details */}
-                                        <AnimatePresence>
-                                            {isExpanded && (
-                                                <motion.div
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    transition={{ duration: 0.2 }}
-                                                    className="overflow-hidden bg-background/30 border-t border-border/30"
-                                                >
-                                                    <div className="p-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                        {/* NEW: Scientific Foundation & Discovery Logic */}
+                                        <Card className="bg-card/20 border-border/30 overflow-hidden">
+                                            <CardHeader className="border-b border-white/5 bg-white/5 pb-4">
+                                                <CardTitle className="text-sm font-bold flex items-center gap-2">
+                                                    <FlaskConical className="h-4 w-4 text-purple-400" />
+                                                    Scientific Foundation & Discovery Logic
+                                                </CardTitle>
+                                                <CardDescription className="text-[10px]">Technical aspects of algorithmic pattern mining and validation</CardDescription>
+                                            </CardHeader>
+                                            <CardContent className="p-0">
+                                                <div className="grid grid-cols-1 lg:grid-cols-3 divide-x divide-white/5">
+                                                    {/* Pipeline Flow */}
+                                                    <div className="p-6 space-y-4">
+                                                        <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">
+                                                            <Workflow className="h-3 w-3" /> Discovery Pipeline
+                                                        </div>
+                                                        <div className="space-y-6 relative ml-2">
+                                                            <div className="absolute left-[11px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-primary/40 via-purple-500/40 to-emerald-500/40" />
 
-                                                        {/* Left Column: Event Sequence (Simplified) */}
-                                                        <div className="space-y-3">
-                                                            <div className="flex items-center gap-2 text-xs font-semibold uppercase text-muted-foreground mb-1">
-                                                                <List className="h-3 w-3" /> Event Sequence
+                                                            {[
+                                                                { label: 'Temporal Resampling', desc: 'Alignment of interface metrics & device resource data to 5-min synchronized grids.', icon: Grid, color: 'text-primary' },
+                                                                { label: 'Sliding Window Featurization', desc: 'Extraction of mean, slope, and variance across 15-poll observability windows.', icon: Binary, color: 'text-blue-400' },
+                                                                { label: 'Isolation Forest Anomaly', desc: 'Unsupervised identification of multivariate outliers and structural noise reduction.', icon: ShieldCheck, color: 'text-purple-400' },
+                                                                { label: 'Random Forest Attribution', desc: 'Gini-importance based feature scoring to isolate the most significant failure precursors.', icon: Cpu, color: 'text-emerald-400' }
+                                                            ].map((step, i) => (
+                                                                <div key={i} className="relative flex gap-4 pl-1">
+                                                                    <div className={`z-10 w-5 h-5 rounded-full bg-background border border-white/10 flex items-center justify-center shrink-0`}>
+                                                                        <step.icon className={`h-2.5 w-2.5 ${step.color}`} />
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className="text-[11px] font-bold text-foreground leading-tight mb-1">{step.label}</div>
+                                                                        <div className="text-[10px] text-muted-foreground leading-snug">{step.desc}</div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Mathematical Proofs */}
+                                                    <div className="p-6 space-y-5 bg-white/[0.02]">
+                                                        <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">
+                                                            <Calculator className="h-3 w-3" /> Statistical Metrics & Calculus
+                                                        </div>
+
+                                                        <div className="space-y-4">
+                                                            <div className="p-3 bg-black/20 rounded-lg border border-white/5">
+                                                                <div className="text-[10px] font-bold text-primary mb-1 uppercase">Signal Synchronization (Pearson r)</div>
+                                                                <div className="text-[11px] font-mono text-muted-foreground mb-2 italic">r = [âˆ‘(x-xÌ…)(y-yÌ…)] / [âˆšâˆ‘(x-xÌ…)Â²âˆ‘(y-yÌ…)Â²]</div>
+                                                                <p className="text-[10px] text-muted-foreground italic">Quantifies temporal alignment between metric pairs (e.g., Links vs Buffers).</p>
                                                             </div>
-                                                            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                                                                {occurrence.events.length > 0 ? (
-                                                                    occurrence.events.map((evidence, idx) => (
-                                                                        <div key={idx} className="relative flex items-center gap-3 p-3 bg-card/50 border border-border/50 rounded-lg hover:bg-secondary/10 transition-colors">
-                                                                            {/* Severity Strip */}
-                                                                            <div className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-lg ${evidence.severity === 'Critical' ? 'bg-red-500' :
-                                                                                evidence.severity === 'Major' ? 'bg-orange-500' : 'bg-amber-500'
-                                                                                }`} />
 
-                                                                            {/* Content */}
-                                                                            <div className="flex-1 pl-2 min-w-0">
-                                                                                <div className="flex justify-between items-start">
-                                                                                    <span className="text-sm font-medium text-foreground truncate">{evidence.title}</span>
-                                                                                    <span className="text-[10px] text-muted-foreground whitespace-nowrap ml-2">
-                                                                                        {evidence.timestamp.split(' ').slice(3).join(' ')}
-                                                                                    </span>
-                                                                                </div>
-                                                                                <div className="text-xs text-muted-foreground mt-0.5 truncate">
-                                                                                    <span className="text-foreground/80 font-medium">{evidence.alertValue}</span>
-                                                                                </div>
-                                                                                <div className="flex items-center gap-1.5 mt-2 text-[10px] text-muted-foreground">
-                                                                                    <Globe className="h-3 w-3 opacity-70" />
-                                                                                    <span className="truncate max-w-[150px]">{evidence.nodeName}</span>
-                                                                                </div>
-                                                                            </div>
-                                                                        </div>
-                                                                    ))
-                                                                ) : (
-                                                                    <div className="p-4 text-center text-xs text-muted-foreground italic">No discrete events recorded.</div>
-                                                                )}
+                                                            <div className="p-3 bg-black/20 rounded-lg border border-white/5">
+                                                                <div className="text-[10px] font-bold text-purple-400 mb-1 uppercase">Causal Integrity (Granger F-Stat)</div>
+                                                                <div className="text-[11px] font-mono text-muted-foreground mb-2 italic">{"Y_t = âˆ‘a_i Y_{t - i} + âˆ‘b_i X_{t - i} + Îµ"}</div>
+                                                                <p className="text-[10px] text-muted-foreground italic">Verifies that Metric X (Cause) significantly improves prediction of Metric Y (Effect).</p>
+                                                            </div>
+
+                                                            <div className="p-3 bg-black/20 rounded-lg border border-white/5">
+                                                                <div className="text-[10px] font-bold text-emerald-400 mb-1 uppercase">Predictive Lift Score</div>
+                                                                <div className="text-[11px] font-mono text-muted-foreground mb-2 italic">Lift = P(Event | Pattern) / P(Event)</div>
+                                                                <p className="text-[10px] text-muted-foreground italic">Measures how much more likely an event is when the pattern is observed vs baseline.</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Attribution & Weights */}
+                                                    <div className="p-6 space-y-4">
+                                                        <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">
+                                                            <TrendingUp className="h-3 w-3" /> Feature Attribution
+                                                        </div>
+                                                        <div className="space-y-4">
+                                                            <div className="text-[10px] text-muted-foreground mb-3">
+                                                                Random Forest importance weights for precursor identification:
+                                                            </div>
+                                                            {[
+                                                                { label: 'Temporal Slope (Rate of Change)', val: 82 },
+                                                                { label: 'Window Peak Variance', val: 64 },
+                                                                { label: 'Historical Cluster Deviation', val: 45 },
+                                                                { label: 'Cross-Entity Correlation', val: 30 }
+                                                            ].map((f, i) => (
+                                                                <div key={i} className="space-y-1.5">
+                                                                    <div className="flex justify-between text-[10px] font-medium">
+                                                                        <span className="text-foreground">{f.label}</span>
+                                                                        <span className="text-primary font-bold">{f.val}%</span>
+                                                                    </div>
+                                                                    <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                                                                        <div
+                                                                            className="h-full bg-primary/60 rounded-full"
+                                                                            style={{ width: `${f.val}%` }}
+                                                                        />
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+
+                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
+                                                            <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                                                                <div className="text-[10px] font-bold text-primary flex items-center gap-2 mb-1">
+                                                                    <Activity className="h-3 w-3" /> LEAD TIME ANALYSIS
+                                                                </div>
+                                                                <div className="text-[18px] font-bold text-foreground">15 - 20 Minutes</div>
+                                                                <p className="text-[10px] text-muted-foreground italic">Typical horizon for high-confidence predictive warnings.</p>
+                                                            </div>
+
+                                                            <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                                                                <div className="text-[10px] font-bold text-purple-400 flex items-center gap-2 mb-1">
+                                                                    <TerminalIcon className="h-3 w-3" /> ENGINE RUNTIME
+                                                                </div>
+                                                                <div className="text-[18px] font-bold text-foreground">0.84 Seconds</div>
+                                                                <p className="text-[10px] text-muted-foreground italic">Pattern extraction & causal mining latency.</p>
                                                             </div>
                                                         </div>
 
-                                                        {/* Right Column: Multivariate Chart */}
-                                                        <div>
-                                                            {occurrence.metricData && occurrence.metricData.length > 0 ? (
-                                                                <div className="space-y-3 h-full">
-                                                                    <div className="flex items-center gap-2 text-xs font-semibold uppercase text-muted-foreground mb-1">
-                                                                        <TrendingUp className="h-3 w-3" />
-                                                                        Multivariate Analysis <span className="normal-case opacity-50 font-normal">| {pattern.simulationType === 'congestion' ? 'Utilization vs Buffer vs Errors' : 'CPU vs BGP State'}</span>
+                                                        <div className="mt-4 p-4 rounded-xl bg-black/20 border border-white/5">
+                                                            <div className="text-[10px] font-bold text-muted-foreground mb-3 flex items-center gap-2 uppercase tracking-widest">
+                                                                <BarChart3Icon className="h-3 w-3" /> Model Precision Analytics
+                                                            </div>
+                                                            <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+                                                                {[
+                                                                    { label: 'Precision', val: 0.94 },
+                                                                    { label: 'Recall', val: 0.88 },
+                                                                    { label: 'F1-Score', val: 0.91 },
+                                                                    { label: 'Accuracy', val: 0.96 }
+                                                                ].map((m, i) => (
+                                                                    <div key={i} className="flex justify-between items-center">
+                                                                        <span className="text-[10px] text-muted-foreground">{m.label}</span>
+                                                                        <span className="text-[11px] font-mono font-bold text-emerald-400">{(m.val * 100).toFixed(0)}%</span>
                                                                     </div>
-                                                                    <div className="h-[250px] w-full bg-card/40 border border-border/50 rounded-lg p-2">
-                                                                        <ResponsiveContainer width="100%" height="100%">
-                                                                            <LineChart data={occurrence.metricData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                                                                                <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.1} vertical={false} />
-                                                                                <XAxis dataKey="time" fontSize={10} tickLine={false} axisLine={false} stroke="#666" />
-                                                                                <YAxis fontSize={10} tickLine={false} axisLine={false} stroke="#666" />
-                                                                                <RechartsTooltip
-                                                                                    contentStyle={{ backgroundColor: 'rgb(20, 25, 40)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '6px', fontSize: '11px' }}
-                                                                                    labelStyle={{ color: '#94a3b8', marginBottom: '4px' }}
-                                                                                />
-                                                                                {pattern.simulationType === 'congestion' ? (
-                                                                                    <>
-                                                                                        <Line type="monotone" dataKey="utilization" stroke="#3b82f6" strokeWidth={2} dot={false} name="Utilization %" activeDot={{ r: 4 }} />
-                                                                                        <Line type="monotone" dataKey="drops" stroke="#ef4444" strokeWidth={2} dot={false} name="Buffer Util (Drops)" />
-                                                                                        <Line type="monotone" dataKey="errors" stroke="#f59e0b" strokeWidth={2} dot={false} name="CRC Errors" />
-                                                                                    </>
-                                                                                ) : pattern.simulationType === 'device_cpu_saturation' ? (
-                                                                                    <>
-                                                                                        <Line type="monotone" dataKey="cpuUtil" stroke="#ef4444" strokeWidth={2} dot={false} name="CPU %" />
-                                                                                        <Line type="monotone" dataKey="pingLoss" stroke="#f59e0b" strokeWidth={2} dot={false} name="Ping Loss %" />
-                                                                                    </>
-                                                                                ) : pattern.simulationType === 'link_physical_degradation' ? (
-                                                                                    <>
-                                                                                        <Line type="monotone" dataKey="inErrors" stroke="#f59e0b" strokeWidth={2} dot={false} name="In Errors" />
-                                                                                        <Line type="monotone" dataKey="discards" stroke="#ef4444" strokeWidth={2} dot={false} name="Discards" />
-                                                                                    </>
-                                                                                ) : pattern.simulationType === 'firewall_overload' ? (
-                                                                                    <>
-                                                                                        <Line type="monotone" dataKey="sessions" stroke="#3b82f6" strokeWidth={2} dot={false} name="Sessions" />
-                                                                                        <Line type="monotone" dataKey="fwCpu" stroke="#ef4444" strokeWidth={2} dot={false} name="CPU %" />
-                                                                                        <Line type="monotone" dataKey="latency" stroke="#f59e0b" strokeWidth={2} dot={false} name="Latency" />
-                                                                                    </>
-                                                                                ) : pattern.simulationType === 'qoe_jitter' ? (
-                                                                                    <>
-                                                                                        <Line type="monotone" dataKey="jitter" stroke="#3b82f6" strokeWidth={2} dot={false} name="Jitter" />
-                                                                                        <Line type="monotone" dataKey="latencyVar" stroke="#f59e0b" strokeWidth={2} dot={false} name="Latency Var" />
-                                                                                    </>
-                                                                                ) : (
-                                                                                    <>
-                                                                                        <Line type="monotone" dataKey="cpu" stroke="#ef4444" strokeWidth={2} dot={false} name="CPU %" />
-                                                                                        <Line type="step" dataKey="bgpState" stroke="#3b82f6" strokeWidth={2} dot={false} name="BGP State" />
-                                                                                    </>
-                                                                                )}
-                                                                            </LineChart>
-                                                                        </ResponsiveContainer>
-                                                                    </div>
-                                                                </div>
-                                                            ) : (
-                                                                <div className="h-full flex items-center justify-center text-xs text-muted-foreground italic border border-dashed border-border/50 rounded-lg">
-                                                                    No metric data available.
-                                                                </div>
-                                                            )}
+                                                                ))}
+                                                            </div>
                                                         </div>
-
                                                     </div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
                                     </div>
-                                );
-                            })}
+                                </TabsContent>
+                            </Tabs>
                         </div>
                     </div>
-
                 </div>
             </ScrollArea>
         </div>

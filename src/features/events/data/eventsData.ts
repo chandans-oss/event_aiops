@@ -1,4 +1,5 @@
 import { Severity, EventLabel } from '@/shared/types';
+import { MOCK_PATTERNS, EvidenceItem } from '@/features/analytics/components/patterns/PatternData';
 
 export interface NetworkEvent {
   event_id: string;
@@ -20,12 +21,22 @@ export interface NetworkEvent {
     description: string;
     confidence: number;
   };
+  correlationLabels?: string[];
 }
+
+const safeISO = (ts: string) => {
+  try {
+    const d = new Date(ts);
+    return isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();
+  } catch (e) {
+    return new Date().toISOString();
+  }
+};
 
 export const sampleNetworkEvents: NetworkEvent[] = [
   // --- Noise Events (To push the pattern down) ---
-  { event_id: 'EVT-B-101', device: 'edge-router-01', event_code: 'THROTTLE_DETECTED', timestamp: new Date(Date.now() - 3600000).toISOString(), severity: 'Minor', metric: 'throughput', value: '75 Mbps', site: 'DC3', region: 'EMEA', rack: 'K1', message: 'Traffic throttle detected on edge link', label: 'Child', status: 'Active' },
-  { event_id: 'EVT-B-102', device: 'edge-router-02', event_code: 'BDP_THROUGHPUT_DROP', timestamp: new Date(Date.now() - 7200000).toISOString(), severity: 'Major', metric: 'throughput', value: '70 Mbps', site: 'DC3', region: 'EMEA', rack: 'K2', message: 'BDP drop detected on edge link', label: 'Child', status: 'Active' },
+  { event_id: 'EVT-B-101', device: 'edge-router-01', event_code: 'THROTTLE_DETECTED', timestamp: new Date(Date.now() - 3600000).toISOString(), severity: 'Minor', metric: 'throughput', value: '75 Mbps', site: 'DC3', region: 'EMEA', rack: 'K1', message: 'Traffic throttle detected on edge link', label: 'Child', status: 'Active', correlationLabels: ['Temporal Correlation', 'Dynamic Rule Correlation'] },
+  { event_id: 'EVT-B-102', device: 'edge-router-02', event_code: 'BDP_THROUGHPUT_DROP', timestamp: new Date(Date.now() - 7200000).toISOString(), severity: 'Major', metric: 'throughput', value: '70 Mbps', site: 'DC3', region: 'EMEA', rack: 'K2', message: 'BDP drop detected on edge link', label: 'Child', status: 'Active', correlationLabels: ['Topological Correlation', 'Causal / Rule-based Correlation'] },
 
   // --- Interface Flap Pattern Cluster (MEANINGFUL DEMO) ---
   {
@@ -40,9 +51,10 @@ export const sampleNetworkEvents: NetworkEvent[] = [
     region: 'NA',
     rack: 'R5',
     message: 'Interface Et0/0 utilization > 90% for 5 mins',
-    label: 'Root',
+    label: 'Child',
     status: 'Active',
     clusterId: 'CLU-NET-004',
+    correlationLabels: ['Dynamic Rule Correlation', 'Topological Correlation', 'Interface Flap Pattern'],
     classificationReason: {
       rule: 'Pattern Match',
       description: 'Matched Pattern: Interface Flap Pattern (Congestion → Saturation → Errors → Loss → Flap)',
@@ -64,6 +76,7 @@ export const sampleNetworkEvents: NetworkEvent[] = [
     label: 'Child',
     status: 'Active',
     clusterId: 'CLU-NET-004',
+    correlationLabels: ['Dynamic Rule Correlation', 'Interface Flap Pattern'],
     classificationReason: { rule: 'Pattern Match', description: 'Step 2: Buffer exhaustion following congestion', confidence: 0.98 }
   },
   {
@@ -81,6 +94,7 @@ export const sampleNetworkEvents: NetworkEvent[] = [
     label: 'Child',
     status: 'Active',
     clusterId: 'CLU-NET-004',
+    correlationLabels: ['Dynamic Rule Correlation', 'Interface Flap Pattern'],
     classificationReason: { rule: 'Pattern Match', description: 'Step 3: Physical layer instability due to queue pressure', confidence: 0.99 }
   },
   {
@@ -98,6 +112,7 @@ export const sampleNetworkEvents: NetworkEvent[] = [
     label: 'Child',
     status: 'Active',
     clusterId: 'CLU-NET-004',
+    correlationLabels: ['Dynamic Rule Correlation', 'Interface Flap Pattern'],
     classificationReason: { rule: 'Pattern Match', description: 'Step 4: Data plane impairment confirmed', confidence: 0.99 }
   },
   {
@@ -115,6 +130,7 @@ export const sampleNetworkEvents: NetworkEvent[] = [
     label: 'Child',
     status: 'Active',
     clusterId: 'CLU-NET-004',
+    correlationLabels: ['Dynamic Rule Correlation', 'Interface Flap Pattern'],
     classificationReason: { rule: 'Pattern Match', description: 'Step 5: Final service impact - Link Flap', confidence: 0.99 }
   },
 
@@ -126,8 +142,41 @@ export const sampleNetworkEvents: NetworkEvent[] = [
   { event_id: 'EVT-030', device: 'app-server-05', event_code: 'MEMORY_EXHAUSTION', timestamp: '2026-02-25T04:45:00Z', severity: 'Critical', metric: 'heap_usage', value: '98', site: 'DC1', region: 'NA', rack: 'R10', message: 'JVM heap exhausted - 7.8GB/8GB used', label: 'Root', status: 'Active', clusterId: 'CLU-12348' },
 
   // --- Supporting Child Events ---
-  { event_id: 'EVT-LC-009', device: 'core-router-dc1', event_code: 'PACKET_DISCARD', timestamp: new Date(Date.now() - (12 * 3600000 + 300000)).toISOString(), severity: 'Critical', metric: 'drops', value: '500', site: 'DC1', region: 'NA', rack: 'R3', message: 'Output discards on Gi0/1/0', label: 'Child', status: 'Active', clusterId: 'CLU-LC-001' },
-  { event_id: 'EVT-002', device: 'api-gateway-01', event_code: 'API_TIMEOUT', timestamp: new Date(Date.now() - (5 * 3600000 + 60000)).toISOString(), severity: 'Major', metric: '', value: '', site: 'DC1', region: 'NA', rack: 'R7', message: 'API timeout - upstream service unavailable', label: 'Child', status: 'Active', clusterId: 'CLU-12345' },
+  { event_id: 'EVT-LC-009', device: 'core-router-dc1', event_code: 'PACKET_DISCARD', timestamp: new Date(Date.now() - (12 * 3600000 + 300000)).toISOString(), severity: 'Critical', metric: 'drops', value: '500', site: 'DC1', region: 'NA', rack: 'R3', message: 'Output discards on Gi0/1/0', label: 'Child', status: 'Active', clusterId: 'CLU-LC-001', correlationLabels: ['Temporal Correlation'] },
+  { event_id: 'EVT-002', device: 'api-gateway-01', event_code: 'API_TIMEOUT', timestamp: new Date(Date.now() - (5 * 3600000 + 60000)).toISOString(), severity: 'Major', metric: '', value: '', site: 'DC1', region: 'NA', rack: 'R7', message: 'API timeout - upstream service unavailable', label: 'Child', status: 'Active', clusterId: 'CLU-12345', correlationLabels: ['Temporal Correlation', 'Topological Correlation'] },
+
+  // --- Dynamic Pattern-Based Child Events ---
+  ...MOCK_PATTERNS.flatMap(pattern =>
+    pattern.occurrences.flatMap(occ =>
+      occ.events.map((ev: EvidenceItem) => {
+        // Only generate for those without EVT-NET... prefixes because the first few are manually added
+        if (ev.id.includes('111004203')) return null; // Skip manually matched OCC-2026-001
+
+        return {
+          event_id: `EVT-PAT-${ev.id.replace(/\s/g, '-')}`,
+          device: ev.nodeName,
+          event_code: ev.title.toUpperCase().replace(/\s+/g, '_'),
+          timestamp: safeISO(ev.timestamp),
+          severity: ev.severity === 'Warning' ? 'Minor' : (ev.severity as Severity),
+          metric: ev.resource,
+          value: ev.alertValue,
+          site: 'DC1',
+          region: 'NA',
+          rack: 'RCK',
+          message: `${ev.title}: ${ev.subtitle} (${ev.alertValue})`,
+          label: 'Child' as EventLabel,
+          status: 'Resolved' as const,
+          clusterId: occ.id,
+          correlationLabels: ['Dynamic Rule Correlation', pattern.name],
+          classificationReason: {
+            rule: 'Pattern Match',
+            description: `Historical Evidence for: ${pattern.name}`,
+            confidence: pattern.confidence
+          }
+        };
+      }).filter(Boolean) as NetworkEvent[]
+    )
+  ),
 
   // --- Bulk Non-Root Data ---
   ...Array.from({ length: 40 }).map((_, i) => ({
@@ -143,7 +192,8 @@ export const sampleNetworkEvents: NetworkEvent[] = [
     rack: `K${(i % 10) + 1}`,
     message: 'Standard metric heartbeat',
     label: 'Child' as EventLabel,
-    status: 'Active' as 'Resolved' | 'Active'
+    status: 'Active' as 'Resolved' | 'Active',
+    correlationLabels: i % 2 === 0 ? ['Temporal Correlation'] : ['Dynamic Rule Correlation', 'ML / GNN Refinement']
   }))
 ];
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, BrainCircuit, Activity, Clock, ShieldCheck } from 'lucide-react';
+import { Search, BrainCircuit, Activity, Clock, ShieldCheck, Calendar } from 'lucide-react';
 import { Input } from '@/shared/components/ui/input';
 import { Badge } from '@/shared/components/ui/badge';
 import { Switch } from '@/shared/components/ui/switch';
@@ -45,7 +45,7 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                        Pattern Recognition Library
+                        AI Behavioral Analytics Correlator
                     </h1>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -68,6 +68,7 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                             <TableHead className="w-[180px] text-[12px] font-bold uppercase text-muted-foreground/60">Pattern Name</TableHead>
                             <TableHead className="w-[450px] text-[12px] font-bold uppercase text-muted-foreground/60">Details</TableHead>
                             <TableHead className="text-[12px] font-bold uppercase text-muted-foreground/60">Domain</TableHead>
+                            <TableHead className="text-[12px] font-bold uppercase text-muted-foreground/60 whitespace-nowrap">Rule Creation Date</TableHead>
                             <TableHead className="text-[12px] font-bold uppercase text-muted-foreground/60">Confidence</TableHead>
                             <TableHead className="text-[12px] font-bold uppercase text-muted-foreground/60">Occurrences</TableHead>
                             <TableHead className="text-[12px] font-bold uppercase text-muted-foreground/60">Last Seen</TableHead>
@@ -161,6 +162,12 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                                         </div>
                                     </TableCell>
                                     <TableCell className="align-middle py-1">
+                                        <div className="flex items-center gap-2 text-muted-foreground/60">
+                                            <Calendar className="h-3.5 w-3.5" />
+                                            <span className="text-[12px] font-medium">{pattern.ruleCreationDate}</span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="align-middle py-1">
                                         <div className="flex items-center gap-2">
                                             <BrainCircuit className="h-4 w-4 text-primary/40" />
                                             <span className="text-[14px] font-bold text-primary/90">{(pattern.confidence * 100).toFixed(0)}%</span>
@@ -169,7 +176,7 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                                     <TableCell className="align-middle py-1">
                                         <div className="flex items-center gap-2">
                                             <Activity className="h-4 w-4 text-muted-foreground/30" />
-                                            <span className="text-[13px] font-bold text-muted-foreground">{pattern.seenCount}×</span>
+                                            <span className="text-[13px] font-bold text-muted-foreground">{pattern.seenCount}</span>
                                         </div>
                                     </TableCell>
                                     <TableCell className="align-middle py-1">

@@ -1,6 +1,7 @@
 import { Toaster } from "@/shared/components/ui/toaster";
 import { Toaster as Sonner } from "@/shared/components/ui/sonner";
 import AlarmPredictionDashboard from "@/features/analytics/pages/AlarmPredictionDashboard";
+import RoiDashboard from "@/features/analytics/pages/RoiDashboard";
 
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="/admin" element={<Admin />} />
               <Route path="/agents" element={<AgentsPage />} />
               <Route path="/dashboard/alarm-prediction" element={<AlarmPredictionDashboard />} />
+              <Route path="/dashboard/roi" element={<RoiDashboard />} />
               <Route path="/admin/upload" element={<UploadData />} />
               <Route path="/admin/kb/:id" element={<KBDetailPage />} />
               <Route path="/upload" element={<EventUpload />} />

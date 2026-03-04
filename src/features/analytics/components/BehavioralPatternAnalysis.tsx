@@ -17,7 +17,16 @@ import {
     CheckCircle2,
     XCircle,
     BrainCircuit,
-    History
+    History as HistoryIcon,
+    FlaskConical,
+    Workflow,
+    Calculator,
+    Binary,
+    Grid,
+    Cpu,
+    ShieldCheck,
+    BarChart3 as BarChart3Icon,
+    Terminal as TerminalIcon
 } from 'lucide-react';
 import {
     ComposedChart,
@@ -241,7 +250,10 @@ export function BehavioralPatternAnalysis() {
                                     <GitCommit className="h-4 w-4 mr-2" /> Pattern Definition
                                 </TabsTrigger>
                                 <TabsTrigger value="history" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 border-b-2 border-transparent">
-                                    <History className="h-4 w-4 mr-2" /> Historical Evidence
+                                    <HistoryIcon className="h-4 w-4 mr-2" /> Historical Evidence
+                                </TabsTrigger>
+                                <TabsTrigger value="mining" className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 border-b-2 border-transparent">
+                                    <FlaskConical className="h-4 w-4 mr-2" /> Discovery Logic
                                 </TabsTrigger>
                             </TabsList>
                         </div>
@@ -327,47 +339,142 @@ export function BehavioralPatternAnalysis() {
 
                             </TabsContent>
 
-                            <TabsContent value="history" className="m-0 p-6">
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Historical Occurrences ({selectedPattern.history.length})</h3>
-                                        <Button variant="outline" size="sm" className="h-8 text-xs">
-                                            <Activity className="h-3 w-3 mr-2" />
-                                            Drill Down
-                                        </Button>
+                            <TabsContent value="mining" className="m-0 overflow-hidden">
+                                <div className="p-6 h-full space-y-8">
+                                    {/* Mining Overview */}
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                        {/* Algorithmic Flow */}
+                                        <Card className="bg-card/30 border-border/40 overflow-hidden">
+                                            <CardHeader className="bg-white/5 border-b border-white/5 pb-3">
+                                                <CardTitle className="text-sm font-bold flex items-center gap-2">
+                                                    <Workflow className="h-4 w-4 text-primary" />
+                                                    Discovery Pipeline (v2.0)
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-6">
+                                                <div className="relative space-y-8">
+                                                    <div className="absolute left-[13px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-primary/30 via-purple-500/30 to-emerald-500/30" />
+
+                                                    {[
+                                                        { step: '1', title: 'Grid-Based Resampling', desc: 'Interface metrics and device resource data are synchronized onto a 5-minute floor-bucket grid.', icon: Grid, color: 'text-blue-400' },
+                                                        { step: '2', title: 'Sliding Window Extraction', desc: '15-poll observability windows generate multivariate feature vectors (mean, slope, variance).', icon: Binary, color: 'text-purple-400' },
+                                                        { step: '3', title: 'Anomaly Attribution', desc: 'Isolation Forest identifies outlier sequences while Random Forest scores feature significance.', icon: Cpu, color: 'text-emerald-400' },
+                                                        { step: '4', title: 'Causal Verification', desc: 'Granger Causality and Lift matrices confirm if Pattern X is a statistically reliable precursor to Event Y.', icon: ShieldCheck, color: 'text-primary' }
+                                                    ].map((step, idx) => (
+                                                        <div key={idx} className="relative flex gap-4">
+                                                            <div className="z-10 w-7 h-7 rounded-full bg-background border border-white/10 flex items-center justify-center shrink-0">
+                                                                <step.icon className={cn("h-3.5 w-3.5", step.color)} />
+                                                            </div>
+                                                            <div>
+                                                                <div className="text-xs font-bold leading-none mb-1">{step.title}</div>
+                                                                <div className="text-[10px] text-muted-foreground leading-relaxed italic">{step.desc}</div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+
+                                        {/* Statistical Proofs */}
+                                        <Card className="bg-card/30 border-border/40 overflow-hidden">
+                                            <CardHeader className="bg-white/5 border-b border-white/5 pb-3">
+                                                <CardTitle className="text-sm font-bold flex items-center gap-2">
+                                                    <Calculator className="h-4 w-4 text-amber-400" />
+                                                    Mathematical Validations
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-6 space-y-4">
+                                                <div className="p-3 bg-black/20 rounded-lg border border-white/5 space-y-1">
+                                                    <div className="text-[10px] font-bold text-primary uppercase tracking-wider">Sync Correlation (Pearson r)</div>
+                                                    <div className="text-xs font-mono text-muted-foreground italic tracking-tight">r = Î£(x-xÌ…)(y-yÌ…) / âˆš[Î£(x-xÌ…)Â² Î£(y-yÌ…)Â²]</div>
+                                                    <div className="text-[9px] text-muted-foreground/60 italic">Measures temporal alignment between telemetry sensors.</div>
+                                                </div>
+
+                                                <div className="p-3 bg-black/20 rounded-lg border border-white/5 space-y-1">
+                                                    <div className="text-[10px] font-bold text-purple-400 uppercase tracking-wider">Causal Integrity (Granger F-Stat)</div>
+                                                    <div className="text-xs font-mono text-muted-foreground italic tracking-tight">{"Y_t = Î± + Î£Î²_i Y_{t - i} + Î£Î³_i X_{t - i} + Îµ"}</div>
+                                                    <div className="text-[9px] text-muted-foreground/60 italic">Verifies if Metric X adds significant predictive value for Metric Y.</div>
+                                                </div>
+
+                                                <div className="p-3 bg-black/20 rounded-lg border border-white/5 space-y-1">
+                                                    <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Predictive Lift Coefficient</div>
+                                                    <div className="text-xs font-mono text-muted-foreground italic tracking-tight">Lift(Pâ†’E) = P(Event|Pattern) / P(Event)</div>
+                                                    <div className="text-[9px] text-muted-foreground/60 italic">Ratio of event occurrence likelihood given the presence of this pattern.</div>
+                                                </div>
+
+                                                <div className="mt-4 p-4 rounded-xl bg-primary/5 border border-primary/20 flex items-center justify-between">
+                                                    <div className="space-y-1">
+                                                        <div className="text-[10px] font-bold text-primary uppercase">Reliability Score</div>
+                                                        <div className="text-2xl font-bold tracking-tighter">{(selectedPattern.confidence / 100 * selectedPattern.prediction!.probability / 100 * 100).toFixed(1)}%</div>
+                                                    </div>
+                                                    <div className="text-right space-y-1">
+                                                        <div className="text-[9px] text-muted-foreground uppercase">Stability Epoch</div>
+                                                        <div className="text-xs font-mono">v{selectedPattern.id.split('-').pop()}.8.0</div>
+                                                    </div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
                                     </div>
 
-                                    <div className="border border-border rounded-lg overflow-hidden">
-                                        <table className="w-full text-sm">
-                                            <thead className="bg-secondary/30 text-xs text-muted-foreground uppercase font-medium">
-                                                <tr>
-                                                    <th className="px-4 py-3 text-left font-semibold">Incident ID</th>
-                                                    <th className="px-4 py-3 text-left font-semibold">Time Detected</th>
-                                                    <th className="px-4 py-3 text-left font-semibold">Primary Device</th>
-                                                    <th className="px-4 py-3 text-left font-semibold">Duration</th>
-                                                    <th className="px-4 py-3 text-left font-semibold">Status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-border/50">
-                                                {selectedPattern.history.map((incident) => (
-                                                    <tr key={incident.id} className="hover:bg-muted/50 transition-colors">
-                                                        <td className="px-4 py-3 font-mono text-primary">{incident.id}</td>
-                                                        <td className="px-4 py-3 text-foreground/80">{incident.timestamp}</td>
-                                                        <td className="px-4 py-3 font-mono text-foreground/70">{incident.device}</td>
-                                                        <td className="px-4 py-3 text-muted-foreground">{incident.duration}</td>
-                                                        <td className="px-4 py-3">
-                                                            <Badge variant="outline" className="text-[10px] bg-emerald-500/5 text-emerald-500 border-emerald-500/20">
-                                                                {incident.outcome}
-                                                            </Badge>
-                                                        </td>
-                                                    </tr>
+                                    {/* Feature Attribution & Model Performance */}
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <Card className="md:col-span-2 bg-card/30 border-border/40">
+                                            <CardHeader className="pb-3 border-b border-white/5">
+                                                <CardTitle className="text-xs font-bold uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                                                    <BarChart3Icon className="h-3.5 w-3.5" /> Random Forest Feature Attribution
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-6">
+                                                <div className="space-y-5">
+                                                    {[
+                                                        { label: 'Temporal Slope (Rate of Change)', val: 82, color: 'bg-primary' },
+                                                        { label: 'Variance across 15-poll Window', val: 71, color: 'bg-blue-400' },
+                                                        { label: 'Cross-Entity Synchronization', val: 54, color: 'bg-purple-400' },
+                                                        { label: 'Metric-to-Device Dependency', val: 38, color: 'bg-emerald-400' },
+                                                        { label: 'Historical Baseline Deviation', val: 26, color: 'bg-amber-400' }
+                                                    ].map((feat, i) => (
+                                                        <div key={i} className="space-y-1.5">
+                                                            <div className="flex justify-between items-center text-[11px]">
+                                                                <span className="font-medium text-foreground/80">{feat.label}</span>
+                                                                <span className="font-mono font-bold text-primary">{feat.val}% Importance</span>
+                                                            </div>
+                                                            <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
+                                                                <div
+                                                                    className={cn("h-full rounded-full transition-all duration-1000 ease-out", feat.color)}
+                                                                    style={{ width: `${feat.val}%` }}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+
+                                        <Card className="bg-primary/5 border-primary/20">
+                                            <CardHeader className="pb-3 border-b border-primary/10">
+                                                <CardTitle className="text-xs font-bold uppercase tracking-widest text-primary flex items-center gap-2">
+                                                    <TerminalIcon className="h-3.5 w-3.5" /> Model Performance
+                                                </CardTitle>
+                                            </CardHeader>
+                                            <CardContent className="p-6 space-y-6">
+                                                {[
+                                                    { label: 'Precision', val: 0.942 },
+                                                    { label: 'Recall', val: 0.887 },
+                                                    { label: 'F1-Score', val: 0.914 },
+                                                    { label: 'Accuracy', val: 0.958 }
+                                                ].map((stat, i) => (
+                                                    <div key={i} className="flex justify-between items-center">
+                                                        <span className="text-xs text-muted-foreground">{stat.label}</span>
+                                                        <span className="text-sm font-mono font-bold text-foreground">{(stat.val * 100).toFixed(1)}%</span>
+                                                    </div>
                                                 ))}
-                                            </tbody>
-                                        </table>
+                                                <div className="pt-4 mt-2 border-t border-primary/10">
+                                                    <div className="text-[10px] text-muted-foreground mb-1 uppercase tracking-tighter">Mining Runtime</div>
+                                                    <div className="text-xs font-mono italic">3.4s (optimized sub-loops)</div>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
                                     </div>
-                                    <p className="text-xs text-muted-foreground mt-4">
-                                        * This pattern was identified by analyzing over 12,000 historical events across 45 observed incidents.
-                                    </p>
                                 </div>
                             </TabsContent>
                         </ScrollArea>

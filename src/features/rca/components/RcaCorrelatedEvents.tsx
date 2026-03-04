@@ -78,10 +78,6 @@ export function RCACorrelatedEvents({ data }: RCACorrelatedEventsProps) {
             <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <Label className="text-xs font-semibold uppercase tracking-wider flex items-center gap-2 text-muted-foreground">
-                            <Filter className="h-3 w-3" />
-                            Filter by Strategy
-                        </Label>
                         {selectedStrategy && (
                             <Button
                                 variant="ghost"

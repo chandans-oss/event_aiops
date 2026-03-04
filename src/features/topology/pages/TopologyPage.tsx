@@ -180,7 +180,7 @@ const Topology = () => {
 
     return (
         <MainLayout>
-            <div className="flex h-[calc(100vh-64px)] overflow-hidden relative">
+            <div className="flex min-h-[calc(100vh-64px)] overflow-auto relative">
                 {/* Main Content Area */}
                 <div className={cn(
                     "flex-1 p-6 transition-all duration-500 ease-in-out",
@@ -510,7 +510,7 @@ const Topology = () => {
                                     </TabsContent>
 
                                     {/* CORRELATION TAB */}
-                                    <TabsContent value="correlation" className="mt-0 space-y-6 outline-none pb-6 h-full overflow-y-auto">
+                                    <TabsContent value="correlation" className="mt-0 space-y-6 outline-none pb-6">
                                         <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background p-5 rounded-2xl border border-primary/20 relative overflow-hidden shadow-lg group hover:shadow-primary/10 transition-all">
                                             <div className="flex items-center gap-2 mb-3">
                                                 <div className="p-1.5 bg-primary/20 rounded-lg">

@@ -13,8 +13,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/shared/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/shared/components/ui/dropdown-menu';
+import { Checkbox } from '@/shared/components/ui/checkbox';
 import { MainLayout } from '@/shared/components/layout/MainLayout';
-import { EventInfoSidebar } from '@/shared/components/sidebars/EventInfoSidebar';
 import { RCASidebar } from '@/features/rca/sidebars/RcaSidebar';
 import { ImpactSidebar } from '@/features/impact/sidebars/ImpactSidebar';
 import { RemediationSidebar } from '@/features/remediation/sidebars/RemediationSidebar';
@@ -27,7 +33,7 @@ import { cn } from '@/shared/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/shared/hooks/use-toast';
 
-type SidebarType = 'info' | 'rca' | 'impact' | 'remediation' | 'probable-cause' | null;
+type SidebarType = 'rca' | 'impact' | 'remediation' | 'probable-cause' | null;
 
 const ITEMS_PER_PAGE = 10;
 
@@ -46,6 +52,22 @@ const labelConfig = {
   Suppressed: { icon: BellOff, color: 'text-muted-foreground', bg: 'bg-muted/30', border: 'border-border', label: 'Suppressed' },
 };
 
+const AVAILABLE_CORRELATIONS = [
+  'Temporal Correlation',
+  'Spatial Correlation',
+  'Topological Correlation',
+  'Causal / Rule-based Correlation',
+  'Dynamic Rule Correlation',
+  'ML / GNN Refinement',
+  'LLM Semantic Synthesis',
+  'Interface Flap Pattern',
+  'BGP Connection Loss pattern',
+  'Device Reboot Pattern',
+  'Link Degradation pattern',
+  'Firewall Load pattern',
+  'QoE Degradation pattern'
+];
+
 export default function Events() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -57,6 +79,13 @@ export default function Events() {
   const [selectedCauseId, setSelectedCauseId] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchParams, setSearchParams] = useSearchParams();
+  const [selectedCorrelations, setSelectedCorrelations] = useState<string[]>(() => {
+    const fromUrl = searchParams.get('correlation');
+    if (fromUrl) {
+      return fromUrl.split(',').filter(Boolean);
+    }
+    return [];
+  });
   const { toast } = useToast();
 
   const handleShowResolvedChange = (checked: boolean) => {
@@ -115,9 +144,16 @@ export default function Events() {
         return false;
       }
 
+      // Correlation filter
+      if (selectedCorrelations.length > 0) {
+        if (!event.correlationLabels || !event.correlationLabels.some(c => selectedCorrelations.includes(c))) {
+          return false;
+        }
+      }
+
       return true;
     });
-  }, [searchQuery, severityFilter, labelFilter, showResolved, searchParams]);
+  }, [searchQuery, severityFilter, labelFilter, showResolved, searchParams, selectedCorrelations]);
 
   const stats = useMemo(() => getEventStats(sampleNetworkEvents), []);
 
@@ -131,7 +167,7 @@ export default function Events() {
   // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, severityFilter, labelFilter, showResolved, searchParams]);
+  }, [searchQuery, severityFilter, labelFilter, showResolved, searchParams, selectedCorrelations]);
 
   const openSidebar = (type: SidebarType, event: NetworkEvent) => {
     setSelectedEvent(event);
@@ -181,10 +217,28 @@ export default function Events() {
     setSearchQuery('');
     setSeverityFilter('all');
     setLabelFilter('all');
+    setSelectedCorrelations([]);
     setSearchParams({}, { replace: true });
   };
 
-  const hasActiveFilters = searchQuery || severityFilter !== 'all' || labelFilter !== 'all';
+  const hasActiveFilters = searchQuery || severityFilter !== 'all' || labelFilter !== 'all' || selectedCorrelations.length > 0;
+
+  const toggleCorrelation = (correlation: string) => {
+    setSelectedCorrelations(prev => {
+      const isSelected = prev.includes(correlation);
+      const newSelections = isSelected ? prev.filter(c => c !== correlation) : [...prev, correlation];
+
+      const newParams = new URLSearchParams(searchParams);
+      if (newSelections.length > 0) {
+        newParams.set('correlation', newSelections.join(','));
+      } else {
+        newParams.delete('correlation');
+      }
+      setSearchParams(newParams, { replace: true });
+
+      return newSelections;
+    });
+  };
 
   // Get cluster for root events
   const getClusterForEvent = (event: NetworkEvent) => {
@@ -236,6 +290,43 @@ export default function Events() {
               </SelectContent>
             </Select>
 
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="w-[180px] justify-between bg-secondary/50 border-border/50">
+                  {selectedCorrelations.length > 0
+                    ? `${selectedCorrelations.length} Correlation${selectedCorrelations.length > 1 ? 's' : ''}`
+                    : "Correlations..."}
+                  <Filter className="ml-2 h-4 w-4 text-muted-foreground" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[220px]">
+                {AVAILABLE_CORRELATIONS.map(correlation => (
+                  <div
+                    key={correlation}
+                    className="flex items-center space-x-2 px-2 py-1.5 cursor-pointer hover:bg-accent rounded-sm"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toggleCorrelation(correlation);
+                    }}
+                  >
+                    <Checkbox
+                      id={`corr-${correlation}`}
+                      checked={selectedCorrelations.includes(correlation)}
+                      onCheckedChange={() => toggleCorrelation(correlation)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <label
+                      htmlFor={`corr-${correlation}`}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer flex-1"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {correlation}
+                    </label>
+                  </div>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <div className="flex items-center gap-3">
               <Switch
                 id="show-resolved"
@@ -243,7 +334,7 @@ export default function Events() {
                 onCheckedChange={handleShowResolvedChange}
               />
               <Label htmlFor="show-resolved" className="text-sm text-muted-foreground">
-                Show Resolved (History)
+                History
               </Label>
             </div>
 
@@ -280,16 +371,16 @@ export default function Events() {
         <div className="glass-card rounded-xl overflow-hidden">
           {/* Horizontal Scroll Container */}
           <div className="overflow-x-auto">
-            <div className="min-w-[1200px]">
+            <div className="min-w-[1000px]">
               {/* Table Header */}
               <div className="grid grid-cols-12 gap-4 px-4 py-2 bg-secondary/50 border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                 <div className="col-span-2">Event ID / Device</div>
                 <div className="col-span-1">Severity</div>
-                <div className="col-span-2">Event Message</div>
+                <div className="col-span-3">Event Message</div>
                 <div className="col-span-2">Event Code</div>
-                <div className="col-span-1">Event Label</div>
+                <div className="col-span-2">Label / Correlation</div>
                 <div className="col-span-1">Timestamp</div>
-                <div className="col-span-3">Actions</div>
+                <div className="col-span-1">Actions</div>
               </div>
 
               {/* Table Body */}
@@ -307,11 +398,10 @@ export default function Events() {
                     <div
                       key={event.event_id}
                       className={cn(
-                        "grid grid-cols-12 gap-4 px-4 py-2.5 hover:bg-secondary/30 transition-all border-l-4 cursor-pointer",
+                        "grid grid-cols-12 gap-4 px-4 py-2.5 hover:bg-secondary/30 transition-all border-l-4",
                         severity.border,
                         event.status === 'Resolved' && "opacity-60"
                       )}
-                      onClick={() => openSidebar('info', event)}
                     >
                       {/* Event ID / Device */}
                       <div className="col-span-2 flex flex-col justify-center">
@@ -329,23 +419,36 @@ export default function Events() {
                       </div>
 
                       {/* Message */}
-                      <div className="col-span-2 flex items-center">
-                        <p className="text-sm text-muted-foreground truncate">{event.message}</p>
+                      <div className="col-span-3 flex items-center py-1">
+                        <p className="text-sm text-muted-foreground break-words">{event.message}</p>
                       </div>
 
                       {/* Event Code */}
                       <div className="col-span-2 flex items-center">
-                        <Badge variant="outline" className="font-mono text-xs">
+                        <Badge variant="outline" className="font-mono text-[10px] py-1 px-3 break-all">
                           {event.event_code}
                         </Badge>
                       </div>
 
-                      {/* Label */}
-                      <div className="col-span-1 flex items-center">
-                        <Badge variant="outline" className={cn("gap-1 text-xs", labelCfg.bg, labelCfg.border)}>
-                          <LabelIcon className={cn("h-3 w-3", labelCfg.color)} />
-                          <span className={labelCfg.color}>{label}</span>
+                      {/* Label / Correlation */}
+                      <div className="col-span-2 flex flex-col justify-center gap-1 min-w-0">
+                        <Badge variant="outline" className={cn("gap-1 text-xs w-fit shrink-0", labelCfg.bg, labelCfg.border)}>
+                          <LabelIcon className={cn("h-3 w-3 shrink-0", labelCfg.color)} />
+                          <span className={labelCfg.color}>{labelCfg.label}</span>
                         </Badge>
+                        {event.correlationLabels && event.correlationLabels.length > 0 && (
+                          <div className="flex flex-wrap gap-1 max-w-full">
+                            {event.correlationLabels.map(corr => (
+                              <span
+                                key={corr}
+                                title={corr}
+                                className="inline-block text-[9px] px-1.5 py-0.5 rounded font-medium bg-primary/10 text-primary border border-primary/20 truncate max-w-[120px]"
+                              >
+                                {corr}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
                       {/* Timestamp */}
@@ -354,23 +457,32 @@ export default function Events() {
                       </div>
 
                       {/* Actions */}
-                      <div className="col-span-3 flex items-center gap-2">
-                        <Button
-                          size="sm"
-                          variant={event.label === 'Root' ? 'default' : 'outline'}
-                          className={cn(
-                            "gap-1 text-xs",
-                            event.label === 'Root' ? "bg-status-success hover:bg-status-success/90" : "opacity-50"
-                          )}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (event.label === 'Root') openSidebar('probable-cause', event);
-                          }}
-                          disabled={event.label !== 'Root'}
-                        >
-                          <Eye className="h-3 w-3" />
-                          RCA/Impact
-                        </Button>
+                      <div className="col-span-1 flex items-center gap-2">
+                        {event.label === 'Root' ? (
+                          <Button
+                            size="sm"
+                            variant="default"
+                            className="gap-1 text-xs bg-status-success hover:bg-status-success/90"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              openSidebar('probable-cause', event);
+                            }}
+                          >
+                            <Eye className="h-3 w-3" />
+                            RCA/Impact
+                          </Button>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-1 text-xs text-muted-foreground/40 border-border/30 cursor-not-allowed"
+                            disabled
+                            title="RCA/Impact is only available for Root events"
+                          >
+                            <Eye className="h-3 w-3" />
+                            RCA/Impact
+                          </Button>
+                        )}
                       </div>
                     </div>
                   );
@@ -453,10 +565,6 @@ export default function Events() {
             className="fixed inset-0 bg-background/50 backdrop-blur-sm z-40"
             onClick={closeSidebar}
           />
-
-          {activeSidebar === 'info' && (
-            <EventInfoSidebar event={selectedEvent} onClose={closeSidebar} />
-          )}
 
           {activeSidebar === 'rca' && currentCluster && (
             <RCASidebar
