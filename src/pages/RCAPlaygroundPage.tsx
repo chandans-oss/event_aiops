@@ -11,10 +11,26 @@ import '@/styles/rcaPlayground.css';
 
 const theme = createTheme({
     palette: {
-        primary: { main: '#2563eb' },
-        background: { default: '#f8fafc' }
+        mode: 'dark',
+        primary: { main: '#3b82f6' }, // Tailwind blue-500
+        background: {
+            default: 'transparent',
+            paper: '#12172b' // --bg-secondary
+        },
+        text: {
+            primary: '#e8ecf5', // --text-primary
+            secondary: '#8b94b0' // --text-secondary
+        },
+        divider: '#2a3354' // --border-color
     },
-    typography: { fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif' },
+    typography: { fontFamily: '"Outfit", "Inter", "Roboto", "Helvetica", "Arial", sans-serif' },
+    components: {
+        MuiPaper: {
+            styleOverrides: {
+                root: { backgroundImage: 'none', borderColor: '#2a3354' }
+            }
+        }
+    }
 });
 
 const KPI_MAP: Record<string, [string, string]> = {
@@ -446,14 +462,13 @@ const RCAPlaygroundPage = () => {
     };
 
     return (
-        <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <MainLayout>
+        <MainLayout>
+            <ThemeProvider theme={theme}>
                 <Container maxWidth="lg" sx={{ py: 4 }}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
                         <Box display="flex" alignItems="center" gap={2}>
-                            <LayoutDashboard size={32} color="#2563eb" />
-                            <Typography variant="h4" fontWeight="800" color="#0f172a">RCA Playground</Typography>
+                            <LayoutDashboard size={32} color="#3b82f6" />
+                            <Typography variant="h4" fontWeight="800" color="text.primary">RCA Playground</Typography>
                         </Box>
                         {(animatedSteps.length > 0) && (
                             <Button variant="outlined" startIcon={<RotateCcw size={18} />} onClick={handleRestart} sx={{ borderRadius: '10px' }}>
@@ -525,8 +540,8 @@ const RCAPlaygroundPage = () => {
                         </Box>
                     )}
                 </Container>
-            </MainLayout>
-        </ThemeProvider>
+            </ThemeProvider>
+        </MainLayout>
     );
 };
 

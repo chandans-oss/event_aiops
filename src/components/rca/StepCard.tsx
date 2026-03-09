@@ -79,7 +79,7 @@ export const StepCard: React.FC<StepCardProps> = ({ step }) => {
         <div className={`rca-card ${step.is_final ? 'final' : ''} ${step.is_loading ? 'loading' : ''}`}>
             <div className="rca-step-title">
                 {step.icon || '📍'} {step.title}
-                {step.is_final && <span className="step-badge">AI Confirmed</span>}
+                {step.is_final && <span className="step-badge"></span>}
             </div>
             {step.sub && <div className="rca-step-sub" dangerouslySetInnerHTML={{ __html: step.sub }} />}
 

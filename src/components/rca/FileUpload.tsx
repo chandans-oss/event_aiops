@@ -24,20 +24,22 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect, isLoading 
 
     return (
         <Paper
-            elevation={3}
+            elevation={0}
             sx={{
                 p: 6,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                border: '2px dashed #90caf9',
+                border: '2px dashed #2a3354', // Changed contrast border
                 borderRadius: 4,
-                bgcolor: 'background.default'
+                bgcolor: 'background.paper', // explicitly render via theme background
+                color: 'text.primary',
+                boxShadow: '0 4px 15px -1px rgba(0, 0, 0, 0.4)'
             }}
         >
-            <UploadCloud size={60} color="#64748b" style={{ marginBottom: 16 }} />
-            <Typography variant="h5" fontWeight="semibold" mb={1}>
+            <UploadCloud size={60} color="#8b94b0" style={{ marginBottom: 16 }} />
+            <Typography variant="h5" fontWeight="semibold" mb={1} color="text.primary">
                 Upload Incident Data
             </Typography>
             <Typography variant="body2" color="text.secondary" align="center" mb={4} sx={{ maxWidth: 350 }}>

@@ -1,6 +1,7 @@
 import { Toaster } from "@/shared/components/ui/toaster";
 import { Toaster as Sonner } from "@/shared/components/ui/sonner";
 import AlarmPredictionDashboard from "@/features/analytics/pages/AlarmPredictionDashboard";
+import PredictionDashboard from "@/features/analytics/pages/PredictionDashboard";
 import RoiDashboard from "@/features/analytics/pages/RoiDashboard";
 
 import { TooltipProvider } from "@/shared/components/ui/tooltip";
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="/admin/ai-explainability" element={<MLExplainabilityAdmin />} />
               <Route path="/agents" element={<AgentsPage />} />
               <Route path="/dashboard/alarm-prediction" element={<AlarmPredictionDashboard />} />
+              <Route path="/dashboard/prediction" element={<PredictionDashboard />} />
               <Route path="/dashboard/roi" element={<RoiDashboard />} />
               <Route path="/admin/upload" element={<UploadData />} />
               <Route path="/admin/kb/:id" element={<KBDetailPage />} />
