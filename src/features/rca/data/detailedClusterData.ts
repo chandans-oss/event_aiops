@@ -3,11 +3,7 @@
 
 import { ClusterSpecificData } from './clusterData';
 
-// Helper function to create detailed RCA steps based on failure type
-const createDetailedSteps = (type: string, device: string, specifics: any) => {
-    // Implementation would go here - for now using the generic generator
-    return [];
-};
+
 
 // ============================================================================
 // CLU-002: FIBER CUT - Physical Layer Failure

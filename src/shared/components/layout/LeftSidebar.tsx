@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
@@ -20,6 +20,8 @@ import {
   TrendingUp,
   Bot,
   Target,
+  List,
+  BrainCircuit,
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
@@ -44,15 +46,25 @@ const navItems: NavItem[] = [
       { path: "/dashboard/roi", label: "ROI Dashboard", icon: Target },
     ]
   },
-  { path: "/events", label: "Events", icon: Activity },
+  {
+    path: "/events",
+    label: "Events",
+    icon: Activity,
+    children: [
+      { path: "/events", label: "Event List", icon: List },
+      { path: "/events/predicted", label: "Prediction", icon: TrendingUp },
+      { path: "/clustering", label: "Anomaly Detection", icon: GitBranch },
+      { path: "/correlation", label: "Pattern Detection", icon: BrainCircuit },
+    ]
+  },
   { path: "/topology", label: "Topology", icon: Network },
-  { path: "/correlation", label: "Correlation", icon: TrendingUp },
   {
     path: "/admin",
     label: "Admin",
     icon: Settings,
     children: [
       { path: "/admin", label: "Configuration", icon: Settings },
+      { path: "/admin/ai-explainability", label: "ML Explainability", icon: BrainCircuit },
       { path: "/admin/upload", label: "Upload Data", icon: Upload },
     ]
   },
@@ -73,10 +85,17 @@ const navItems: NavItem[] = [
     icon: FolderArchive,
     children: [
       { path: "/preprocessing", label: "Pre-Processing", icon: FileInput },
-      { path: "/clustering", label: "Clustering", icon: GitBranch },
       { path: "/rca-impact", label: "RCA & Impact", icon: Search },
       { path: "/remediation", label: "Remediation", icon: Wrench },
       { path: "/upload", label: "Event Upload", icon: Upload },
+    ]
+  },
+  {
+    path: "/playground",
+    label: "Playground",
+    icon: Settings, // or any icon
+    children: [
+      { path: "/playground/rca", label: "RCA Playground", icon: Workflow },
     ]
   },
 ];
@@ -85,6 +104,23 @@ export function LeftSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const [openMenus, setOpenMenus] = useState<string[]>(['/admin', '/demo']);
   const location = useLocation();
+
+  // Auto-expand menus based on current path
+  useEffect(() => {
+    const activeParents = navItems
+      .filter(item => item.children?.some(child => location.pathname === child.path))
+      .map(item => item.path);
+
+    if (activeParents.length > 0) {
+      setOpenMenus(prev => {
+        const newMenus = [...prev];
+        activeParents.forEach(p => {
+          if (!newMenus.includes(p)) newMenus.push(p);
+        });
+        return newMenus;
+      });
+    }
+  }, [location.pathname]);
 
   const toggleMenu = (path: string) => {
     setOpenMenus(prev =>

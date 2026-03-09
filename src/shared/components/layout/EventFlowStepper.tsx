@@ -8,10 +8,10 @@ export function EventFlowStepper() {
 
   const getStageStatus = (stage: typeof mockFlowStages[0]) => {
     // Check if we're on this stage's page
-    const isCurrentPath = location.pathname === stage.path || 
+    const isCurrentPath = location.pathname === stage.path ||
       (stage.path === '/preprocessing' && location.pathname === '/') ||
       location.pathname.startsWith(stage.path);
-    
+
     if (isCurrentPath) return 'active';
     return stage.status;
   };
@@ -82,8 +82,8 @@ export function EventFlowStepper() {
                 {index < mockFlowStages.length - 1 && (
                   <div className={cn(
                     "h-0.5 w-8 transition-colors duration-300",
-                    index < mockFlowStages.findIndex(s => s.status === 'active') 
-                      ? "bg-status-success" 
+                    index < mockFlowStages.findIndex(s => s.status === 'active')
+                      ? "bg-status-success"
                       : "bg-border"
                   )} />
                 )}

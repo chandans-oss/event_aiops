@@ -109,50 +109,18 @@ function generateMockEventsForType(simType: string, occId: string, occTimestamp:
 // --- Simulation Logic ---
 
 const getChartConfig = (type: 'congestion' | 'cpu_spike' | 'device_cpu_saturation' | 'link_physical_degradation' | 'firewall_overload' | 'qoe_jitter') => {
-    if (type === 'cpu_spike') {
-        return {
-            metric1: { name: 'CPU Usage %', color: '#ef4444' }, // Red
-            metric2: { name: 'Control Pkt Loss', color: '#f59e0b' }, // Amber
-            metric3: { name: 'BGP State (1=Up)', color: '#3b82f6' } // Blue
-        };
-    }
-    if (type === 'device_cpu_saturation') {
-        return {
-            metric1: { name: 'CPU Utilization', color: '#ef4444' },
-            metric2: { name: 'Ping Loss %', color: '#f59e0b' },
-            metric3: { name: 'Node State', color: '#3b82f6' }
-        };
-    }
-    if (type === 'link_physical_degradation') {
-        return {
-            metric1: { name: 'Input Errors', color: '#f59e0b' },
-            metric2: { name: 'Frame Discards', color: '#ef4444' },
-            metric3: { name: 'Link Flaps', color: '#10b981' }
-        };
-    }
-    if (type === 'firewall_overload') {
-        return {
-            metric1: { name: 'Sessions', color: '#3b82f6' },
-            metric2: { name: 'FW CPU %', color: '#ef4444' },
-            metric3: { name: 'Latency (ms)', color: '#f59e0b' }
-        };
-    }
-    if (type === 'qoe_jitter') {
-        return {
-            metric1: { name: 'Jitter (ms)', color: '#3b82f6' },
-            metric2: { name: 'Latency Var', color: '#f59e0b' },
-            metric3: { name: 'Drops', color: '#ef4444' }
-        };
-    }
+    const keys = SIM_METRICS[type] || SIM_METRICS['congestion'];
     return {
-        metric1: { name: 'Utilization %', color: '#3b82f6' }, // Blue
-        metric2: { name: 'Queue Depth', color: '#f59e0b' }, // Amber
-        metric3: { name: 'Errors', color: '#ef4444' } // Red
+        metric1: keys[0] ? { key: keys[0].key, name: keys[0].name, color: keys[0].color } : null,
+        metric2: keys[1] ? { key: keys[1].key, name: keys[1].name, color: keys[1].color } : null,
+        metric3: keys[2] ? { key: keys[2].key, name: keys[2].name, color: keys[2].color } : null,
     };
 };
 
 const generateSimulationData = (type: 'congestion' | 'cpu_spike' | 'device_cpu_saturation' | 'link_physical_degradation' | 'firewall_overload' | 'qoe_jitter') => {
     const data = [];
+    const keys = SIM_METRICS[type] || SIM_METRICS['congestion'];
+
     for (let i = 0; i <= 20; i++) {
         let m1, m2, m3;
 
@@ -161,20 +129,11 @@ const generateSimulationData = (type: 'congestion' | 'cpu_spike' | 'device_cpu_s
         const drift = Math.sin(i * 0.8) * 8; // Cyclic load pattern
 
         if (type === 'cpu_spike') {
-            // Metric 1: CPU (Spikes at t=8)
-            // Base fluctuates comfortably around 15-35%
             const baseCPU = 25 + drift;
             const spike = i > 8 ? 60 : 0;
             m1 = Math.max(5, Math.min(100, baseCPU + spike + organicNoise()));
-
-            // Metric 2: Control Packet Loss (Starts at t=10)
-            // Occasional baseline jitter (0-2%) before failure
-            const baseLoss = Math.random() > 0.8 ? Math.random() * 2 : 0;
-            const lossSpike = i > 10 ? (i - 10) * 8 + Math.random() * 10 : 0;
-            m2 = Math.min(100, baseLoss + lossSpike);
-
-            // Metric 3: BGP State (Binary)
             m3 = i > 14 ? 0 : 1;
+            m2 = i > 10 ? (i - 10) * 8 + Math.random() * 10 : 0;
         } else if (type === 'device_cpu_saturation') {
             m1 = Math.max(0, Math.min(100, 45 + drift + (i * 2.5)));
             m2 = i > 10 ? (i - 10) * 12 + organicNoise() : 0;
@@ -193,28 +152,22 @@ const generateSimulationData = (type: 'congestion' | 'cpu_spike' | 'device_cpu_s
             m3 = i > 12 ? (i - 12) * 5 : 0;
         } else {
             // Congestion
-            // Metric 1: Utilization (Fluctuates heavily with load)
             const utilBase = 45 + drift;
-            const utilRise = 45 / (1 + Math.exp(-0.8 * (i - 8))); // Steeper rise
+            const utilRise = 45 / (1 + Math.exp(-0.8 * (i - 8)));
             m1 = Math.max(10, Math.min(100, utilBase + utilRise + organicNoise()));
-
-            // Metric 2: Queue Depth (Correlated with Util but bursty)
-            const queueBase = Math.max(0, drift * 0.5 + organicNoise()); // 0-10 range roughly
+            const queueBase = Math.max(0, drift * 0.5 + organicNoise());
             const queueRise = i > 8 ? (i - 8) * 5 : 0;
             m2 = Math.max(0, Math.min(100, queueBase + queueRise + organicNoise()));
-
-            // Metric 3: Errors (CRC)
-            // Occasional glitches before saturation
             const errorBase = Math.random() > 0.9 ? 1 : 0;
             const errorRise = i > 14 ? (i - 14) * 1.5 + Math.random() : 0;
             m3 = Math.floor(Math.max(0, errorBase + errorRise));
         }
-        data.push({
-            time: `T+${i}m`,
-            metric1: Math.round(m1),
-            metric2: Math.round(m2),
-            metric3: Math.round(m3)
-        });
+
+        const point: any = { time: `T+${i}m` };
+        if (keys[0]) point[keys[0].key] = Math.round(m1);
+        if (keys[1]) point[keys[1].key] = Math.round(m2);
+        if (keys[2]) point[keys[2].key] = Math.round(m3);
+        data.push(point);
     }
     return data;
 };
@@ -495,10 +448,12 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
             const latestPoint = chartData[chartData.length - 1];
             const simType = pattern.simulationType || 'congestion';
 
-            // Raw inputs
-            const m1 = latestPoint.metric1; // Util or CPU (0-100)
-            const m2 = latestPoint.metric2; // Queue or Loss (0-100)
-            const m3 = latestPoint.metric3; // Errors or BGP State (count or binary)
+            const keys = SIM_METRICS[simType] || SIM_METRICS['congestion'];
+
+            // Raw inputs (mapped from descriptive keys)
+            const m1 = latestPoint[keys[0]?.key] || 0; // Util or CPU
+            const m2 = latestPoint[keys[1]?.key] || 0; // Queue or Loss
+            const m3 = latestPoint[keys[2]?.key] || 0; // Errors or BGP State
 
             const activeEvents: any[] = [];
 
@@ -543,8 +498,11 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                 // Stage 1: Traffic rising (Util > 40 AND Queue > 10) -> Packet Drop
                 // Stage 2: Saturation (Util > 80 OR Errors > 0) -> Link Flap
 
-                const isTrafficRising = m1 > 40 && m2 > 10;
-                const isSaturated = m1 > 80 || m3 > 2;
+                // Stage 1: Traffic rising (Util > 40 AND Queue > 10 AND Errors >= 1) -> Packet Drop
+                // Stage 2: Saturation (Util > 80 OR Errors > 5) -> Link Flap
+
+                const isTrafficRising = m1 > 40 && m2 > 10 && m3 >= 1;
+                const isSaturated = m1 > 80 || m3 > 5;
 
                 if (isTrafficRising) {
                     pattern.predictedEvents?.forEach(event => {
@@ -595,12 +553,11 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
             nextIndex = 0;
         }
 
-        const newPoint = {
-            time: `T+${nextIndex}m`,
-            metric1: Number(manualInputs.metric1),
-            metric2: Number(manualInputs.metric2),
-            metric3: Number(manualInputs.metric3)
-        };
+        const keys = SIM_METRICS[pattern.simulationType || 'congestion'];
+        const newPoint: any = { time: `T+${nextIndex}m` };
+        if (keys[0]) newPoint[keys[0].key] = Number(manualInputs.metric1);
+        if (keys[1]) newPoint[keys[1].key] = Number(manualInputs.metric2);
+        if (keys[2]) newPoint[keys[2].key] = Number(manualInputs.metric3);
 
         setChartData(prev => {
             const newData = [...prev, newPoint];
@@ -735,9 +692,9 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                             contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: 'none', borderRadius: '8px', fontSize: '12px' }}
                                             itemStyle={{ padding: 0 }}
                                         />
-                                        <Line type="monotone" dataKey="metric1" stroke={chartConfig.metric1.color} strokeWidth={2} name={chartConfig.metric1.name} dot={true} isAnimationActive={false} />
-                                        <Line type="monotone" dataKey="metric2" stroke={chartConfig.metric2.color} strokeWidth={2} name={chartConfig.metric2.name} dot={true} isAnimationActive={false} />
-                                        <Line type="step" dataKey="metric3" stroke={chartConfig.metric3.color} strokeWidth={2} name={chartConfig.metric3.name} dot={true} isAnimationActive={false} />
+                                        {chartConfig.metric1 && <Line type="monotone" dataKey={chartConfig.metric1.key} stroke={chartConfig.metric1.color} strokeWidth={2} name={chartConfig.metric1.name} dot={true} isAnimationActive={false} />}
+                                        {chartConfig.metric2 && <Line type="monotone" dataKey={chartConfig.metric2.key} stroke={chartConfig.metric2.color} strokeWidth={2} name={chartConfig.metric2.name} dot={true} isAnimationActive={false} />}
+                                        {chartConfig.metric3 && <Line type="step" dataKey={chartConfig.metric3.key} stroke={chartConfig.metric3.color} strokeWidth={2} name={chartConfig.metric3.name} dot={true} isAnimationActive={false} />}
                                         <ReferenceLine x={chartData[chartData.length - 1]?.time} stroke="white" strokeDasharray="3 3" />
                                     </LineChart>
                                 </ResponsiveContainer>
@@ -799,40 +756,52 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                             </CardHeader>
                             <CardContent className="pt-6 flex flex-col gap-8">
                                 <div className="space-y-4">
-                                    <label className="text-sm font-medium text-muted-foreground flex justify-between">
-                                        {chartConfig.metric1.name}
-                                        <span className="text-foreground font-mono bg-secondary/30 px-2 py-0.5 rounded">{manualInputs.metric1}%</span>
-                                    </label>
-                                    <input
-                                        type="range" min="0" max="100" step="1"
-                                        value={manualInputs.metric1}
-                                        onChange={(e) => setManualInputs(prev => ({ ...prev, metric1: parseInt(e.target.value) }))}
-                                        className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-blue-500"
-                                    />
+                                    {chartConfig.metric1 && (
+                                        <>
+                                            <label className="text-sm font-medium text-muted-foreground flex justify-between">
+                                                {chartConfig.metric1.name}
+                                                <span className="text-foreground font-mono bg-secondary/30 px-2 py-0.5 rounded">{manualInputs.metric1}%</span>
+                                            </label>
+                                            <input
+                                                type="range" min="0" max="100" step="1"
+                                                value={manualInputs.metric1}
+                                                onChange={(e) => setManualInputs(prev => ({ ...prev, metric1: parseInt(e.target.value) }))}
+                                                className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-blue-500"
+                                            />
+                                        </>
+                                    )}
                                 </div>
                                 <div className="space-y-4">
-                                    <label className="text-sm font-medium text-muted-foreground flex justify-between">
-                                        {chartConfig.metric2.name}
-                                        <span className="text-foreground font-mono bg-secondary/30 px-2 py-0.5 rounded">{manualInputs.metric2}</span>
-                                    </label>
-                                    <input
-                                        type="range" min="0" max="100" step="1"
-                                        value={manualInputs.metric2}
-                                        onChange={(e) => setManualInputs(prev => ({ ...prev, metric2: parseInt(e.target.value) }))}
-                                        className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-amber-500"
-                                    />
+                                    {chartConfig.metric2 && (
+                                        <>
+                                            <label className="text-sm font-medium text-muted-foreground flex justify-between">
+                                                {chartConfig.metric2.name}
+                                                <span className="text-foreground font-mono bg-secondary/30 px-2 py-0.5 rounded">{manualInputs.metric2}</span>
+                                            </label>
+                                            <input
+                                                type="range" min="0" max="100" step="1"
+                                                value={manualInputs.metric2}
+                                                onChange={(e) => setManualInputs(prev => ({ ...prev, metric2: parseInt(e.target.value) }))}
+                                                className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-amber-500"
+                                            />
+                                        </>
+                                    )}
                                 </div>
                                 <div className="space-y-4">
-                                    <label className="text-sm font-medium text-muted-foreground flex justify-between">
-                                        {chartConfig.metric3.name} (CRC)
-                                        <span className="text-foreground font-mono bg-secondary/30 px-2 py-0.5 rounded">{manualInputs.metric3}</span>
-                                    </label>
-                                    <input
-                                        type="range" min="0" max="20" step="1"
-                                        value={manualInputs.metric3}
-                                        onChange={(e) => setManualInputs(prev => ({ ...prev, metric3: parseInt(e.target.value) }))}
-                                        className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-red-500"
-                                    />
+                                    {chartConfig.metric3 && (
+                                        <>
+                                            <label className="text-sm font-medium text-muted-foreground flex justify-between">
+                                                {chartConfig.metric3.name}
+                                                <span className="text-foreground font-mono bg-secondary/30 px-2 py-0.5 rounded">{manualInputs.metric3}</span>
+                                            </label>
+                                            <input
+                                                type="range" min="0" max="20" step="1"
+                                                value={manualInputs.metric3}
+                                                onChange={(e) => setManualInputs(prev => ({ ...prev, metric3: parseInt(e.target.value) }))}
+                                                className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer accent-red-500"
+                                            />
+                                        </>
+                                    )}
                                 </div>
 
                                 <div className="pt-6 mt-auto">

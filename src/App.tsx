@@ -10,12 +10,14 @@ import { ThemeProvider } from "next-themes";
 import { ErrorBoundary } from "@/shared/components/common/ErrorBoundary";
 import AnalyticsDashboard from "@/features/analytics/pages/AnalyticsDashboard";
 import Events from "@/features/events/pages/EventsPage";
+import PredictedEvents from "@/features/events/pages/PredictedEventsPage";
 import Preprocessing from "@/features/analytics/pages/PreprocessingPage";
 import Clustering from "@/features/analytics/pages/ClusteringPage";
 import RCAImpact from "@/features/rca/pages/RcaImpactPage";
 import Remediation from "@/features/remediation/pages/RemediationPage";
 import Topology from "@/features/topology/pages/TopologyPage";
 import Admin from "@/features/admin/pages/AdminPage";
+import MLExplainabilityAdmin from "@/features/admin/pages/MLExplainabilityAdminPage";
 import EventUpload from "@/features/events/pages/EventUploadPage";
 import UploadData from "./pages/admin/UploadData";
 import RCAFlow from "./pages/demo/RCAFlow";
@@ -23,11 +25,12 @@ import Playground from "./pages/demo/Playground";
 import ImpactAnalysis from "./pages/demo/ImpactAnalysis";
 import RCADetailPage from "@/features/rca/pages/RcaDetailPage";
 import ImpactDetailPage from "@/features/impact/pages/ImpactDetailPage";
-import EventCorrelationClustersPage from "@/features/events/pages/EventCorrelationPage";
+// import EventCorrelationClustersPage from "@/features/events/pages/EventCorrelationPage";
 import CorrelationPage from "@/features/analytics/pages/CorrelationPage";
 import KBDetailPage from "@/features/admin/pages/KBDetailPage";
 import AgentsPage from "@/features/agents/pages/AgentsPage";
 import NotFound from "@/shared/components/common/NotFound";
+import RCAPlaygroundPage from "./pages/RCAPlaygroundPage";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +45,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<AnalyticsDashboard />} />
               <Route path="/events" element={<Events />} />
+              <Route path="/events/predicted" element={<PredictedEvents />} />
               <Route path="/rca/detail/:id" element={<RCADetailPage />} />
               <Route path="/impact/detail/:id" element={<ImpactDetailPage />} />
               <Route path="/preprocessing" element={<Preprocessing />} />
@@ -49,9 +53,10 @@ const App = () => (
               <Route path="/rca-impact" element={<RCAImpact />} />
               <Route path="/remediation" element={<Remediation />} />
               <Route path="/topology" element={<Topology />} />
-              <Route path="/event-correlation-clusters/:clusterId" element={<EventCorrelationClustersPage />} />
+              {/* <Route path="/event-correlation-clusters/:clusterId" element={<EventCorrelationClustersPage />} /> */}
               <Route path="/correlation" element={<CorrelationPage />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/admin/ai-explainability" element={<MLExplainabilityAdmin />} />
               <Route path="/agents" element={<AgentsPage />} />
               <Route path="/dashboard/alarm-prediction" element={<AlarmPredictionDashboard />} />
               <Route path="/dashboard/roi" element={<RoiDashboard />} />
@@ -61,6 +66,7 @@ const App = () => (
               <Route path="/demo/rca-flow" element={<RCAFlow />} />
               <Route path="/demo/playground" element={<Playground />} />
               <Route path="/demo/impact" element={<ImpactAnalysis />} />
+              <Route path="/playground/rca" element={<RCAPlaygroundPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>
