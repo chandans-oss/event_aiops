@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { useTheme as useNextTheme } from 'next-themes';
 import { FileUpload } from '../components/rca/FileUpload';
 import { TimelineFlow } from '../components/rca/TimelineFlow';
 import { StepCard } from '../components/rca/StepCard';
@@ -9,29 +10,7 @@ import { toast } from "sonner";
 import { MainLayout } from "@/shared/components/layout/MainLayout";
 import '@/styles/rcaPlayground.css';
 
-const theme = createTheme({
-    palette: {
-        mode: 'dark',
-        primary: { main: '#3b82f6' }, // Tailwind blue-500
-        background: {
-            default: 'transparent',
-            paper: '#12172b' // --bg-secondary
-        },
-        text: {
-            primary: '#e8ecf5', // --text-primary
-            secondary: '#8b94b0' // --text-secondary
-        },
-        divider: '#2a3354' // --border-color
-    },
-    typography: { fontFamily: '"Outfit", "Inter", "Roboto", "Helvetica", "Arial", sans-serif' },
-    components: {
-        MuiPaper: {
-            styleOverrides: {
-                root: { backgroundImage: 'none', borderColor: '#2a3354' }
-            }
-        }
-    }
-});
+
 
 const KPI_MAP: Record<string, [string, string]> = {
     "utilization_percent": ["Bandwidth Utilization", "%"],
@@ -176,6 +155,33 @@ const RCA_STEP_CONFIG = [
 ];
 
 const RCAPlaygroundPage = () => {
+    const { theme: appTheme, systemTheme } = useNextTheme();
+    const isDark = appTheme === 'dark' || (appTheme === 'system' && systemTheme === 'dark');
+
+    const muiTheme = useMemo(() => createTheme({
+        palette: {
+            mode: isDark ? 'dark' : 'light',
+            primary: { main: '#3b82f6' },
+            background: {
+                default: 'transparent',
+                paper: isDark ? '#12172b' : '#ffffff'
+            },
+            text: {
+                primary: isDark ? '#e8ecf5' : '#1e293b',
+                secondary: isDark ? '#8b94b0' : '#64748b'
+            },
+            divider: isDark ? '#2a3354' : '#e2e8f0'
+        },
+        typography: { fontFamily: '"Outfit", "Inter", "Roboto", "Helvetica", "Arial", sans-serif' },
+        components: {
+            MuiPaper: {
+                styleOverrides: {
+                    root: { backgroundImage: 'none', borderColor: isDark ? '#2a3354' : '#e2e8f0' }
+                }
+            }
+        }
+    }), [isDark]);
+
     const [rawSteps, setRawSteps] = useState<any[]>([]);
     const [animatedSteps, setAnimatedSteps] = useState<any[]>([]);
     const [currentStepIdx, setCurrentStepIdx] = useState(-1);
@@ -216,7 +222,7 @@ const RCAPlaygroundPage = () => {
                         <div style={{ fontSize: '0.85rem' }}>
                             <div>Logs and traps found in system during last 15 minutes</div>
                             {(incident.logs || []).slice(1).map((log: string, i: number) => (
-                                <div key={i} style={{ color: '#64748b' }}>• {log}</div>
+                                <div key={i} style={{ color: 'var(--rca-text-secondary)' }}>• {log}</div>
                             ))}
                         </div>
                     ),
@@ -227,11 +233,11 @@ const RCAPlaygroundPage = () => {
                             {Object.entries(signals).map(([deviceName, metrics]: [string, any]) => (
                                 <div key={deviceName} style={{ marginTop: '10px' }}>
                                     <h5 style={{ margin: '0 0 5px 0', fontSize: '0.9rem' }}>Device: {deviceName}</h5>
-                                    <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid #e2e8f0' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid var(--rca-border-color)' }}>
                                         <thead>
-                                            <tr style={{ background: '#f8fafc' }}>
-                                                <th style={{ textAlign: 'left', padding: '6px', border: '1px solid #e2e8f0' }}>Metric</th>
-                                                <th style={{ textAlign: 'left', padding: '6px', border: '1px solid #e2e8f0' }}>Value</th>
+                                            <tr style={{ background: 'var(--rca-bg-tertiary)' }}>
+                                                <th style={{ textAlign: 'left', padding: '6px', border: '1px solid var(--rca-border-color)' }}>Metric</th>
+                                                <th style={{ textAlign: 'left', padding: '6px', border: '1px solid var(--rca-border-color)' }}>Value</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -239,8 +245,8 @@ const RCAPlaygroundPage = () => {
                                                 const [label, unit] = KPI_MAP[k] || [k, ""];
                                                 return (
                                                     <tr key={k}>
-                                                        <td style={{ padding: '6px', border: '1px solid #e2e8f0' }}>{label}</td>
-                                                        <td style={{ padding: '6px', border: '1px solid #e2e8f0', fontFamily: 'monospace' }}>{String(v)}{unit}</td>
+                                                        <td style={{ padding: '6px', border: '1px solid var(--rca-border-color)' }}>{label}</td>
+                                                        <td style={{ padding: '6px', border: '1px solid var(--rca-border-color)', fontFamily: 'monospace' }}>{String(v)}{unit}</td>
                                                     </tr>
                                                 );
                                             })}
@@ -274,11 +280,11 @@ const RCAPlaygroundPage = () => {
                             <div style={{ marginBottom: '4px' }}>Signal Matches:</div>
                             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '8px' }}>
                                 {(matchRules[bestId]?.signals || []).map((s: string) => (
-                                    <span key={s} className="rule-pill rule-hit" style={{ background: '#dcfce7', color: '#166534', border: '1px solid #22c55e', padding: '2px 8px', borderRadius: '4px' }}>{s}</span>
+                                    <span key={s} className="rule-pill rule-hit" style={{ background: isDark ? 'rgba(34, 197, 94, 0.2)' : '#dcfce7', color: isDark ? '#4ade80' : '#166534', border: isDark ? '1px solid rgba(34, 197, 94, 0.4)' : '1px solid #22c55e', padding: '2px 8px', borderRadius: '4px' }}>{s}</span>
                                 ))}
                             </div>
                             <div style={{ marginBottom: '4px' }}>Log Matches:</div>
-                            <div style={{ color: '#4b5563' }}>{(matchRules[bestId]?.keyword || []).join(', ') || 'None'}</div>
+                            <div style={{ color: 'var(--rca-text-secondary)' }}>{(matchRules[bestId]?.keyword || []).join(', ') || 'None'}</div>
                         </div>
                     )
                 };
@@ -308,8 +314,8 @@ const RCAPlaygroundPage = () => {
                         <div style={{ fontSize: '0.85rem' }}>
                             {(incident.hypotheses || []).map((h: any) => h.matched_logs?.length > 0 && (
                                 <div key={h.hypothesis_id} style={{ marginBottom: '8px' }}>
-                                    <div style={{ fontWeight: 700, color: '#1e40af' }}>{h.hypothesis_id}</div>
-                                    {h.matched_logs.map((log: string, i: number) => <div key={i} style={{ paddingLeft: '8px', color: '#4b5563' }}>• {log}</div>)}
+                                    <div style={{ fontWeight: 700, color: isDark ? '#60a5fa' : '#1e40af' }}>{h.hypothesis_id}</div>
+                                    {h.matched_logs.map((log: string, i: number) => <div key={i} style={{ paddingLeft: '8px', color: 'var(--rca-text-secondary)' }}>• {log}</div>)}
                                 </div>
                             ))}
                         </div>
@@ -325,7 +331,7 @@ const RCAPlaygroundPage = () => {
                     "Summary": sitObj.situation_text || "N/A",
                     "Tags": "N/A",
                     "Input Data": (
-                        <pre style={{ margin: 0, padding: '10px', background: '#f8fafc', borderRadius: '6px', fontSize: '0.75rem', overflow: 'auto' }}>
+                        <pre style={{ margin: 0, padding: '10px', background: 'var(--rca-bg-tertiary)', color: 'var(--rca-text-primary)', borderRadius: '6px', fontSize: '0.75rem', overflow: 'auto' }}>
                             {JSON.stringify({ ...sitObj.metadata, logs: incident.logs }, null, 2)}
                         </pre>
                     ),
@@ -357,7 +363,7 @@ const RCAPlaygroundPage = () => {
                     "Retrieved Cases": (
                         <div style={{ fontSize: '0.88rem' }}>
                             {hCases.map((c: any, i: number) => (
-                                <div key={c.case_id} style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: i < hCases.length - 1 ? '1px solid #e2e8f0' : 'none' }}>
+                                <div key={c.case_id} style={{ marginBottom: '12px', paddingBottom: '12px', borderBottom: i < hCases.length - 1 ? '1px solid var(--rca-border-color)' : 'none' }}>
                                     <div><b>Case ID:</b> {c.case_id}</div>
                                     <div style={{ marginTop: '4px' }}><b>Situation Summary:</b> {c.sit_summary}</div>
                                     <div style={{ marginTop: '4px' }}><b>Predicted RCA:</b> {c.rca}</div>
@@ -463,7 +469,7 @@ const RCAPlaygroundPage = () => {
 
     return (
         <MainLayout>
-            <ThemeProvider theme={theme}>
+            <ThemeProvider theme={muiTheme}>
                 <Container maxWidth="lg" sx={{ py: 4 }}>
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
                         <Box display="flex" alignItems="center" gap={2}>
@@ -509,7 +515,7 @@ const RCAPlaygroundPage = () => {
                                         scrollButtons="auto"
                                         sx={{
                                             minHeight: '48px',
-                                            '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, fontSize: '0.9rem', color: '#64748b' },
+                                            '& .MuiTab-root': { textTransform: 'none', fontWeight: 600, fontSize: '0.9rem', color: 'var(--rca-text-secondary)' },
                                             '& .Mui-selected': { color: '#2563eb !important' },
                                             '& .MuiTabs-indicator': { backgroundColor: '#2563eb', height: '3px', borderRadius: '3px 3px 0 0' }
                                         }}
@@ -528,8 +534,8 @@ const RCAPlaygroundPage = () => {
                                     <StepCard step={animatedSteps[activeTab]} />
                                 ) : (
                                     loadingStepIdx === activeTab && isAnimating && (
-                                        <Paper className="rca-card loading" sx={{ p: 4, mb: 4, background: '#fffbeb', borderLeft: '6px solid #f59e0b' }}>
-                                            <Typography variant="h6" display="flex" alignItems="center" gap={2} sx={{ color: '#92400e' }}>
+                                        <Paper className="rca-card loading" sx={{ p: 4, mb: 4, background: isDark ? 'rgba(245, 158, 11, 0.1)' : '#fffbeb', borderLeft: '6px solid #f59e0b' }}>
+                                            <Typography variant="h6" display="flex" alignItems="center" gap={2} sx={{ color: isDark ? '#fcd34d' : '#92400e' }}>
                                                 <CircularProgress size={20} color="inherit" />
                                                 {LOADING_MESSAGES[activeTab] || 'Processing step...'}
                                             </Typography>

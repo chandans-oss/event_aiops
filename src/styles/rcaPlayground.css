@@ -1,12 +1,28 @@
 /* RCA Playground Styles - Adapted for Dark/Light Mode via CSS Vars */
 
+:root {
+    --rca-bg-secondary: #ffffff;
+    --rca-bg-tertiary: #f8fafc;
+    --rca-border-color: #e2e8f0;
+    --rca-text-primary: #1e293b;
+    --rca-text-secondary: #64748b;
+}
+
+.dark {
+    --rca-bg-secondary: #12172b;
+    --rca-bg-tertiary: #1a2038;
+    --rca-border-color: #2a3354;
+    --rca-text-primary: #e8ecf5;
+    --rca-text-secondary: #8b94b0;
+}
+
 .rca-timeline-container {
     display: flex;
     align-items: center;
     overflow-x: auto;
     padding: 24px;
-    background: var(--bg-secondary, #12172b);
-    border: 1px solid var(--border-color, #2a3354);
+    background: var(--rca-bg-secondary);
+    border: 1px solid var(--rca-border-color);
     border-radius: 16px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, .2);
     margin-bottom: 34px;
@@ -16,8 +32,8 @@
 }
 
 .rca-tl-box {
-    background: var(--bg-tertiary, #1a2038);
-    border: 2px solid var(--border-color, #2a3354);
+    background: var(--rca-bg-tertiary);
+    border: 2px solid var(--rca-border-color);
     border-radius: 12px;
     padding: 10px 14px;
     min-width: 160px;
@@ -27,7 +43,7 @@
     flex-direction: column;
     justify-content: center;
     min-height: 64px;
-    color: var(--text-primary, #e8ecf5);
+    color: var(--rca-text-primary);
 }
 
 .rca-tl-box.done {
@@ -44,9 +60,9 @@
 }
 
 .rca-tl-box.pending {
-    border-color: var(--border-color, #2a3354);
-    color: var(--text-secondary, #8b94b0);
-    background: var(--bg-secondary, #12172b);
+    border-color: var(--rca-border-color);
+    color: var(--rca-text-secondary);
+    background: var(--rca-bg-secondary);
 }
 
 .tl-title-text {
@@ -63,7 +79,7 @@
 .rca-tl-line {
     min-width: 30px;
     height: 3px;
-    background: var(--border-color, #2a3354);
+    background: var(--rca-border-color);
     border-radius: 10px;
 }
 
@@ -73,14 +89,14 @@
 
 /* MAIN STEPS */
 .rca-card {
-    background: var(--bg-secondary, #12172b);
+    background: var(--rca-bg-secondary);
     border-left: 5px solid #3b82f6;
     border-radius: 12px;
     padding: 20px 24px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, .2);
     margin-bottom: 16px;
     transition: all 0.3s ease;
-    border: 1px solid var(--border-color, #2a3354);
+    border: 1px solid var(--rca-border-color);
     border-left-width: 6px;
 }
 
@@ -109,7 +125,7 @@
 .rca-step-title {
     font-size: 1.15rem;
     font-weight: 700;
-    color: var(--text-primary, #e8ecf5);
+    color: var(--rca-text-primary);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -118,7 +134,7 @@
 
 .rca-step-sub {
     font-size: 0.82rem;
-    color: var(--text-secondary, #8b94b0);
+    color: var(--rca-text-secondary);
     margin-bottom: 14px;
     line-height: 1.4;
 }
@@ -132,16 +148,16 @@
     background: rgba(0, 0, 0, 0.20);
     padding: 12px;
     border-radius: 8px;
-    border: 1px solid var(--border-color, #2a3354);
+    border: 1px solid var(--rca-border-color);
 }
 
 .rca-k {
-    color: var(--text-secondary, #8b94b0);
+    color: var(--rca-text-secondary);
     font-weight: 600;
 }
 
 .rca-v {
-    color: var(--text-primary, #e8ecf5);
+    color: var(--rca-text-primary);
     font-family: inherit;
     word-break: break-all;
 }

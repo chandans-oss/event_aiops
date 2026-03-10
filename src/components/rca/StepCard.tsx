@@ -40,7 +40,7 @@ const formatValue = (key: string, value: any) => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                     {Object.entries(value).map(([device, metrics]: [string, any]) => (
                         <div key={device} style={{ marginBottom: '8px' }}>
-                            <div style={{ fontWeight: 'bold', fontSize: '0.8rem', color: '#475569' }}>Device: {device}</div>
+                            <div style={{ fontWeight: 'bold', fontSize: '0.8rem', color: 'var(--rca-text-primary)' }}>Device: {device}</div>
                             {Object.entries(metrics).map(([mk, mv]) => {
                                 const [name, unit] = KPI_MAP[mk] || [mk, ''];
                                 return (
@@ -99,7 +99,7 @@ export const StepCard: React.FC<StepCardProps> = ({ step }) => {
             )}
 
             {step.is_loading && (
-                <div style={{ marginTop: '16px', fontSize: '0.9rem', color: '#92400e', fontWeight: 500 }}>
+                <div style={{ marginTop: '16px', fontSize: '0.9rem', color: 'var(--rca-text-secondary)', fontWeight: 500 }}>
                     Processing step logic...
                 </div>
             )}
