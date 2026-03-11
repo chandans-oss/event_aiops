@@ -97,8 +97,10 @@ const navItems: NavItem[] = [
     icon: Settings, // or any icon
     children: [
       { path: "/playground/rca", label: "RCA Playground", icon: Workflow },
+      { path: "/playground/ml-pred-corr", label: "ML Pred Corr Patterns", icon: BrainCircuit },
     ]
   },
+
 ];
 
 export function LeftSidebar() {

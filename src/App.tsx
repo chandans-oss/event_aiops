@@ -32,6 +32,7 @@ import KBDetailPage from "@/features/admin/pages/KBDetailPage";
 import AgentsPage from "@/features/agents/pages/AgentsPage";
 import NotFound from "@/shared/components/common/NotFound";
 import RCAPlaygroundPage from "./pages/RCAPlaygroundPage";
+import MLPredCorrPatternsPage from "./pages/MLPredCorrPatternsPage";
 
 const queryClient = new QueryClient();
 
@@ -69,10 +70,12 @@ const App = () => (
               <Route path="/demo/playground" element={<Playground />} />
               <Route path="/demo/impact" element={<ImpactAnalysis />} />
               <Route path="/playground/rca" element={<RCAPlaygroundPage />} />
+              <Route path="/playground/ml-pred-corr" element={<MLPredCorrPatternsPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>
         </BrowserRouter>
+
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>

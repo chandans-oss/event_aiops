@@ -222,7 +222,7 @@ const RCAPlaygroundPage = () => {
                         <div style={{ fontSize: '0.85rem' }}>
                             <div>Logs and traps found in system during last 15 minutes</div>
                             {(incident.logs || []).slice(1).map((log: string, i: number) => (
-                                <div key={i} style={{ color: 'var(--rca-text-secondary)' }}>• {log}</div>
+                                <div key={i} style={{ color: 'var(--rca-text-secondary)', wordBreak: 'break-word' }}>• {log}</div>
                             ))}
                         </div>
                     ),
@@ -315,7 +315,7 @@ const RCAPlaygroundPage = () => {
                             {(incident.hypotheses || []).map((h: any) => h.matched_logs?.length > 0 && (
                                 <div key={h.hypothesis_id} style={{ marginBottom: '8px' }}>
                                     <div style={{ fontWeight: 700, color: isDark ? '#60a5fa' : '#1e40af' }}>{h.hypothesis_id}</div>
-                                    {h.matched_logs.map((log: string, i: number) => <div key={i} style={{ paddingLeft: '8px', color: 'var(--rca-text-secondary)' }}>• {log}</div>)}
+                                    {h.matched_logs.map((log: string, i: number) => <div key={i} style={{ paddingLeft: '8px', color: 'var(--rca-text-secondary)', wordBreak: 'break-word' }}>• {log}</div>)}
                                 </div>
                             ))}
                         </div>
@@ -331,7 +331,7 @@ const RCAPlaygroundPage = () => {
                     "Summary": sitObj.situation_text || "N/A",
                     "Tags": "N/A",
                     "Input Data": (
-                        <pre style={{ margin: 0, padding: '10px', background: 'var(--rca-bg-tertiary)', color: 'var(--rca-text-primary)', borderRadius: '6px', fontSize: '0.75rem', overflow: 'auto' }}>
+                        <pre style={{ margin: 0, padding: '10px', background: 'var(--rca-bg-tertiary)', color: 'var(--rca-text-primary)', borderRadius: '6px', fontSize: '0.75rem', overflow: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
                             {JSON.stringify({ ...sitObj.metadata, logs: incident.logs }, null, 2)}
                         </pre>
                     ),
@@ -346,7 +346,7 @@ const RCAPlaygroundPage = () => {
             //         "Plan ID": p.plan_id || "N/A",
             //         "Tools": (p.steps || []).map((s: any) => s.tool).join(', '),
             //         "Plan Steps": (
-            //             <pre style={{ margin: 0, padding: '10px', background: '#f8fafc', borderRadius: '6px', fontSize: '0.75rem', overflow: 'auto' }}>
+            //             <pre style={{ margin: 0, padding: '10px', background: '#f8fafc', borderRadius: '6px', fontSize: '0.75rem', overflow: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
             //                 {JSON.stringify(p.steps || [], null, 2)}
             //             </pre>
             //         ),

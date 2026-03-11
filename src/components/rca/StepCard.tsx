@@ -68,7 +68,7 @@ const formatValue = (key: string, value: any) => {
             );
         }
 
-        return <pre style={{ margin: 0, fontSize: '0.8rem', whiteSpace: 'pre-wrap' }}>{JSON.stringify(value, null, 2)}</pre>;
+        return <pre style={{ margin: 0, fontSize: '0.8rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{JSON.stringify(value, null, 2)}</pre>;
     }
 
     return String(value);
