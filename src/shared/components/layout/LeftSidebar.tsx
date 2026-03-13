@@ -100,6 +100,16 @@ const navItems: NavItem[] = [
       { path: "/playground/ml-pred-corr", label: "ML Pred Corr Patterns", icon: BrainCircuit },
     ]
   },
+  {
+    path: "/pattern-prediction",
+    label: "Pattern & Prediction",
+    icon: TrendingUp,
+    children: [
+      { path: "/pattern-prediction/pattern", label: "Pattern", icon: GitBranch },
+      { path: "/pattern-prediction/prediction", label: "Prediction", icon: BrainCircuit },
+      { path: "/pattern-prediction/anomalies", label: "Anomalies", icon: Activity },
+    ]
+  },
 
 ];
 
@@ -167,17 +177,17 @@ export function LeftSidebar() {
           <CollapsibleTrigger asChild>
             <button
               className={cn(
-                "flex items-center justify-between w-full h-10 px-3 rounded-lg transition-colors",
+                "flex items-center justify-between w-full min-h-[2.5rem] py-2 px-3 rounded-lg transition-colors",
                 isChildActive
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-secondary hover:text-foreground",
               )}
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 min-w-0">
                 <Icon className="h-5 w-5 flex-shrink-0" />
-                <span className="text-sm font-medium">{item.label}</span>
+                <span className="text-sm font-medium truncate">{item.label}</span>
               </div>
-              <ChevronDown className={cn("h-4 w-4 transition-transform", isOpen && "rotate-180")} />
+              <ChevronDown className={cn("h-4 w-4 flex-shrink-0 transition-transform", isOpen && "rotate-180")} />
             </button>
           </CollapsibleTrigger>
           <CollapsibleContent className="pl-4 mt-1 space-y-1">

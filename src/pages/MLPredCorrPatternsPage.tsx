@@ -437,7 +437,7 @@ const MLPredCorrPatternsPage = () => {
                         {showResults ? (
                             <motion.div key="results" initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
                                 <Grid container spacing={4}>
-                                    <Grid item xs={12}>
+                                    <Grid size={{ xs: 12 }}>
                                         <Typography variant="h6" fontWeight="700" mb={1.5} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                             <Activity size={20} color={isLiveMode ? "#10b981" : "#3b82f6"} /> {isLiveMode ? 'Real-time Pattern Formation' : 'Detected Pattern Details'}
                                         </Typography>
@@ -483,7 +483,7 @@ const MLPredCorrPatternsPage = () => {
                                         </TableContainer>
                                     </Grid>
 
-                                    <Grid item xs={12}>
+                                    <Grid size={{ xs: 12 }}>
                                         <Box display="flex" justifyContent="space-between" alignItems="center" mb={1.5}>
                                             <Typography variant="h6" fontWeight="700" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                 <Clock size={20} color="#f59e0b" /> Streaming Future Predictions

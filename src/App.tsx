@@ -33,6 +33,9 @@ import AgentsPage from "@/features/agents/pages/AgentsPage";
 import NotFound from "@/shared/components/common/NotFound";
 import RCAPlaygroundPage from "./pages/RCAPlaygroundPage";
 import MLPredCorrPatternsPage from "./pages/MLPredCorrPatternsPage";
+import PatternPage from "./pages/PatternPage";
+import PredictionPage from "./pages/PredictionPage";
+import AnomaliesPage from "./pages/AnomaliesPage";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +74,9 @@ const App = () => (
               <Route path="/demo/impact" element={<ImpactAnalysis />} />
               <Route path="/playground/rca" element={<RCAPlaygroundPage />} />
               <Route path="/playground/ml-pred-corr" element={<MLPredCorrPatternsPage />} />
+              <Route path="/pattern-prediction/pattern" element={<PatternPage />} />
+              <Route path="/pattern-prediction/prediction" element={<PredictionPage />} />
+              <Route path="/pattern-prediction/anomalies" element={<AnomaliesPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>

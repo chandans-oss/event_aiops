@@ -1,0 +1,63 @@
+timestamp,device,resource_name,resource_type,event_type,severity,event_msg,scenario
+2025-10-28T14:00:00Z,edge-router-dc1,Te0/0/1,Interface,INTERFACE_DOWN,Critical,Interface Te0/0/1 is DOWN. No carrier detected.,INTERFACE_DOWN
+2025-10-28T14:01:00Z,core-router-dc1,Gi0/1/0,Interface,PACKET_DROP,Minor,Input packet drops on Gi0/1/0: 120 drops/min. Queue congestion.,PACKET_DROP
+2025-10-28T14:01:00Z,edge-router-dc1,Te0/0/1,Routing,INTERFACE_DOWN,Critical,OSPF neighbor isp-b-peer lost via Te0/0/1. Adjacency dropped.,INTERFACE_DOWN
+2025-10-28T14:02:00Z,core-router-dc2,Gi0/1/1,Interface,INTERFACE_DOWN,Critical,Interface Gi0/1/1 is DOWN. No carrier detected.,INTERFACE_DOWN
+2025-10-28T14:02:00Z,edge-router-dc1,Te0/0/1,Routing,INTERFACE_DOWN,Critical,BGP session with isp-b-peer down — interface Te0/0/1 unreachable.,INTERFACE_DOWN
+2025-10-28T14:03:00Z,core-router-dc2,Gi0/1/1,Routing,INTERFACE_DOWN,Critical,OSPF neighbor core-router-dc1 lost via Gi0/1/1. Adjacency dropped.,INTERFACE_DOWN
+2025-10-28T14:04:00Z,core-router-dc2,Gi0/1/1,Routing,INTERFACE_DOWN,Critical,BGP session with core-router-dc1 down — interface Gi0/1/1 unreachable.,INTERFACE_DOWN
+2025-10-28T14:04:00Z,backbone-pe1,Gi0/1/0,Interface,PACKET_DROP,Minor,Input packet drops on Gi0/1/0: 120 drops/min. Queue congestion.,PACKET_DROP
+2025-10-28T14:05:00Z,edge-router-dc2,Te0/0/0,Interface,HIGH_UTIL_WARNING,Minor,Interface Te0/0/0 utilization at 55%. Trending upward.,HIGH_UTIL_WARNING
+2025-10-28T14:05:00Z,firewall-dc1,CPU,Processor,HIGH_CPU,Minor,CPU usage at 65%. Monitoring elevated load.,HIGH_CPU
+2025-10-28T14:06:00Z,core-router-dc1,Gi0/1/0,Interface,PACKET_DROP,Major,Packet drop rate on Gi0/1/0 increasing: 850 drops/min. SLA impact.,PACKET_DROP
+2025-10-28T14:06:00Z,core-router-dc1,CPU,Processor,HIGH_CPU,Minor,CPU usage at 65%. Monitoring elevated load.,HIGH_CPU
+2025-10-28T14:09:00Z,core-router-dc1,QoS-Policy,QoS,PACKET_DROP,Major,QoS tail drop on Gi0/1/0: BE traffic sacrificed. 3000 pkts/sec dropped.,PACKET_DROP
+2025-10-28T14:09:00Z,edge-router-dc2,Te0/0/1,Interface,HIGH_UTIL_WARNING,Minor,Interface Te0/0/1 utilization at 55%. Trending upward.,HIGH_UTIL_WARNING
+2025-10-28T14:09:00Z,backbone-pe1,Gi0/1/0,Interface,PACKET_DROP,Major,Packet drop rate on Gi0/1/0 increasing: 850 drops/min. SLA impact.,PACKET_DROP
+2025-10-28T14:10:00Z,edge-router-dc2,Te0/0/0,Interface,HIGH_UTIL_WARNING,Minor,Interface Te0/0/0 utilization at 65%. Above warning threshold.,HIGH_UTIL_WARNING
+2025-10-28T14:10:00Z,firewall-dc1,CPU,Processor,HIGH_CPU,Major,CPU usage reached 78%. Process scheduling impacted.,HIGH_CPU
+2025-10-28T14:11:00Z,core-router-dc1,Gi0/1/0,Interface,PACKET_DROP,Major,Output queue drops on Gi0/1/0: 600 drops/min — transmit ring full.,PACKET_DROP
+2025-10-28T14:11:00Z,core-router-dc1,CPU,Processor,HIGH_CPU,Major,CPU usage reached 78%. Process scheduling impacted.,HIGH_CPU
+2025-10-28T14:12:00Z,access-switch-floor2,Gi0/1,Interface,INTERFACE_DOWN,Critical,Interface Gi0/1 is DOWN. No carrier detected.,INTERFACE_DOWN
+2025-10-28T14:12:00Z,backbone-pe1,QoS-Policy,QoS,PACKET_DROP,Major,QoS tail drop on Gi0/1/0: BE traffic sacrificed. 3000 pkts/sec dropped.,PACKET_DROP
+2025-10-28T14:13:00Z,core-router-dc1,Gi0/1/0,Interface,PACKET_DROP,Critical,Critical packet loss on Gi0/1/0: 4200 drops/min. Blackholing risk.,PACKET_DROP
+2025-10-28T14:13:00Z,access-switch-floor2,Gi0/1,Routing,INTERFACE_DOWN,Critical,OSPF neighbor core-router-dc1 lost via Gi0/1. Adjacency dropped.,INTERFACE_DOWN
+2025-10-28T14:14:00Z,edge-router-dc2,Te0/0/1,Interface,HIGH_UTIL_WARNING,Minor,Interface Te0/0/1 utilization at 65%. Above warning threshold.,HIGH_UTIL_WARNING
+2025-10-28T14:14:00Z,access-switch-floor2,Gi0/1,Routing,INTERFACE_DOWN,Critical,BGP session with core-router-dc1 down — interface Gi0/1 unreachable.,INTERFACE_DOWN
+2025-10-28T14:14:00Z,backbone-pe1,Gi0/1/0,Interface,PACKET_DROP,Major,Output queue drops on Gi0/1/0: 600 drops/min — transmit ring full.,PACKET_DROP
+2025-10-28T14:15:00Z,edge-router-dc2,Te0/0/0,Interface,HIGH_UTIL_WARNING,Major,Interface Te0/0/0 utilization at 75%. Approaching capacity.,HIGH_UTIL_WARNING
+2025-10-28T14:15:00Z,firewall-dc1,CPU,Processor,HIGH_CPU,Critical,CPU usage critical at 91%. Control plane at risk.,HIGH_CPU
+2025-10-28T14:16:00Z,core-router-dc1,CPU,Processor,HIGH_CPU,Critical,CPU usage critical at 91%. Control plane at risk.,HIGH_CPU
+2025-10-28T14:16:00Z,backbone-pe1,Gi0/1/0,Interface,PACKET_DROP,Critical,Critical packet loss on Gi0/1/0: 4200 drops/min. Blackholing risk.,PACKET_DROP
+2025-10-28T14:19:00Z,edge-router-dc2,Te0/0/1,Interface,HIGH_UTIL_WARNING,Major,Interface Te0/0/1 utilization at 75%. Approaching capacity.,HIGH_UTIL_WARNING
+2025-10-28T14:22:00Z,access-switch-floor1,Gi0/1,Interface,HIGH_UTIL_WARNING,Minor,Interface Gi0/1 utilization at 55%. Trending upward.,HIGH_UTIL_WARNING
+2025-10-28T14:22:00Z,backbone-pe1,CPU,Processor,HIGH_CPU,Minor,CPU usage at 65%. Monitoring elevated load.,HIGH_CPU
+2025-10-28T14:23:00Z,edge-router-dc2,Te0/0/0,Interface,HIGH_UTIL_WARNING,Major,Interface Te0/0/0 utilization at 82%. Traffic engineering recommended.,HIGH_UTIL_WARNING
+2025-10-28T14:23:00Z,firewall-dc1,CPU,Processor,HIGH_CPU,Critical,CPU sustaining 95% for >5 min. Process sshd consuming highest cycles.,HIGH_CPU
+2025-10-28T14:24:00Z,core-router-dc1,CPU,Processor,HIGH_CPU,Critical,CPU sustaining 95% for >5 min. Process snmpd consuming highest cycles.,HIGH_CPU
+2025-10-28T14:27:00Z,edge-router-dc2,Te0/0/1,Interface,HIGH_UTIL_WARNING,Major,Interface Te0/0/1 utilization at 82%. Traffic engineering recommended.,HIGH_UTIL_WARNING
+2025-10-28T14:27:00Z,access-switch-floor1,Gi0/1,Interface,HIGH_UTIL_WARNING,Minor,Interface Gi0/1 utilization at 65%. Above warning threshold.,HIGH_UTIL_WARNING
+2025-10-28T14:27:00Z,backbone-pe1,CPU,Processor,HIGH_CPU,Major,CPU usage reached 78%. Process scheduling impacted.,HIGH_CPU
+2025-10-28T14:29:00Z,access-switch-floor1,Fa0/1,Interface,INTERFACE_DOWN,Critical,Interface Fa0/1 is DOWN. No carrier detected.,INTERFACE_DOWN
+2025-10-28T14:29:00Z,firewall-dc1,eth1,Interface,INTERFACE_DOWN,Critical,Interface eth1 is DOWN. No carrier detected.,INTERFACE_DOWN
+2025-10-28T14:30:00Z,access-switch-floor1,Fa0/1,Routing,INTERFACE_DOWN,Critical,OSPF neighbor workstation-101 lost via Fa0/1. Adjacency dropped.,INTERFACE_DOWN
+2025-10-28T14:30:00Z,firewall-dc1,eth1,Routing,INTERFACE_DOWN,Critical,OSPF neighbor dmz-switch lost via eth1. Adjacency dropped.,INTERFACE_DOWN
+2025-10-28T14:31:00Z,access-switch-floor1,Fa0/1,Routing,INTERFACE_DOWN,Critical,BGP session with workstation-101 down — interface Fa0/1 unreachable.,INTERFACE_DOWN
+2025-10-28T14:31:00Z,firewall-dc1,eth1,Routing,INTERFACE_DOWN,Critical,BGP session with dmz-switch down — interface eth1 unreachable.,INTERFACE_DOWN
+2025-10-28T14:32:00Z,core-router-dc2,CPU,Processor,HIGH_CPU,Minor,CPU usage at 65%. Monitoring elevated load.,HIGH_CPU
+2025-10-28T14:32:00Z,access-switch-floor1,Gi0/1,Interface,HIGH_UTIL_WARNING,Major,Interface Gi0/1 utilization at 75%. Approaching capacity.,HIGH_UTIL_WARNING
+2025-10-28T14:32:00Z,backbone-pe1,CPU,Processor,HIGH_CPU,Critical,CPU usage critical at 91%. Control plane at risk.,HIGH_CPU
+2025-10-28T14:34:00Z,edge-router-dc1,CPU,Processor,HIGH_CPU,Minor,CPU usage at 65%. Monitoring elevated load.,HIGH_CPU
+2025-10-28T14:35:00Z,access-switch-floor2,Fa0/1,Interface,PACKET_DROP,Minor,Input packet drops on Fa0/1: 120 drops/min. Queue congestion.,PACKET_DROP
+2025-10-28T14:37:00Z,core-router-dc2,CPU,Processor,HIGH_CPU,Major,CPU usage reached 78%. Process scheduling impacted.,HIGH_CPU
+2025-10-28T14:39:00Z,edge-router-dc1,CPU,Processor,HIGH_CPU,Major,CPU usage reached 78%. Process scheduling impacted.,HIGH_CPU
+2025-10-28T14:40:00Z,access-switch-floor1,Gi0/1,Interface,HIGH_UTIL_WARNING,Major,Interface Gi0/1 utilization at 82%. Traffic engineering recommended.,HIGH_UTIL_WARNING
+2025-10-28T14:40:00Z,access-switch-floor2,Fa0/1,Interface,PACKET_DROP,Major,Packet drop rate on Fa0/1 increasing: 850 drops/min. SLA impact.,PACKET_DROP
+2025-10-28T14:40:00Z,backbone-pe1,CPU,Processor,HIGH_CPU,Critical,CPU sustaining 95% for >5 min. Process ospf consuming highest cycles.,HIGH_CPU
+2025-10-28T14:42:00Z,core-router-dc2,CPU,Processor,HIGH_CPU,Critical,CPU usage critical at 91%. Control plane at risk.,HIGH_CPU
+2025-10-28T14:43:00Z,access-switch-floor2,QoS-Policy,QoS,PACKET_DROP,Major,QoS tail drop on Fa0/1: BE traffic sacrificed. 3000 pkts/sec dropped.,PACKET_DROP
+2025-10-28T14:44:00Z,edge-router-dc1,CPU,Processor,HIGH_CPU,Critical,CPU usage critical at 91%. Control plane at risk.,HIGH_CPU
+2025-10-28T14:45:00Z,access-switch-floor2,Fa0/1,Interface,PACKET_DROP,Major,Output queue drops on Fa0/1: 600 drops/min — transmit ring full.,PACKET_DROP
+2025-10-28T14:47:00Z,access-switch-floor2,Fa0/1,Interface,PACKET_DROP,Critical,Critical packet loss on Fa0/1: 4200 drops/min. Blackholing risk.,PACKET_DROP
+2025-10-28T14:50:00Z,core-router-dc2,CPU,Processor,HIGH_CPU,Critical,CPU sustaining 95% for >5 min. Process netflow consuming highest cycles.,HIGH_CPU
+2025-10-28T14:52:00Z,edge-router-dc1,CPU,Processor,HIGH_CPU,Critical,CPU sustaining 95% for >5 min. Process fib-mgr consuming highest cycles.,HIGH_CPU
