@@ -22,6 +22,7 @@ import {
   Target,
   List,
   BrainCircuit,
+  Heart,
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
@@ -71,6 +72,19 @@ const navItems: NavItem[] = [
   },
   { path: "/agents", label: "Agents", icon: Bot },
   {
+    path: "/pattern-prediction",
+    label: "Pattern & Prediction",
+    icon: TrendingUp,
+    children: [
+      { path: "/pattern-prediction/pattern", label: "Pattern", icon: GitBranch },
+      { path: "/pattern-prediction/prediction", label: "Prediction", icon: BrainCircuit },
+      { path: "/pattern-prediction/anomalies", label: "Anomalies", icon: Activity },
+      { path: "/pattern-prediction/training", label: "Training", icon: Target },
+      { path: "/pattern-prediction/training-lovelable", label: "Training Lovelable", icon: Heart },
+      { path: "/pattern-prediction/live-inference", label: "Live Inference", icon: PlayCircle },
+    ]
+  },
+  {
     path: "/demo",
     label: "Demo",
     icon: PlayCircle,
@@ -98,16 +112,6 @@ const navItems: NavItem[] = [
     children: [
       { path: "/playground/rca", label: "RCA Playground", icon: Workflow },
       { path: "/playground/ml-pred-corr", label: "ML Pred Corr Patterns", icon: BrainCircuit },
-    ]
-  },
-  {
-    path: "/pattern-prediction",
-    label: "Pattern & Prediction",
-    icon: TrendingUp,
-    children: [
-      { path: "/pattern-prediction/pattern", label: "Pattern", icon: GitBranch },
-      { path: "/pattern-prediction/prediction", label: "Prediction", icon: BrainCircuit },
-      { path: "/pattern-prediction/anomalies", label: "Anomalies", icon: Activity },
     ]
   },
 

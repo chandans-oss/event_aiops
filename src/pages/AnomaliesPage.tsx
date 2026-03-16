@@ -787,7 +787,7 @@ export default function AnomaliesPage() {
   const toggleModel = (name: string) => {
     setActiveModels(prev => ({ ...prev, [name]: !prev[name] }));
   };
-  
+
   const filteredAnomalies = ANOMALY_DATA.filter(a => a.device_type === deviceType);
 
   return (
@@ -798,7 +798,6 @@ export default function AnomaliesPage() {
             <h1 className="text-2xl font-bold tracking-tight">Anomaly Detection</h1>
             <div className="flex items-center gap-2 mt-1">
               <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
-              <p className="text-muted-foreground text-[10px] uppercase tracking-widest font-black opacity-60">ML Observation Continuous</p>
             </div>
           </div>
 
@@ -923,18 +922,18 @@ export default function AnomaliesPage() {
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                      <Button 
-                                        variant="outline" 
-                                        size="icon" 
+                                      <Button
+                                        variant="outline"
+                                        size="icon"
                                         className="h-7 w-7 rounded-md border-white/5 bg-white/5 hover:bg-primary/10 hover:text-primary transition-all group/retrain"
                                         title="Retrain Model"
                                       >
                                         <RotateCcw className="h-3 w-3 group-hover/retrain:rotate-[-180deg] transition-transform duration-500" />
                                       </Button>
-                                      <Switch 
-                                        checked={activeConfigs[fn.id]} 
+                                      <Switch
+                                        checked={activeConfigs[fn.id]}
                                         onCheckedChange={() => toggleConfig(fn.id)}
-                                        className="data-[state=checked]:bg-primary h-5 w-9" 
+                                        className="data-[state=checked]:bg-primary h-5 w-9"
                                       />
                                     </div>
                                   </div>
@@ -965,18 +964,18 @@ export default function AnomaliesPage() {
                                                 <span className={cn("text-[9px] font-black tabular-nums", getConfidenceColor(model.confidence).split(' ')[0])}>
                                                   {model.confidence}%
                                                 </span>
-                                                <Button 
-                                                  variant="outline" 
-                                                  size="icon" 
+                                                <Button
+                                                  variant="outline"
+                                                  size="icon"
                                                   className="h-5 w-5 rounded border-white/5 bg-white/5 hover:bg-primary/10 hover:text-primary transition-all group/retrain_model"
                                                   title="Retrain PKL Model"
                                                 >
                                                   <RotateCcw className="h-2.5 w-2.5 group-hover/retrain_model:rotate-[-180deg] transition-transform duration-500" />
                                                 </Button>
-                                                <Switch 
-                                                  checked={activeModels[model.name]} 
+                                                <Switch
+                                                  checked={activeModels[model.name]}
                                                   onCheckedChange={() => toggleModel(model.name)}
-                                                  className="h-4 w-7 data-[state=checked]:bg-primary" 
+                                                  className="h-4 w-7 data-[state=checked]:bg-primary"
                                                 />
                                               </div>
                                             </div>

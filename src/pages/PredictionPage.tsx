@@ -5,13 +5,13 @@ import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Switch } from "@/shared/components/ui/switch";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/components/ui/accordion";
-import { 
-  BarChart3, 
-  GitBranch, 
-  Eye, 
-  ChevronLeft, 
-  ChevronRight, 
-  Activity, 
+import {
+  BarChart3,
+  GitBranch,
+  Eye,
+  ChevronLeft,
+  ChevronRight,
+  Activity,
   Search,
   Settings,
   Plus,
@@ -30,11 +30,11 @@ const CONFIG_FUNCTIONS = [
   { id: "granger_causality", name: "GRANGER CAUSALITY", version: "v1.0.1", confidence: 88, status: "RUNNING" },
   { id: "pre_event", name: "PRE-EVENT METRIC BEHAVIOUR", version: "v1.0.2", confidence: 95, status: "RUNNING" },
   { id: "clustering", name: "PATTERN CLUSTERING", version: "v1.0.1", confidence: 84, status: "RUNNING" },
-  { 
-    id: "random_forest", 
-    name: "RANDOM FOREST EVENT PREDICTOR", 
-    version: "v2.1.0", 
-    confidence: 97, 
+  {
+    id: "random_forest",
+    name: "RANDOM FOREST EVENT PREDICTOR",
+    version: "v2.1.0",
+    confidence: 97,
     status: "RUNNING",
     hasModels: true,
     models: [
@@ -62,7 +62,7 @@ const DonutProgress = ({ value, size = 32, strokeWidth = 3 }: { value: number, s
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const offset = circumference - (value / 100) * circumference;
-  
+
   const color = value >= 90 ? "#f43f5e" : value >= 80 ? "#f59e0b" : "#10b981";
 
   return (
@@ -706,7 +706,7 @@ export default function PredictionPage() {
   const [activeConfigs, setActiveConfigs] = useState<Record<string, boolean>>(
     CONFIG_FUNCTIONS.reduce((acc, fn) => ({ ...acc, [fn.id]: true }), {})
   );
-  
+
   const initialModelsState = CONFIG_FUNCTIONS.reduce((acc, fn) => {
     if (fn.models) {
       fn.models.forEach(model => {
@@ -715,7 +715,7 @@ export default function PredictionPage() {
     }
     return acc;
   }, {} as Record<string, boolean>);
-  
+
   const [activeModels, setActiveModels] = useState<Record<string, boolean>>(initialModelsState);
 
   const toggleConfig = (id: string) => {
@@ -734,12 +734,11 @@ export default function PredictionPage() {
             <h1 className="text-2xl font-bold tracking-tight">Prediction Workspace</h1>
             <div className="flex items-center gap-2 mt-1">
               <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
-              <p className="text-muted-foreground text-[10px] uppercase tracking-widest font-black opacity-60">ML Observation Continuous</p>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <Select 
+            <Select
               defaultValue="routers"
               onValueChange={(val: any) => setDeviceType(val)}
             >
@@ -770,34 +769,34 @@ export default function PredictionPage() {
                     </SheetTitle>
                   </div>
                 </SheetHeader>
-                
+
                 <div className="flex-1 overflow-hidden">
                   <Tabs defaultValue="procedures" className="h-full flex flex-col">
                     <div className="px-6 border-b border-border/50 bg-muted/30">
                       <TabsList className="h-14 bg-transparent gap-8 p-0">
-                        <TabsTrigger 
-                          value="procedures" 
+                        <TabsTrigger
+                          value="procedures"
                           className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-2 text-[11px] font-bold uppercase tracking-widest"
                         >
                           Process procedures
                         </TabsTrigger>
-                        <TabsTrigger 
-                          value="configurations" 
+                        <TabsTrigger
+                          value="configurations"
                           className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-2 text-[11px] font-bold uppercase tracking-widest"
                         >
                           Configurrations
                         </TabsTrigger>
                       </TabsList>
                     </div>
-                    
+
                     <div className="flex-1 overflow-hidden p-8">
                       <TabsContent value="procedures" className="mt-0 h-full">
                         <div className="h-full bg-[#0c0c0c] border border-white/10 rounded-xl overflow-hidden shadow-2xl flex flex-col">
                           <div className="px-4 py-2 border-b border-white/5 bg-white/5 flex items-center gap-2">
-                             <div className="h-2 w-2 rounded-full bg-rose-500" />
-                             <div className="h-2 w-2 rounded-full bg-amber-500" />
-                             <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                             <span className="text-[10px] text-muted-foreground ml-2 font-mono">predictive_engine.py — {deviceType}</span>
+                            <div className="h-2 w-2 rounded-full bg-rose-500" />
+                            <div className="h-2 w-2 rounded-full bg-amber-500" />
+                            <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                            <span className="text-[10px] text-muted-foreground ml-2 font-mono">predictive_engine.py — {deviceType}</span>
                           </div>
                           <ScrollArea className="flex-1">
                             <div className="p-6 font-mono text-[11px] leading-relaxed text-[#d4d4d4] whitespace-pre">
@@ -859,18 +858,18 @@ export default function PredictionPage() {
                                       </div>
                                     </div>
                                     <div className="flex items-center gap-3">
-                                      <Button 
-                                        variant="outline" 
-                                        size="icon" 
+                                      <Button
+                                        variant="outline"
+                                        size="icon"
                                         className="h-7 w-7 rounded-md border-white/5 bg-white/5 hover:bg-primary/10 hover:text-primary transition-all group/retrain"
                                         title="Retrain Model"
                                       >
                                         <RotateCcw className="h-3 w-3 group-hover/retrain:rotate-[-180deg] transition-transform duration-500" />
                                       </Button>
-                                      <Switch 
-                                        checked={activeConfigs[fn.id]} 
+                                      <Switch
+                                        checked={activeConfigs[fn.id]}
                                         onCheckedChange={() => toggleConfig(fn.id)}
-                                        className="data-[state=checked]:bg-primary h-5 w-9" 
+                                        className="data-[state=checked]:bg-primary h-5 w-9"
                                       />
                                     </div>
                                   </div>
@@ -898,22 +897,22 @@ export default function PredictionPage() {
                                                 <span className="text-[8px] text-muted-foreground/60 font-mono ml-3">{model.version}</span>
                                               </div>
                                               <div className="flex items-center gap-3">
-                                                 <span className={cn("text-[9px] font-black tabular-nums", getConfidenceColor(model.confidence).split(' ')[0])}>
-                                                   {model.confidence}%
-                                                 </span>
-                                                 <Button 
-                                                   variant="outline" 
-                                                   size="icon" 
-                                                   className="h-5 w-5 rounded border-white/5 bg-white/5 hover:bg-primary/10 hover:text-primary transition-all group/retrain_model"
-                                                   title="Retrain PKL Model"
-                                                 >
-                                                   <RotateCcw className="h-2.5 w-2.5 group-hover/retrain_model:rotate-[-180deg] transition-transform duration-500" />
-                                                 </Button>
-                                                 <Switch 
-                                                   checked={activeModels[model.name]} 
-                                                   onCheckedChange={() => toggleModel(model.name)}
-                                                   className="h-4 w-7 data-[state=checked]:bg-primary" 
-                                                 />
+                                                <span className={cn("text-[9px] font-black tabular-nums", getConfidenceColor(model.confidence).split(' ')[0])}>
+                                                  {model.confidence}%
+                                                </span>
+                                                <Button
+                                                  variant="outline"
+                                                  size="icon"
+                                                  className="h-5 w-5 rounded border-white/5 bg-white/5 hover:bg-primary/10 hover:text-primary transition-all group/retrain_model"
+                                                  title="Retrain PKL Model"
+                                                >
+                                                  <RotateCcw className="h-2.5 w-2.5 group-hover/retrain_model:rotate-[-180deg] transition-transform duration-500" />
+                                                </Button>
+                                                <Switch
+                                                  checked={activeModels[model.name]}
+                                                  onCheckedChange={() => toggleModel(model.name)}
+                                                  className="h-4 w-7 data-[state=checked]:bg-primary"
+                                                />
                                               </div>
                                             </div>
                                           ))}
@@ -978,27 +977,27 @@ export default function PredictionPage() {
                     <td className="px-6 py-5 w-[150px]">
                       <Badge variant="outline" className={cn(
                         "text-[9px] font-black uppercase tracking-widest h-5 px-2 border",
-                        item.severity === "critical" ? "border-rose-500/30 bg-rose-500/10 text-rose-500" : 
-                        item.severity === "warning" ? "border-amber-500/30 bg-amber-500/10 text-amber-500" :
-                        "border-blue-500/30 bg-blue-500/10 text-blue-500"
+                        item.severity === "critical" ? "border-rose-500/30 bg-rose-500/10 text-rose-500" :
+                          item.severity === "warning" ? "border-amber-500/30 bg-amber-500/10 text-amber-500" :
+                            "border-blue-500/30 bg-blue-500/10 text-blue-500"
                       )}>
                         {item.severity}
                       </Badge>
                     </td>
                     <td className="px-6 py-5">
                       <div className="flex items-center gap-3">
-                         <div className={cn(
-                           "p-1.5 rounded-md",
-                            item.severity === "critical" ? "bg-rose-500/10" : 
+                        <div className={cn(
+                          "p-1.5 rounded-md",
+                          item.severity === "critical" ? "bg-rose-500/10" :
                             item.severity === "warning" ? "bg-amber-500/10" : "bg-blue-500/10"
-                         )}>
-                           <Zap className={cn(
-                             "h-3 w-3",
-                              item.severity === "critical" ? "text-rose-500" : 
+                        )}>
+                          <Zap className={cn(
+                            "h-3 w-3",
+                            item.severity === "critical" ? "text-rose-500" :
                               item.severity === "warning" ? "text-amber-500" : "text-blue-500"
-                           )} />
-                         </div>
-                         <span className="text-[11px] font-black uppercase tracking-widest text-foreground/80">{item.predicted_event}</span>
+                          )} />
+                        </div>
+                        <span className="text-[11px] font-black uppercase tracking-widest text-foreground/80">{item.predicted_event}</span>
                       </div>
                     </td>
                     <td className="px-6 py-5 w-[180px]">
@@ -1006,19 +1005,19 @@ export default function PredictionPage() {
                     </td>
                     <td className="px-6 py-5 w-[180px]">
                       <div className="flex items-center gap-4">
-                         <DonutProgress value={item.probability} size={36} strokeWidth={3} />
-                         <div className="flex flex-col">
-                           <span className={cn(
-                             "text-[10px] font-black uppercase tracking-tight",
-                             item.probability >= 90 ? "text-rose-500" :
-                             item.probability >= 80 ? "text-amber-500" :
-                             "text-emerald-500"
-                           )}>
-                             {item.probability >= 90 ? "Critical" :
+                        <DonutProgress value={item.probability} size={36} strokeWidth={3} />
+                        <div className="flex flex-col">
+                          <span className={cn(
+                            "text-[10px] font-black uppercase tracking-tight",
+                            item.probability >= 90 ? "text-rose-500" :
+                              item.probability >= 80 ? "text-amber-500" :
+                                "text-emerald-500"
+                          )}>
+                            {item.probability >= 90 ? "Critical" :
                               item.probability >= 80 ? "High Prob" : "Stable"}
-                           </span>
-                           <span className="text-[8px] font-bold text-muted-foreground/30 uppercase tracking-widest">Score</span>
-                         </div>
+                          </span>
+                          <span className="text-[8px] font-bold text-muted-foreground/30 uppercase tracking-widest">Score</span>
+                        </div>
                       </div>
                     </td>
                   </tr>

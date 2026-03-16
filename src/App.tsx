@@ -30,12 +30,19 @@ import ImpactDetailPage from "@/features/impact/pages/ImpactDetailPage";
 import CorrelationPage from "@/features/analytics/pages/CorrelationPage";
 import KBDetailPage from "@/features/admin/pages/KBDetailPage";
 import AgentsPage from "@/features/agents/pages/AgentsPage";
+import LiveInferencePage from "./pages/LiveInferencePage";
 import NotFound from "@/shared/components/common/NotFound";
 import RCAPlaygroundPage from "./pages/RCAPlaygroundPage";
 import MLPredCorrPatternsPage from "./pages/MLPredCorrPatternsPage";
 import PatternPage from "./pages/PatternPage";
 import PredictionPage from "./pages/PredictionPage";
 import AnomaliesPage from "./pages/AnomaliesPage";
+import ModelOutputsPage from "./pages/ModelOutputsPage";
+import TrainingPage from "./pages/TrainingPage";
+import TrainingAnalysisPage from "./pages/TrainingAnalysisPage";
+import TrainingLovelablePage from "./pages/TrainingLovelablePage";
+
+console.log("[App] Routes initialized at 10:54");
 
 const queryClient = new QueryClient();
 
@@ -48,6 +55,10 @@ const App = () => (
         <BrowserRouter>
           <ErrorBoundary>
             <Routes>
+              <Route path="/pattern-prediction/live-inference" element={<LiveInferencePage />} />
+              <Route path="/pattern-prediction/live_inference" element={<LiveInferencePage />} />
+              <Route path="/pattern-prediction/model-outputs" element={<ModelOutputsPage />} />
+              
               <Route path="/" element={<AnalyticsDashboard />} />
               <Route path="/events" element={<Events />} />
               <Route path="/events/predicted" element={<PredictedEvents />} />
@@ -77,6 +88,9 @@ const App = () => (
               <Route path="/pattern-prediction/pattern" element={<PatternPage />} />
               <Route path="/pattern-prediction/prediction" element={<PredictionPage />} />
               <Route path="/pattern-prediction/anomalies" element={<AnomaliesPage />} />
+              <Route path="/pattern-prediction/training" element={<TrainingPage />} />
+              <Route path="/pattern-prediction/training-lovelable" element={<TrainingLovelablePage />} />
+              <Route path="/pattern-prediction/training/analysis/:modelId" element={<TrainingAnalysisPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>
