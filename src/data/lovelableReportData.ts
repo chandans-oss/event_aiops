@@ -26,6 +26,12 @@ export interface ClusterData {
   noEvt: string;
   evt: string;
   c: string;
+  centroids?: {
+    util_pct: number;
+    queue_depth: number;
+    cpu_pct: number;
+    mem_util_pct: number;
+  };
 }
 
 export interface RFData {
@@ -67,8 +73,8 @@ export interface ChainData {
 export interface LovelableReport {
   pipeline: string[];
   events: ReportEvent[];
-  xcorrR: { a: string, b: string, r: number, lag: string }[];
-  xcorrS: { a: string, b: string, r: number, lag: string }[];
+  xcorrR: { a: string, b: string, r: number, s: number, lag: string, interp: string }[];
+  xcorrS: { a: string, b: string, r: number, s: number, lag: string, interp: string }[];
   grangerR: { c: string, e: string, f: number, p: string, lag: string }[];
   grangerS: { c: string, e: string, f: number, p: string, lag: string }[];
   preEvtR: PreEventData[];
@@ -86,7 +92,7 @@ export interface LovelableReport {
 }
 
 export const LOVELABLE_REPORT_DATA: LovelableReport = {
-  pipeline: ['Data load', 'Resample', 'Dev merge', 'Windows', 'XCorr', 'Granger', 'Pre-event', 'Cluster', 'Random forest', 'Sequences', 'Anomaly', 'Chains', 'Save'],
+  pipeline: ['Data load', 'Resample', 'Dev merge', 'Data', 'Cross Correlation', 'Granger Causality', 'Pre-event', 'K-means', 'Random Forest', 'Sequences', 'Chains', 'Isolation Forest', 'Save'],
   events: [
     { n: 'DEVICE_REBOOT', pos: 6, rate: 0.1, dev: true },
     { n: 'HIGH_LATENCY', pos: 343, rate: 4.2, dev: false },
@@ -96,23 +102,23 @@ export const LOVELABLE_REPORT_DATA: LovelableReport = {
     { n: 'PACKET_DROP', pos: 986, rate: 12.1, dev: false },
   ],
   xcorrR: [
-    { a: 'queue_depth', b: 'latency_ms', r: 0.996, lag: 'simultaneous' },
-    { a: 'crc_errors', b: 'queue_depth', r: 0.943, lag: '+5 min' },
-    { a: 'crc_errors', b: 'latency_ms', r: 0.940, lag: '+5 min' },
-    { a: 'queue_depth', b: 'cpu_pct', r: 0.855, lag: '+5 min' },
-    { a: 'latency_ms', b: 'cpu_pct', r: 0.849, lag: '+5 min' },
-    { a: 'crc_errors', b: 'cpu_pct', r: 0.801, lag: '+10 min' },
-    { a: 'temp_c', b: 'cpu_pct', r: 0.731, lag: '+10 min' },
-    { a: 'mem_util_pct', b: 'cpu_pct', r: 0.705, lag: '+15 min' },
+    { a: 'util_pct', b: 'queue_depth', r: 0.7516, s: 0.7159, lag: '-1 polls', interp: 'queue_depth LEADS util_pct by 5 min' },
+    { a: 'util_pct', b: 'crc_errors', r: 0.7381, s: 0.7158, lag: '-2 polls', interp: 'crc_errors LEADS util_pct by 10 min' },
+    { a: 'util_pct', b: 'latency_ms', r: 0.7530, s: 0.7235, lag: '-1 polls', interp: 'latency_ms LEADS util_pct by 5 min' },
+    { a: 'util_pct', b: 'cpu_pct', r: 0.7830, s: 0.7541, lag: '+0 polls', interp: 'simultaneous' },
+    { a: 'queue_depth', b: 'latency_ms', r: 0.9959, s: 0.9933, lag: '+0 polls', interp: 'simultaneous' },
+    { a: 'queue_depth', b: 'crc_errors', r: 0.9432, s: 0.9442, lag: '-1 polls', interp: 'crc_errors LEADS queue_depth by 5 min' },
+    { a: 'queue_depth', b: 'cpu_pct', r: 0.8546, s: 0.8052, lag: '+1 polls', interp: 'queue_depth LEADS cpu_pct by 5 min' },
+    { a: 'crc_errors', b: 'latency_ms', r: 0.9399, s: 0.9398, lag: '+1 polls', interp: 'crc_errors LEADS latency_ms by 5 min' },
   ],
   xcorrS: [
-    { a: 'queue_depth', b: 'latency_ms', r: 0.998, lag: 'simultaneous' },
-    { a: 'crc_errors', b: 'queue_depth', r: 0.946, lag: '+5 min' },
-    { a: 'crc_errors', b: 'latency_ms', r: 0.945, lag: '+5 min' },
-    { a: 'latency_ms', b: 'cpu_pct', r: 0.886, lag: '+5 min' },
-    { a: 'queue_depth', b: 'cpu_pct', r: 0.887, lag: '+5 min' },
-    { a: 'cpu_pct', b: 'util_pct', r: 0.832, lag: '+5 min' },
-    { a: 'crc_errors', b: 'cpu_pct', r: 0.821, lag: '+10 min' },
+    { a: 'util_pct', b: 'queue_depth', r: 0.8942, s: 0.8607, lag: '-1 polls', interp: 'queue_depth LEADS util_pct by 5 min' },
+    { a: 'util_pct', b: 'crc_errors', r: 0.8482, s: 0.8252, lag: '-2 polls', interp: 'crc_errors LEADS util_pct by 10 min' },
+    { a: 'util_pct', b: 'latency_ms', r: 0.8906, s: 0.8589, lag: '-1 polls', interp: 'latency_ms LEADS util_pct by 5 min' },
+    { a: 'util_pct', b: 'cpu_pct', r: 0.8324, s: 0.8224, lag: '-1 polls', interp: 'cpu_pct LEADS util_pct by 5 min' },
+    { a: 'queue_depth', b: 'latency_ms', r: 0.9976, s: 0.9945, lag: '+0 polls', interp: 'simultaneous' },
+    { a: 'queue_depth', b: 'crc_errors', r: 0.9456, s: 0.9531, lag: '-1 polls', interp: 'crc_errors LEADS queue_depth by 5 min' },
+    { a: 'crc_errors', b: 'latency_ms', r: 0.9448, s: 0.9529, lag: '+1 polls', interp: 'crc_errors LEADS latency_ms by 5 min' },
   ],
   grangerR: [
     { c: 'queue_depth', e: 'crc_errors', f: 289.3, p: '<0.001', lag: '5 min' },
@@ -195,16 +201,16 @@ export const LOVELABLE_REPORT_DATA: LovelableReport = {
     },
   ],
   clR: [
-    { n: 'Stable Baseline', size: 678, total: 4079, noEvt: '6%', evt: 'PACKET_DROP: 82%', c: '#b03030' },
-    { n: 'Gradual Rise', size: 614, total: 4079, noEvt: '91%', evt: 'HIGH_UTIL_WARNING: 9%', c: '#1a4f8c' },
-    { n: 'Congestion Buildup', size: 1556, total: 4079, noEvt: '94%', evt: 'HIGH_UTIL_WARNING: 6%', c: '#b05a00' },
-    { n: 'Spike/Recovery', size: 1231, total: 4079, noEvt: '95%', evt: 'HIGH_UTIL_WARNING: 5%', c: '#5a554c' },
+    { n: 'Stable Baseline', size: 678, total: 4079, noEvt: '6%', evt: 'PACKET_DROP: 82% | HIGH_UTIL_WARNING: 75% | INTERFACE_FLAP: 60%', c: '#EF4444', centroids: { util_pct: 89.0, queue_depth: 60.4, cpu_pct: 54.0, mem_util_pct: 59.4 } },
+    { n: 'Gradual Rise', size: 614, total: 4079, noEvt: '91%', evt: 'HIGH_UTIL_WARNING: 9% | PACKET_DROP: 5% | HIGH_LATENCY: 0%', c: '#3B82F6', centroids: { util_pct: 49.2, queue_depth: 3.8, cpu_pct: 41.9, mem_util_pct: 57.5 } },
+    { n: 'Congestion Buildup', size: 1556, total: 4079, noEvt: '94%', evt: 'HIGH_UTIL_WARNING: 6% | PACKET_DROP: 3% | INTERFACE_FLAP: 0%', c: '#F59E0B', centroids: { util_pct: 51.1, queue_depth: 2.7, cpu_pct: 47.9, mem_util_pct: 58.4 } },
+    { n: 'Spike/Recovery', size: 1231, total: 4079, noEvt: '95%', evt: 'HIGH_UTIL_WARNING: 5% | PACKET_DROP: 2% | HIGH_LATENCY: 0%', c: '#8B5CF6', centroids: { util_pct: 50.9, queue_depth: 2.1, cpu_pct: 38.7, mem_util_pct: 56.4 } },
   ],
   clS: [
-    { n: 'Stable Baseline', size: 1310, total: 4077, noEvt: '98%', evt: 'HIGH_UTIL_WARNING: 2%', c: '#5a554c' },
-    { n: 'Gradual Rise', size: 1693, total: 4077, noEvt: '100%', evt: 'DEVICE_REBOOT: 0%', c: '#1a4f8c' },
-    { n: 'Congestion Buildup', size: 626, total: 4077, noEvt: '98%', evt: 'HIGH_UTIL_WARNING: 2%', c: '#b05a00' },
-    { n: 'Spike/Recovery', size: 448, total: 4077, noEvt: '14%', evt: 'PACKET_DROP: 69%', c: '#b03030' },
+    { n: 'Stable Baseline', size: 1310, total: 4077, noEvt: '98%', evt: 'HIGH_UTIL_WARNING: 2% | PACKET_DROP: 1%', c: '#10B981', centroids: { util_pct: 42.3, queue_depth: 2.8, cpu_pct: 29.1, mem_util_pct: 45.4 } },
+    { n: 'Gradual Rise', size: 1693, total: 4077, noEvt: '100%', evt: 'DEVICE_REBOOT: 0% | PACKET_DROP: 0%', c: '#3B82F6', centroids: { util_pct: 36.9, queue_depth: 0.6, cpu_pct: 24.3, mem_util_pct: 45.0 } },
+    { n: 'Congestion Buildup', size: 626, total: 4077, noEvt: '98%', evt: 'HIGH_UTIL_WARNING: 2% | PACKET_DROP: 1% | INTERFACE_FLAP: 0%', c: '#F59E0B', centroids: { util_pct: 38.1, queue_depth: 1.3, cpu_pct: 27.2, mem_util_pct: 45.3 } },
+    { n: 'Spike/Recovery', size: 448, total: 4077, noEvt: '14%', evt: 'PACKET_DROP: 69% | HIGH_UTIL_WARNING: 58% | INTERFACE_FLAP: 49%', c: '#EF4444', centroids: { util_pct: 75.0, queue_depth: 47.4, cpu_pct: 34.0, mem_util_pct: 45.7 } },
   ],
   rfR: [
     { evt: 'DEVICE_REBOOT', skip: true, reason: 'rate 0.1%' },

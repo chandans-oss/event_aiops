@@ -23,6 +23,7 @@ import {
   List,
   BrainCircuit,
   Heart,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
@@ -60,16 +61,6 @@ const navItems: NavItem[] = [
     ]
   },
   { path: "/topology", label: "Topology", icon: Network },
-  {
-    path: "/algo-training",
-    label: "Algo Training",
-    icon: Workflow,
-    children: [
-      { path: "/algo-training/config", label: "Training Configuration", icon: Settings },
-      { path: "/algo-training/training", label: "Training", icon: PlayCircle },
-      { path: "/algo-training/results", label: "Results", icon: BarChart3 },
-    ]
-  },
   {
     path: "/admin",
     label: "Admin",
