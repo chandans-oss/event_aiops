@@ -41,6 +41,9 @@ import ModelOutputsPage from "./pages/ModelOutputsPage";
 import TrainingPage from "./pages/TrainingPage";
 import TrainingAnalysisPage from "./pages/TrainingAnalysisPage";
 import TrainingLovelablePage from "./pages/TrainingLovelablePage";
+import AlgoConfigPage from "./pages/algo-training/AlgoConfigPage";
+import AlgoTrainingPage from "./pages/algo-training/AlgoTrainingPage";
+import AlgoResultsPage from "./pages/algo-training/AlgoResultsPage";
 
 console.log("[App] Routes initialized at 10:54");
 
@@ -58,6 +61,11 @@ const App = () => (
               <Route path="/pattern-prediction/live-inference" element={<LiveInferencePage />} />
               <Route path="/pattern-prediction/live_inference" element={<LiveInferencePage />} />
               <Route path="/pattern-prediction/model-outputs" element={<ModelOutputsPage />} />
+              
+              {/* Algo Training */}
+              <Route path="/algo-training/config" element={<AlgoConfigPage />} />
+              <Route path="/algo-training/training" element={<AlgoTrainingPage />} />
+              <Route path="/algo-training/results" element={<AlgoResultsPage />} />
               
               <Route path="/" element={<AnalyticsDashboard />} />
               <Route path="/events" element={<Events />} />

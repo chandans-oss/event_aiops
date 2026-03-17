@@ -75,11 +75,11 @@ export default function TrainingLovelablePage() {
            count += 1;
            setItemLimit(count);
            if (count >= 20) clearInterval(subItemTimer); // Increased for windowing
-        }, next === 3 ? 150 : 400); // Faster for windowing animation
+        }, next === 3 ? 350 : 800); // Slower discovery for better readability (800ms)
 
         return next;
       });
-    }, 4500); // Much longer tab duration (4.5s) for deliberate analysis
+    }, 6500); // Shifting to a more deliberate analysis cadence (6.5s)
 
     return () => {
       clearInterval(interval);
