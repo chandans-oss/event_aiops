@@ -257,12 +257,12 @@ const LollipopChart = ({
                 {d.label}
               </div>
               <div className="relative h-10 w-full flex items-center pr-4">
-                <div 
-                  className="h-9 transition-all duration-1000 ease-out rounded-lg flex items-center justify-end px-4 font-['IBM_Plex_Mono',monospace] text-[11px] font-bold text-white shadow-lg" 
-                  style={{ 
-                    width: `${w}%`, 
+                <div
+                  className="h-9 transition-all duration-1000 ease-out rounded-lg flex items-center justify-end px-4 font-['IBM_Plex_Mono',monospace] text-[11px] font-bold text-white shadow-lg"
+                  style={{
+                    width: `${w}%`,
                     background: `linear-gradient(135deg, ${d.color || '#2563EB'} 0%, ${d.color || '#3B82F6'} 100%)`,
-                    boxShadow: `inset 0 1px 1px rgba(255,255,255,0.2), 0 4px 15px ${(d.color || '#3B82F6')}40` 
+                    boxShadow: `inset 0 1px 1px rgba(255,255,255,0.2), 0 4px 15px ${(d.color || '#3B82F6')}40`
                   }}
                 >
                   <span className="drop-shadow-md">{d.val.toFixed(3)}{unit}</span>
@@ -1594,6 +1594,42 @@ export default function TrainingLovelablePage() {
     return () => clearInterval(logInterval);
   }, [started]);
 
+  // Persistent Report Save on Completion
+  useEffect(() => {
+    if (isComplete && started) {
+      const now = new Date();
+      const reportId = `report-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}-${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+
+      const newReport = {
+        id: reportId,
+        name: `analytical_report_${Date.now()}.json`,
+        date: now.toLocaleString(),
+        duration: trainingPeriod,
+        dataPeriod: deviceFilter === 'device' ? 'Device' : deviceFilter === 'topology' ? 'Topology' : 'Group',
+        windows: '8,156',
+        status: 'completed',
+        execTime: '67.7s'
+      };
+
+      const saved = localStorage.getItem('analytical_training_reports');
+      let reports = [];
+      if (saved) {
+        try {
+          reports = JSON.parse(saved);
+        } catch (e) {
+          reports = [];
+        }
+      }
+
+      // Avoid duplicate saves if user stays on page
+      if (!reports.some((r: any) => r.id === reportId)) {
+        const updatedReports = [newReport, ...reports];
+        localStorage.setItem('analytical_training_reports', JSON.stringify(updatedReports));
+        console.log("ENGINE: Report persisted to Model Registry.");
+      }
+    }
+  }, [isComplete, started, trainingPeriod, deviceFilter]);
+
   const handleStart = () => {
     setStarted(true);
     setCurrentStep(0);
@@ -1620,9 +1656,6 @@ export default function TrainingLovelablePage() {
         <header className="bg-[#0F172A] text-[#F8FAFC] px-10 pt-7 pb-6 border-b-[3px] border-[#3B82F6]">
           <div className="flex items-start justify-between gap-5 mb-4">
             <div>
-              <div className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.1em] text-[#3B82F6] mb-1.5 uppercase">
-                NETWORK PATTERN MINING SYSTEM / V3 / TRAINING REPORT
-              </div>
               <h1 className="text-[22px] font-semibold tracking-[-0.02em] leading-tight">Model Training Analysis</h1>
             </div>
             <div className="flex flex-col items-end gap-5 flex-shrink-0">
@@ -1680,24 +1713,24 @@ export default function TrainingLovelablePage() {
                     className="w-[140px] h-9 bg-[#1E293B] border border-white/5 rounded-md px-3 text-[10px] font-['IBM_Plex_Mono',monospace] text-[#F8FAFC] outline-none cursor-pointer hover:border-[#3B82F6]/50 transition-colors appearance-none"
                     style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%233B82F6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
                   >
+                    <option value="Last Week">Last Week</option>
                     <option value="1 Month">1 Month</option>
                     <option value="3 Months">3 Months</option>
+                    <option value="6 Months">6 Months</option>
                   </select>
                 </div>
-              </div>
 
-              <div className="flex flex-col items-end gap-2">
                 <div className="flex items-center gap-3">
                   {!started ? (
                     <button
                       onClick={handleStart}
-                      className="flex items-center gap-2 bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 py-2 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider transition-all shadow-[0_4px_0_0_#1D4ED8] active:translate-y-[2px] active:shadow-none"
+                      className="flex items-center gap-2 bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 py-2 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider transition-all shadow-[0_4px_0_0_#1D4ED8] active:translate-y-[2px] active:shadow-none h-9 mt-auto"
                     >
                       <Play className="w-3.5 h-3.5 fill-current" />
                       START TRAINING ANALYSIS
                     </button>
                   ) : !isComplete ? (
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 mt-auto h-9">
                       <button
                         onClick={handleReset}
                         className="p-2 text-[#9a9488] hover:text-[#f4f2ed] transition-colors"
@@ -1705,13 +1738,13 @@ export default function TrainingLovelablePage() {
                       >
                         <RotateCcw className="w-4 h-4" />
                       </button>
-                      <div className="flex items-center gap-2 bg-[#2a2520] text-[#2a9070] px-5 py-2 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider border border-[#2a9070]/30 shadow-[0_0_15px_rgba(42,144,112,0.15)]">
+                      <div className="flex items-center gap-2 bg-[#2a2520] text-[#2a9070] px-5 py-1.5 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider border border-[#2a9070]/30 shadow-[0_0_15px_rgba(42,144,112,0.15)]">
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        TRAINING IN PROGRESS...
+                        TRAINING...
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 mt-auto h-9">
                       <button
                         onClick={handleReset}
                         className="flex items-center gap-2 text-[#9a9488] hover:text-[#f4f2ed] font-['IBM_Plex_Mono',monospace] text-[10px] uppercase font-bold tracking-widest transition-colors mr-2"
@@ -1719,18 +1752,25 @@ export default function TrainingLovelablePage() {
                         <RotateCcw className="w-3.5 h-3.5" />
                         RETRAIN
                       </button>
-                      <NavLink
-                        to="/pattern-prediction/results"
-                        className="flex items-center gap-2 bg-[#F8FAFC]/5 hover:bg-[#F8FAFC]/10 text-[#F8FAFC] px-5 py-2 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider border border-white/20 transition-all group shadow-2xl"
-                      >
-                         VIEW RESULTS
-                         <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-                      </NavLink>
-                      <div className="flex items-center gap-2 bg-[#e8f4f0] text-[#0a7c5c] px-5 py-2 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider border border-[#2a9070] shadow-[0_4px_12px_rgba(10,124,92,0.1)] select-none">
+                      <div className="flex items-center gap-2 bg-[#e8f4f0] text-[#0a7c5c] px-5 py-1.5 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider border border-[#2a9070] shadow-[0_4px_12px_rgba(10,124,92,0.1)] select-none">
                         <CheckCircle2 className="w-3.5 h-3.5" />
-                        ANALYSIS COMPLETE
+                        COMPLETE
                       </div>
                     </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex flex-col items-end gap-2">
+                <div className="flex items-center gap-3">
+                  {isComplete && (
+                    <NavLink
+                      to="/pattern-prediction/results"
+                      className="flex items-center gap-2 bg-[#F8FAFC]/5 hover:bg-[#F8FAFC]/10 text-[#F8FAFC] px-5 py-2 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider border border-white/20 transition-all group shadow-2xl"
+                    >
+                      VIEW RESULTS
+                      <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    </NavLink>
                   )}
                 </div>
 
@@ -1747,7 +1787,7 @@ export default function TrainingLovelablePage() {
         </header>
 
         {/* PIPELINE TABS */}
-        <nav className="bg-[#0F172A] border-b border-[#334155] px-10 py-0 flex items-end gap-0 overflow-x-auto whitespace-nowrap sticky top-0 z-50 no-scrollbar h-20">
+        <nav className="bg-[#0F172A] border-b border-[#334155] px-10 py-0 flex items-end gap-1 overflow-x-auto whitespace-nowrap sticky top-0 z-50 no-scrollbar h-14">
           {CATEGORIES.map((cat, i) => {
             const isActive = i === activeTab;
             // A category is considered "Done" if all its steps are completed
@@ -1756,7 +1796,7 @@ export default function TrainingLovelablePage() {
             const isProcessing = !isComplete && cat.steps.some(sIdx => sIdx === currentStep);
 
             return (
-              <div key={i} className="flex flex-col h-full justify-end group">
+              <div key={i} className="flex-none flex flex-col h-full justify-end group">
                 <button
                   onClick={() => setActiveTab(i)}
                   className={cn(
@@ -1880,8 +1920,8 @@ export default function TrainingLovelablePage() {
                   <div key={idx} className={cn("grid grid-cols-[1fr_400px] gap-4", !shouldShow(4) && "hidden")}>
                     <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
                       <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#3DDAB4] font-bold">{group.title}</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">{group.data.length} pairs evaluated</span>
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#3DDAB4] font-bold">{group.title} [TOP RELATIONS]</span>
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">{group.data.filter(d => Math.abs(d.r) > 0.7).length} significant pairs identified</span>
                       </div>
                       <div className="p-0">
                         <div className="grid grid-cols-[100px_100px_80px_100px_70px_1fr] gap-4 py-2 px-4 items-center bg-[#0F172A]/30 border-b border-[#334155]">
@@ -1892,7 +1932,7 @@ export default function TrainingLovelablePage() {
                           <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-right">Spearman r</span>
                           <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Interpretation</span>
                         </div>
-                        {group.data.slice(0, itemLimit).map((d, i) => (
+                        {group.data.filter(d => Math.abs(d.r) > 0.7).slice(0, itemLimit).map((d, i) => (
                           <div key={i} className="grid grid-cols-[100px_100px_80px_100px_70px_1fr] gap-4 items-center border-b border-[#334155] last:border-none py-2 px-4 animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.02] transition-colors">
                             <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#CBD5E1] truncate">{d.a}</span>
                             <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#CBD5E1] truncate">{d.b}</span>
@@ -1913,6 +1953,7 @@ export default function TrainingLovelablePage() {
                       onFocusChange={setFocusXcorr}
                       metricsList={['util_pct', 'queue_depth', 'crc_errors', 'latency_ms', 'cpu_pct', 'mem_util_pct', 'temp_c', 'fan_speed_rpm']}
                       data={group.data
+                        .filter(d => Math.abs(d.r) > 0.7)
                         .filter(d => focusXcorr === 'all' || d.a === focusXcorr || d.b === focusXcorr)
                         .slice(0, 10)
                         .map(d => ({
