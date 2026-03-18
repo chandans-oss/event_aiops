@@ -41,6 +41,8 @@ import ModelOutputsPage from "./pages/ModelOutputsPage";
 import TrainingPage from "./pages/TrainingPage";
 import TrainingAnalysisPage from "./pages/TrainingAnalysisPage";
 import TrainingLovelablePage from "./pages/TrainingLovelablePage";
+import LovelableResultsPage from "./pages/LovelableResultsPage";
+import TrainingReportPage from "./pages/TrainingReportPage";
 import AlgoConfigPage from "./pages/algo-training/AlgoConfigPage";
 import AlgoTrainingPage from "./pages/algo-training/AlgoTrainingPage";
 import AlgoResultsPage from "./pages/algo-training/AlgoResultsPage";
@@ -97,7 +99,9 @@ const App = () => (
               <Route path="/pattern-prediction/prediction" element={<PredictionPage />} />
               <Route path="/pattern-prediction/anomalies" element={<AnomaliesPage />} />
               <Route path="/pattern-prediction/training" element={<TrainingPage />} />
-              <Route path="/pattern-prediction/training-lovelable" element={<TrainingLovelablePage />} />
+               <Route path="/pattern-prediction/training-lovelable" element={<TrainingLovelablePage />} />
+              <Route path="/pattern-prediction/training-report" element={<TrainingReportPage />} />
+               <Route path="/pattern-prediction/results" element={<LovelableResultsPage />} />
               <Route path="/pattern-prediction/training/analysis/:modelId" element={<TrainingAnalysisPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -82,6 +82,7 @@ const navItems: NavItem[] = [
       { path: "/pattern-prediction/anomalies", label: "Anomalies", icon: Activity },
       { path: "/pattern-prediction/training", label: "Training", icon: Target },
       { path: "/pattern-prediction/training-lovelable", label: "Training Lovelable", icon: Heart },
+      { path: "/pattern-prediction/results", label: "Results", icon: FileText },
       { path: "/pattern-prediction/live-inference", label: "Live Inference", icon: PlayCircle },
     ]
   },

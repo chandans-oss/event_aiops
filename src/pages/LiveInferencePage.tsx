@@ -1,7 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MainLayout } from "@/shared/components/layout/MainLayout";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
-import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { Card } from "@/shared/components/ui/card";
 import {
@@ -11,281 +9,376 @@ import {
   Clock,
   Cpu,
   Database,
-  Search,
-  Settings,
   AlertTriangle,
-  CheckCircle2,
   RefreshCw,
   Terminal,
-  BarChart3,
-  Network
+  Network,
+  Layers,
+  Search,
+  CheckCircle2,
+  Box,
+  Binary,
+  Microscope,
+  Cpu as CpuIcon
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
-import { Link } from "react-router-dom";
 
-const LIVE_INFERENCE_DATA = [
-  {
-    id: "INF-001",
-    timestamp: "10:45:22",
-    device: "router-03",
-    interface: "Gi0/3/0",
-    pattern: "Congestion Buildup",
-    prediction: "PACKET_DROP",
-    probability: 89.5,
-    status: "CRITICAL",
-    latency: "45ms",
-    cpu_util: "68%"
-  },
-  {
-    id: "INF-002",
-    timestamp: "10:45:18",
-    device: "switch-02",
-    interface: "Eth1/1",
-    pattern: "Spike/Recovery",
-    prediction: "INTERFACE_FLAP",
-    probability: 76.2,
-    status: "WARNING",
-    latency: "12ms",
-    cpu_util: "34%"
-  },
-  {
-    id: "INF-003",
-    timestamp: "10:45:15",
-    device: "router-01",
-    interface: "Gi0/2/0",
-    pattern: "Stable Baseline",
-    prediction: "NONE",
-    probability: 12.4,
-    status: "HEALTHY",
-    latency: "5ms",
-    cpu_util: "22%"
-  },
-  {
-    id: "INF-004",
-    timestamp: "10:45:10",
-    device: "router-05",
-    interface: "Gi0/2/0",
-    pattern: "Gradual Rise",
-    prediction: "HIGH_UTIL_WARNING",
-    probability: 64.8,
-    status: "WARNING",
-    latency: "28ms",
-    cpu_util: "45%"
-  },
-  {
-    id: "INF-005",
-    timestamp: "10:45:05",
-    device: "switch-04",
-    interface: "Eth1/1",
-    pattern: "Congestion Buildup",
-    prediction: "PACKET_DROP",
-    probability: 82.7,
-    status: "CRITICAL",
-    latency: "38ms",
-    cpu_util: "59%"
-  }
+// --- MOCK DATA & CONSTANTS ---
+
+const MODELS = [
+  { name: 'iso_router.pkl', type: 'Anomaly' },
+  { name: 'kmeans_router.pkl', type: 'Pattern' },
+  { name: 'rf_router_PACKET_DROP.pkl', type: 'RF' },
+  { name: 'rf_router_HIGH_LATENCY.pkl', type: 'RF' },
+  { name: 'rf_router_INTERFACE_FLAP.pkl', type: 'RF' },
 ];
 
-const METRIC_CARDS = [
-  { label: "Active Inference", value: "1,280", sub: "/ sec", icon: Zap, color: "text-amber-500", bg: "bg-amber-500/10" },
-  { label: "Model Confidence", value: "96.4", sub: "% avg", icon: Shield, color: "text-emerald-500", bg: "bg-emerald-500/10" },
-  { label: "Processing Latency", value: "12.5", sub: "ms", icon: Clock, color: "text-blue-500", bg: "bg-blue-500/10" },
-  { label: "Resource Load", value: "42.8", sub: "% total", icon: Cpu, color: "text-purple-500", bg: "bg-purple-500/10" }
+const PATTERNS = [
+  "Congestion Buildup",
+  "Stable Baseline",
+  "Gradual Rise",
+  "Spike/Recovery"
 ];
+
+const DEVICES = [
+  { n: "router-01", i: "Gi0/1/0" },
+  { n: "router-02", i: "Gi0/3/0" },
+  { n: "router-03", i: "Gi0/1/0" },
+  { n: "switch-01", i: "Eth1/1" },
+  { n: "switch-02", i: "Eth1/2" },
+];
+
+interface InferenceItem {
+  id: string;
+  timestamp: string;
+  device: string;
+  interface: string;
+  type: 'PREDICTION' | 'ANOMALY' | 'PATTERN_MATCH';
+  event: string;
+  confidence: number;
+  pattern?: string;
+  status: 'CRITICAL' | 'WARNING' | 'HEALTHY';
+}
 
 export default function LiveInferencePage() {
   const [isLive, setIsLive] = useState(true);
+  const [inferences, setInferences] = useState<InferenceItem[]>([]);
   const [logs, setLogs] = useState<string[]>([
-    "[10:45:22] INFERENCE ENGINE: router-03 Gi0/3/0 -> Predicted PACKET_DROP (89.5%)",
-    "[10:45:18] INFERENCE ENGINE: switch-02 Eth1/1 -> Predicted INTERFACE_FLAP (76.2%)",
-    "[10:45:15] INFERENCE ENGINE: router-01 Gi0/2/0 -> Predicted NONE (12.4%)",
-    "[10:45:10] INFERENCE ENGINE: router-05 Gi0/2/0 -> Predicted HIGH_UTIL_WARNING (64.8%)",
-    "[10:45:05] INFERENCE ENGINE: switch-04 Eth1/1 -> Predicted PACKET_DROP (82.7%)",
-    "[10:45:00] SYSTEM: Loading fresh model weights v2.1.0...",
-    "[10:44:55] DATA STREAM: Connecting to Kafka broker cluster-1...",
-    "[10:44:50] SYSTEM: Live Inference Engine initialized."
+    `[${new Date().toLocaleTimeString()}] SYSTEM: Inference Engine v3.0 initialized.`,
+    `[${new Date().toLocaleTimeString()}] MODELS: 13 binary artifacts (.pkl) loaded into memory.`,
+    `[${new Date().toLocaleTimeString()}] DATA: Kafka stream established at 1-min poll interval.`,
   ]);
+  const [processingState, setProcessingState] = useState<'IDLE' | 'POLLING' | 'PROCESSING'>('IDLE');
+  
+  const logEndRef = useRef<HTMLDivElement>(null);
 
+  const addLog = (msg: string) => {
+    const time = new Date().toLocaleTimeString();
+    setLogs(prev => [`[${time}] ${msg}`, ...prev.slice(0, 49)]);
+  };
+
+  const runParallelInference = () => {
+    setProcessingState('PROCESSING');
+    addLog(`ENGINE: Sending telemetry batch to ${MODELS.length} models in parallel...`);
+    
+    // Simulate some delay for "processing"
+    setTimeout(() => {
+      const newInferences: InferenceItem[] = [];
+      
+      // Randomly generate results for some devices
+      const count = Math.floor(Math.random() * 3) + 1;
+      for (let i = 0; i < count; i++) {
+        const dev = DEVICES[Math.floor(Math.random() * DEVICES.length)];
+        const rand = Math.random();
+        
+        let item: InferenceItem;
+        if (rand > 0.7) { // Prediction
+          item = {
+            id: `INF-${Date.now()}-${i}`,
+            timestamp: new Date().toLocaleTimeString(),
+            device: dev.n,
+            interface: dev.i,
+            type: 'PREDICTION',
+            event: ['PACKET_DROP', 'HIGH_LATENCY', 'INTERFACE_FLAP'][Math.floor(Math.random() * 3)],
+            confidence: 0.85 + Math.random() * 0.1,
+            pattern: PATTERNS[Math.floor(Math.random() * PATTERNS.length)],
+            status: rand > 0.85 ? 'CRITICAL' : 'WARNING'
+          };
+          addLog(`RF_MODEL: ${item.device} matched with pattern "${item.pattern}" -> Predicted ${item.event}`);
+        } else if (rand > 0.4) { // Anomaly
+          item = {
+            id: `INF-${Date.now()}-${i}`,
+            timestamp: new Date().toLocaleTimeString(),
+            device: dev.n,
+            interface: dev.i,
+            type: 'ANOMALY',
+            event: 'FLAGGED_ANOMALY',
+            confidence: 0.9 + Math.random() * 0.08,
+            status: 'CRITICAL'
+          };
+          addLog(`ISO_FOREST: High anomaly score detected on ${item.device} [5% threshold exceeded]`);
+        } else { // Pattern Match (Healthy/Subtle)
+          item = {
+            id: `INF-${Date.now()}-${i}`,
+            timestamp: new Date().toLocaleTimeString(),
+            device: dev.n,
+            interface: dev.i,
+            type: 'PATTERN_MATCH',
+            event: 'PATTERN_RECOGNIZED',
+            confidence: 0.95 + Math.random() * 0.04,
+            pattern: 'Stable Baseline',
+            status: 'HEALTHY'
+          };
+          addLog(`KMEANS: ${item.device} conforms to trained baseline pattern.`);
+        }
+        newInferences.push(item);
+      }
+      
+      setInferences(prev => [...newInferences, ...prev].slice(0, 20));
+      setProcessingState('IDLE');
+    }, 1500);
+  };
+
+  // 1-Minute Interval Polling
   useEffect(() => {
     if (!isLive) return;
 
-    const interval = setInterval(() => {
-      const time = new Date().toLocaleTimeString();
-      const newLog = `[${time}] INFERENCE POLLING: Checking stream for new events...`;
-      setLogs(prev => [newLog, ...prev.slice(0, 19)]);
-    }, 3000);
+    // Initial run
+    runParallelInference();
 
-    return () => clearInterval(interval);
+    const pollInterval = setInterval(() => {
+      addLog("ENGINE: 1-minute interval reached. Polling fresh telemetry window...");
+      setProcessingState('POLLING');
+      setTimeout(runParallelInference, 1000);
+    }, 60000);
+
+    return () => clearInterval(pollInterval);
   }, [isLive]);
 
   return (
     <MainLayout>
-      <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-border/50 pb-8">
-          <div className="space-y-1">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-inner">
-                <Activity className="h-6 w-6 text-primary animate-pulse" />
-              </div>
-              <h1 className="text-3xl font-black tracking-tighter uppercase italic">Live Inference</h1>
+      <div className="min-h-screen bg-[#0B0F19] text-[#E2E8F0] font-['Sora',sans-serif] text-[13px] overflow-x-hidden selection:bg-[#3B82F6]/30">
+        
+        {/* TOP STATUS BAR */}
+        <div className="bg-[#0F172A] border-b border-white/5 px-8 h-12 flex items-center justify-between">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <div className={cn("w-2 h-2 rounded-full", isLive ? "bg-[#3DDAB4] animate-pulse" : "bg-[#64748B]")} />
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] uppercase font-bold tracking-widest text-[#3DDAB4]">
+                {isLive ? 'Live Simulation Active' : 'Simulation Paused'}
+              </span>
             </div>
-            <p className="text-muted-foreground text-sm font-medium pl-14">
-              Real-time pattern matching and predictive event analysis
-            </p>
+            <div className="h-4 w-px bg-white/10" />
+            <div className="flex items-center gap-2">
+              <Clock className="w-3.5 h-3.5 text-[#94A3B8]" />
+              <span className="text-[10px] text-[#94A3B8] font-medium uppercase font-['IBM_Plex_Mono',monospace]">
+                Last Poll: {inferences[0]?.timestamp || '--:--:--'}
+              </span>
+            </div>
           </div>
-
+          
           <div className="flex items-center gap-3">
-            <Button
-              variant={isLive ? "default" : "outline"}
-              size="sm"
+             <button 
               onClick={() => setIsLive(!isLive)}
               className={cn(
-                "h-10 px-6 gap-2 font-bold uppercase tracking-widest text-[10px] transition-all duration-500",
-                isLive ? "bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-500/20" : ""
+                "px-4 py-1.5 rounded-md font-['IBM_Plex_Mono',monospace] text-[9px] font-bold uppercase tracking-wider transition-all border",
+                isLive 
+                  ? "bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/30 hover:bg-[#3B82F6]/20" 
+                  : "bg-white/5 text-[#94A3B8] border-white/10 hover:bg-white/10"
               )}
             >
-              {isLive ? (
-                <>
-                  <RefreshCw className="h-3 w-3 animate-spin" />
-                  Live Stream Active
-                </>
-              ) : (
-                <>
-                  <Zap className="h-3 w-3" />
-                  Resume Monitoring
-                </>
-              )}
-            </Button>
-            <Button variant="outline" size="icon" className="h-10 w-10 border-primary/20 hover:bg-primary/5" asChild>
-              <Link to="/pattern-prediction/model-outputs">
-                <Settings className="h-4 w-4 text-primary" />
-              </Link>
-            </Button>
+              {isLive ? 'PAUSE ENGINE' : 'RESUME ENGINE'}
+            </button>
           </div>
         </div>
 
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Feed */}
-          <div className="lg:col-span-2 space-y-6">
-            <div className="flex items-center justify-between px-2">
-              <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
-                <Database className="h-3 w-3" />
-                Inference Stream
-              </h2>
-              <Badge variant="outline" className="text-[10px] font-bold border-primary/20 text-primary px-2">
-                LAST 5 MINUTES
-              </Badge>
-            </div>
-
-            <div className="rounded-2xl border border-border/50 bg-card/30 overflow-hidden backdrop-blur-sm shadow-xl">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="border-b border-border/50 bg-muted/20">
-                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Entity Info</th>
-                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground text-center">Inference Result</th>
-                    <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground text-right">Confidence</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border/30">
-                  {LIVE_INFERENCE_DATA.map((item) => (
-                    <tr key={item.id} className="hover:bg-primary/5 transition-all group">
-                      <td className="px-6 py-5">
-                        <div className="flex flex-col gap-1">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[11px] font-black tracking-tight text-foreground group-hover:text-primary transition-colors">{item.device}</span>
-                            <span className="text-[9px] font-bold text-muted-foreground px-1.5 py-0.5 rounded bg-muted/50 border border-border/50">{item.interface}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                            <Network className="h-3 w-3" />
-                            <span>{item.pattern}</span>
-                            <span className="h-1 w-1 rounded-full bg-border" />
-                            <span>{item.timestamp}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-5 text-center">
-                        <Badge
-                          variant="outline"
-                          className={cn(
-                            "text-[9px] font-black tracking-widest h-6 px-3 border-none",
-                            item.status === "CRITICAL" ? "bg-rose-500/10 text-rose-500" :
-                            item.status === "WARNING" ? "bg-amber-500/10 text-amber-500" :
-                            "bg-emerald-500/10 text-emerald-500"
-                          )}
-                        >
-                          {item.prediction}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-5 text-right">
-                        <div className="flex flex-col items-end gap-1">
-                          <span className={cn(
-                            "text-xs font-black tabular-nums",
-                            item.probability > 80 ? "text-rose-500" :
-                            item.probability > 50 ? "text-amber-500" : "text-emerald-500"
-                          )}>
-                            {item.probability}%
-                          </span>
-                          <div className="w-20 h-1 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className={cn(
-                                "h-full transition-all duration-1000",
-                                item.probability > 80 ? "bg-rose-500" :
-                                item.probability > 50 ? "bg-amber-500" : "bg-emerald-500"
-                              )}
-                              style={{ width: `${item.probability}%` }}
-                            />
-                          </div>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-          </div>
-
-          {/* Side Panel */}
+        <div className="p-8 grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8">
+          
           <div className="space-y-8">
-            {/* Live Logs */}
-            <div className="space-y-4">
-              <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2 px-2">
-                <Terminal className="h-3 w-3" />
-                System Logs
-              </h2>
-              <Card className="bg-[#0c0c0c] border-white/10 rounded-2xl overflow-hidden shadow-2xl relative group">
-                <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                <div className="p-4 border-b border-white/5 flex items-center gap-2 bg-white/5">
-                  <div className="h-1.5 w-1.5 rounded-full bg-rose-500/50" />
-                  <div className="h-1.5 w-1.5 rounded-full bg-amber-500/50" />
-                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-500/50" />
-                  <span className="text-[9px] font-mono text-muted-foreground/60 ml-1 uppercase tracking-widest italic">Inference.Kernel</span>
+            {/* INFERENCE GRID HEADER */}
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-[#3B82F6]/10 rounded-xl flex items-center justify-center border border-[#3B82F6]/20">
+                  <CpuIcon className="w-6 h-6 text-[#3B82F6]" />
                 </div>
-                <ScrollArea className="h-[400px] w-full bg-transparent p-4">
-                  <div className="space-y-2">
-                    {logs.map((log, i) => (
-                      <div key={i} className="font-mono text-[9px] leading-relaxed break-all transition-all duration-500 animate-in fade-in slide-in-from-left-2">
-                        <span className={cn(
-                          "opacity-80",
-                          log.includes("CRITICAL") || log.includes("Predicted PACKET_DROP") ? "text-rose-400" :
-                          log.includes("WARNING") ? "text-amber-400" :
-                          log.includes("SYSTEM") ? "text-blue-400" : "text-emerald-400/70"
-                        )}>
-                          {log}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </ScrollArea>
-              </Card>
+                <div>
+                  <h1 className="text-xl font-bold tracking-tight">Live Inference Stream</h1>
+                  <p className="text-[11px] text-[#94A3B8] uppercase tracking-widest font-['IBM_Plex_Mono',monospace]">Parallel Processing Pipeline / V3</p>
+                </div>
+              </div>
+              
+              <div className="flex gap-4">
+                <div className="bg-[#1E293B]/40 p-3 rounded-lg border border-white/5 min-w-[120px]">
+                  <div className="text-[9px] text-[#94A3B8] uppercase font-bold mb-1 tracking-tighter">Throughput</div>
+                  <div className="text-lg font-black tracking-tighter tabular-nums">1.2k <span className="text-[10px] font-normal text-[#94A3B8]">/sec</span></div>
+                </div>
+                <div className="bg-[#1E293B]/40 p-3 rounded-lg border border-white/5 min-w-[120px]">
+                   <div className="text-[9px] text-[#94A3B8] uppercase font-bold mb-1 tracking-tighter">Confidence</div>
+                   <div className="text-lg font-black tracking-tighter tabular-nums text-[#3DDAB4]">96.2<span className="text-[10px] font-normal text-[#94A3B8]">%</span></div>
+                </div>
+              </div>
             </div>
 
+            {/* LIVE FEED GRID LIST */}
+            <div className="grid grid-cols-1 gap-4">
+              {processingState === 'PROCESSING' && inferences.length === 0 && (
+                <div className="py-20 flex flex-col items-center justify-center text-center animate-pulse">
+                  <div className="w-16 h-16 bg-[#1E293B] rounded-full flex items-center justify-center mb-6 border border-white/5">
+                    <RefreshCw className="w-6 h-6 text-[#3B82F6] animate-spin" />
+                  </div>
+                  <div className="text-[#3B82F6] font-['IBM_Plex_Mono',monospace] text-[10px] uppercase font-black">Parallel Model Execution...</div>
+                </div>
+              )}
+
+              {inferences.map((item, idx) => (
+                <Card 
+                  key={item.id} 
+                  className={cn(
+                    "bg-[#1e293b]/30 border border-white/5 rounded-xl p-5 hover:bg-[#1e293b]/50 transition-all duration-300 group overflow-hidden relative",
+                    idx === 0 && "border-[#3B82F6]/30 shadow-[0_0_20px_rgba(59,130,246,0.05)]"
+                  )}
+                >
+                  {idx === 0 && (
+                    <div className="absolute top-0 left-0 w-1 h-full bg-[#3B82F6]" />
+                  )}
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-5">
+                      <div className={cn(
+                        "w-10 h-10 rounded-lg flex items-center justify-center",
+                        item.type === 'PREDICTION' ? "bg-[#3B82F6]/10" :
+                        item.type === 'ANOMALY' ? "bg-[#EF4444]/10" : "bg-[#3DDAB4]/10"
+                      )}>
+                        {item.type === 'PREDICTION' && <Box className="w-5 h-5 text-[#3B82F6]" />}
+                        {item.type === 'ANOMALY' && <AlertTriangle className="w-5 h-5 text-[#EF4444]" />}
+                        {item.type === 'PATTERN_MATCH' && <CheckCircle2 className="w-5 h-5 text-[#3DDAB4]" />}
+                      </div>
+
+                      <div>
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="text-[14px] font-bold text-white tracking-tight">{item.device}</span>
+                          <span className="text-[9px] font-black text-[#94A3B8] bg-white/5 px-2 py-0.5 rounded uppercase tracking-tighter">
+                            {item.interface}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-3 font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">
+                           <span className="flex items-center gap-1">
+                             <Clock className="w-3 h-3" />
+                             {item.timestamp}
+                           </span>
+                           <span className="w-1 h-1 rounded-full bg-white/10" />
+                           <span className="uppercase font-bold tracking-widest">{item.type}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-8">
+                       <div className="text-right">
+                          <div className={cn(
+                            "text-[12px] font-black uppercase tracking-widest",
+                            item.status === 'CRITICAL' ? "text-[#EF4444]" :
+                            item.status === 'WARNING' ? "text-[#F59E0B]" : "text-[#3DDAB4]"
+                          )}>
+                            {item.type === 'PATTERN_MATCH' ? item.pattern?.replace(' ', '_').toUpperCase() : item.event}
+                          </div>
+                          {item.type === 'PATTERN_MATCH' ? (
+                            <div className="text-[10px] text-[#94A3B8] font-medium italic mt-0.5">
+                              Matches: {item.pattern} (Recognized)
+                            </div>
+                          ) : item.pattern && (
+                            <div className="text-[10px] text-[#94A3B8] font-medium italic mt-0.5">
+                              Matches: {item.pattern}
+                            </div>
+                          )}
+                       </div>
+
+                       <div className="w-32 flex flex-col items-end gap-1.5">
+                          <div className="flex items-baseline gap-1">
+                            <span className="text-[14px] font-black tracking-tighter text-white">{(item.confidence * 100).toFixed(1)}</span>
+                            <span className="text-[9px] text-[#94A3B8] font-bold">%</span>
+                          </div>
+                          <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden">
+                             <div 
+                              className={cn(
+                                "h-full animate-in slide-in-from-left duration-1000",
+                                item.confidence > 0.9 ? "bg-[#3DDAB4]" :
+                                item.confidence > 0.8 ? "bg-[#3B82F6]" : "bg-[#F59E0B]"
+                              )} 
+                              style={{ width: `${item.confidence * 100}%` }}
+                             />
+                          </div>
+                       </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </div>
           </div>
+
+          <div className="space-y-8">
+             {/* PARALLEL MONITOR PANEL */}
+             <Card className="bg-[#0c0c0c] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+                <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                  <div className="flex items-center gap-2">
+                    <Terminal className="w-4 h-4 text-[#3B82F6]" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#F8FAFC]">Parallel Engine Kernel</span>
+                  </div>
+                  <div className="flex gap-1.5">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444]/40" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#3DDAB4]/40 animate-pulse" />
+                  </div>
+                </div>
+                
+                <ScrollArea className="h-[600px] bg-[#0c0c0c]/80 backdrop-blur-md">
+                   <div className="p-5 space-y-2.5">
+                      {logs.map((log, i) => (
+                        <div key={i} className="font-['IBM_Plex_Mono',monospace] text-[10px] leading-relaxed break-all animate-in fade-in slide-in-from-left-2 duration-500">
+                          <span className={cn(
+                            log.includes('CRITICAL') || log.includes('Anomaly') ? "text-[#EF4444]" :
+                            log.includes('Predicted') ? "text-[#3B82F6]" : 
+                            log.includes('SYSTEM') ? "text-[#94A3B8]" : "text-[#3DDAB4]"
+                          )}>
+                            {log}
+                          </span>
+                        </div>
+                      ))}
+                      <div ref={logEndRef} />
+                   </div>
+                </ScrollArea>
+             </Card>
+
+             {/* MODEL LOAD MONITOR */}
+             <Card className="bg-[#1E293B]/20 border border-white/5 rounded-2xl p-5 space-y-4">
+               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#94A3B8] flex items-center gap-2">
+                 <Binary className="w-4 h-4" />
+                 Active Classifiers
+               </h3>
+               <div className="space-y-3">
+                 {MODELS.slice(0, 4).map((m, i) => (
+                   <div key={i} className="flex items-center justify-between group">
+                     <div className="flex items-center gap-3">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] opacity-40 group-hover:opacity-100 group-hover:shadow-[0_0_8px_#3B82F6]" />
+                        <span className="text-[11px] font-medium text-[#CBD5E1] font-['IBM_Plex_Mono',monospace] group-hover:text-white transition-colors">{m.name}</span>
+                     </div>
+                     <Badge variant="outline" className="text-[8px] font-black border-white/10 uppercase tracking-tighter text-[#94A3B8] bg-white/[0.02]">
+                       {m.type}
+                     </Badge>
+                   </div>
+                 ))}
+               </div>
+             </Card>
+          </div>
+
         </div>
       </div>
+      
+      <style>{`
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.1); }
+      `}</style>
     </MainLayout>
   );
 }

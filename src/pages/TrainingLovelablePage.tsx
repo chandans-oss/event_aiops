@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation, NavLink } from "react-router-dom";
 import { MainLayout } from "@/shared/components/layout/MainLayout";
 import { LOVELABLE_REPORT_DATA as D } from "@/data/lovelableReportData";
 import { cn } from "@/shared/lib/utils";
-import { Play, Loader2, CheckCircle2, RotateCcw, ChevronDown } from "lucide-react";
+import { Play, Loader2, CheckCircle2, RotateCcw, ChevronDown, ChevronRight, FileText } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const fmt = (v: number) => {
@@ -35,20 +35,29 @@ const LoadingState = ({ title }: { title: string }) => (
 );
 
 const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) => {
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   // Generate points based on centroids to make it look "legitimate"
   const [points] = useState(() => {
     return clusters.flatMap((c, cIdx) => {
       const cent = c.centroids || { util_pct: 50, queue_depth: 30 };
-      // Map metrics to 0-100% space
       const centerX = Math.min(Math.max(cent.util_pct, 10), 90);
-      const centerY = 100 - Math.min(Math.max(cent.queue_depth * 1.5, 10), 90); // Invert Y and scale queue depth
+      const centerY = 100 - Math.min(Math.max(cent.queue_depth * 1.5, 10), 90);
 
-      return Array.from({ length: 50 }).map((_, i) => ({
-        x: centerX + (Math.random() - 0.5) * 15,
-        y: centerY + (Math.random() - 0.5) * 15,
-        c: c.c,
-        id: `${cIdx}-${i}`
-      }));
+      return Array.from({ length: 50 }).map((_, i) => {
+        // Box-Muller transform for Gaussian distribution
+        const u1 = Math.random();
+        const u2 = Math.random();
+        const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
+        const z1 = Math.sqrt(-2.0 * Math.log(u1)) * Math.sin(2.0 * Math.PI * u2);
+
+        return {
+          x: centerX + z0 * 3.5, // Spread
+          y: centerY + z1 * 3.5,
+          c: c.c,
+          cIdx,
+          id: `${cIdx}-${i}`
+        };
+      });
     });
   });
 
@@ -85,32 +94,62 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
           const cent = c.centroids || { util_pct: 50, queue_depth: 30 };
           const px = Math.min(Math.max(cent.util_pct, 10), 90);
           const py = 100 - Math.min(Math.max(cent.queue_depth * 1.5, 10), 90);
+          const isHovered = hoveredIdx === i;
+
           return (
-            <div key={`cent-${i}`} className="absolute w-4 h-4 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10 opacity-60" style={{ left: `${px}%`, top: `${py}%` }}>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-full h-[1px]" style={{ background: c.c }} />
-                <div className="h-full w-[1px] absolute" style={{ background: c.c }} />
+            <div
+              key={`cent-${i}`}
+              className="absolute w-12 h-12 -translate-x-1/2 -translate-y-1/2 z-20 cursor-crosshair group/cent"
+              style={{ left: `${px}%`, top: `${py}%` }}
+              onMouseEnter={() => setHoveredIdx(i)}
+              onMouseLeave={() => setHoveredIdx(null)}
+            >
+              <div className={cn("absolute inset-0 flex items-center justify-center transition-transform duration-300", isHovered ? "scale-125" : "scale-100 opacity-60")}>
+                <div className="w-4 h-[1.5px]" style={{ background: c.c }} />
+                <div className="h-4 w-[1.5px] absolute" style={{ background: c.c }} />
               </div>
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-[7px] font-bold whitespace-nowrap uppercase tracking-tighter" style={{ color: c.c }}>
-                {c.n.split(' ')[0]}
-              </div>
+
+              {isHovered && (
+                <div className="absolute top-1/2 left-full ml-4 -translate-y-1/2 bg-[#0F172A]/95 border border-[#3B82F6]/40 p-3 rounded-lg shadow-2xl z-[100] min-w-[140px] backdrop-blur-md animate-in fade-in zoom-in duration-200">
+                  <div className="text-[10px] font-bold text-white mb-1 whitespace-nowrap uppercase tracking-wider" style={{ color: c.c }}>{c.n}</div>
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-[9px] font-['IBM_Plex_Mono',monospace]">
+                      <span className="text-[#94A3B8]">UTIL %</span>
+                      <span className="text-white">{cent.util_pct}%</span>
+                    </div>
+                    <div className="flex justify-between text-[9px] font-['IBM_Plex_Mono',monospace]">
+                      <span className="text-[#94A3B8]">QUEUE D.</span>
+                      <span className="text-white">{cent.queue_depth.toFixed(1)}</span>
+                    </div>
+                    <div className="pt-1 mt-1 border-t border-white/5 flex justify-between text-[9px] font-['IBM_Plex_Mono',monospace]">
+                      <span className="text-[#94A3B8]">SHARE</span>
+                      <span className="text-[#3DDAB4] font-bold">{((c.size / 8156) * 100).toFixed(1)}%</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           );
         })}
 
         {/* Data Points */}
-        {visiblePoints.map((p) => (
-          <div
-            key={p.id}
-            className="absolute h-1 w-1 rounded-full blur-[0.2px] transition-all duration-700 animate-in fade-in zoom-in"
-            style={{
-              left: `${p.x}%`,
-              top: `${p.y}%`,
-              background: p.c,
-              boxShadow: `0 0 5px ${p.c}80`
-            }}
-          />
-        ))}
+        {visiblePoints.map((p) => {
+          const isDimmed = hoveredIdx !== null && hoveredIdx !== p.cIdx;
+          return (
+            <div
+              key={p.id}
+              className="absolute h-1 w-1 rounded-full blur-[0.2px] transition-all duration-300 animate-in fade-in zoom-in"
+              style={{
+                left: `${p.x}%`,
+                top: `${p.y}%`,
+                background: p.c,
+                boxShadow: isDimmed ? 'none' : `0 0 5px ${p.c}80`,
+                opacity: isDimmed ? 0.15 : 1,
+                transform: hoveredIdx === p.cIdx ? 'scale(1.5)' : 'scale(1)'
+              }}
+            />
+          );
+        })}
       </div>
 
       {/* Axis Labels */}
@@ -171,6 +210,86 @@ const DonutChart = ({ val, size = 32, stroke = 2.5 }: { val: number, size?: numb
   );
 };
 
+const LollipopChart = ({
+  data,
+  labelX,
+  unit = "",
+  focusMetric,
+  onFocusChange,
+  metricsList = []
+}: {
+  data: { label: string, val: number, color?: string }[],
+  labelX: string,
+  unit?: string,
+  focusMetric?: string,
+  onFocusChange?: (v: string) => void,
+  metricsList?: string[]
+}) => {
+  const max = Math.max(...data.map(d => Math.abs(d.val)), 0.01);
+  return (
+    <div className="bg-[#1e293b]/20 border border-white/5 rounded-[10px] p-4 h-full flex flex-col">
+      <div className="flex flex-col gap-3 mb-6">
+        <div className="flex justify-between items-center px-1">
+          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-[0.2em] uppercase font-bold">{labelX} STRENGTH RANKING</span>
+        </div>
+
+        {onFocusChange && metricsList.length > 0 && (
+          <div className="space-y-1.5 px-1">
+            <div className="font-['IBM_Plex_Mono',monospace] text-[8px] text-[#94A3B8] uppercase opacity-40 font-bold tracking-widest">Focus metric:</div>
+            <select
+              value={focusMetric}
+              onChange={(e) => onFocusChange(e.target.value)}
+              className="w-full h-8 bg-[#0F172A] border border-white/5 rounded-[4px] text-[10px] font-['IBM_Plex_Mono',monospace] text-[#F8FAFC] px-2 outline-none cursor-pointer hover:border-[#3B82F6]/30 transition-colors"
+            >
+              <option value="all">All pairs ranked</option>
+              {metricsList.map(m => <option key={m} value={m}>{m}</option>)}
+            </select>
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-6 flex-1 overflow-y-auto no-scrollbar scroll-smooth">
+        {data.map((d, i) => {
+          const w = Math.min((Math.abs(d.val) / max) * 100, 100);
+          return (
+            <div key={i} className="group grid grid-cols-[180px_1fr] gap-4 items-center animate-in fade-in slide-in-from-left-2 duration-500" style={{ animationDelay: `${i * 70}ms` }}>
+              <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] text-right font-medium truncate pr-4 border-r border-white/10 h-10 flex items-center justify-end">
+                {d.label}
+              </div>
+              <div className="relative h-10 w-full flex items-center pr-4">
+                <div 
+                  className="h-9 transition-all duration-1000 ease-out rounded-lg flex items-center justify-end px-4 font-['IBM_Plex_Mono',monospace] text-[11px] font-bold text-white shadow-lg" 
+                  style={{ 
+                    width: `${w}%`, 
+                    background: `linear-gradient(135deg, ${d.color || '#2563EB'} 0%, ${d.color || '#3B82F6'} 100%)`,
+                    boxShadow: `inset 0 1px 1px rgba(255,255,255,0.2), 0 4px 15px ${(d.color || '#3B82F6')}40` 
+                  }}
+                >
+                  <span className="drop-shadow-md">{d.val.toFixed(3)}{unit}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        {data.length === 0 && (
+          <div className="h-40 flex flex-col items-center justify-center text-[10px] text-[#475569] font-['IBM_Plex_Mono',monospace] uppercase tracking-widest italic gap-2 opacity-50">
+            <div className="w-1 h-1 bg-[#475569] rounded-full" />
+            No results found for focus
+          </div>
+        )}
+      </div>
+
+      <div className="mt-8 pt-4 border-t border-white/5">
+        <div className="flex justify-between font-['IBM_Plex_Mono',monospace] text-[8px] text-[#475569] tracking-tighter">
+          <span>0.0</span>
+          <span>{(max * 0.5).toFixed(2)}</span>
+          <span>{max.toFixed(2)}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const STEP_CATEGORIES: Record<string, string> = {
   'Data': 'DATA PREP',
   'Cross Correlation': 'STATISTICAL',
@@ -201,13 +320,1162 @@ const SCOPE_TARGETS = {
     { label: 'WAN Backbone', sub: 'WAN' },
   ],
   'group': [
-    { label: 'Core Routers', sub: '3 devices' },
-    { label: 'Distribution Switches', sub: '5 devices' },
-    { label: 'Access Layer', sub: '12 devices' },
-    { label: 'DC Infrastructure', sub: '8 devices' },
-    { label: 'WAN Edge Devices', sub: '4 devices' },
+    { label: 'Premium Devices', sub: '3 Routers, 4 Switches' },
+    { label: 'Site 001 [HQ Gen]', sub: '2 Routers, 2 Switches' },
+    { label: 'DC Cluster A', sub: '5 Routers, 12 Switches' },
+    { label: 'Site 002 [Branch]', sub: '1 Router, 4 Switches' },
+    { label: 'Legacy Infrastructure', sub: '2 Routers, 15 Switches' },
   ]
 };
+
+const TERMINAL_LOG = `==============================================================================
+ NETWORK PATTERN MINING SYSTEM  v3
+==============================================================================
+
+  Run started      : 2026-03-12 17:00:23
+  Metrics          : ./data/metrics.csv
+  Events           : ./data/events.csv
+  Device metrics   : ./data/device_metrics.csv
+  Device map       : ./data/interface_device_map.csv
+  Mode             : RETRAIN (overwriting existing models)
+
+  Run config:
+    Poll interval  : 5 min
+    Window size    : 15 polls = 75 min
+    Lookahead      : 2 polls = 10 min
+    Clusters (K)   : 4
+    RF trees       : 150
+    Min seq support: 2
+    Min seq lift   : 1.5
+
+==============================================================================
+ DATA LOADING & PREPROCESSING
+==============================================================================
+
+  Loading data ...
+  metrics.csv    : 8,640 rows | 30 entities | 2 device types
+  events.csv     : 2,129 rows | 6 event types
+  Interface cols : ['util_pct', 'queue_depth', 'crc_errors', 'latency_ms']
+  Event types    : ['DEVICE_REBOOT', 'HIGH_LATENCY', 'HIGH_UTIL_WARNING', 'INTERFACE_FLAP', 'LINK_DOWN', 'PACKET_DROP']
+  Device types   : ['router', 'switch']
+  Time range     : 2025-12-31 23:59:33 -> 2026-01-01 23:55:27
+  Event source   : interface=2,127  device=2
+
+  Resampled -> 8,636 rows from 8,640 raw rows (30 entities)
+
+==============================================================================
+ MERGING DEVICE RESOURCE METRICS
+==============================================================================
+
+  Device dedup: 2,880 -> 2,173 rows (707 bucket collisions collapsed)
+  Device metrics join: 8,636/8,636 rows matched (100.0%)
+  Device metric columns added: ['cpu_pct', 'mem_util_pct', 'temp_c', 'fan_speed_rpm', 'power_supply_status', 'reboot_delta']
+
+  Device types: ['router', 'switch']
+    router          entities=15  events=1533
+    switch          entities=15  events=596
+
+==============================================================================
+ BUILDING SLIDING WINDOWS
+==============================================================================
+
+  Building windows for 30 entities ...
+    ... 100% Complete
+                                                  
+  Total windows : 8,156
+  Feature dims  : 70
+
+  Event label distribution:
+  Event                           Positive     Rate
+  ------------------------------------------------------------------------------
+  HIGH_LATENCY                         343     4.2%
+  HIGH_UTIL_WARNING                   1017    12.5%
+  INTERFACE_FLAP                       630     7.7%
+  PACKET_DROP                          986    12.1%
+
+##############################################################################
+# PROCESSING: ROUTER
+##############################################################################
+
+==============================================================================
+ SECTION 1 — CROSS-CORRELATION [ROUTER]
+==============================================================================
+
+  Metric A               Metric B                 Best Lag  Pearson r  Spearman r  Interpretation
+  ------------------------------------------------------------------------------
+  util_pct               queue_depth                  -1 polls     0.7516      0.7159  queue_depth LEADS util_pct by 5 min
+  util_pct               crc_errors                   -2 polls     0.7381      0.7158  crc_errors LEADS util_pct by 10 min
+  util_pct               latency_ms                   -1 polls     0.7530      0.7235  latency_ms LEADS util_pct by 5 min
+  util_pct               cpu_pct                      +0 polls     0.7830      0.7541  simultaneous
+  util_pct               mem_util_pct                 -1 polls     0.6164      0.6073  mem_util_pct LEADS util_pct by 5 min
+  util_pct               temp_c                       -2 polls     0.6433      0.6173  temp_c LEADS util_pct by 10 min
+  util_pct               fan_speed_rpm                -2 polls     0.1640      0.1538  fan_speed_rpm LEADS util_pct by 10 min
+  util_pct               power_supply_status          +0 polls     0.0000      0.0000  simultaneous
+  util_pct               reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  queue_depth            crc_errors                   -1 polls     0.9432      0.9442  crc_errors LEADS queue_depth by 5 min
+  queue_depth            latency_ms                   +0 polls     0.9959      0.9933  simultaneous
+  queue_depth            cpu_pct                      +1 polls     0.8546      0.8052  queue_depth LEADS cpu_pct by 5 min
+  queue_depth            mem_util_pct                 +1 polls     0.6727      0.6167  queue_depth LEADS mem_util_pct by 5 min
+  queue_depth            temp_c                       -1 polls     0.6630      0.6128  temp_c LEADS queue_depth by 5 min
+  queue_depth            fan_speed_rpm                -2 polls     0.2552      0.2042  fan_speed_rpm LEADS queue_depth by 10 min
+  queue_depth            power_supply_status          +0 polls     0.0000      0.0000  simultaneous
+  queue_depth            reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  crc_errors             latency_ms                   +1 polls     0.9399      0.9398  crc_errors LEADS latency_ms by 5 min
+  crc_errors             cpu_pct                      +2 polls     0.8010      0.7827  crc_errors LEADS cpu_pct by 10 min
+  crc_errors             mem_util_pct                 +2 polls     0.6473      0.5991  crc_errors LEADS mem_util_pct by 10 min
+  crc_errors             temp_c                       +1 polls     0.6210      0.5960  crc_errors LEADS temp_c by 5 min
+  crc_errors             fan_speed_rpm                -1 polls     0.2289      0.2017  fan_speed_rpm LEADS crc_errors by 5 min
+  crc_errors             power_supply_status          +0 polls     0.0000      0.0000  simultaneous
+  crc_errors             reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  latency_ms             cpu_pct                      +1 polls     0.8488      0.8040  latency_ms LEADS cpu_pct by 5 min
+  latency_ms             mem_util_pct                 +1 polls     0.6778      0.6182  latency_ms LEADS mem_util_pct by 5 min
+  latency_ms             temp_c                       -1 polls     0.6629      0.6139  temp_c LEADS latency_ms by 5 min
+  latency_ms             fan_speed_rpm                -2 polls     0.2621      0.2089  fan_speed_rpm LEADS latency_ms by 10 min
+  latency_ms             power_supply_status          +0 polls     0.0000      0.0000  simultaneous
+  latency_ms             reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  cpu_pct                mem_util_pct                 -3 polls     0.7047      0.6618  mem_util_pct LEADS cpu_pct by 15 min
+  cpu_pct                temp_c                       -2 polls     0.7313      0.7129  temp_c LEADS cpu_pct by 10 min
+  cpu_pct                fan_speed_rpm                -2 polls     0.2452      0.2289  fan_speed_rpm LEADS cpu_pct by 10 min
+  cpu_pct                power_supply_status          +0 polls     0.0000      0.0000  simultaneous
+  cpu_pct                reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  mem_util_pct           temp_c                       +1 polls     0.6262      0.6196  mem_util_pct LEADS temp_c by 5 min
+  mem_util_pct           fan_speed_rpm                -6 polls     0.1894      0.1639  fan_speed_rpm LEADS mem_util_pct by 30 min
+  mem_util_pct           power_supply_status          +0 polls     0.0000      0.0000  simultaneous
+  mem_util_pct           reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  temp_c                 fan_speed_rpm                +0 polls     0.2749      0.2715  simultaneous
+  temp_c                 power_supply_status          +0 polls     0.0000      0.0000  simultaneous
+  temp_c                 reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  fan_speed_rpm          power_supply_status          +0 polls     0.0000      0.0000  simultaneous
+  fan_speed_rpm          reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  power_supply_status    reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+
+==============================================================================
+ SECTION 2 — GRANGER CAUSALITY [ROUTER]
+==============================================================================
+
+  Cause                  Effect                   Best Lag   F-stat      p-value  Result
+  ------------------------------------------------------------------------------
+  util_pct               queue_depth                  +2 polls   63.183     0.000000  *** SIGNIFICANT ***
+  util_pct               crc_errors                   +3 polls   34.934     0.000000  *** SIGNIFICANT ***
+  util_pct               latency_ms                   +2 polls   54.799     0.000000  *** SIGNIFICANT ***
+  util_pct               cpu_pct                      +6 polls    8.954     0.000000  *** SIGNIFICANT ***
+  util_pct               mem_util_pct                 +1 polls   45.770     0.000000  *** SIGNIFICANT ***
+  util_pct               temp_c                       +1 polls   56.131     0.000000  *** SIGNIFICANT ***
+  util_pct               fan_speed_rpm                +9 polls    2.371     0.013630  *** SIGNIFICANT ***
+  util_pct               power_supply_status          +1 polls    0.000     1.000000  not significant
+  util_pct               reboot_delta                 +1 polls    0.000     1.000000  not significant
+  queue_depth            crc_errors                   +1 polls  289.313     0.000000  *** SIGNIFICANT ***
+  queue_depth            latency_ms                   +2 polls    4.154     0.016674  *** SIGNIFICANT ***
+  queue_depth            cpu_pct                      +1 polls    9.095     0.002795  *** SIGNIFICANT ***
+  queue_depth            mem_util_pct                 +1 polls   50.067     0.000000  *** SIGNIFICANT ***
+  queue_depth            temp_c                       +1 polls   69.147     0.000000  *** SIGNIFICANT ***
+  queue_depth            fan_speed_rpm                +7 polls    4.837     0.000038  *** SIGNIFICANT ***
+  queue_depth            power_supply_status          +3 polls 8866.326     0.000000  *** SIGNIFICANT ***
+  queue_depth            reboot_delta                 +1 polls    0.000     1.000000  not significant
+  crc_errors             latency_ms                   +2 polls   14.463     0.000001  *** SIGNIFICANT ***
+  crc_errors             cpu_pct                      +3 polls    3.706     0.012150  *** SIGNIFICANT ***
+  crc_errors             mem_util_pct                 +1 polls   38.424     0.000000  *** SIGNIFICANT ***
+  crc_errors             temp_c                       +1 polls   39.916     0.000000  *** SIGNIFICANT ***
+  crc_errors             fan_speed_rpm                +7 polls    4.292     0.000162  *** SIGNIFICANT ***
+  crc_errors             power_supply_status          +1 polls  221.667     0.000000  *** SIGNIFICANT ***
+  crc_errors             reboot_delta                 +1 polls    0.000     1.000000  not significant
+  latency_ms             cpu_pct                     +10 polls    2.809     0.002540  *** SIGNIFICANT ***
+  latency_ms             mem_util_pct                 +1 polls   47.355     0.000000  *** SIGNIFICANT ***
+  latency_ms             temp_c                       +1 polls   70.203     0.000000  *** SIGNIFICANT ***
+  latency_ms             fan_speed_rpm                +7 polls    4.851     0.000036  *** SIGNIFICANT ***
+  latency_ms             power_supply_status          +1 polls    0.000     1.000000  not significant
+  latency_ms             reboot_delta                 +1 polls    0.000     1.000000  not significant
+  cpu_pct                mem_util_pct                 +1 polls   61.350     0.000000  *** SIGNIFICANT ***
+  cpu_pct                temp_c                       +1 polls   99.348     0.000000  *** SIGNIFICANT ***
+  cpu_pct                fan_speed_rpm                +1 polls   11.531     0.000782  *** SIGNIFICANT ***
+  cpu_pct                power_supply_status          +1 polls    0.000     1.000000  not significant
+  cpu_pct                reboot_delta                 +1 polls    0.000     1.000000  not significant
+  mem_util_pct           temp_c                       +1 polls   34.568     0.000000  *** SIGNIFICANT ***
+  mem_util_pct           fan_speed_rpm                +7 polls    3.278     0.002331  *** SIGNIFICANT ***
+  mem_util_pct           power_supply_status          +3 polls  745.558     0.000000  *** SIGNIFICANT ***
+  mem_util_pct           reboot_delta                 +1 polls    0.000     1.000000  not significant
+  temp_c                 fan_speed_rpm                +2 polls    4.492     0.012010  *** SIGNIFICANT ***
+  temp_c                 power_supply_status          +3 polls  153.385     0.000000  *** SIGNIFICANT ***
+  temp_c                 reboot_delta                 +1 polls    0.000     1.000000  not significant
+  fan_speed_rpm          power_supply_status          +1 polls    0.000     1.000000  not significant
+  fan_speed_rpm          reboot_delta                 +1 polls    0.000     1.000000  not significant
+  power_supply_status    reboot_delta                 +1 polls    0.000     1.000000  not significant
+
+==============================================================================
+ SECTION 3 — PRE-EVENT METRIC BEHAVIOR [ROUTER]
+==============================================================================
+
+  [DEVICE_REBOOT] No occurrences — skipping.
+
+  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  ┃ EVENT: HIGH_LATENCY | Occurrences: 231 | Pre-event windows: 343 | Normal windows: 2508 ┃
+  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  Metric                  Normal avg  Pre-event avg   Change  Change %  Direction
+  ------------------------------------------------------------------------------
+  util_pct                     49.55          84.14   +34.59    +69.8%  UP
+  queue_depth                   1.76          39.92   +38.16  +2168.8%  UP
+  crc_errors                    0.31          10.11    +9.80  +3194.7%  UP
+  latency_ms                    7.76          44.00   +36.24   +467.2%  UP
+  cpu_pct                      43.42          50.76    +7.34    +16.9%  UP
+  mem_util_pct                 57.43          58.52    +1.09     +1.9%  UP
+  temp_c                       49.08          49.57    +0.50     +1.0%  UP
+  fan_speed_rpm              3219.73        3224.74    +5.01     +0.2%  UP
+  power_supply_status           1.00           1.00    +0.00     +0.0%  DOWN
+  reboot_delta                  0.00           0.00    +0.00     +0.0%  DOWN
+
+  Lead time distribution (>10% divergence from normal):
+  Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
+  ------------------------------------------------------------------------------
+  util_pct                      1p        1p        1p       343  [█···············]
+  queue_depth                   1p        1p        1p       343  [█···············]
+  crc_errors                    1p        1p        1p       343  [█···············]
+  latency_ms                    1p        1p        1p       343  [█···············]
+  cpu_pct                       6p        1p        1p       343  [█▄▄·▄▄·········]
+  mem_util_pct                 15p        5p        1p        85  [█▄▄▄▄▄▄▄▄▄▄▄▄▄▄]
+  temp_c                       n/a      n/a      n/a       n/a
+  fan_speed_rpm                n/a      n/a      n/a       n/a
+  power_supply_status          n/a      n/a      n/a       n/a
+
+  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  ┃ EVENT: HIGH_UTIL_WARNING | Occurrences: 532 | Pre-event windows: 719 | Normal windows: 2149 ┃
+  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  Metric                  Normal avg  Pre-event avg   Change  Change %  Direction
+  ------------------------------------------------------------------------------
+  util_pct                     47.43          77.55   +30.11    +63.5%  UP
+  queue_depth                   0.08          29.56   +29.48 +37608.5%  UP
+  crc_errors                    0.05           7.30    +7.25 +13422.0%  UP
+  latency_ms                    6.16          34.16   +28.00   +454.4%  UP
+  cpu_pct                      43.17          48.80    +5.62    +13.0%  UP
+  mem_util_pct                 57.40          58.27    +0.87     +1.5%  UP
+  temp_c                       49.07          49.45    +0.38     +0.8%  UP
+  fan_speed_rpm              3219.41        3225.44    +6.03     +0.2%  UP
+  power_supply_status           1.00           1.00    +0.00     +0.0%  DOWN
+  reboot_delta                  0.00           0.00    +0.00     +0.0%  DOWN
+
+  Lead time distribution (>10% divergence from normal):
+  Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
+  ------------------------------------------------------------------------------
+  util_pct                      1p        1p        1p       719  [█···············]
+  queue_depth                   1p        1p        1p       719  [█···············]
+  crc_errors                    2p        1p        1p       719  [█▄·············]
+  latency_ms                    2p        1p        1p       719  [█▄·············]
+  cpu_pct                      12p        1p        1p       719  [█▄▄▄▄▄▄··▄▄▄···]
+  mem_util_pct                 15p        8p        1p       148  [██▄▄▄▄▄▄▄▄▄▄▄▄▄]
+  temp_c                       n/a      n/a      n/a       n/a
+  fan_speed_rpm                n/a      n/a      n/a       n/a
+  power_supply_status          n/a      n/a      n/a       n/a
+
+  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  ┃ EVENT: INTERFACE_FLAP | Occurrences: 277 | Pre-event windows: 408 | Normal windows: 2409 ┃
+  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  Metric                  Normal avg  Pre-event avg   Change  Change %  Direction
+  ------------------------------------------------------------------------------
+  util_pct                     49.73          85.24   +35.51    +71.4%  UP
+  queue_depth                   1.44          42.19   +40.75  +2833.1%  UP
+  crc_errors                    0.17          10.90   +10.73  +6225.1%  UP
+  latency_ms                    7.44          46.18   +38.74   +520.3%  UP
+  cpu_pct                      43.53          51.26    +7.73    +17.8%  UP
+  mem_util_pct                 57.45          58.61    +1.16     +2.0%  UP
+  temp_c                       49.09          49.61    +0.52     +1.1%  UP
+  fan_speed_rpm              3220.11        3226.07    +5.96     +0.2%  UP
+  power_supply_status           1.00           1.00    +0.00     +0.0%  DOWN
+  reboot_delta                  0.00           0.00    +0.00     +0.0%  DOWN
+
+  Lead time distribution (>10% divergence from normal):
+  Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
+  ------------------------------------------------------------------------------
+  util_pct                      2p        1p        1p       408  [█▄·············]
+  queue_depth                   1p        1p        1p       408  [█···············]
+  crc_errors                    1p        1p        1p       408  [█···············]
+  latency_ms                    1p        1p        1p       408  [█···············]
+  cpu_pct                       6p        1p        1p       408  [█▄▄▄·▄·········]
+  mem_util_pct                 15p        5p        1p        86  [█▄▄▄▄▄▄▄▄▄▄▄▄▄▄]
+  temp_c                       n/a      n/a      n/a       n/a
+  fan_speed_rpm                n/a      n/a      n/a       n/a
+  power_supply_status          n/a      n/a      n/a       n/a
+
+  [LINK_DOWN] No occurrences — skipping.
+
+  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+  ┃ EVENT: PACKET_DROP | Occurrences: 493 | Pre-event windows: 657 | Normal windows: 2202 ┃
+  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+
+  Metric                  Normal avg  Pre-event avg   Change  Change %  Direction
+  ------------------------------------------------------------------------------
+  util_pct                     48.03          80.15   +32.12    +66.9%  UP
+  queue_depth                   0.28          33.31   +33.03 +11902.6%  UP
+  crc_errors                    0.06           8.22    +8.16 +14634.7%  UP
+  latency_ms                    6.35          37.70   +31.35   +493.8%  UP
+  cpu_pct                      43.18          49.70    +6.52    +15.1%  UP
+  mem_util_pct                 57.40          58.39    +0.99     +1.7%  UP
+  temp_c                       49.07          49.52    +0.44     +0.9%  UP
+  fan_speed_rpm              3219.60        3226.49    +6.89     +0.2%  UP
+  power_supply_status           1.00           1.00    +0.00     +0.0%  DOWN
+  reboot_delta                  0.00           0.00    +0.00     +0.0%  DOWN
+
+  Lead time distribution (>10% divergence from normal):
+  Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
+  ------------------------------------------------------------------------------
+  util_pct                      1p        1p        1p       657  [█···············]
+  queue_depth                   1p        1p        1p       657  [█···············]
+  crc_errors                    2p        1p        1p       657  [█▄·············]
+  latency_ms                    1p        1p        1p       657  [█···············]
+  cpu_pct                      12p        1p        1p       657  [█▄▄▄▄▄▄···▄···]
+  mem_util_pct                 15p        6p        1p       136  [█▄▄▄▄▄▄▄▄▄▄▄▄▄▄]
+  temp_c                       n/a      n/a      n/a       n/a
+  fan_speed_rpm                n/a      n/a      n/a       n/a
+  power_supply_status          n/a      n/a      n/a       n/a
+
+==============================================================================
+ SECTION 4 — PATTERN CLUSTERING [ROUTER]
+==============================================================================
+
+  Cluster  Name                       Size  No Event  Top Following Events
+  ------------------------------------------------------------------------------
+  0        Stable Baseline             678        6%  PACKET_DROP: 82% | HIGH_UTIL_WARNING: 75% | INTERFACE_FLAP: 60%
+  1        Gradual Rise                614       91%  HIGH_UTIL_WARNING: 9% | PACKET_DROP: 5% | HIGH_LATENCY: 0%
+  2        Congestion Buildup         1556       94%  HIGH_UTIL_WARNING: 6% | PACKET_DROP: 3% | INTERFACE_FLAP: 0%
+  3        Spike/Recovery             1231       95%  HIGH_UTIL_WARNING: 5% | PACKET_DROP: 2% | HIGH_LATENCY: 0%
+
+  Cluster Centroids  (interface: ['util_pct', 'queue_depth']  device: ['cpu_pct', 'mem_util_pct']):
+  Cluster  Name                            util_pct     queue_depth         cpu_pct    mem_util_pct
+  ------------------------------------------------------------------------------
+  0        Stable Baseline                     89.0            60.4            54.0            59.4
+  1        Gradual Rise                        49.2             3.8            41.9            57.5
+  2        Congestion Buildup                  51.1             2.7            47.9            58.4
+  3        Spike/Recovery                      50.9             2.1            38.7            56.4
+
+==============================================================================
+ SECTION 5 — RANDOM FOREST EVENT PREDICTOR [ROUTER]
+==============================================================================
+
+  Event                         Pos Rate  Accuracy  Precision  Recall     F1  Status
+  ------------------------------------------------------------------------------
+  DEVICE_REBOOT                     0.0%         —          —       —      —  SKIPPED (rate out of range)
+  HIGH_LATENCY                      8.4%     0.962      0.732   0.870  0.795  OK
+
+    Top 8 features for HIGH_LATENCY:
+    Feature                             Importance  Bar
+    latency_ms_last                         0.1523  ████
+    queue_depth_last                        0.1475  ████
+    crc_errors_last                         0.1018  ███
+    util_pct_last                           0.0876  ██
+    util_pct_mean                           0.0754  ██
+    util_pct_max                            0.0570  █
+    util_pct_min                            0.0461  █
+    queue_depth_slope                       0.0351  █
+
+  HIGH_UTIL_WARNING                17.6%     0.958      0.824   0.972  0.892  OK
+
+    Top 8 features for HIGH_UTIL_WARNING:
+    Feature                             Importance  Bar
+    util_pct_last                           0.1731  █████
+    latency_ms_last                         0.1303  ███
+    queue_depth_last                        0.1256  ███
+    util_pct_mean                           0.0680  ██
+    util_pct_max                            0.0555  █
+    latency_ms_std                          0.0440  █
+    latency_ms_range                        0.0358  █
+    crc_errors_last                         0.0310  
+
+  INTERFACE_FLAP                   10.0%     0.967      0.778   0.939  0.851  OK
+
+    Top 8 features for INTERFACE_FLAP:
+    Feature                             Importance  Bar
+    crc_errors_last                         0.1458  ████
+    latency_ms_last                         0.1202  ███
+    queue_depth_last                        0.1105  ███
+    util_pct_mean                           0.0867  ██
+    util_pct_max                            0.0661  █
+    util_pct_min                            0.0519  █
+    latency_ms_mean                         0.0379  █
+    queue_depth_mean                        0.0355  █
+
+  LINK_DOWN                         0.0%         —          —       —      —  SKIPPED (rate out of range)
+  PACKET_DROP                      16.1%     0.968      0.862   0.954  0.906  OK
+
+    Top 8 features for PACKET_DROP:
+    Feature                             Importance  Bar
+    latency_ms_last                         0.1505  ████
+    queue_depth_last                        0.1380  ████
+    util_pct_last                           0.1185  ███
+    crc_errors_last                         0.0785  ██
+    util_pct_mean                           0.0721  ██
+    util_pct_max                            0.0498  █
+    util_pct_min                            0.0443  █
+    latency_ms_slope                        0.0284  
+
+
+==============================================================================
+ SECTION 6 — EVENT SEQUENCE MINING [ROUTER]
+==============================================================================
+  Total sessions  : 32
+  Unique devices  : 5
+
+  Frequent 2-event sequences (support >= 2, lift >= 1.5):
+  Sequence                                               Supp   Conf   Lift
+  ------------------------------------------------------------------------------
+  No sequences met support >= 2 AND lift >= 1.5.
+
+  Frequent 3-event sequences (support >= 2):
+  Sequence                                                         Supp   Conf
+  ------------------------------------------------------------------------------
+  HIGH_UTIL_WARNING -> PACKET_DROP -> INTERFACE_FLAP                 28   1.00
+  HIGH_UTIL_WARNING -> PACKET_DROP -> HIGH_LATENCY                   26   0.93
+  HIGH_UTIL_WARNING -> HIGH_LATENCY -> INTERFACE_FLAP                21   0.72
+  PACKET_DROP -> HIGH_LATENCY -> INTERFACE_FLAP                      20   0.71
+  HIGH_UTIL_WARNING -> INTERFACE_FLAP -> HIGH_LATENCY                 8   0.26
+  PACKET_DROP -> INTERFACE_FLAP -> HIGH_LATENCY                       8   0.26
+  PACKET_DROP -> HIGH_UTIL_WARNING -> INTERFACE_FLAP                  3   1.00
+  PACKET_DROP -> HIGH_UTIL_WARNING -> HIGH_LATENCY                    2   0.67
+
+==============================================================================
+ SECTION 7 — ANOMALY DETECTION [ROUTER]
+==============================================================================
+
+  Isolation Forest: 204 / 4,079 windows flagged (5.0% anomaly rate, target=5%)
+
+  Entity                          Anomaly %  Avg Score  Risk
+  ------------------------------------------------------------------------------
+  router-03:Gi0/3/0                   14.7%     0.0867  MED  ██
+  router-02:Gi0/3/0                    8.1%     0.0880  MED  █
+  router-02:Gi0/1/0                    7.3%     0.0858  MED  █
+  router-01:Gi0/1/0                    7.0%     0.0797  low  █
+  router-05:Gi0/2/0                    6.6%     0.0814  low  █
+  router-02:Gi0/2/0                    5.5%     0.0854  low  █
+  router-03:Gi0/1/0                    5.5%     0.0999  low  █
+  router-03:Gi0/2/0                    3.7%     0.0975  low  
+  router-01:Gi0/3/0                    3.7%     0.0769  low  
+  router-04:Gi0/3/0                    3.7%     0.0838  low  
+  router-04:Gi0/1/0                    3.3%     0.1106  low  
+  router-01:Gi0/2/0                    2.6%     0.1022  low  
+  router-04:Gi0/2/0                    1.8%     0.0824  low  
+  router-05:Gi0/3/0                    1.1%     0.1041  low  
+  router-05:Gi0/1/0                    0.4%     0.1004  low  
+
+==============================================================================
+ SECTION 8 — EVENT CO-OCCURRENCE MATRIX [ROUTER]
+==============================================================================
+
+  Co-occurrence Lift Matrix  (4 event types, 32 sessions)
+  Lift > 1 = events tend to co-occur.  Lift < 1 = tend to be separate.
+
+                                          HIGH_LAHIGH_UTINTERFAPACKET_
+  ------------------------------------------------------------------------------
+  HIGH_LATENCY                              —       1.0    1.0    1.0 
+  HIGH_UTIL_WARNING                          1.0   —       1.0    1.0 
+  INTERFACE_FLAP                             1.0    1.0   —       1.0 
+  PACKET_DROP                                1.0    1.0    1.0   —    
+
+  Strongest co-occurring pairs:
+  A                            B                             Co-occur   Lift
+  ------------------------------------------------------------------------------
+  HIGH_LATENCY                 INTERFACE_FLAP                      29   1.03
+  HIGH_LATENCY                 PACKET_DROP                         29   1.03
+  INTERFACE_FLAP               PACKET_DROP                         31   1.03
+  HIGH_LATENCY                 HIGH_UTIL_WARNING                   29   1.00
+  HIGH_UTIL_WARNING            INTERFACE_FLAP                      31   1.00
+  HIGH_UTIL_WARNING            PACKET_DROP                         31   1.00
+
+==============================================================================
+ SECTION 10 — FAILURE CHAIN PATTERNS [ROUTER]
+==============================================================================
+
+  Chain 1  [HIGH_LATENCY]  (5 metrics  |  seen 231x  |  343 pre-event windows)
+  cpu_pct ↑  →  crc_errors ↑  →  queue_depth ↑  →  latency_ms ↑  →  util_pct ↑  →  HIGH_LATENCY
+
+  Chain 2  [HIGH_UTIL_WARNING]  (5 metrics  |  seen 532x  |  719 pre-event windows)
+  cpu_pct ↑  →  crc_errors ↑  →  latency_ms ↑  →  queue_depth ↑  →  util_pct ↑  →  HIGH_UTIL_WARNING
+
+  Chain 3  [INTERFACE_FLAP]  (5 metrics  |  seen 277x  |  408 pre-event windows)
+  cpu_pct ↑  →  util_pct ↑  →  crc_errors ↑  →  queue_depth ↑  →  latency_ms ↑  →  INTERFACE_FLAP
+
+  Chain 4  [PACKET_DROP]  (5 metrics  |  seen 493x  |  657 pre-event windows)
+  cpu_pct ↑  →  crc_errors ↑  →  queue_depth ↑  →  latency_ms ↑  →  util_pct ↑  →  PACKET_DROP
+
+  Total chains: 4
+  ##############################################################################
+# PROCESSING: SWITCH
+##############################################################################
+
+==============================================================================
+ SECTION 1 CROSS-CORRELATION [SWITCH]
+==============================================================================
+
+  Metric A               Metric B                 Best Lag  Pearson r  Spearman r  Interpretation
+  ------------------------------------------------------------------------------
+  util_pct               queue_depth                  -1 polls     0.8218      0.7764  queue_depth LEADS util_pct by 5 min
+  util_pct               crc_errors                   -2 polls     0.7701      0.7115  crc_errors LEADS util_pct by 10 min
+  util_pct               latency_ms                   -1 polls     0.8136      0.7609  latency_ms LEADS util_pct by 5 min
+  util_pct               cpu_pct                      +0 polls     0.7745      0.7337  simultaneous
+  util_pct               mem_util_pct                 +3 polls     0.1789      0.1639  util_pct LEADS mem_util_pct by 15 min
+  util_pct               temp_c                       -4 polls     0.3306      0.3076  temp_c LEADS util_pct by 20 min
+  util_pct               fan_speed_rpm                +6 polls    -0.1051     -0.1133  util_pct LEADS fan_speed_rpm by 30 min
+  util_pct               power_supply_status          +0 polls     0.0000      0.0000  simultaneous
+  util_pct               reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  queue_depth            crc_errors                   -1 polls     0.9229      0.9128  crc_errors LEADS queue_depth by 5 min
+  queue_depth            latency_ms                   +0 polls     0.9970      0.9946  simultaneous
+  queue_depth            cpu_pct                      +1 polls     0.8704      0.8357  queue_depth LEADS cpu_pct by 5 min
+  queue_depth            mem_util_pct                 +4 polls     0.1283      0.1056  queue_depth LEADS mem_util_pct by 20 min
+  queue_depth            temp_c                       -3 polls     0.4010      0.4108  temp_c LEADS queue_depth by 15 min
+  queue_depth            fan_speed_rpm                +7 polls    -0.1257     -0.1427  queue_depth LEADS fan_speed_rpm by 35 min
+  queue_depth            power_supply_status          +0 polls     0.0000      0.0000  simultaneous
+  queue_depth            reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  crc_errors             latency_ms                   +1 polls     0.9212      0.9060  crc_errors LEADS latency_ms by 5 min
+  crc_errors             cpu_pct                      +2 polls     0.8009      0.7577  crc_errors LEADS cpu_pct by 10 min
+  crc_errors             mem_util_pct                 -1 polls     0.1470      0.0952  mem_util_pct LEADS crc_errors by 5 min
+  crc_errors             temp_c                       -2 polls     0.3676      0.3779  temp_c LEADS crc_errors by 10 min
+  crc_errors             fan_speed_rpm                +7 polls    -0.1020     -0.1376  crc_errors LEADS fan_speed_rpm by 35 min
+  crc_errors             power_supply_status          +0 polls     0.0000      0.0000  simultaneous
+  crc_errors             reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  latency_ms             cpu_pct                      +1 polls     0.8704      0.8384  latency_ms LEADS cpu_pct by 5 min
+  latency_ms             mem_util_pct                 +4 polls     0.1279      0.1025  latency_ms LEADS mem_util_pct by 20 min
+  latency_ms             temp_c                       -3 polls     0.3990      0.4092  temp_c LEADS latency_ms by 15 min
+  latency_ms             fan_speed_rpm                +7 polls    -0.1125     -0.1271  latency_ms LEADS fan_speed_rpm by 35 min
+  latency_ms             power_supply_status          +0 polls     0.0000      0.0000  simultaneous
+  latency_ms             reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  cpu_pct                mem_util_pct                 +3 polls     0.1257      0.0909  cpu_pct LEADS mem_util_pct by 15 min
+  cpu_pct                temp_c                       -3 polls     0.3849      0.3678  temp_c LEADS cpu_pct by 15 min
+  cpu_pct                fan_speed_rpm                +6 polls    -0.1166     -0.1075  cpu_pct LEADS fan_speed_rpm by 30 min
+  cpu_pct                power_supply_status          +0 polls     0.0000      0.0000  simultaneous
+  cpu_pct                reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  mem_util_pct           temp_c                       -4 polls     0.1501      0.1332  temp_c LEADS mem_util_pct by 20 min
+  mem_util_pct           fan_speed_rpm               -15 polls    -0.1811     -0.1548  fan_speed_rpm LEADS mem_util_pct by 75 min
+  mem_util_pct           power_supply_status          +0 polls     0.0000      0.0000  simultaneous
+  mem_util_pct           reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  temp_c                 fan_speed_rpm                -8 polls    -0.1075     -0.0689  fan_speed_rpm LEADS temp_c by 40 min
+  temp_c                 power_supply_status          +0 polls     0.0000      0.0000  simultaneous
+  temp_c                 reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  fan_speed_rpm          power_supply_status          +0 polls     0.0000      0.0000  simultaneous
+  fan_speed_rpm          reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  power_supply_status    reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+
+==============================================================================
+ SECTION 2 GRANGER CAUSALITY [SWITCH]
+==============================================================================
+
+  Cause                  Effect                   Best Lag   F-stat      p-value  Result
+  ------------------------------------------------------------------------------
+  util_pct               queue_depth                  +2 polls   88.877     0.000000  *** SIGNIFICANT ***
+  util_pct               crc_errors                   +3 polls   35.252     0.000000  *** SIGNIFICANT ***
+  util_pct               latency_ms                   +2 polls   78.646     0.000000  *** SIGNIFICANT ***
+  util_pct               cpu_pct                      +1 polls   39.315     0.000000  *** SIGNIFICANT ***
+  util_pct               mem_util_pct                 +1 polls    4.605     0.032731  *** SIGNIFICANT ***
+  util_pct               temp_c                       +3 polls    7.507     0.000075  *** SIGNIFICANT ***
+  util_pct               fan_speed_rpm                +9 polls    1.180     0.307961  not significant
+  util_pct               power_supply_status          +1 polls    0.000     1.000000  not significant
+  util_pct               reboot_delta                 +1 polls    0.000     1.000000  not significant
+  queue_depth            crc_errors                   +1 polls  378.646     0.000000  *** SIGNIFICANT ***
+  queue_depth            latency_ms                   +1 polls    6.264     0.012878  *** SIGNIFICANT ***
+  queue_depth            cpu_pct                      +1 polls   27.223     0.000000  *** SIGNIFICANT ***
+  queue_depth            mem_util_pct                 +1 polls    2.138     0.144833  not significant
+  queue_depth            temp_c                       +3 polls   12.518     0.000000  *** SIGNIFICANT ***
+  queue_depth            fan_speed_rpm                +8 polls    1.428     0.184647  not significant
+  queue_depth            power_supply_status          +1 polls  340.595     0.000000  *** SIGNIFICANT ***
+  queue_depth            reboot_delta                 +1 polls    0.000     1.000000  not significant
+  crc_errors             latency_ms                   +3 polls   10.133     0.000002  *** SIGNIFICANT ***
+  crc_errors             cpu_pct                     +10 polls    3.679     0.000129  *** SIGNIFICANT ***
+  crc_errors             mem_util_pct                +10 polls    1.954     0.038654  *** SIGNIFICANT ***
+  crc_errors             temp_c                       +3 polls   10.549     0.000001  *** SIGNIFICANT ***
+  crc_errors             fan_speed_rpm                +8 polls    1.406     0.194020  not significant
+  crc_errors             power_supply_status          +1 polls      inf     0.000000  *** SIGNIFICANT ***
+  crc_errors             reboot_delta                 +1 polls    0.000     1.000000  not significant
+  latency_ms             cpu_pct                      +1 polls   26.929     0.000000  *** SIGNIFICANT ***
+  latency_ms             mem_util_pct                 +1 polls    1.826     0.177656  not significant
+  latency_ms             temp_c                       +3 polls   12.073     0.000000  *** SIGNIFICANT ***
+  latency_ms             fan_speed_rpm                +8 polls    1.436     0.181504  not significant
+  latency_ms             power_supply_status          +3 polls   62.473     0.000000  *** SIGNIFICANT ***
+  latency_ms             reboot_delta                 +1 polls    0.000     1.000000  not significant
+  cpu_pct                mem_util_pct                 +9 polls    1.394     0.190964  not significant
+  cpu_pct                temp_c                       +3 polls   10.891     0.000001  *** SIGNIFICANT ***
+  cpu_pct                fan_speed_rpm               +10 polls    1.298     0.231773  not significant
+  cpu_pct                power_supply_status          +3 polls  600.390     0.000000  *** SIGNIFICANT ***
+  cpu_pct                reboot_delta                 +1 polls    0.000     1.000000  not significant
+  mem_util_pct           temp_c                       +1 polls    2.497     0.115144  not significant
+  mem_util_pct           fan_speed_rpm                +5 polls    1.610     0.157450  not significant
+  mem_util_pct           power_supply_status          +3 polls 1395.000     0.000000  *** SIGNIFICANT ***
+  mem_util_pct           reboot_delta                 +1 polls    0.000     1.000000  not significant
+  temp_c                 fan_speed_rpm                +4 polls    1.126     0.344644  not significant
+  temp_c                 power_supply_status          +1 polls    0.000     1.000000  not significant
+  temp_c                 reboot_delta                 +1 polls    0.000     1.000000  not significant
+  fan_speed_rpm          power_supply_status          +1 polls    0.000     1.000000  not significant
+  fan_speed_rpm          reboot_delta                 +1 polls    0.000     1.000000  not significant
+  power_supply_status    reboot_delta                 +1 polls    0.000     1.000000  not significant
+
+==============================================================================
+ SECTION 3 PRE-EVENT METRIC BEHAVIOR [SWITCH]
+==============================================================================
+
+  [DEVICE_REBOOT] No occurrences skipping.
+
+  [HIGH_LATENCY] No occurrences skipping.
+
+  ==========================================================================================================
+  EVENT: HIGH_UTIL_WARNING | Occurrences: 178 | Pre-event windows: 265 | Normal windows: 2463
+  ==========================================================================================================
+
+  Metric                  Normal avg  Pre-event avg   Change  Change %  Direction
+  ------------------------------------------------------------------------------
+  util_pct                     36.58          64.47   +27.89    +76.2%  UP
+  queue_depth                   0.38          18.53   +18.15  +4774.0%  UP
+  crc_errors                    0.09           4.40    +4.31  +4727.6%  UP
+  latency_ms                    3.52          17.04   +13.51   +383.7%  UP
+  cpu_pct                      26.34          30.81    +4.47    +17.0%  UP
+  mem_util_pct                 45.11          45.22    +0.11     +0.3%  UP
+  temp_c                       42.07          42.18    +0.11     +0.3%  UP
+  fan_speed_rpm              2605.95        2609.01    +3.06     +0.1%  UP
+  power_supply_status           1.00           1.00    +0.00     +0.0%  DOWN
+  reboot_delta                  0.00           0.00    +0.00     +0.0%  DOWN
+
+  Lead time distribution (>10% divergence from normal):
+  Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
+  ------------------------------------------------------------------------------
+  util_pct                      1p        1p        1p       265  
+  queue_depth                   1p        1p        1p       265  
+  crc_errors                    2p        1p        1p       265  
+  latency_ms                    1p        1p        1p       265  
+  cpu_pct                       9p        1p        1p       265  
+  mem_util_pct                 15p        8p        1p        68  
+  temp_c                       n/a      n/a      n/a       n/a
+  fan_speed_rpm                n/a      n/a      n/a       n/a
+  power_supply_status          n/a      n/a      n/a       n/a
+
+  ==========================================================================================================
+  EVENT: INTERFACE_FLAP | Occurrences: 143 | Pre-event windows: 215 | Normal windows: 2675
+  ==========================================================================================================
+
+  Metric                  Normal avg  Pre-event avg   Change  Change %  Direction
+  ------------------------------------------------------------------------------
+  util_pct                     37.87          70.45   +32.58    +86.0%  UP
+  queue_depth                   1.31          26.51   +25.19  +1916.2%  UP
+  crc_errors                    0.26           7.16    +6.90  +2670.7%  UP
+  latency_ms                    4.23          22.95   +18.72   +442.4%  UP
+  cpu_pct                      26.45          32.35    +5.89    +22.3%  UP
+  mem_util_pct                 45.11          45.27    +0.16     +0.4%  UP
+  temp_c                       42.07          42.23    +0.16     +0.4%  UP
+  fan_speed_rpm              2606.17        2608.08    +1.91     +0.1%  UP
+  power_supply_status           1.00           1.00    +0.00     +0.0%  DOWN
+  reboot_delta                  0.00           0.00    +0.00     +0.0%  DOWN
+
+  Lead time distribution (>10% divergence from normal):
+  Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
+  ------------------------------------------------------------------------------
+  util_pct                      2p        1p        1p       215  
+  queue_depth                   1p        1p        1p       215  
+  crc_errors                    1p        1p        1p       215  
+  latency_ms                    1p        1p        1p       215  
+  cpu_pct                       2p        1p        1p       215  
+  mem_util_pct                 15p        8p        1p        53  
+  temp_c                       n/a      n/a      n/a       n/a
+  fan_speed_rpm                n/a      n/a      n/a       n/a
+  power_supply_status          n/a      n/a      n/a       n/a
+
+  ==========================================================================================================
+  EVENT: LINK_DOWN | Occurrences: 2 | Pre-event windows: 4 | Normal windows: 4039
+  ==========================================================================================================
+
+  Metric                  Normal avg  Pre-event avg   Change  Change %  Direction
+  ------------------------------------------------------------------------------
+  util_pct                     42.91          81.05   +38.13    +88.9%  UP
+  queue_depth                   6.12          46.36   +40.24   +657.1%  UP
+  crc_errors                    2.06          17.41   +15.35   +745.8%  UP
+  latency_ms                    7.80          37.34   +29.53   +378.5%  UP
+  cpu_pct                      27.48          36.25    +8.78    +31.9%  UP
+  mem_util_pct                 45.12          45.75    +0.63     +1.4%  UP
+  temp_c                       42.10          42.32    +0.23     +0.5%  UP
+  fan_speed_rpm              2606.62        2590.64   -15.98     -0.6%  DOWN
+  power_supply_status           1.00           1.00    +0.00     +0.0%  DOWN
+  reboot_delta                  0.00           0.00    +0.00     +0.0%  DOWN
+
+  Lead time distribution (>10% divergence from normal):
+  Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
+  ------------------------------------------------------------------------------
+  util_pct                      1p        1p        1p         4  
+  queue_depth                   1p        1p        1p         4  
+  crc_errors                    1p        1p        1p         4  
+  latency_ms                    1p        1p        1p         4  
+  cpu_pct                       3p        2p        1p         4  
+  mem_util_pct                  1p        1p        1p         2  
+  temp_c                       n/a      n/a      n/a       n/a
+  fan_speed_rpm                n/a      n/a      n/a       n/a
+  power_supply_status          n/a      n/a      n/a       n/a
+
+  ==========================================================================================================
+  EVENT: PACKET_DROP | Occurrences: 246 | Pre-event windows: 344 | Normal windows: 2380
+  ==========================================================================================================
+
+  Metric                  Normal avg  Pre-event avg   Change  Change %  Direction
+  ------------------------------------------------------------------------------
+  util_pct                     36.37          65.05   +28.68    +78.8%  UP
+  queue_depth                   0.21          19.27   +19.06  +9148.6%  UP
+  crc_errors                    0.06           4.68    +4.62  +8165.6%  UP
+  latency_ms                    3.39          17.57   +14.18   +418.3%  UP
+  cpu_pct                      26.29          30.83    +4.54    +17.3%  UP
+  mem_util_pct                 45.11          45.22    +0.11     +0.2%  UP
+  temp_c                       42.07          42.18    +0.11     +0.3%  UP
+  fan_speed_rpm              2606.29        2607.24    +0.95     +0.0%  UP
+  power_supply_status           1.00           1.00    +0.00     +0.0%  DOWN
+  reboot_delta                  0.00           0.00    +0.00     +0.0%  DOWN
+
+  Lead time distribution (>10% divergence from normal):
+  Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
+  ------------------------------------------------------------------------------
+  util_pct                      1p        1p        1p       344  
+  queue_depth                   1p        1p        1p       344  
+  crc_errors                    2p        1p        1p       344  
+  latency_ms                    1p        1p        1p       344  
+  cpu_pct                       9p        1p        1p       344  
+  mem_util_pct                 15p        8p        1p        79  
+  temp_c                       n/a      n/a      n/a       n/a
+  fan_speed_rpm                n/a      n/a      n/a       n/a
+  power_supply_status          n/a      n/a      n/a       n/a
+
+==============================================================================
+ SECTION 4 PATTERN CLUSTERING [SWITCH]
+==============================================================================
+
+  Cluster  Name                       Size  No Event  Top Following Events
+  ------------------------------------------------------------------------------
+  0        Stable Baseline            1547      100%  PACKET_DROP: 0% | HIGH_UTIL_WARNING: 0%
+  1        Gradual Rise                457       14%  PACKET_DROP: 70% | HIGH_UTIL_WARNING: 53% | INTERFACE_FLAP: 47%
+  2        Congestion Buildup         1431       98%  HIGH_UTIL_WARNING: 1% | PACKET_DROP: 1%
+  3        Spike/Recovery              653       99%  HIGH_UTIL_WARNING: 1% | PACKET_DROP: 1% | INTERFACE_FLAP: 0%
+
+  Cluster Centroids  (interface: ['util_pct', 'queue_depth']  device: ['cpu_pct', 'mem_util_pct']):
+  Cluster  Name                            util_pct     queue_depth         cpu_pct    mem_util_pct
+  ------------------------------------------------------------------------------
+  0        Stable Baseline                     37.3             0.8            24.2            44.9
+  1        Gradual Rise                        75.1            45.6            33.9            45.5
+  2        Congestion Buildup                  41.4             2.3            29.6            45.3
+  3        Spike/Recovery                      38.5             1.6            26.8            45.0
+
+==============================================================================
+ SECTION 5 RANDOM FOREST EVENT PREDICTOR [SWITCH]
+==============================================================================
+
+  Event                         Pos Rate  Accuracy  Precision  Recall     F1  Status
+  ------------------------------------------------------------------------------
+  DEVICE_REBOOT                     0.0%         SKIPPED (rate out of range)
+  HIGH_LATENCY                      0.0%         SKIPPED (rate out of range)
+  HIGH_UTIL_WARNING                 6.5%     0.968      0.680   0.962  0.797  OK
+
+    Top 8 features for HIGH_UTIL_WARNING:
+    Feature                             Importance  Bar
+    util_pct_last                           0.1479  
+    latency_ms_last                         0.1289  
+    queue_depth_last                        0.1199  
+    crc_errors_last                         0.0813  
+    latency_ms_slope                        0.0763  
+    util_pct_slope                          0.0654  
+    util_pct_mean                           0.0628  
+    queue_depth_slope                       0.0486  
+
+  INTERFACE_FLAP                    5.3%     0.987      0.833   0.930  0.879  OK
+
+    Top 8 features for INTERFACE_FLAP:
+    Feature                             Importance  Bar
+    crc_errors_last                         0.1571  
+    latency_ms_slope                        0.1304  
+    queue_depth_last                        0.0810  
+    latency_ms_last                         0.0788  
+    queue_depth_slope                       0.0740  
+    util_pct_mean                           0.0725  
+    crc_errors_slope                        0.0431  
+    util_pct_max                            0.0333  
+
+  LINK_DOWN                         0.1%         SKIPPED (rate out of range)
+  PACKET_DROP                       8.4%     0.983      0.840   0.986  0.907  OK
+
+    Top 8 features for PACKET_DROP:
+    Feature                             Importance  Bar
+    queue_depth_last                        0.1539  
+    latency_ms_last                         0.1428  
+    latency_ms_slope                        0.0939  
+    crc_errors_last                         0.0917  
+    util_pct_last                           0.0838  
+    util_pct_slope                          0.0707  
+    util_pct_mean                           0.0533  
+    queue_depth_slope                       0.0512  
+
+
+==============================================================================
+ SECTION 6  EVENT SEQUENCE MINING [SWITCH]
+==============================================================================
+  Total sessions  : 42
+  Unique devices  : 5
+
+  Frequent 2-event sequences (support >= 2, lift >= 1.5):
+  Sequence                                               Supp   Conf   Lift
+  ------------------------------------------------------------------------------
+  No sequences met support >= 2 AND lift >= 1.5.
+
+  Frequent 3-event sequences (support >= 2):
+  Sequence                                                         Supp   Conf
+  ------------------------------------------------------------------------------
+  HIGH_UTIL_WARNING -> PACKET_DROP -> INTERFACE_FLAP                 19   0.86
+  PACKET_DROP -> HIGH_UTIL_WARNING -> INTERFACE_FLAP                 13   0.68
+  PACKET_DROP -> INTERFACE_FLAP -> LINK_DOWN                          2   0.06
+  HIGH_UTIL_WARNING -> INTERFACE_FLAP -> LINK_DOWN                    2   0.06
+  PACKET_DROP -> INTERFACE_FLAP -> HIGH_UTIL_WARNING                  2   0.06
+
+==============================================================================
+ SECTION 7  ANOMALY DETECTION [SWITCH]
+==============================================================================
+
+  Isolation Forest: 205 / 4,088 windows flagged (5.0% anomaly rate, target=5%)
+
+  Entity                          Anomaly %  Avg Score  Risk
+  ------------------------------------------------------------------------------
+  switch-03:Eth1/2                    10.6%     0.1156  MED
+  switch-02:Eth1/1                    10.3%     0.0982  MED  
+  switch-03:Eth1/1                     9.5%     0.0976  MED  
+  switch-01:Eth1/1                     8.1%     0.1056  MED  
+  switch-05:Eth1/3                     8.1%     0.1160  MED  
+  switch-04:Eth1/1                     6.2%     0.0914  low  
+  switch-05:Eth1/2                     5.9%     0.0943  low  
+  switch-01:Eth1/2                     4.4%     0.1126  low  
+  switch-02:Eth1/2                     4.4%     0.1050  low  
+  switch-03:Eth1/3                     3.3%     0.1148  low  
+  switch-02:Eth1/3                     2.9%     0.1115  low  
+  switch-05:Eth1/1                     1.1%     0.1128  low  
+  switch-04:Eth1/3                     0.4%     0.1234  low  
+  switch-01:Eth1/3                     0.0%     0.1218  low  
+  switch-04:Eth1/2                     0.0%     0.1206  low  
+
+==============================================================================
+ SECTION 8 â€” EVENT CO-OCCURRENCE MATRIX [SWITCH]
+==============================================================================
+
+  Co-occurrence Lift Matrix  (4 event types, 42 sessions)
+  Lift > 1 = events tend to co-occur.  Lift < 1 = tend to be separate.
+
+                                          HIGH_UTINTERFALINK_DOPACKET_
+  ------------------------------------------------------------------------------
+  HIGH_UTIL_WARNING                                   1.0    1.0    1.0 
+  INTERFACE_FLAP                             1.0             1.2    1.0 
+  LINK_DOWN                                  1.0    1.2             1.0 
+  PACKET_DROP                                1.0    1.0      1.0          
+
+  Strongest co-occurring pairs:
+  A                            B                             Co-occur   Lift
+  ------------------------------------------------------------------------------
+  INTERFACE_FLAP               LINK_DOWN                            2   1.20
+  INTERFACE_FLAP               PACKET_DROP                         35   1.02
+  LINK_DOWN                    PACKET_DROP                          2   1.02
+  HIGH_UTIL_WARNING            INTERFACE_FLAP                      35   1.00
+  HIGH_UTIL_WARNING            LINK_DOWN                            2   1.00
+  HIGH_UTIL_WARNING            PACKET_DROP                         41   1.00
+
+==============================================================================
+ SECTION 10 FAILURE CHAIN PATTERNS [SWITCH]
+==============================================================================
+
+  Chain 1  [HIGH_UTIL_WARNING]  (5 metrics  |  seen 178x  |  265 pre-event windows)
+  cpu_pct â†‘  â†’  crc_errors â†‘  â†’  queue_depth â†‘  â†’  latency_ms â†‘  â†’  util_pct â†‘  â†’  HIGH_UTIL_WARNING
+
+  Chain 2  [INTERFACE_FLAP]  (5 metrics  |  seen 143x  |  215 pre-event windows)
+  util_pct â†‘  â†’  cpu_pct â†‘  â†’  crc_errors â†‘  â†’  queue_depth â†‘  â†’  latency_ms â†‘  â†’  INTERFACE_FLAP
+
+  Chain 3  [PACKET_DROP]  (5 metrics  |  seen 246x  |  344 pre-event windows)
+  cpu_pct â†‘  â†’  crc_errors â†‘  â†’  queue_depth â†‘  â†’  latency_ms â†‘  â†’  util_pct â†‘  â†’  PACKET_DROP
+
+  Total chains: 3
+
+==============================================================================
+ SAVING MODELS
+==============================================================================
+
+  Models saved to: /opt/pattern_mining_code/models/
+
+==============================================================================
+ FINAL SUMMARY â€” ALL ALGORITHMS
+==============================================================================
+
+  ============================================================================================================================================================
+  DEVICE TYPE: ROUTER
+  ============================================================================================================================================================
+
+  ============================================================================================================================================================
+  Cross-Correlation Key Findings
+  ============================================================================================================================================================
+  queue_depth LEADS util_pct by 10 min (r=0.6833)
+  crc_errors LEADS util_pct by 15 min (r=0.674)
+  latency_ms LEADS util_pct by 10 min (r=0.6834)
+  cpu_pct LEADS util_pct by 5 min (r=0.7133)
+  mem_util_pct LEADS util_pct by 20 min (r=0.5183)
+  temp_c LEADS util_pct by 15 min (r=0.5098)
+  fan_speed_rpm LEADS util_pct by 5 min (r=0.1691)
+  util_pct LEADS reboot_delta by 55 min (r=-0.1013)
+  crc_errors LEADS queue_depth by 5 min (r=0.9319)
+  queue_depth LEADS cpu_pct by 5 min (r=0.8502)
+  mem_util_pct LEADS queue_depth by 15 min (r=0.666)
+  temp_c LEADS queue_depth by 5 min (r=0.6257)
+  queue_depth LEADS reboot_delta by 45 min (r=-0.0948)
+  crc_errors LEADS latency_ms by 5 min (r=0.9266)
+  crc_errors LEADS cpu_pct by 10 min (r=0.7872)
+  crc_errors LEADS temp_c by 5 min (r=0.5656)
+  crc_errors LEADS fan_speed_rpm by 5 min (r=0.2177)
+  reboot_delta LEADS crc_errors by 15 min (r=0.1007)
+  latency_ms LEADS cpu_pct by 5 min (r=0.8518)
+  mem_util_pct LEADS latency_ms by 10 min (r=0.666)
+  temp_c LEADS latency_ms by 5 min (r=0.6282)
+  latency_ms LEADS reboot_delta by 45 min (r=-0.0962)
+  mem_util_pct LEADS cpu_pct by 20 min (r=0.6931)
+  temp_c LEADS cpu_pct by 5 min (r=0.6919)
+  fan_speed_rpm LEADS cpu_pct by 10 min (r=0.158)
+  reboot_delta LEADS cpu_pct by 75 min (r=0.1172)
+  mem_util_pct LEADS temp_c by 10 min (r=0.5608)
+  reboot_delta LEADS mem_util_pct by 70 min (r=0.1442)
+  temp_c LEADS reboot_delta by 75 min (r=-0.1382)
+
+  ============================================================================================================================================================
+  Granger Causality Significant Pairs
+  ============================================================================================================================================================
+  util_pct->queue_depth  p=0.0  lag=10 min  *** SIGNIFICANT
+  util_pct->crc_errors  p=0.0  lag=20 min  *** SIGNIFICANT
+  util_pct->latency_ms  p=0.0  lag=15 min  *** SIGNIFICANT
+  util_pct->cpu_pct  p=0.0  lag=30 min  *** SIGNIFICANT
+  util_pct->mem_util_pct  p=1e-06  lag=5 min  *** SIGNIFICANT
+  util_pct->temp_c  p=0.0  lag=10 min  *** SIGNIFICANT
+  util_pct->fan_speed_rpm  p=0.029557  lag=5 min  *** SIGNIFICANT
+  util_pct->reboot_delta  p=0.049878  lag=20 min  *** SIGNIFICANT
+  queue_depth->crc_errors  p=0.0  lag=5 min  *** SIGNIFICANT
+  queue_depth->cpu_pct  p=2.1e-05  lag=5 min  *** SIGNIFICANT
+  queue_depth->mem_util_pct  p=0.0  lag=5 min  *** SIGNIFICANT
+  queue_depth->temp_c  p=0.0  lag=5 min  *** SIGNIFICANT
+  queue_depth->fan_speed_rpm  p=0.029528  lag=5 min  *** SIGNIFICANT
+  queue_depth->power_supply_status  p=0.0  lag=5 min  *** SIGNIFICANT
+  crc_errors->latency_ms  p=0.000146  lag=10 min  *** SIGNIFICANT
+  crc_errors->cpu_pct  p=0.01251  lag=20 min  *** SIGNIFICANT
+  crc_errors->mem_util_pct  p=0.0  lag=5 min  *** SIGNIFICANT
+  crc_errors->temp_c  p=4e-06  lag=5 min  *** SIGNIFICANT
+  crc_errors->fan_speed_rpm  p=0.048759  lag=5 min  *** SIGNIFICANT
+  latency_ms->cpu_pct  p=3e-06  lag=5 min  *** SIGNIFICANT
+  latency_ms->mem_util_pct  p=0.0  lag=5 min  *** SIGNIFICANT
+  latency_ms->temp_c  p=0.0  lag=5 min  *** SIGNIFICANT
+  latency_ms->fan_speed_rpm  p=0.034426  lag=5 min  *** SIGNIFICANT
+  cpu_pct->mem_util_pct  p=0.0  lag=10 min  *** SIGNIFICANT
+  cpu_pct->temp_c  p=0.0  lag=5 min  *** SIGNIFICANT
+  cpu_pct->fan_speed_rpm  p=0.040932  lag=5 min  *** SIGNIFICANT
+  cpu_pct->power_supply_status  p=0.0  lag=15 min  *** SIGNIFICANT
+  mem_util_pct->temp_c  p=3e-05  lag=5 min  *** SIGNIFICANT
+
+  ============================================================================================================================================================
+  Pre-Event Metric Patterns
+  ============================================================================================================================================================
+  DEVICE_REBOOT (7 occurrences)
+    queue_depth            normal=10.9  pre-event=13.3  (+22%)
+    Earliest warning: 70 min before event
+  HIGH_LATENCY (242 occurrences)
+    util_pct               normal=49.3  pre-event=84.6  (+72%)
+    queue_depth            normal=1.4  pre-event=41.6  (+2784%)
+    crc_errors             normal=0.2  pre-event=11.1  (+5687%)
+    latency_ms             normal=7.5  pre-event=45.8  (+513%)
+    cpu_pct                normal=42.3  pre-event=51.5  (+22%)
+    Earliest warning: 75 min before event
+  HIGH_UTIL_WARNING (505 occurrences)
+    util_pct               normal=47.2  pre-event=76.7  (+63%)
+    queue_depth            normal=0.1  pre-event=29.0  (+38973%)
+    crc_errors             normal=0.1  pre-event=7.3  (+13334%)
+    latency_ms             normal=6.2  pre-event=33.8  (+449%)
+    Earliest warning: 75 min before event
+  INTERFACE_FLAP (283 occurrences)
+    util_pct               normal=49.4  pre-event=86.0  (+74%)
+    queue_depth            normal=1.2  pre-event=44.6  (+3504%)
+    crc_errors             normal=0.1  pre-event=12.3  (+10091%)
+    latency_ms             normal=7.3  pre-event=48.7  (+569%)
+    cpu_pct                normal=42.3  pre-event=52.0  (+23%)
+    Earliest warning: 75 min before event
+  PACKET_DROP (487 occurrences)
+    util_pct               normal=47.7  pre-event=80.0  (+68%)
+    queue_depth            normal=0.2  pre-event=33.9  (+15162%)
+    crc_errors             normal=0.1  pre-event=8.7  (+15418%)
+    latency_ms             normal=6.3  pre-event=38.5  (+510%)
+    Earliest warning: 75 min before event
+
+  ============================================================================================================================================================
+  Random Forest Accuracy
+  ============================================================================================================================================================
+  HIGH_LATENCY                 acc=0.972  prec=0.788  recall=0.931  f1=0.854
+    Top feature: latency_ms_last (0.1460)
+  HIGH_UTIL_WARNING            acc=0.961  prec=0.836  recall=0.948  f1=0.888
+    Top feature: util_pct_last (0.1763)
+  INTERFACE_FLAP               acc=0.979  prec=0.865  recall=0.939  f1=0.901
+    Top feature: crc_errors_last (0.1714)
+  PACKET_DROP                  acc=0.974  prec=0.895  recall=0.944  f1=0.919
+    Top feature: queue_depth_last (0.1619)
+
+  ========================================================================================================================
+  Top Event Sequences (with lift)
+  ========================================================================================================================
+
+  ========================================================================================================================
+  Top Anomalous Entities
+  ========================================================================================================================
+  router-03:Gi0/1/0              anomaly_rate=11.8%  avg_score=0.1114
+  router-02:Gi0/1/0              anomaly_rate=11.0%  avg_score=0.1015
+  router-05:Gi0/2/0              anomaly_rate=9.2%  avg_score=0.1054
+  router-01:Gi0/3/0              anomaly_rate=7.0%  avg_score=0.1210
+  router-05:Gi0/3/0              anomaly_rate=6.2%  avg_score=0.1090
+  
+  ========================================================================================================================
+  DEVICE TYPE: SWITCH
+  ========================================================================================================================
+
+  ========================================================================================================================
+  Cross-Correlation Key Findings
+  ========================================================================================================================
+  queue_depth LEADS util_pct by 5 min (r=0.8218)
+  crc_errors LEADS util_pct by 10 min (r=0.7701)
+  latency_ms LEADS util_pct by 5 min (r=0.8136)
+  util_pct LEADS mem_util_pct by 15 min (r=0.1789)
+  temp_c LEADS util_pct by 20 min (r=0.3306)
+  util_pct LEADS fan_speed_rpm by 30 min (r=-0.1051)
+  crc_errors LEADS queue_depth by 5 min (r=0.9229)
+  queue_depth LEADS cpu_pct by 5 min (r=0.8704)
+  queue_depth LEADS mem_util_pct by 20 min (r=0.1283)
+  temp_c LEADS queue_depth by 15 min (r=0.401)
+  queue_depth LEADS fan_speed_rpm by 35 min (r=-0.1257)
+  crc_errors LEADS latency_ms by 5 min (r=0.9212)
+  crc_errors LEADS cpu_pct by 10 min (r=0.8009)
+  mem_util_pct LEADS crc_errors by 5 min (r=0.147)
+  temp_c LEADS crc_errors by 10 min (r=0.3676)
+  crc_errors LEADS fan_speed_rpm by 35 min (r=-0.102)
+  latency_ms LEADS cpu_pct by 5 min (r=0.8704)
+  latency_ms LEADS mem_util_pct by 20 min (r=0.1279)
+  temp_c LEADS latency_ms by 15 min (r=0.399)
+  latency_ms LEADS fan_speed_rpm by 35 min (r=-0.1125)
+  cpu_pct LEADS mem_util_pct by 15 min (r=0.1257)
+  temp_c LEADS cpu_pct by 15 min (r=0.3849)
+  cpu_pct LEADS fan_speed_rpm by 30 min (r=-0.1166)
+  temp_c LEADS mem_util_pct by 20 min (r=0.1501)
+  fan_speed_rpm LEADS mem_util_pct by 75 min (r=-0.1811)
+  fan_speed_rpm LEADS temp_c by 40 min (r=-0.1075)
+
+  ========================================================================================================================
+  Granger Causality Significant Pairs
+  ========================================================================================================================
+  util_pct->queue_depth  p=0.0  lag=10 min  *** SIGNIFICANT
+  util_pct->crc_errors  p=0.0  lag=15 min  *** SIGNIFICANT
+  util_pct->latency_ms  p=0.0  lag=10 min  *** SIGNIFICANT
+  util_pct->cpu_pct  p=0.0  lag=5 min  *** SIGNIFICANT
+  util_pct->mem_util_pct  p=0.032731  lag=5 min  *** SIGNIFICANT
+  util_pct->temp_c  p=7.5e-05  lag=15 min  *** SIGNIFICANT
+  queue_depth->crc_errors  p=0.0  lag=5 min  *** SIGNIFICANT
+  queue_depth->latency_ms  p=0.012878  lag=5 min  *** SIGNIFICANT
+  queue_depth->cpu_pct  p=0.0  lag=5 min  *** SIGNIFICANT
+  queue_depth->temp_c  p=0.0  lag=15 min  *** SIGNIFICANT
+  queue_depth->power_supply_status  p=0.0  lag=5 min  *** SIGNIFICANT
+  crc_errors->latency_ms  p=2e-06  lag=15 min  *** SIGNIFICANT
+  crc_errors->cpu_pct  p=0.000129  lag=50 min  *** SIGNIFICANT
+  crc_errors->mem_util_pct  p=0.038654  lag=50 min  *** SIGNIFICANT
+  crc_errors->temp_c  p=1e-06  lag=15 min  *** SIGNIFICANT
+  crc_errors->power_supply_status  p=0.0  lag=5 min  *** SIGNIFICANT
+  latency_ms->cpu_pct  p=0.0  lag=5 min  *** SIGNIFICANT
+  latency_ms->temp_c  p=0.0  lag=15 min  *** SIGNIFICANT
+  latency_ms->power_supply_status  p=0.0  lag=15 min  *** SIGNIFICANT
+  cpu_pct->temp_c  p=1e-06  lag=15 min  *** SIGNIFICANT
+  cpu_pct->power_supply_status  p=0.0  lag=15 min  *** SIGNIFICANT
+  mem_util_pct->power_supply_status  p=0.0  lag=15 min  *** SIGNIFICANT
+
+  ========================================================================================================================
+  Pre-Event Metric Patterns
+  ========================================================================================================================
+  HIGH_UTIL_WARNING (178 occurrences)
+    util_pct               normal=36.6  pre-event=64.5  (+76%)
+    queue_depth            normal=0.4  pre-event=18.5  (+4774%)
+    crc_errors             normal=0.1  pre-event=4.4  (+4728%)
+    latency_ms             normal=3.5  pre-event=17.0  (+384%)
+    Earliest warning: 75 min before event
+  INTERFACE_FLAP (143 occurrences)
+    util_pct               normal=37.9  pre-event=70.5  (+86%)
+    queue_depth            normal=1.3  pre-event=26.5  (+1916%)
+    crc_errors             normal=0.3  pre-event=7.2  (+2671%)
+    latency_ms             normal=4.2  pre-event=23.0  (+442%)
+    cpu_pct                normal=26.5  pre-event=32.3  (+22%)
+    Earliest warning: 75 min before event
+  LINK_DOWN (2 occurrences)
+    util_pct               normal=42.9  pre-event=81.0  (+89%)
+    queue_depth            normal=6.1  pre-event=46.4  (+657%)
+    crc_errors             normal=2.1  pre-event=17.4  (+746%)
+    latency_ms             normal=7.8  pre-event=37.3  (+378%)
+    cpu_pct                normal=27.5  pre-event=36.3  (+32%)
+    Earliest warning: 15 min before event
+  PACKET_DROP (246 occurrences)
+    util_pct               normal=36.4  pre-event=65.1  (+79%)
+    queue_depth            normal=0.2  pre-event=19.3  (+9149%)
+    crc_errors             normal=0.1  pre-event=4.7  (+8166%)
+    latency_ms             normal=3.4  pre-event=17.6  (+418%)
+    Earliest warning: 75 min before event
+
+  ========================================================================================================================
+  Random Forest Accuracy
+  ========================================================================================================================
+  HIGH_UTIL_WARNING            acc=0.968  prec=0.680  recall=0.962  f1=0.797
+    Top feature: util_pct_last (0.1479)
+  INTERFACE_FLAP               acc=0.987  prec=0.833  recall=0.930  f1=0.879
+    Top feature: crc_errors_last (0.1571)
+  PACKET_DROP                  acc=0.983  prec=0.840  recall=0.986  f1=0.907
+    Top feature: queue_depth_last (0.1539)
+
+  ========================================================================================================================
+  Top Event Sequences (with lift)
+  ========================================================================================================================
+
+  ========================================================================================================================
+  Top Anomalous Entities
+  ========================================================================================================================
+  switch-03:Eth1/2               anomaly_rate=10.6%  avg_score=0.1156
+  switch-02:Eth1/1               anomaly_rate=10.3%  avg_score=0.0982
+  switch-03:Eth1/1               anomaly_rate=9.5%  avg_score=0.0976
+  switch-01:Eth1/1               anomaly_rate=8.1%  avg_score=0.1056
+  switch-05:Eth1/3               anomaly_rate=8.1%  avg_score=0.1160
+
+==============================================================================
+ SAVING REPORTS
+==============================================================================
+
+  JSON report : /opt/pattern_mining_code/reports/report_20260317_183002.json
+  Summary CSV : /opt/pattern_mining_code/reports/summary_20260317_183002.csv
+
+  Duration: 67.7s
+
+  Models saved to : /opt/pattern_mining_code/models/
+  Run score.py to score fresh metrics against these models.
+
+==============================================================================
+  DONE
+==============================================================================
+
+  `;
+const CATEGORIES = [
+  { name: 'DATA PREP', steps: [3] },
+  { name: 'STATISTICAL', steps: [4, 5, 6] },
+  { name: 'CLUSTERING', steps: [7] },
+  { name: 'TIME SERIES', steps: [8] },
+  { name: 'PATTERN MINING', steps: [9, 10] },
+  { name: 'ANOMALY DETECTION', steps: [11] }
+];
+
+const COMPILED_MODELS = [
+  { name: 'iso_router.pkl', size: '2.3 MB', type: 'Anomaly Isolation', device: 'Router', col: '#EF4444' },
+  { name: 'iso_switch.pkl', size: '2.2 MB', type: 'Anomaly Isolation', device: 'Switch', col: '#F59E0B' },
+  { name: 'kmeans_router.pkl', size: '18 KB', type: 'Cluster Centroids', device: 'Router', col: '#3B82F6' },
+  { name: 'kmeans_switch.pkl', size: '18 KB', type: 'Cluster Centroids', device: 'Switch', col: '#60A5FA' },
+  { name: 'rf_router_HIGH_LATENCY.pkl', size: '767 KB', type: 'RF Classifier', device: 'Router', col: '#3DDAB4' },
+  { name: 'rf_router_HIGH_UTIL_WARNING.pkl', size: '1.0 MB', type: 'RF Classifier', device: 'Router', col: '#3DDAB4' },
+  { name: 'rf_router_INTERFACE_FLAP.pkl', size: '864 KB', type: 'RF Classifier', device: 'Router', col: '#3DDAB4' },
+  { name: 'rf_router_PACKET_DROP.pkl', size: '955 KB', type: 'RF Classifier', device: 'Router', col: '#3DDAB4' },
+  { name: 'rf_switch_HIGH_UTIL_WARNING.pkl', size: '668 KB', type: 'RF Classifier', device: 'Switch', col: '#3DDAB4' },
+  { name: 'rf_switch_INTERFACE_FLAP.pkl', size: '657 KB', type: 'RF Classifier', device: 'Switch', col: '#3DDAB4' },
+  { name: 'rf_switch_PACKET_DROP.pkl', size: '851 KB', type: 'RF Classifier', device: 'Switch', col: '#3DDAB4' },
+  { name: 'scaler_router.pkl', size: '2 KB', type: 'Scaler Metadata', device: 'Router', col: '#94A3B8' },
+  { name: 'scaler_switch.pkl', size: '2 KB', type: 'Scaler Metadata', device: 'Switch', col: '#94A3B8' },
+  { name: 'metadata.json', size: '1 KB', type: 'Global Config', device: 'System', col: '#F8FAFC' },
+];
 
 export default function TrainingLovelablePage() {
   const [deviceFilter, setDeviceFilter] = useState<'device' | 'topology' | 'group'>('device');
@@ -218,18 +1486,32 @@ export default function TrainingLovelablePage() {
   const [isComplete, setIsComplete] = useState(false);
   const [selectedTarget, setSelectedTarget] = useState(SCOPE_TARGETS['device'][0].label);
   const [trainingPeriod, setTrainingPeriod] = useState("1 Month");
+  const [visibleLogLines, setVisibleLogLines] = useState<string[]>([]);
+  const [focusXcorr, setFocusXcorr] = useState('all');
+  const [focusGranger, setFocusGranger] = useState('all');
+  const terminalRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
+
+  const allLogLines = TERMINAL_LOG.split('\n');
+
+  // Auto-scroll terminal
+  useEffect(() => {
+    if (terminalRef.current) {
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+    }
+  }, [visibleLogLines]);
 
   const maxRate = Math.max(...D.events.map(e => e.rate));
 
   const shouldShow = (stepIdx: number) => {
     if (!started) return false;
-    return activeTab === stepIdx;
+    const cat = CATEGORIES[activeTab];
+    return cat ? cat.steps.includes(stepIdx) : false;
   };
 
   const isStepReady = (stepIdx: number) => {
-    return isComplete || currentStep >= stepIdx;
+    return started && currentStep >= 3;
   };
 
   useEffect(() => {
@@ -239,65 +1521,95 @@ export default function TrainingLovelablePage() {
     }
   }, [location.state]);
 
-  // Tab switching and Discovery logic
+  // Parallel Training Logic
   useEffect(() => {
     if (!started || isComplete) return;
 
     let subItemTimer: NodeJS.Timeout;
 
-    const interval = setInterval(() => {
+    // 1. Rapid Ingestion Phase (Steps 0, 1, 2)
+    const ingestionInterval = setInterval(() => {
       setCurrentStep(prev => {
-        const next = prev + 1;
-        if (next >= D.pipeline.length - 1) {
-          setIsComplete(true);
-          // Don't auto-switch tab here, let the complete screen show if applicable
-          // or stay on the last meaningful tab
-          setItemLimit(100); // Show all when done
-          clearInterval(interval);
+        if (prev < 3) return prev + 1;
+        clearInterval(ingestionInterval);
+        return 11; // Immediately set to 11 to unlock all analytical tabs
+      });
+    }, 600);
+
+    // 2. Global Discovery Logic (Affects all tabs)
+    const discoveryInterval = setInterval(() => {
+      setItemLimit(prev => {
+        if (prev >= 20) {
+          clearInterval(discoveryInterval);
           return prev;
         }
-
-        // Auto-advance active tab if it's within the reportable range (3-11)
-        if (next >= 3 && next <= 11) {
-          setActiveTab(next);
-        }
-
-        // When switching steps, reset discovery limit
-        setItemLimit(0);
-
-        // Start discovering items within this tab
-        let count = 0;
-        if (subItemTimer) clearInterval(subItemTimer);
-        subItemTimer = setInterval(() => {
-          count += 1;
-          setItemLimit(count);
-          if (count >= 20) clearInterval(subItemTimer);
-        }, next === 3 ? 350 : 800);
-
-        return next;
+        return prev + 1;
       });
-    }, 6500);
+    }, 500);
+
+    // 3. Overall Completion Logic removed from here 
+    // It is now handled by the terminal log completion to stay in sync.
 
     return () => {
-      clearInterval(interval);
-      if (subItemTimer) clearInterval(subItemTimer);
+      clearInterval(ingestionInterval);
+      clearInterval(discoveryInterval);
     };
   }, [started, isComplete]);
+
+  // Terminal Line-by-Line Execution Effect
+  useEffect(() => {
+    if (!started) {
+      setVisibleLogLines([]);
+      return;
+    }
+
+    let currentLine = 0;
+    const totalLines = allLogLines.length;
+
+    // Initial burst of headers
+    const initialBurst = 15;
+    setVisibleLogLines(allLogLines.slice(0, initialBurst));
+    currentLine = initialBurst;
+
+    const logInterval = setInterval(() => {
+      if (currentLine >= totalLines) {
+        clearInterval(logInterval);
+        setIsComplete(true);
+        setItemLimit(100);
+        return;
+      }
+
+      // Variable speed for realism: faster for long lists, 1-3 lines for headers
+      let chunk = 2;
+      if (currentLine > 200 && currentLine < totalLines - 100) {
+        chunk = Math.floor(Math.random() * 10) + 15; // Fast burst for intermediate data
+      } else {
+        chunk = Math.floor(Math.random() * 2) + 1;
+      }
+
+      setVisibleLogLines(allLogLines.slice(0, currentLine + chunk));
+      currentLine += chunk;
+    }, 80); // Increased frequency for smoother flow
+
+    return () => clearInterval(logInterval);
+  }, [started]);
 
   const handleStart = () => {
     setStarted(true);
     setCurrentStep(0);
-    setActiveTab(0);
+    setActiveTab(0); // Default to first category (DATA PREP)
     setItemLimit(0);
     setIsComplete(false);
+    setVisibleLogLines([]);
   };
 
   const handleReset = () => {
     setStarted(false);
     setCurrentStep(-1);
-    setActiveTab(0);
+    setActiveTab(0); // Reset back to first category
     setItemLimit(0);
     setIsComplete(false);
+    setVisibleLogLines([]);
   };
 
   return (
@@ -407,7 +1719,14 @@ export default function TrainingLovelablePage() {
                         <RotateCcw className="w-3.5 h-3.5" />
                         RETRAIN
                       </button>
-                      <div className="flex items-center gap-2 bg-[#e8f4f0] text-[#0a7c5c] px-5 py-2 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider border border-[#2a9070] shadow-[0_4px_12px_rgba(10,124,92,0.1)]">
+                      <NavLink
+                        to="/pattern-prediction/results"
+                        className="flex items-center gap-2 bg-[#F8FAFC]/5 hover:bg-[#F8FAFC]/10 text-[#F8FAFC] px-5 py-2 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider border border-white/20 transition-all group shadow-2xl"
+                      >
+                         VIEW RESULTS
+                         <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                      </NavLink>
+                      <div className="flex items-center gap-2 bg-[#e8f4f0] text-[#0a7c5c] px-5 py-2 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider border border-[#2a9070] shadow-[0_4px_12px_rgba(10,124,92,0.1)] select-none">
                         <CheckCircle2 className="w-3.5 h-3.5" />
                         ANALYSIS COMPLETE
                       </div>
@@ -429,43 +1748,31 @@ export default function TrainingLovelablePage() {
 
         {/* PIPELINE TABS */}
         <nav className="bg-[#0F172A] border-b border-[#334155] px-10 py-0 flex items-end gap-0 overflow-x-auto whitespace-nowrap sticky top-0 z-50 no-scrollbar h-20">
-          {D.pipeline.map((step, i) => {
-            if (i < 3 || i > 11) return null;
-            const category = STEP_CATEGORIES[step] || 'Analysis';
-            const prevStep = i > 3 ? D.pipeline[i - 1] : null;
-            const prevCategory = prevStep ? STEP_CATEGORIES[prevStep] : null;
-            const isFirstOfCategory = category !== prevCategory;
-
+          {CATEGORIES.map((cat, i) => {
             const isActive = i === activeTab;
-            const isProcessing = i === currentStep && !isComplete;
-            const isDone = i <= currentStep || isComplete;
+            // A category is considered "Done" if all its steps are completed
+            const isDone = isComplete || cat.steps.every(sIdx => sIdx <= currentStep);
+            // A category is "Processing" if any of its steps is current
+            const isProcessing = !isComplete && cat.steps.some(sIdx => sIdx === currentStep);
 
             return (
               <div key={i} className="flex flex-col h-full justify-end group">
-                {isFirstOfCategory && (
-                  <div className="px-4 pb-1 text-[8px] font-black text-[#3DDAB4] uppercase tracking-[0.2em] border-l border-white/5 h-4 flex items-center">
-                    {category}
-                  </div>
-                )}
-                {!isFirstOfCategory && (
-                  <div className="h-4 border-l border-white/5 ml-0" />
-                )}
                 <button
                   onClick={() => setActiveTab(i)}
                   className={cn(
-                    "flex items-center h-14 px-4 font-['IBM_Plex_Mono',monospace] text-[10px] transition-all duration-300 border-b-2",
+                    "flex items-center h-14 px-6 font-['IBM_Plex_Mono',monospace] text-[10px] transition-all duration-300 border-b-2",
                     isActive ? "bg-[#1E293B] border-[#3B82F6] text-[#F8FAFC] font-bold" : "border-transparent text-[#94A3B8] hover:bg-[#1E293B]/50"
                   )}
                 >
                   <div className={cn(
                     "w-[20px] h-[20px] rounded-full flex items-center justify-center text-[9px] font-medium border-[1.5px] transition-all duration-300 mr-2 flex-shrink-0",
-                    isDone ? "bg-[#3B82F6] border-[#3B82F6] text-white" :
+                    isDone ? "bg-[#3DDAB4] border-[#3DDAB4] text-[#0F172A]" :
                       isProcessing ? "bg-white border-[#3B82F6] text-[#3B82F6] shadow-[0_0_10px_rgba(59,130,246,0.3)] animate-pulse" :
                         "border-[#334155] bg-[#0F172A]"
                   )}>
-                    {i - 2}
+                    {i + 1}
                   </div>
-                  <span>{step}</span>
+                  <span className="uppercase tracking-[0.1em]">{cat.name}</span>
                 </button>
               </div>
             );
@@ -493,28 +1800,8 @@ export default function TrainingLovelablePage() {
             </div>
           )}
 
-          {started && activeTab < 3 && (
-            <div className="mt-20 flex flex-col items-center text-center animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="w-16 h-16 bg-[#1E293B] rounded-full flex items-center justify-center mb-6 border border-[#334155]">
-                <Loader2 className="w-6 h-6 text-[#3B82F6] animate-spin" />
-              </div>
-              <h2 className="text-lg font-semibold mb-1 uppercase tracking-tight">{D.pipeline[activeTab]}</h2>
-              <p className="text-[#9a9488] max-w-sm mb-8 font-['IBM_Plex_Mono',monospace] text-[11px]">
-                {activeTab === 0 ? "Streaming normalized documents from MongoDB collections..." :
-                  activeTab === 1 ? "Aggregation pipeline: normalizing 5-min intervals..." :
-                    "Updating local feature functions from training batch..."}
-              </p>
-              <div className="w-64 space-y-2">
-                <div className="flex justify-between text-[10px] font-['IBM_Plex_Mono',monospace] text-[#9a9488]">
-                  <span>SUB-TASK PROGRESS</span>
-                  <span>{isComplete ? '100' : '65'}%</span>
-                </div>
-                <div className="h-1 bg-[#1E293B] rounded-full overflow-hidden">
-                  <div className="h-full bg-[#3B82F6] rounded-full animate-pulse transition-all duration-1000" style={{ width: isComplete ? '100%' : '65%' }} />
-                </div>
-              </div>
-            </div>
-          )}
+          {/* DATA LOAD LOADING SCREEN REMOVED - NOW HANDLED BY TERMINAL LOG IN DATA PREP TAB */}
+
 
           {/* SECTION 01: SLIDING WINDOWS */}
           <section className={cn("animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(3) && "hidden")}>
@@ -527,9 +1814,9 @@ export default function TrainingLovelablePage() {
             {!isStepReady(3) ? <LoadingState title="Time Series" /> : (
               <>
 
-                <div className="grid grid-cols-[1fr_380px] gap-4 mb-4">
+                <div className="grid grid-cols-[1fr_320px] gap-4 mb-4 items-start">
                   {/* Terminal Processing Log */}
-                  <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden flex flex-col h-full">
+                  <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden flex flex-col">
                     <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
                       <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium uppercase">PIPELINE EXECUTION LOG</span>
                       <div className="flex gap-1">
@@ -538,51 +1825,14 @@ export default function TrainingLovelablePage() {
                         <div className="w-1.5 h-1.5 rounded-full bg-[#10B981]/40" />
                       </div>
                     </div>
-                    <div className="p-4 font-['IBM_Plex_Mono',monospace] text-[11px] leading-relaxed text-[#94A3B8] flex-1 overflow-auto no-scrollbar">
-                      <div className="text-[#3DDAB4] mb-2">
-                        {"=============================================================================="}<br />
-                        {" DATA LOADING & PREPROCESSING"}<br />
-                        {"=============================================================================="}
-                      </div>
-
-                      <div className="space-y-0.5 mb-4">
-                        <div className="flex items-center gap-2"><Loader2 className="w-3 h-3 animate-spin text-[#3B82F6]" /> Loading data ...</div>
-                        <div>metrics.csv    : <span className="text-[#F8FAFC]">8,640 rows | 30 entities | 2 device types</span></div>
-                        <div>events.csv     : <span className="text-[#F8FAFC]">2,129 rows | 6 event types</span></div>
-                        <div>Interface cols : <span className="text-[#3B82F6]">['util_pct', 'queue_depth', 'crc_errors', 'latency_ms']</span></div>
-                        <div>Event types    : <span className="text-[#3B82F6]">['DEVICE_REBOOT', 'HIGH_LATENCY', 'HIGH_UTIL_WARNING', 'INTERFACE_FLAP', 'LINK_DOWN', 'PACKET_DROP']</span></div>
-                        <div>Device types   : <span className="text-[#3B82F6]">['router', 'switch']</span></div>
-                        <div>Time range     : <span className="text-[#F8FAFC]">2025-12-31 23:59:33 {"->"} 2026-01-01 23:55:27</span></div>
-                        <div>Event source   : <span className="text-[#F8FAFC]">interface=2,127  device=2</span></div>
-                        <div className="mt-2 text-[#3B82F6]">Resampled {"->"} 8,636 rows from 8,640 raw rows (30 entities)</div>
-                      </div>
-
-                      <div className="text-[#3DDAB4] mb-2">
-                        {"=============================================================================="}<br />
-                        {" BUILDING SLIDING WINDOWS"}<br />
-                        {"=============================================================================="}
-                      </div>
-
-                      <div className="space-y-0.5">
-                        <div>Building windows for 30 entities ...</div>
-                        {Array.from({ length: 6 }).map((_, i) => {
-                          const count = i * 5;
-                          const pct = Math.round((count / 30) * 100);
-                          const isShowing = itemLimit > (i * 2);
-                          return isShowing ? (
-                            <div key={i} className="animate-in fade-in slide-in-from-left-2 duration-300">
-                              &nbsp;&nbsp;... {count}/30 ({pct}%)
-                            </div>
-                          ) : null;
-                        })}
-
-                        {itemLimit > 12 && (
-                          <div className="mt-2 pt-2 border-t border-white/5 animate-in fade-in duration-700">
-                            <div>Total windows : <span className="text-[#F8FAFC]">8,156</span></div>
-                            <div>Feature dims  : <span className="text-[#F8FAFC]">70  (10 metrics x 7 stats)</span></div>
-                          </div>
-                        )}
-                      </div>
+                    <div
+                      ref={terminalRef}
+                      className="p-4 font-['IBM_Plex_Mono',monospace] text-[11px] leading-relaxed text-[#94A3B8] flex-1 overflow-auto no-scrollbar max-h-[500px]"
+                    >
+                      <pre className="whitespace-pre">{visibleLogLines.join('\n')}</pre>
+                      {started && visibleLogLines.length < allLogLines.length && (
+                        <div className="inline-block w-1.5 h-3.5 bg-[#3B82F6] ml-1 animate-pulse align-middle" />
+                      )}
                     </div>
                   </div>
 
@@ -593,14 +1843,14 @@ export default function TrainingLovelablePage() {
                       <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">across 8,156 windows</span>
                     </div>
                     <div className="p-3.5 space-y-2">
-                      <div className="grid grid-cols-[120px_1fr_40px_40px] gap-2 pb-1.5 items-center">
+                      <div className="grid grid-cols-[100px_1fr_40px_40px] gap-2 pb-1.5 items-center">
                         <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-[0.07em]">EVENT</span>
                         <span />
                         <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">COUNT</span>
                         <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">RATE</span>
                       </div>
                       {D.events.slice(0, Math.max(2, itemLimit / 2)).map((e, i) => (
-                        <div key={i} className="grid grid-cols-[120px_1fr_40px_40px] gap-2 items-center border-b border-[#334155] last:border-none py-1.5 animate-in fade-in slide-in-from-left-2 duration-300">
+                        <div key={i} className="grid grid-cols-[100px_1fr_40px_40px] gap-2 items-center border-b border-[#334155] last:border-none py-1.5 animate-in fade-in slide-in-from-left-2 duration-300">
                           <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{e.n}</span>
                           <Bar val={e.rate} max={maxRate} col={e.dev ? '#8B5CF6' : '#3B82F6'} />
                           <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-right">{e.pos}</span>
@@ -627,34 +1877,50 @@ export default function TrainingLovelablePage() {
                   { data: D.xcorrR, device: 'router' as const, title: 'SECTION 1 — CROSS-CORRELATION [ROUTER]' },
                   { data: D.xcorrS, device: 'switch' as const, title: 'SECTION 1 — CROSS-CORRELATION [SWITCH]' }
                 ].map((group, idx) => (
-                  <div key={idx} className={cn("bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden", !shouldShow(4) && "hidden")}>
-                    <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#3DDAB4] font-bold">{group.title}</span>
-                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">45 pairs evaluated</span>
-                    </div>
-                    <div className="p-0 space-y-0">
-                      <div className="grid grid-cols-[100px_100px_80px_100px_70px_1fr] gap-4 py-2 px-4 items-center bg-[#0F172A]/30 border-b border-[#334155]">
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Metric A</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Metric B</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Best Lag</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-center">Pearson r</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-right">Spearman r</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Interpretation</span>
+                  <div key={idx} className={cn("grid grid-cols-[1fr_400px] gap-4", !shouldShow(4) && "hidden")}>
+                    <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
+                      <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#3DDAB4] font-bold">{group.title}</span>
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">{group.data.length} pairs evaluated</span>
                       </div>
-                      {group.data.slice(0, itemLimit).map((d, i) => (
-                        <div key={i} className="grid grid-cols-[100px_100px_80px_100px_70px_1fr] gap-4 items-center border-b border-[#334155] last:border-none py-2 px-4 animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.02] transition-colors">
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#CBD5E1] truncate">{d.a}</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#CBD5E1] truncate">{d.b}</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] whitespace-nowrap">{d.lag}</span>
-                          <div className="flex items-center justify-center gap-2">
-                             <DonutChart val={d.r} size={28} />
-                             <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#F8FAFC] w-12">{d.r.toFixed(3)}</span>
-                          </div>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-right text-[#94A3B8]">{d.s.toFixed(3)}</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#3B82F6]">{d.interp}</span>
+                      <div className="p-0">
+                        <div className="grid grid-cols-[100px_100px_80px_100px_70px_1fr] gap-4 py-2 px-4 items-center bg-[#0F172A]/30 border-b border-[#334155]">
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Metric A</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Metric B</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Best Lag</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-center">Pearson r</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-right">Spearman r</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Interpretation</span>
                         </div>
-                      ))}
+                        {group.data.slice(0, itemLimit).map((d, i) => (
+                          <div key={i} className="grid grid-cols-[100px_100px_80px_100px_70px_1fr] gap-4 items-center border-b border-[#334155] last:border-none py-2 px-4 animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.02] transition-colors">
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#CBD5E1] truncate">{d.a}</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#CBD5E1] truncate">{d.b}</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] whitespace-nowrap">{d.lag}</span>
+                            <div className="flex items-center justify-center gap-2">
+                              <DonutChart val={d.r} size={28} />
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#F8FAFC] w-12">{d.r.toFixed(3)}</span>
+                            </div>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-right text-[#94A3B8]">{d.s.toFixed(3)}</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#3B82F6]">{d.interp}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
+                    <LollipopChart
+                      labelX="Pearson R"
+                      focusMetric={focusXcorr}
+                      onFocusChange={setFocusXcorr}
+                      metricsList={['util_pct', 'queue_depth', 'crc_errors', 'latency_ms', 'cpu_pct', 'mem_util_pct', 'temp_c', 'fan_speed_rpm']}
+                      data={group.data
+                        .filter(d => focusXcorr === 'all' || d.a === focusXcorr || d.b === focusXcorr)
+                        .slice(0, 10)
+                        .map(d => ({
+                          label: `${d.a} ↔ ${d.b}`,
+                          val: d.r,
+                          color: d.r > 0.8 ? '#3DDAB4' : d.r > 0.6 ? '#3B82F6' : '#F59E0B'
+                        }))}
+                    />
                   </div>
                 ))}
               </div>
@@ -668,34 +1934,50 @@ export default function TrainingLovelablePage() {
               <span className="text-[11px] text-[#94A3B8] ml-auto">Significant pairs only · p &lt; 0.05</span>
             </div>
             {!isStepReady(5) ? <LoadingState title="Granger Causality" /> : (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 gap-6 items-start">
                 {[
                   { data: D.grangerR, device: 'router' as const, title: 'ROUTER' },
                   { data: D.grangerS, device: 'switch' as const, title: 'SWITCH' }
                 ].map((group, idx) => (
-                  <div key={idx} className={cn("bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden", !shouldShow(5) && "hidden")}>
-                    <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
-                    </div>
-                    <div className="p-3.5 space-y-1">
-                      <div className="grid grid-cols-[110px_14px_110px_60px_60px_60px] gap-1.5 pb-1.5 items-center">
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">CAUSE</span><span />
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EFFECT</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">F-STAT</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">p</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">LAG</span>
+                  <div key={idx} className={cn("grid grid-cols-[1fr_400px] gap-4", !shouldShow(5) && "hidden")}>
+                    <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
+                      <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
                       </div>
-                      {group.data.slice(0, itemLimit).map((d, i) => (
-                        <div key={i} className="grid grid-cols-[110px_14px_110px_60px_60px_60px] gap-1.5 items-center border-b border-[#334155] last:border-none py-1.5 animate-in fade-in slide-in-from-left-2 duration-300">
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.c}</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center">→</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.e}</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right" style={{ color: d.f > 100 ? '#F59E0B' : '#CBD5E1' }}>{d.f.toFixed(1)}</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">{d.p}</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-right">{d.lag}</span>
+                      <div className="p-3.5 space-y-1">
+                        <div className="grid grid-cols-[110px_14px_110px_60px_60px_60px] gap-1.5 pb-1.5 items-center">
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">CAUSE</span><span />
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EFFECT</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">F-STAT</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">p</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">LAG</span>
                         </div>
-                      ))}
+                        {group.data.slice(0, itemLimit).map((d, i) => (
+                          <div key={i} className="grid grid-cols-[110px_14px_110px_60px_60px_60px] gap-1.5 items-center border-b border-[#334155] last:border-none py-1.5 animate-in fade-in slide-in-from-left-2 duration-300">
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.c}</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center">→</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.e}</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right" style={{ color: d.f > 100 ? '#F59E0B' : '#CBD5E1' }}>{d.f.toFixed(1)}</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">{d.p}</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-right">{d.lag}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
+                    <LollipopChart
+                      labelX="F-Statistic"
+                      focusMetric={focusGranger}
+                      onFocusChange={setFocusGranger}
+                      metricsList={['util_pct', 'queue_depth', 'crc_errors', 'latency_ms', 'cpu_pct', 'mem_util_pct', 'temp_c', 'fan_speed_rpm']}
+                      data={group.data
+                        .filter(d => focusGranger === 'all' || d.c === focusGranger || d.e === focusGranger)
+                        .slice(0, 5)
+                        .map(d => ({
+                          label: `${d.c} → ${d.e}`,
+                          val: d.f,
+                          color: d.f > 80 ? '#F59E0B' : '#3B82F6'
+                        }))}
+                    />
                   </div>
                 ))}
               </div>
@@ -757,50 +2039,58 @@ export default function TrainingLovelablePage() {
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(7) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
               <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">05</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">K-means</span>
+              <span className="text-[14px] font-semibold tracking-[-0.01em]">K-means Clustering</span>
               <span className="text-[11px] text-[#94A3B8] ml-auto">KMeans K=4 · StandardScaled feature vectors</span>
             </div>
             {!isStepReady(7) ? <LoadingState title="K-Means Clustering" /> : (
-              <div className="grid grid-cols-2 gap-8">
-                {[
-                  { data: D.clR, device: 'router' as const, label: 'ROUTER — 4,079 windows', count: 4079 },
-                  { data: D.clS, device: 'switch' as const, label: 'SWITCH — 4,077 windows', count: 4077 }
-                ].map((group, idx) => (
-                  <div key={idx} className={cn("space-y-4", !shouldShow(7) && "hidden")}>
-                    <div className="flex items-center justify-between border-b border-[#334155] pb-2">
-                      <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#F8FAFC] font-bold tracking-[0.05em] uppercase">{group.label}</div>
-                      <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#3B82F6] uppercase">K=4 / Silhouette: 0.742</div>
-                    </div>
+              <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
+                <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
+                  <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#3DDAB4] font-bold uppercase">INTEGRATED NETWORK-WIDE PATTERN CLUSTERING</span>
+                  <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#3B82F6] uppercase">K=4 / Silhouette: 0.742</div>
+                </div>
 
-                    <ClusterPlot clusters={group.data} limit={itemLimit} />
-
-                    <div className="grid grid-cols-2 gap-3">
-                      {group.data.map((c, i) => (
-                        <div key={i} className="bg-[#1e293b]/20 border border-white/5 rounded-md p-3 flex flex-col gap-1.5 transition-opacity duration-500"
-                          style={{ opacity: itemLimit > i * 4 ? 1 : 0.2 }}>
-                          <div className="flex items-center justify-between">
-                            <span className="text-[12px] font-bold text-[#F8FAFC]">{c.n}</span>
-                            <div className="px-1.5 py-0.5 rounded bg-[#3B82F6]/10 text-[#3B82F6] text-[9px] font-bold">C{i}</div>
-                          </div>
-                          <div className="flex justify-between font-['IBM_Plex_Mono',monospace] text-[10px]">
-                            <span className="text-[#94A3B8]">{c.size} windows</span>
-                            <span className="text-[#3DDAB4]">{(c.size / group.count * 100).toFixed(0)}% SHARE</span>
-                          </div>
-                          <div className="pt-1.5 border-t border-white/5 mt-1">
-                            <div className="flex justify-between text-[9px] mb-1">
-                              <span className="text-[#94A3B8] uppercase">Baseline (No Event)</span>
-                              <span className="text-[#F8FAFC] font-bold">{c.noEvt}</span>
-                            </div>
-                            <div className="text-[9px] text-[#94A3B8] leading-relaxed">
-                              <span className="text-[#3B82F6] font-bold uppercase mr-1">Top Impacts:</span>
-                              {c.evt}
-                            </div>
-                          </div>
-                        </div>
-                      ))}
+                <div className="p-6 grid grid-cols-[1fr_380px] gap-8 items-start">
+                  <div className="flex flex-col gap-4">
+                    <ClusterPlot clusters={D.clR} limit={itemLimit} />
+                    <div className="flex items-center justify-between px-2 font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">
+                      <span>AGGREGATED FROM 30 ENTITIES</span>
+                      <span>TOTAL SAMPLES: 8,156 WINDOWS</span>
                     </div>
                   </div>
-                ))}
+
+                  <div className="space-y-3">
+                    <div className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-[0.1em] uppercase mb-1">Cluster Definitions & Statistical Impact</div>
+                    <div className="grid grid-cols-1 gap-2.5">
+                      {D.clR.map((c, i) => {
+                        const switchSize = D.clS[i]?.size || 0;
+                        const totalSize = c.size + switchSize;
+                        return (
+                          <div key={i} className="bg-[#1e293b]/20 border border-white/5 rounded-md p-3.5 flex flex-col gap-1 transition-all duration-500 hover:bg-[#1e293b]/40"
+                            style={{ opacity: itemLimit > i * 4 ? 1 : 0.2 }}>
+                            <div className="flex items-center justify-between">
+                              <span className="text-[12px] font-bold text-[#F8FAFC]">{c.n}</span>
+                              <div className="px-1.5 py-0.5 rounded bg-[#3B82F6]/10 text-[#3B82F6] text-[9px] font-bold border border-[#3B82F6]/20 uppercase">C{i}</div>
+                            </div>
+                            <div className="flex justify-between font-['IBM_Plex_Mono',monospace] text-[10px]">
+                              <span className="text-[#94A3B8] leading-none">{totalSize.toLocaleString()} windows</span>
+                              <span className="text-[#3DDAB4] leading-none">{((totalSize / 8156) * 100).toFixed(1)}% SHARE</span>
+                            </div>
+                            <div className="pt-2 border-t border-white/5 mt-1">
+                              <div className="flex justify-between text-[9px] mb-1">
+                                <span className="text-[#94A3B8] uppercase">Impact:</span>
+                                <span className="text-[#F8FAFC]/80 font-medium">{c.noEvt}</span>
+                              </div>
+                              <div className="text-[9px] text-[#94A3B8] leading-relaxed">
+                                <span className="text-[#3B82F6] font-bold uppercase mr-1">Correlated events:</span>
+                                {c.evt}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </section>
@@ -874,7 +2164,7 @@ export default function TrainingLovelablePage() {
               <span className="text-[11px] text-[#94A3B8] ml-auto">Min support ≥ 2 · 3-event sequences · confidence scored</span>
             </div>
             {!isStepReady(9) ? <LoadingState title="Sequence Mining" /> : (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 items-start">
                 {[
                   { data: D.seqR, device: 'router' as const, title: 'ROUTER — 32 sessions · 5 devices' },
                   { data: D.seqS, device: 'switch' as const, title: 'SWITCH — 41 sessions · 5 devices' }
@@ -931,7 +2221,7 @@ export default function TrainingLovelablePage() {
               <span className="text-[11px] text-[#94A3B8] ml-auto">Metric ordering by earliest divergence lead time — chain terminates at event</span>
             </div>
             {!isStepReady(10) ? <LoadingState title="Failure Chains" /> : (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 items-start">
                 {[
                   { data: D.chainsR, device: 'router' as const, label: 'ROUTER — 4 chains' },
                   { data: D.chainsS, device: 'switch' as const, label: 'SWITCH — 4 chains' }
@@ -981,7 +2271,7 @@ export default function TrainingLovelablePage() {
               <span className="text-[11px] text-[#94A3B8] ml-auto">Isolation Forest · contamination 5% · 200 trees · per entity</span>
             </div>
             {!isStepReady(11) ? <LoadingState title="Isolation Forest" /> : (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3 items-start">
                 {[
                   { data: D.anomR, device: 'router' as const, title: 'ROUTER — 204/4,079 flagged (5.0%)' },
                   { data: D.anomS, device: 'switch' as const, title: 'SWITCH — 204/4,077 flagged (5.0%)' }
@@ -1011,35 +2301,70 @@ export default function TrainingLovelablePage() {
             )}
           </section>
 
-          {activeTab === 12 && (
-            <div className="mt-20 flex flex-col items-center text-center animate-in fade-in zoom-in duration-500">
-              <div className="w-20 h-20 bg-[#1E3A8A]/20 rounded-full flex items-center justify-center mb-6 border-2 border-[#2563EB]/50">
-                <CheckCircle2 className="w-10 h-10 text-[#3B82F6]" />
-              </div>
-              <h2 className="text-[24px] font-semibold mb-2 tracking-tight text-[#F8FAFC]">Models Serialized Successfully</h2>
-              <p className="text-[#94A3B8] max-w-md mb-8">
-                All 12 analytical models have been verified and saved to the local pattern registry.
-                Ready for live inference and anomaly detection.
-              </p>
-              <div className="flex gap-4">
-                <button className="bg-[#1E293B] text-[#F8FAFC] border border-[#334155] px-6 py-2.5 rounded-[6px] font-medium hover:bg-[#0F172A] transition-all">
-                  Download Full Report (PDF)
-                </button>
-                <button className="bg-[#3B82F6] text-white px-6 py-2.5 rounded-[6px] font-medium hover:bg-[#2563EB] transition-all">
-                  Deploy to Inference Engine
-                </button>
-              </div>
-              <div className="mt-12 p-4 bg-[#0F172A] border border-[#334155] rounded-[10px] w-full max-w-lg text-left">
-                <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#3B82F6] mb-2 uppercase font-bold pr-2 tracking-widest">Registry Details</div>
-                <div className="font-['IBM_Plex_Mono',monospace] text-[11px] space-y-1 text-[#CBD5E1]">
-                  <div className="flex justify-between"><span>Registry Path:</span> <span className="text-[#F8FAFC]">/models/v3/latest/</span></div>
-                  <div className="flex justify-between"><span>Fingerprint:</span> <span className="text-[#F8FAFC]">sha256:884a...9f20</span></div>
-                  <div className="flex justify-between"><span>Training Samples:</span> <span className="text-[#F8FAFC]">8,156 windows</span></div>
-                </div>
-              </div>
-            </div>
-          )}
 
+
+          <section className={cn("mt-8 pb-32 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(12) && "hidden")}>
+            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3DDAB4]/50 mb-6">
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">10</span>
+              <span className="text-[14px] font-semibold tracking-[-0.01em]">Training Artifacts & Model Registry</span>
+              <span className="text-[11px] text-[#94A3B8] ml-auto">Compiled binary objects (.pkl) and deployment metadata</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {COMPILED_MODELS.map((m, i) => (
+                <div
+                  key={i}
+                  className="bg-[#1e293b]/40 border border-[#334155] hover:border-[#3B82F6]/50 rounded-[12px] p-4 group transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] animate-in fade-in zoom-in duration-500"
+                  style={{ animationDelay: `${i * 40}ms` }}
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="w-10 h-10 bg-[#0F172A] rounded-lg border border-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: m.col }} />
+                    </div>
+                    <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] bg-[#0F172A] px-2 py-0.5 rounded border border-white/5 uppercase tracking-wider">
+                      {m.size}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="font-['IBM_Plex_Mono',monospace] text-[11px] font-bold text-[#F8FAFC] truncate" title={m.name}>
+                      {m.name}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] text-[#94A3B8] uppercase tracking-tight">{m.type}</span>
+                      <span className="w-1 h-1 rounded-full bg-[#334155]" />
+                      <span className="text-[10px] text-[#3B82F6] font-medium uppercase tracking-tighter">{m.device}</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-[#3DDAB4] shadow-[0_0_8px_#3DDAB480]" />
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#3DDAB4] font-bold tracking-tighter">READY FOR INFERENCE</span>
+                    </div>
+                    <button className="text-[#94A3B8] hover:text-white transition-colors">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 p-6 bg-[#3DDAB4]/5 border border-[#3DDAB4]/20 rounded-xl flex items-center gap-6">
+              <div className="w-12 h-12 rounded-full bg-[#3DDAB4]/10 flex items-center justify-center flex-shrink-0 border border-[#3DDAB4]/30">
+                <CheckCircle2 className="w-6 h-6 text-[#3DDAB4]" />
+              </div>
+              <div className="space-y-1">
+                <div className="text-[14px] font-bold text-[#F8FAFC]">Model Registry Successfully Updated</div>
+                <p className="text-[#94A3B8] text-[11px] leading-relaxed">
+                  All binary objects have been serialized and pushed to the inference engine. These patterns are now active for live-streaming predictions and automated root cause analysis.
+                </p>
+              </div>
+              <button className="ml-auto bg-[#3DDAB4] text-[#0F172A] px-5 py-2 rounded-md font-bold text-[11px] hover:bg-[#2bc4a0] transition-all shadow-[0_4px_12px_rgba(61,218,180,0.2)]">
+                DEPLOY TO PRODUCTION
+              </button>
+            </div>
+          </section>
 
         </main>
       </div>
@@ -1051,3 +2376,4 @@ export default function TrainingLovelablePage() {
     </MainLayout>
   );
 }
+
