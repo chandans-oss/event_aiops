@@ -28,10 +28,18 @@ import { ScrollArea } from "@/shared/components/ui/scroll-area";
 
 const MODELS = [
   { name: 'iso_router.pkl', type: 'Anomaly' },
+  { name: 'iso_switch.pkl', type: 'Anomaly' },
   { name: 'kmeans_router.pkl', type: 'Pattern' },
-  { name: 'rf_router_PACKET_DROP.pkl', type: 'RF' },
+  { name: 'kmeans_switch.pkl', type: 'Pattern' },
   { name: 'rf_router_HIGH_LATENCY.pkl', type: 'RF' },
+  { name: 'rf_router_HIGH_UTIL_WARNING.pkl', type: 'RF' },
   { name: 'rf_router_INTERFACE_FLAP.pkl', type: 'RF' },
+  { name: 'rf_router_PACKET_DROP.pkl', type: 'RF' },
+  { name: 'rf_switch_HIGH_UTIL_WARNING.pkl', type: 'RF' },
+  { name: 'rf_switch_INTERFACE_FLAP.pkl', type: 'RF' },
+  { name: 'rf_switch_PACKET_DROP.pkl', type: 'RF' },
+  { name: 'scaler_router.pkl', type: 'Scaler' },
+  { name: 'scaler_switch.pkl', type: 'Scaler' },
 ];
 
 const PATTERNS = [
@@ -71,6 +79,13 @@ export default function LiveInferencePage() {
   ]);
   const [processingState, setProcessingState] = useState<'IDLE' | 'POLLING' | 'PROCESSING'>('IDLE');
   
+  const [stats, setStats] = useState({
+    anomalies: 0,
+    predictions: 0,
+    patterns: 0,
+    polls: 0
+  });
+  
   const logEndRef = useRef<HTMLDivElement>(null);
 
   const addLog = (msg: string) => {
@@ -88,6 +103,10 @@ export default function LiveInferencePage() {
       
       // Randomly generate results for some devices
       const count = Math.floor(Math.random() * 3) + 1;
+      let pCount = 0;
+      let aCount = 0;
+      let patCount = 0;
+
       for (let i = 0; i < count; i++) {
         const dev = DEVICES[Math.floor(Math.random() * DEVICES.length)];
         const rand = Math.random();
@@ -105,6 +124,7 @@ export default function LiveInferencePage() {
             pattern: PATTERNS[Math.floor(Math.random() * PATTERNS.length)],
             status: rand > 0.85 ? 'CRITICAL' : 'WARNING'
           };
+          pCount++;
           addLog(`RF_MODEL: ${item.device} matched with pattern "${item.pattern}" -> Predicted ${item.event}`);
         } else if (rand > 0.4) { // Anomaly
           item = {
@@ -117,6 +137,7 @@ export default function LiveInferencePage() {
             confidence: 0.9 + Math.random() * 0.08,
             status: 'CRITICAL'
           };
+          aCount++;
           addLog(`ISO_FOREST: High anomaly score detected on ${item.device} [5% threshold exceeded]`);
         } else { // Pattern Match (Healthy/Subtle)
           item = {
@@ -125,16 +146,23 @@ export default function LiveInferencePage() {
             device: dev.n,
             interface: dev.i,
             type: 'PATTERN_MATCH',
-            event: 'PATTERN_RECOGNIZED',
+            event: 'PATTERN_RECOGNIZED', // This will be handled in JSX for custom text
             confidence: 0.95 + Math.random() * 0.04,
             pattern: 'Stable Baseline',
             status: 'HEALTHY'
           };
+          patCount++;
           addLog(`KMEANS: ${item.device} conforms to trained baseline pattern.`);
         }
         newInferences.push(item);
       }
       
+      setStats(prev => ({
+        ...prev,
+        predictions: prev.predictions + pCount,
+        anomalies: prev.anomalies + aCount,
+        patterns: prev.patterns + patCount
+      }));
       setInferences(prev => [...newInferences, ...prev].slice(0, 20));
       setProcessingState('IDLE');
     }, 1500);
@@ -145,10 +173,12 @@ export default function LiveInferencePage() {
     if (!isLive) return;
 
     // Initial run
+    setStats(prev => ({ ...prev, polls: prev.polls + 1 }));
     runParallelInference();
 
     const pollInterval = setInterval(() => {
       addLog("ENGINE: 1-minute interval reached. Polling fresh telemetry window...");
+      setStats(prev => ({ ...prev, polls: prev.polls + 1 }));
       setProcessingState('POLLING');
       setTimeout(runParallelInference, 1000);
     }, 60000);
@@ -209,13 +239,21 @@ export default function LiveInferencePage() {
               </div>
               
               <div className="flex gap-4">
-                <div className="bg-[#1E293B]/40 p-3 rounded-lg border border-white/5 min-w-[120px]">
-                  <div className="text-[9px] text-[#94A3B8] uppercase font-bold mb-1 tracking-tighter">Throughput</div>
-                  <div className="text-lg font-black tracking-tighter tabular-nums">1.2k <span className="text-[10px] font-normal text-[#94A3B8]">/sec</span></div>
+                <div className="bg-[#1E293B]/40 p-3 rounded-lg border border-white/5 min-w-[100px]">
+                  <div className="text-[9px] text-[#94A3B8] uppercase font-bold mb-1 tracking-tighter">ANOMALIES</div>
+                  <div className="text-lg font-black tracking-tighter tabular-nums text-[#EF4444]">{stats.anomalies}</div>
                 </div>
-                <div className="bg-[#1E293B]/40 p-3 rounded-lg border border-white/5 min-w-[120px]">
-                   <div className="text-[9px] text-[#94A3B8] uppercase font-bold mb-1 tracking-tighter">Confidence</div>
-                   <div className="text-lg font-black tracking-tighter tabular-nums text-[#3DDAB4]">96.2<span className="text-[10px] font-normal text-[#94A3B8]">%</span></div>
+                <div className="bg-[#1E293B]/40 p-3 rounded-lg border border-white/5 min-w-[100px]">
+                  <div className="text-[9px] text-[#94A3B8] uppercase font-bold mb-1 tracking-tighter">PREDICTIONS</div>
+                  <div className="text-lg font-black tracking-tighter tabular-nums text-[#3B82F6]">{stats.predictions}</div>
+                </div>
+                <div className="bg-[#1E293B]/40 p-3 rounded-lg border border-white/5 min-w-[100px]">
+                  <div className="text-[9px] text-[#94A3B8] uppercase font-bold mb-1 tracking-tighter">PATTERN MATCH</div>
+                  <div className="text-lg font-black tracking-tighter tabular-nums text-[#3DDAB4]">{stats.patterns}</div>
+                </div>
+                <div className="bg-[#1E293B]/40 p-3 rounded-lg border border-white/5 min-w-[100px]">
+                   <div className="text-[9px] text-[#94A3B8] uppercase font-bold mb-1 tracking-tighter">POLLS</div>
+                   <div className="text-lg font-black tracking-tighter tabular-nums text-white">{stats.polls}</div>
                 </div>
               </div>
             </div>
@@ -349,21 +387,28 @@ export default function LiveInferencePage() {
              </Card>
 
              {/* MODEL LOAD MONITOR */}
-             <Card className="bg-[#1E293B]/20 border border-white/5 rounded-2xl p-5 space-y-4">
-               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#94A3B8] flex items-center gap-2">
+             <Card className="bg-[#1E293B]/20 border border-white/5 rounded-2xl p-5 space-y-4 max-h-[400px] overflow-auto no-scrollbar">
+               <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#94A3B8] flex items-center gap-2 sticky top-0 bg-[#141b2b] pb-2">
                  <Binary className="w-4 h-4" />
-                 Active Classifiers
+                 Active Artifact Registry ({MODELS.length})
                </h3>
                <div className="space-y-3">
-                 {MODELS.slice(0, 4).map((m, i) => (
+                 {MODELS.map((m, i) => (
                    <div key={i} className="flex items-center justify-between group">
                      <div className="flex items-center gap-3">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#3B82F6] opacity-40 group-hover:opacity-100 group-hover:shadow-[0_0_8px_#3B82F6]" />
-                        <span className="text-[11px] font-medium text-[#CBD5E1] font-['IBM_Plex_Mono',monospace] group-hover:text-white transition-colors">{m.name}</span>
+                        <div className={cn(
+                          "w-1.5 h-1.5 rounded-full",
+                          m.type === 'Anomaly' ? "bg-[#EF4444]" :
+                          m.type === 'Pattern' ? "bg-[#3DDAB4]" : 
+                          m.type === 'RF' ? "bg-[#3B82F6]" : "bg-[#94A3B8]"
+                        )} />
+                        <span className="text-[10px] font-medium text-[#CBD5E1] font-['IBM_Plex_Mono',monospace] group-hover:text-white transition-colors truncate max-w-[180px]" title={m.name}>
+                          {m.name}
+                        </span>
                      </div>
-                     <Badge variant="outline" className="text-[8px] font-black border-white/10 uppercase tracking-tighter text-[#94A3B8] bg-white/[0.02]">
+                     <span className="text-[8px] font-black uppercase text-[#94A3B8] opacity-50">
                        {m.type}
-                     </Badge>
+                     </span>
                    </div>
                  ))}
                </div>
