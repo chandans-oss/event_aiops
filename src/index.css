@@ -267,4 +267,15 @@
       border-color: hsl(var(--severity-critical) / 1);
     }
   }
+
+  .scrollbar-horiz::-webkit-scrollbar {
+    height: 4px;
+    background: transparent;
+  }
+  .scrollbar-horiz::-webkit-scrollbar-thumb {
+    @apply bg-blue-500/30 rounded-full;
+  }
+  .scrollbar-horiz:hover::-webkit-scrollbar-thumb {
+    @apply bg-blue-500/50;
+  }
 }

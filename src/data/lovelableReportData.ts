@@ -89,10 +89,12 @@ export interface LovelableReport {
   anomS: AnomData[];
   chainsR: ChainData[];
   chainsS: ChainData[];
+  coocR: { a: string, b: string, n: number, lift: number }[];
+  coocS: { a: string, b: string, n: number, lift: number }[];
 }
 
 export const LOVELABLE_REPORT_DATA: LovelableReport = {
-  pipeline: ['Data load', 'Resample', 'Dev merge', 'Data', 'Cross Correlation', 'Granger Causality', 'Pre-event', 'K-means', 'Random Forest', 'Sequences', 'Chains', 'Isolation Forest', 'Save'],
+  pipeline: ['Data load', 'Resample', 'Dev merge', 'Data Prep', 'Time-Lag Correlation', 'Causal Correlation', 'Statistical Time-Series Analysis', 'Unsupervised Learning (Clustering)', 'Supervised ML (Classification)', 'Sequential Pattern Mining', 'Failure Chain Patterns', 'Unsupervised Learning (Anomaly Detection)', 'Save'],
   events: [
     { n: 'DEVICE_REBOOT', pos: 6, rate: 0.1, dev: true },
     { n: 'HIGH_LATENCY', pos: 343, rate: 4.2, dev: false },
@@ -346,5 +348,21 @@ export const LOVELABLE_REPORT_DATA: LovelableReport = {
     { evt: 'HIGH_UTIL_WARNING', n: 207, steps: [{ m: 'cpu_pct', d: '↑' }, { m: 'crc_errors', d: '↑' }, { m: 'queue_depth', d: '↑' }, { m: 'latency_ms', d: '↑' }, { m: 'reboot_delta', d: '↑' }, { m: 'util_pct', d: '↑' }] },
     { evt: 'INTERFACE_FLAP', n: 146, steps: [{ m: 'cpu_pct', d: '↑' }, { m: 'util_pct', d: '↑' }, { m: 'crc_errors', d: '↑' }, { m: 'queue_depth', d: '↑' }, { m: 'latency_ms', d: '↑' }, { m: 'reboot_delta', d: '↑' }] },
     { evt: 'PACKET_DROP', n: 239, steps: [{ m: 'cpu_pct', d: '↑' }, { m: 'crc_errors', d: '↑' }, { m: 'queue_depth', d: '↑' }, { m: 'latency_ms', d: '↑' }, { m: 'reboot_delta', d: '↑' }, { m: 'util_pct', d: '↑' }] },
+  ],
+  coocR: [
+    { a: 'HIGH_LATENCY', b: 'INTERFACE_FLAP', n: 29, lift: 1.03 },
+    { a: 'HIGH_LATENCY', b: 'PACKET_DROP', n: 29, lift: 1.03 },
+    { a: 'INTERFACE_FLAP', b: 'PACKET_DROP', n: 31, lift: 1.03 },
+    { a: 'HIGH_LATENCY', b: 'HIGH_UTIL_WARNING', n: 29, lift: 1.00 },
+    { a: 'HIGH_UTIL_WARNING', b: 'INTERFACE_FLAP', n: 31, lift: 1.00 },
+    { a: 'HIGH_UTIL_WARNING', b: 'PACKET_DROP', n: 31, lift: 1.00 },
+  ],
+  coocS: [
+    { a: 'INTERFACE_FLAP', b: 'LINK_DOWN', n: 2, lift: 1.20 },
+    { a: 'INTERFACE_FLAP', b: 'PACKET_DROP', n: 35, lift: 1.02 },
+    { a: 'LINK_DOWN', b: 'PACKET_DROP', n: 2, lift: 1.02 },
+    { a: 'HIGH_UTIL_WARNING', b: 'INTERFACE_FLAP', n: 35, lift: 1.00 },
+    { a: 'HIGH_UTIL_WARNING', b: 'LINK_DOWN', n: 2, lift: 1.00 },
+    { a: 'HIGH_UTIL_WARNING', b: 'PACKET_DROP', n: 41, lift: 1.00 },
   ],
 };

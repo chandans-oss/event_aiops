@@ -292,14 +292,15 @@ const LollipopChart = ({
 
 const STEP_CATEGORIES: Record<string, string> = {
   'Data': 'DATA PREP',
-  'Cross Correlation': 'STATISTICAL',
-  'Granger Causality': 'STATISTICAL',
-  'Pre-event': 'STATISTICAL',
-  'K-means': 'CLUSTERING',
-  'Random Forest': 'CLASSIFICATION',
-  'Sequences': 'PATTERN MATCHING',
-  'Isolation Forest': 'ANOMALY',
-  'Chains': 'PATTERN MATCHING',
+  'Cross Correlation': 'TIME-LAG CORRELATION',
+  'Granger Causality': 'CAUSAL CORRELATION',
+  'Pre-event': 'STATISTICAL TIME-SERIES ANALYSIS',
+  'K-means': 'UNSUPERVISED LEARNING',
+  'Random Forest': 'SUPERVISED ML (CLASSIFICATION)',
+  'Sequences': 'SEQUENTIAL PATTERN MINING',
+  'Isolation Forest': 'UNSUPERVISED LEARNING',
+  'Chains': 'FAILURE CHAIN PATTERNS',
+  'Co-occurrence': 'EVENT CO-OCCURRENCE',
 };
 
 const SCOPE_TARGETS = {
@@ -1453,11 +1454,14 @@ const TERMINAL_LOG = `==========================================================
   `;
 const CATEGORIES = [
   { name: 'DATA PREP', steps: [3] },
-  { name: 'STATISTICAL', steps: [4, 5, 6] },
-  { name: 'CLUSTERING', steps: [7] },
-  { name: 'TIME SERIES', steps: [8] },
-  { name: 'PATTERN MINING', steps: [9, 10] },
-  { name: 'ANOMALY DETECTION', steps: [11] }
+  { name: 'SUPERVISED ML (CLASSIFICATION)', steps: [8] },
+  { name: 'UNSUPERVISED LEARNING', steps: [7, 11] },
+  { name: 'STATISTICAL TIME-SERIES ANALYSIS', steps: [6] },
+  { name: 'TIME-LAG CORRELATION', steps: [4] },
+  { name: 'CAUSAL CORRELATION', steps: [5] },
+  { name: 'SEQUENTIAL PATTERN MINING', steps: [9] },
+  { name: 'EVENT CO-OCCURRENCE', steps: [11] },
+  { name: 'FAILURE CHAIN PATTERNS', steps: [10] }
 ];
 
 const COMPILED_MODELS = [
@@ -1482,6 +1486,14 @@ export default function TrainingLovelablePage() {
   const [started, setStarted] = useState(false);
   const [currentStep, setCurrentStep] = useState(-1);
   const [activeTab, setActiveTab] = useState(0);
+  const navRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const activeEl = document.getElementById(`tab-btn-${activeTab}`);
+    if (activeEl && navRef.current) {
+      activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }, [activeTab]);
   const [itemLimit, setItemLimit] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [selectedTarget, setSelectedTarget] = useState(SCOPE_TARGETS['device'][0].label);
@@ -1532,7 +1544,7 @@ export default function TrainingLovelablePage() {
       setCurrentStep(prev => {
         if (prev < 3) return prev + 1;
         clearInterval(ingestionInterval);
-        return 11; // Immediately set to 11 to unlock all analytical tabs
+        return 11; // Unlock all analytical tabs after data ingestion
       });
     }, 600);
 
@@ -1786,8 +1798,10 @@ export default function TrainingLovelablePage() {
           </div>
         </header>
 
-        {/* PIPELINE TABS */}
-        <nav className="bg-[#0F172A] border-b border-[#334155] px-10 py-0 flex items-end gap-1 overflow-x-auto whitespace-nowrap sticky top-0 z-50 no-scrollbar h-14">
+        <nav
+          ref={navRef}
+          className="bg-[#0F172A] border-b border-[#334155] px-10 py-0 flex items-end gap-1 overflow-x-auto whitespace-nowrap sticky top-0 z-50 scroll-smooth h-14 scrollbar-horiz"
+        >
           {CATEGORIES.map((cat, i) => {
             const isActive = i === activeTab;
             // A category is considered "Done" if all its steps are completed
@@ -1798,9 +1812,10 @@ export default function TrainingLovelablePage() {
             return (
               <div key={i} className="flex-none flex flex-col h-full justify-end group">
                 <button
+                  id={`tab-btn-${i}`}
                   onClick={() => setActiveTab(i)}
                   className={cn(
-                    "flex items-center h-14 px-6 font-['IBM_Plex_Mono',monospace] text-[10px] transition-all duration-300 border-b-2",
+                    "flex items-center h-14 px-6 font-['IBM_Plex_Mono',monospace] text-[10px] transition-all duration-300 border-b-2 whitespace-nowrap flex-shrink-0",
                     isActive ? "bg-[#1E293B] border-[#3B82F6] text-[#F8FAFC] font-bold" : "border-transparent text-[#94A3B8] hover:bg-[#1E293B]/50"
                   )}
                 >
@@ -1847,8 +1862,8 @@ export default function TrainingLovelablePage() {
           <section className={cn("animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(3) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
               <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">01</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Data</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">8,156 total · 70-dim feature vector per window</span>
+              <span className="text-[14px] font-semibold tracking-[-0.01em]">Data Prep</span>
+              <span className="text-[11px] text-[#94A3B8] ml-auto">8,156 document windows integrated</span>
             </div>
 
             {!isStepReady(3) ? <LoadingState title="Time Series" /> : (
@@ -1907,9 +1922,9 @@ export default function TrainingLovelablePage() {
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(4) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">02</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Cross correlation</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Pearson r at best lag (±15 polls tested)</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">05</span>
+              <span className="text-[14px] font-semibold tracking-[-0.01em]">Time-Lag Correlation</span>
+              <span className="text-[11px] text-[#94A3B8] ml-auto">Cross Correlation (Pearson / Spearman)</span>
             </div>
             {!isStepReady(4) ? <LoadingState title="Statistical Correlation" /> : (
               <div className="grid grid-cols-1 gap-6">
@@ -1970,9 +1985,9 @@ export default function TrainingLovelablePage() {
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(5) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">03</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Granger causality</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Significant pairs only · p &lt; 0.05</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">06</span>
+              <span className="text-[14px] font-semibold tracking-[-0.01em]">Causal Correlation</span>
+              <span className="text-[11px] text-[#94A3B8] ml-auto">Granger Causality Analysis</span>
             </div>
             {!isStepReady(5) ? <LoadingState title="Granger Causality" /> : (
               <div className="grid grid-cols-1 gap-6 items-start">
@@ -2028,8 +2043,8 @@ export default function TrainingLovelablePage() {
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(6) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
               <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">04</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Pre-event metric behavior</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Mean delta vs normal in the 75-min window before each event</span>
+              <span className="text-[14px] font-semibold tracking-[-0.01em]">Statistical Time-Series Analysis</span>
+              <span className="text-[11px] text-[#94A3B8] ml-auto">Pre-Event Behavior Analysis (mean delta vs normal)</span>
             </div>
             {!isStepReady(6) ? <LoadingState title="Pre-Event Behavior" /> : (
               <>
@@ -2079,9 +2094,9 @@ export default function TrainingLovelablePage() {
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(7) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">05</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">K-means Clustering</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">KMeans K=4 · StandardScaled feature vectors</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">03</span>
+              <span className="text-[14px] font-semibold tracking-[-0.01em]">Unsupervised Learning: Clustering</span>
+              <span className="text-[11px] text-[#94A3B8] ml-auto">KMeans Clustering (K=4) · StandardScaled feature vectors</span>
             </div>
             {!isStepReady(7) ? <LoadingState title="K-Means Clustering" /> : (
               <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
@@ -2138,9 +2153,9 @@ export default function TrainingLovelablePage() {
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(8) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">06</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Random forest predictors</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">150 trees · max_depth 10 · class_weight balanced · 80/20 split</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">02</span>
+              <span className="text-[14px] font-semibold tracking-[-0.01em]">Supervised ML (Classification)</span>
+              <span className="text-[11px] text-[#94A3B8] ml-auto">Random Forest Event Prediction (150 trees)</span>
             </div>
             {!isStepReady(8) ? <LoadingState title="Random Forest" /> : (
               <>
@@ -2201,8 +2216,8 @@ export default function TrainingLovelablePage() {
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(9) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
               <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">07</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Event sequence mining</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Min support ≥ 2 · 3-event sequences · confidence scored</span>
+              <span className="text-[14px] font-semibold tracking-[-0.01em]">Sequential Pattern Mining</span>
+              <span className="text-[11px] text-[#94A3B8] ml-auto">Event Sequence Mining (confidence-scored 3rd order sequences)</span>
             </div>
             {!isStepReady(9) ? <LoadingState title="Sequence Mining" /> : (
               <div className="grid grid-cols-2 gap-3 items-start">
@@ -2255,11 +2270,51 @@ export default function TrainingLovelablePage() {
             )}
           </section>
 
-          <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(10) && "hidden")}>
+          <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", activeTab !== 7 && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
               <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">08</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Failure chain patterns</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Metric ordering by earliest divergence lead time — chain terminates at event</span>
+              <span className="text-[14px] font-semibold tracking-[-0.01em]">Event Co-occurrence</span>
+              <span className="text-[11px] text-[#94A3B8] ml-auto">Co-occurrence Matrix + Lift (Lift &gt; 1 indicates strong correlation)</span>
+            </div>
+            {!isStepReady(11) ? <LoadingState title="Co-occurrence Analysis" /> : (
+              <div className="grid grid-cols-2 gap-3 items-start">
+                {[
+                  { data: D.coocR, title: 'ROUTER — 32 sessions' },
+                  { data: D.coocS, title: 'SWITCH — 42 sessions' }
+                ].map((group, idx) => (
+                  <div key={idx} className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
+                    <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
+                    </div>
+                    <div className="p-3.5 space-y-1.5">
+                      <div className="grid grid-cols-[130px_14px_130px_50px_50px] gap-2 pb-1.5 items-center border-b border-[#334155]">
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EVENT A</span>
+                        <span />
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EVENT B</span>
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">COUNT</span>
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">LIFT</span>
+                      </div>
+                      {group.data.slice(0, itemLimit).map((d, i) => (
+                        <div key={i} className="grid grid-cols-[130px_14px_130px_50px_50px] gap-2 items-center py-2 border-b border-[#334155] last:border-none animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.02]">
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.a}</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center">&amp;</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.b}</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right text-[#94A3B8]">{d.n}</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right font-bold" style={{ color: d.lift > 1.01 ? '#3DDAB4' : '#94A3B8' }}>{d.lift.toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(10) && "hidden")}>
+            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">09</span>
+              <span className="text-[14px] font-semibold tracking-[-0.01em]">Failure Chain Patterns</span>
+              <span className="text-[11px] text-[#94A3B8] ml-auto">Pattern Mining Logic (lead time ordering)</span>
             </div>
             {!isStepReady(10) ? <LoadingState title="Failure Chains" /> : (
               <div className="grid grid-cols-2 gap-3 items-start">
@@ -2307,9 +2362,9 @@ export default function TrainingLovelablePage() {
 
           <section className={cn("mt-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(11) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">09</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Isolation Forest</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Isolation Forest · contamination 5% · 200 trees · per entity</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">03</span>
+              <span className="text-[14px] font-semibold tracking-[-0.01em]">Unsupervised Learning: Anomaly Detection</span>
+              <span className="text-[11px] text-[#94A3B8] ml-auto">Isolation Forest (contamination 5%)</span>
             </div>
             {!isStepReady(11) ? <LoadingState title="Isolation Forest" /> : (
               <div className="grid grid-cols-2 gap-3 items-start">
