@@ -57,6 +57,13 @@ export interface AnomData {
   rate: number;
   score: number;
   risk: string;
+  metrics?: {
+    cpu: number;
+    mem: number;
+    lat: number;
+    qd: number;
+    crc: number;
+  };
 }
 
 export interface ChainStep {
@@ -319,23 +326,23 @@ export const LOVELABLE_REPORT_DATA: LovelableReport = {
     { seq: ['PACKET_DROP', 'INTERFACE_FLAP', 'LINK_DOWN'], supp: 2, conf: 0.06 },
   ],
   anomR: [
-    { e: 'router-03:Gi0/3/0', rate: 14.7, score: 0.0867, risk: 'MED' },
-    { e: 'router-02:Gi0/3/0', rate: 8.1, score: 0.0880, risk: 'MED' },
-    { e: 'router-02:Gi0/1/0', rate: 7.3, score: 0.0858, risk: 'MED' },
-    { e: 'router-01:Gi0/1/0', rate: 7.0, score: 0.0797, risk: 'low' },
-    { e: 'router-05:Gi0/2/0', rate: 6.6, score: 0.0814, risk: 'low' },
-    { e: 'router-02:Gi0/2/0', rate: 5.5, score: 0.0854, risk: 'low' },
-    { e: 'router-03:Gi0/1/0', rate: 5.5, score: 0.0999, risk: 'low' },
-    { e: 'router-04:Gi0/1/0', rate: 3.3, score: 0.1106, risk: 'low' },
+    { e: 'router-03:Gi0/3/0', rate: 14.7, score: 0.0867, risk: 'MED', metrics: { cpu: 8.2, mem: 4.1, lat: 12.5, qd: 14.7, crc: 3.2 } },
+    { e: 'router-02:Gi0/3/0', rate: 8.1, score: 0.0880, risk: 'MED', metrics: { cpu: 7.1, mem: 3.5, lat: 6.2, qd: 8.1, crc: 2.1 } },
+    { e: 'router-02:Gi0/1/0', rate: 7.3, score: 0.0858, risk: 'MED', metrics: { cpu: 6.5, mem: 3.2, lat: 5.8, qd: 7.3, crc: 1.8 } },
+    { e: 'router-01:Gi0/1/0', rate: 7.0, score: 0.0797, risk: 'low', metrics: { cpu: 5.2, mem: 2.8, lat: 4.5, qd: 7.0, crc: 1.5 } },
+    { e: 'router-05:Gi0/2/0', rate: 6.6, score: 0.0814, risk: 'low', metrics: { cpu: 4.8, mem: 2.5, lat: 4.1, qd: 6.6, crc: 1.2 } },
+    { e: 'router-02:Gi0/2/0', rate: 5.5, score: 0.0854, risk: 'low', metrics: { cpu: 4.1, mem: 2.1, lat: 3.8, qd: 5.5, crc: 1.1 } },
+    { e: 'router-03:Gi0/1/0', rate: 5.5, score: 0.0999, risk: 'low', metrics: { cpu: 3.8, mem: 2.0, lat: 3.5, qd: 5.5, crc: 1.0 } },
+    { e: 'router-04:Gi0/1/0', rate: 3.3, score: 0.1106, risk: 'low', metrics: { cpu: 2.5, mem: 1.5, lat: 2.2, qd: 3.3, crc: 0.8 } },
   ],
   anomS: [
-    { e: 'switch-03:Eth1/3', rate: 11.0, score: 0.1008, risk: 'MED' },
-    { e: 'switch-02:Eth1/1', rate: 10.7, score: 0.1092, risk: 'MED' },
-    { e: 'switch-01:Eth1/2', rate: 10.0, score: 0.1182, risk: 'MED' },
-    { e: 'switch-04:Eth1/1', rate: 8.5, score: 0.1175, risk: 'MED' },
-    { e: 'switch-04:Eth1/2', rate: 7.7, score: 0.1152, risk: 'MED' },
-    { e: 'switch-01:Eth1/1', rate: 6.3, score: 0.0987, risk: 'low' },
-    { e: 'switch-04:Eth1/3', rate: 5.5, score: 0.1144, risk: 'low' },
+    { e: 'switch-03:Eth1/3', rate: 11.0, score: 0.1008, risk: 'MED', metrics: { cpu: 6.2, mem: 5.8, lat: 9.1, qd: 11.0, crc: 4.5 } },
+    { e: 'switch-02:Eth1/1', rate: 10.7, score: 0.1092, risk: 'MED', metrics: { cpu: 5.8, mem: 5.5, lat: 8.8, qd: 10.7, crc: 4.2 } },
+    { e: 'switch-01:Eth1/2', rate: 10.0, score: 0.1182, risk: 'MED', metrics: { cpu: 5.5, mem: 5.2, lat: 8.5, qd: 10.0, crc: 3.8 } },
+    { e: 'switch-04:Eth1/1', rate: 8.5, score: 0.1175, risk: 'MED', metrics: { cpu: 4.8, mem: 4.5, lat: 7.2, qd: 8.5, crc: 3.2 } },
+    { e: 'switch-04:Eth1/2', rate: 7.7, score: 0.1152, risk: 'MED', metrics: { cpu: 4.1, mem: 4.1, lat: 6.5, qd: 7.7, crc: 2.8 } },
+    { e: 'switch-01:Eth1/1', rate: 6.3, score: 0.0987, risk: 'low', metrics: { cpu: 3.2, mem: 3.5, lat: 5.2, qd: 6.3, crc: 2.1 } },
+    { e: 'switch-04:Eth1/3', rate: 5.5, score: 0.1144, risk: 'low', metrics: { cpu: 2.8, mem: 3.1, lat: 4.5, qd: 5.5, crc: 1.8 } },
   ],
   chainsR: [
     { evt: 'HIGH_LATENCY', n: 231, steps: [{ m: 'cpu_pct', d: '↑' }, { m: 'crc_errors', d: '↑' }, { m: 'queue_depth', d: '↑' }, { m: 'latency_ms', d: '↑' }, { m: 'util_pct', d: '↑' }] },

@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useLocation, NavLink } from "react-router-dom";
 import { MainLayout } from "@/shared/components/layout/MainLayout";
-import { LOVELABLE_REPORT_DATA as D } from "@/data/lovelableReportData";
+import { LOVELABLE_REPORT_DATA as D, RFData } from "@/data/lovelableReportData";
 import { cn } from "@/shared/lib/utils";
-import { Play, Loader2, CheckCircle2, RotateCcw, ChevronDown, ChevronRight, FileText } from "lucide-react";
+import { Play, Loader2, CheckCircle2, RotateCcw, ChevronDown, ChevronRight, FileText, Info } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const fmt = (v: number) => {
@@ -33,6 +33,110 @@ const LoadingState = ({ title }: { title: string }) => (
     </p>
   </div>
 );
+const DonutChart = ({ val, size = 30 }: { val: number, size?: number }) => {
+  const strokeWidth = 3;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const offset = circumference - (Math.abs(val) * circumference);
+  const color = val > 0.8 ? '#3DDAB4' : val > 0.6 ? '#3B82F6' : '#F59E0B';
+
+  return (
+    <svg width={size} height={size} className="transform -rotate-90 flex-shrink-0">
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        stroke="currentColor"
+        strokeWidth={strokeWidth}
+        fill="transparent"
+        className="text-white/5"
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        r={radius}
+        stroke={color}
+        strokeWidth={strokeWidth}
+        fill="transparent"
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+};
+
+const AnomalyHeatMap = ({ data }: { data: any[] }) => {
+  const metrics = [
+    { key: 'cpu', label: 'CPU' },
+    { key: 'mem', label: 'MEM' },
+    { key: 'lat', label: 'LAT' },
+    { key: 'qd', label: 'QD' },
+    { key: 'crc', label: 'CRC' }
+  ];
+
+  return (
+    <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden shadow-2xl animate-in fade-in duration-700">
+      <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
+        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#EF4444] font-bold uppercase">RESOURCE ANOMALY HEAT MAP (ISOLATION FOREST CONTRIBUTIONS)</span>
+        <div className="flex gap-4 items-center">
+          <div className="flex items-center gap-1.5 font-['IBM_Plex_Mono',monospace] text-[8px] text-[#94A3B8] uppercase">
+            <div className="w-2 h-2 rounded-sm bg-[#EF4444]" /> HIGH
+          </div>
+          <div className="flex items-center gap-1.5 font-['IBM_Plex_Mono',monospace] text-[8px] text-[#94A3B8] uppercase">
+            <div className="w-2 h-2 rounded-sm bg-[#F59E0B]" /> MED
+          </div>
+          <div className="flex items-center gap-1.5 font-['IBM_Plex_Mono',monospace] text-[8px] text-[#94A3B8] uppercase">
+            <div className="w-2 h-2 rounded-sm bg-[#3B82F6]" /> LOW
+          </div>
+        </div>
+      </div>
+      <div className="p-4 overflow-x-auto no-scrollbar">
+        <div className="min-w-[600px]">
+          <div className="grid grid-cols-[160px_repeat(5,1fr)] gap-1.5 mb-3 px-2">
+            <div className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] uppercase font-bold pr-2">ENTITY IDENTIFIER</div>
+            {metrics.map(m => (
+              <div key={m.key} className="text-center font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] font-bold uppercase tracking-widest">{m.label}</div>
+            ))}
+          </div>
+          <div className="space-y-1.5">
+            {data.map((d, i) => (
+              <div key={i} className="grid grid-cols-[160px_repeat(5,1fr)] gap-1.5 items-center group/row animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: `${i * 30}ms` }}>
+                <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate pr-3 border-r border-white/5 group-hover/row:text-[#3B82F6] transition-colors">{d.e}</div>
+                {metrics.map(m => {
+                  const val = d.metrics?.[m.key] || 0;
+                  const severity = val > 10 ? 'HIGH' : val > 5 ? 'MED' : val > 2 ? 'LOW' : 'NONE';
+                  const color = severity === 'HIGH' ? '#EF4444' : severity === 'MED' ? '#F59E0B' : severity === 'LOW' ? '#3B82F6' : 'transparent';
+                  const opacity = severity === 'HIGH' ? '0.85' : severity === 'MED' ? '0.5' : severity === 'LOW' ? '0.2' : '0.03';
+                  const border = severity === 'NONE' ? 'border-white/[0.05]' : 'border-transparent';
+
+                  return (
+                    <div
+                      key={m.key}
+                      className={cn("aspect-square rounded-[3px] transition-all duration-300 hover:scale-110 hover:z-10 group/cell relative cursor-help border", border)}
+                      style={{ background: color, opacity }}
+                    >
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/cell:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
+                        <div className="bg-[#0F172A] px-2 py-1 rounded border border-white/10 shadow-2xl text-[8px] font-bold text-white font-['IBM_Plex_Mono',monospace]">
+                          {m.label}: {val.toFixed(1)}%
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="px-3.5 py-2 bg-[#0F172A]/50 border-t border-[#334155] flex justify-between font-['IBM_Plex_Mono',monospace] text-[8px] text-[#475569] uppercase tracking-wider">
+        <span>8,156 WINDOWS SAMPLED</span>
+        <span>ISOLATION DEPTH: 16-24 LEVELS</span>
+      </div>
+    </div>
+  );
+};
+
 
 const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) => {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
@@ -167,45 +271,6 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
           <span className="text-[7px] font-bold text-[#3B82F6] uppercase tracking-widest">Plotting Clusters...</span>
         </div>
       )}
-    </div>
-  );
-};
-
-const DonutChart = ({ val, size = 32, stroke = 2.5 }: { val: number, size?: number, stroke?: number }) => {
-  const radius = (size - stroke) / 2;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (Math.abs(val) * circumference);
-  const color = Math.abs(val) > 0.7 ? '#3DDAB4' : Math.abs(val) > 0.4 ? '#F59E0B' : '#3B82F6';
-
-  return (
-    <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="transform -rotate-90">
-        {/* Background track */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke="#1E293B"
-          strokeWidth={stroke}
-          fill="transparent"
-        />
-        {/* Active progress */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke={color}
-          strokeWidth={stroke}
-          fill="transparent"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          className="transition-all duration-1000 ease-out"
-        />
-      </svg>
-      <div className="absolute font-['IBM_Plex_Mono',monospace] text-[7px] font-bold text-white">
-        {Math.round(Math.abs(val) * 100)}
-      </div>
     </div>
   );
 };
@@ -1454,32 +1519,17 @@ const TERMINAL_LOG = `==========================================================
   `;
 const CATEGORIES = [
   { name: 'DATA PREP', steps: [3] },
-  { name: 'SUPERVISED ML (CLASSIFICATION)', steps: [8] },
-  { name: 'UNSUPERVISED LEARNING', steps: [7, 11] },
-  { name: 'STATISTICAL TIME-SERIES ANALYSIS', steps: [6] },
+  { name: 'SUPERVISED ML', steps: [8] },
+  { name: 'KMEANS CLUSTERING', steps: [7] },
+  { name: 'ANOMALY DETECTION', steps: [11] },
+  { name: 'STATISTICAL ANALYSIS', steps: [6] },
   { name: 'TIME-LAG CORRELATION', steps: [4] },
   { name: 'CAUSAL CORRELATION', steps: [5] },
-  { name: 'SEQUENTIAL PATTERN MINING', steps: [9] },
-  { name: 'EVENT CO-OCCURRENCE', steps: [11] },
+  { name: 'SEQUENTIAL MINING', steps: [9] },
+  { name: 'EVENT CO-OCCURRENCE', steps: [12] },
   { name: 'FAILURE CHAIN PATTERNS', steps: [10] }
 ];
 
-const COMPILED_MODELS = [
-  { name: 'iso_router.pkl', size: '2.3 MB', type: 'Anomaly Isolation', device: 'Router', col: '#EF4444' },
-  { name: 'iso_switch.pkl', size: '2.2 MB', type: 'Anomaly Isolation', device: 'Switch', col: '#F59E0B' },
-  { name: 'kmeans_router.pkl', size: '18 KB', type: 'Cluster Centroids', device: 'Router', col: '#3B82F6' },
-  { name: 'kmeans_switch.pkl', size: '18 KB', type: 'Cluster Centroids', device: 'Switch', col: '#60A5FA' },
-  { name: 'rf_router_HIGH_LATENCY.pkl', size: '767 KB', type: 'RF Classifier', device: 'Router', col: '#3DDAB4' },
-  { name: 'rf_router_HIGH_UTIL_WARNING.pkl', size: '1.0 MB', type: 'RF Classifier', device: 'Router', col: '#3DDAB4' },
-  { name: 'rf_router_INTERFACE_FLAP.pkl', size: '864 KB', type: 'RF Classifier', device: 'Router', col: '#3DDAB4' },
-  { name: 'rf_router_PACKET_DROP.pkl', size: '955 KB', type: 'RF Classifier', device: 'Router', col: '#3DDAB4' },
-  { name: 'rf_switch_HIGH_UTIL_WARNING.pkl', size: '668 KB', type: 'RF Classifier', device: 'Switch', col: '#3DDAB4' },
-  { name: 'rf_switch_INTERFACE_FLAP.pkl', size: '657 KB', type: 'RF Classifier', device: 'Switch', col: '#3DDAB4' },
-  { name: 'rf_switch_PACKET_DROP.pkl', size: '851 KB', type: 'RF Classifier', device: 'Switch', col: '#3DDAB4' },
-  { name: 'scaler_router.pkl', size: '2 KB', type: 'Scaler Metadata', device: 'Router', col: '#94A3B8' },
-  { name: 'scaler_switch.pkl', size: '2 KB', type: 'Scaler Metadata', device: 'Switch', col: '#94A3B8' },
-  { name: 'metadata.json', size: '1 KB', type: 'Global Config', device: 'System', col: '#F8FAFC' },
-];
 
 export default function TrainingLovelablePage() {
   const [deviceFilter, setDeviceFilter] = useState<'device' | 'topology' | 'group'>('device');
@@ -1501,6 +1551,8 @@ export default function TrainingLovelablePage() {
   const [visibleLogLines, setVisibleLogLines] = useState<string[]>([]);
   const [focusXcorr, setFocusXcorr] = useState('all');
   const [focusGranger, setFocusGranger] = useState('all');
+  const [showRFTable, setShowRFTable] = useState(false);
+  const [showAnomTable, setShowAnomTable] = useState(false);
   const terminalRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -1514,7 +1566,111 @@ export default function TrainingLovelablePage() {
     }
   }, [visibleLogLines]);
 
+
   const maxRate = Math.max(...D.events.map(e => e.rate));
+
+  // Unified RF Data
+  const unifiedRFData = useMemo(() => {
+    const combined = [...D.rfR.map(r => ({ ...r, dev: 'Router' })), ...D.rfS.map(s => ({ ...s, dev: 'Switch' }))];
+    const unique = new Map<string, RFData & { dev: string }>();
+    combined.forEach(item => {
+      if (item.skip) return;
+      const key = `${item.evt}-${item.dev}`;
+      unique.set(key, item);
+    });
+    return Array.from(unique.values()).sort((a, b) => (b.acc || 0) - (a.acc || 0));
+  }, []);
+
+  const AccuracyGauge = ({ value, label, dev, feats }: { value: number, label: string, dev: string, feats?: [string, number][] }) => {
+    const percentage = value * 100;
+    const needleRotation = (percentage / 100) * 180 - 90; // -90 to 90 degrees
+
+    return (
+      <div className="bg-[#1E293B]/60 border border-white/5 rounded-xl p-5 flex flex-col items-center gap-4 hover:shadow-[0_0_25px_rgba(59,130,246,0.15)] transition-all group overflow-hidden relative">
+        <div className="absolute top-0 right-0 p-2 opacity-20 text-[8px] font-bold uppercase tracking-widest">{dev}</div>
+
+        <div className="relative w-48 h-32 flex items-center justify-center">
+          <svg viewBox="0 0 200 130" className="w-full h-full pt-2">
+            {/* Red Segment (0-50%) */}
+            <path
+              d="M 30 100 A 70 70 0 0 1 100 30"
+              fill="none"
+              stroke="#F87171"
+              strokeWidth="24"
+              className="opacity-90"
+            />
+            {/* Yellow Segment (50-75%) */}
+            <path
+              d="M 100 30 A 70 70 0 0 1 149.5 50.5"
+              fill="none"
+              stroke="#FBBF24"
+              strokeWidth="24"
+              className="opacity-90"
+            />
+            {/* Green Segment (75-100%) */}
+            <path
+              d="M 149.5 50.5 A 70 70 0 0 1 170 100"
+              fill="none"
+              stroke="#34D399"
+              strokeWidth="24"
+              className="opacity-90"
+            />
+
+            {/* Ticks & Labels */}
+            <g className="text-[9px] fill-[#94A3B8] font-bold">
+              <text x="12" y="110" textAnchor="middle">0%</text>
+              <text x="35" y="42" textAnchor="middle">25%</text>
+              <text x="100" y="15" textAnchor="middle">50%</text>
+              <text x="165" y="42" textAnchor="middle">75%</text>
+              <text x="188" y="110" textAnchor="middle">100%</text>
+            </g>
+
+            {/* Ticks on the arc */}
+            <line x1="30" y1="100" x2="35" y2="100" stroke="#334155" strokeWidth="2" />
+            <line x1="170" y1="100" x2="165" y2="100" stroke="#334155" strokeWidth="2" />
+            <line x1="100" y1="30" x2="100" y2="35" stroke="#334155" strokeWidth="2" />
+
+            {/* Needle */}
+            <g transform={`rotate(${needleRotation}, 100, 100)`}>
+              <path
+                d="M 97 100 L 100 35 L 103 100 Z"
+                fill="#F8FAFC"
+                className="transition-transform duration-1000 ease-out"
+              />
+              <circle cx="100" cy="100" r="5" fill="#F8FAFC" />
+            </g>
+          </svg>
+
+          {/* Centered Percentage Text */}
+          <div className="absolute top-[105px] left-0 right-0 text-center">
+            <div className="text-xl font-black text-[#F8FAFC] tabular-nums leading-none">{percentage.toFixed(1)}%</div>
+            <div className="text-[8px] font-bold text-[#94A3B8] uppercase tracking-wider mt-0.5 opacity-60">Accuracy Score</div>
+          </div>
+        </div>
+
+        <div className="text-center w-full">
+          <div className="text-[12px] font-bold text-[#F8FAFC] mb-1">{label}</div>
+          <div className="flex flex-col gap-1.5 mt-3 w-full px-2">
+            <div className="text-[8px] font-bold text-[#3B82F6] uppercase tracking-[2px] mb-1 text-left opacity-60">Top Contributors</div>
+            {feats?.slice(0, 3).map(([fn, fi], k) => (
+              <div key={k} className="flex flex-col gap-1">
+                <div className="flex justify-between text-[9px] font-medium">
+                  <span className="text-[#94A3B8] truncate max-w-[120px]">{fn}</span>
+                  <span className="text-[#3DDAB4]">{(fi * 100).toFixed(1)}%</span>
+                </div>
+                <div className="h-1 bg-white/5 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-[#3B82F6] to-[#3DDAB4] rounded-full transition-all duration-700"
+                    style={{ width: `${Math.min(fi * 200, 100)}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const shouldShow = (stepIdx: number) => {
     if (!started) return false;
@@ -1890,577 +2046,562 @@ export default function TrainingLovelablePage() {
                       )}
                     </div>
                   </div>
-
-                  {/* Event label distribution */}
-                  <div className="bg-[#1E293B]/40 border border-[#334155] rounded-[10px] overflow-hidden">
-                    <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium uppercase">EVENT LABEL DISTRIBUTION</span>
-                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">across 8,156 windows</span>
-                    </div>
-                    <div className="p-3.5 space-y-2">
-                      <div className="grid grid-cols-[100px_1fr_40px_40px] gap-2 pb-1.5 items-center">
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-[0.07em]">EVENT</span>
-                        <span />
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">COUNT</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">RATE</span>
-                      </div>
-                      {D.events.slice(0, Math.max(2, itemLimit / 2)).map((e, i) => (
-                        <div key={i} className="grid grid-cols-[100px_1fr_40px_40px] gap-2 items-center border-b border-[#334155] last:border-none py-1.5 animate-in fade-in slide-in-from-left-2 duration-300">
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{e.n}</span>
-                          <Bar val={e.rate} max={maxRate} col={e.dev ? '#8B5CF6' : '#3B82F6'} />
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-right">{e.pos}</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right font-medium" style={{ color: e.rate > 5 ? '#F8FAFC' : '#94A3B8' }}>{e.rate}%</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
                 </div>
-
               </>
             )}
           </section>
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(4) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">05</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Time-Lag Correlation</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Cross Correlation (Pearson / Spearman)</span>
-            </div>
-            {!isStepReady(4) ? <LoadingState title="Statistical Correlation" /> : (
-              <div className="grid grid-cols-1 gap-6">
-                {[
-                  { data: D.xcorrR, device: 'router' as const, title: 'SECTION 1 — CROSS-CORRELATION [ROUTER]' },
-                  { data: D.xcorrS, device: 'switch' as const, title: 'SECTION 1 — CROSS-CORRELATION [SWITCH]' }
-                ].map((group, idx) => (
-                  <div key={idx} className={cn("grid grid-cols-[1fr_400px] gap-4", !shouldShow(4) && "hidden")}>
-                    <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
-                      <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#3DDAB4] font-bold">{group.title} [TOP RELATIONS]</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">{group.data.filter(d => Math.abs(d.r) > 0.7).length} significant pairs identified</span>
-                      </div>
-                      <div className="p-0">
-                        <div className="grid grid-cols-[100px_100px_80px_100px_70px_1fr] gap-4 py-2 px-4 items-center bg-[#0F172A]/30 border-b border-[#334155]">
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Metric A</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Metric B</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Best Lag</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-center">Pearson r</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-right">Spearman r</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Interpretation</span>
-                        </div>
-                        {group.data.filter(d => Math.abs(d.r) > 0.7).slice(0, itemLimit).map((d, i) => (
-                          <div key={i} className="grid grid-cols-[100px_100px_80px_100px_70px_1fr] gap-4 items-center border-b border-[#334155] last:border-none py-2 px-4 animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.02] transition-colors">
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#CBD5E1] truncate">{d.a}</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#CBD5E1] truncate">{d.b}</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] whitespace-nowrap">{d.lag}</span>
-                            <div className="flex items-center justify-center gap-2">
-                              <DonutChart val={d.r} size={28} />
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#F8FAFC] w-12">{d.r.toFixed(3)}</span>
-                            </div>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-right text-[#94A3B8]">{d.s.toFixed(3)}</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#3B82F6]">{d.interp}</span>
-                          </div>
-                        ))}
-                      </div>
+                    <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">06</span>
+                      <span className="text-[14px] font-semibold tracking-[-0.01em]">Time-Lag Correlation</span>
+                      <span className="text-[11px] text-[#94A3B8] ml-auto">Cross Correlation (Pearson / Spearman)</span>
                     </div>
-                    <LollipopChart
-                      labelX="Pearson R"
-                      focusMetric={focusXcorr}
-                      onFocusChange={setFocusXcorr}
-                      metricsList={['util_pct', 'queue_depth', 'crc_errors', 'latency_ms', 'cpu_pct', 'mem_util_pct', 'temp_c', 'fan_speed_rpm']}
-                      data={group.data
-                        .filter(d => Math.abs(d.r) > 0.7)
-                        .filter(d => focusXcorr === 'all' || d.a === focusXcorr || d.b === focusXcorr)
-                        .slice(0, 10)
-                        .map(d => ({
-                          label: `${d.a} ↔ ${d.b}`,
-                          val: d.r,
-                          color: d.r > 0.8 ? '#3DDAB4' : d.r > 0.6 ? '#3B82F6' : '#F59E0B'
-                        }))}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(5) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">06</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Causal Correlation</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Granger Causality Analysis</span>
-            </div>
-            {!isStepReady(5) ? <LoadingState title="Granger Causality" /> : (
-              <div className="grid grid-cols-1 gap-6 items-start">
-                {[
-                  { data: D.grangerR, device: 'router' as const, title: 'ROUTER' },
-                  { data: D.grangerS, device: 'switch' as const, title: 'SWITCH' }
-                ].map((group, idx) => (
-                  <div key={idx} className={cn("grid grid-cols-[1fr_400px] gap-4", !shouldShow(5) && "hidden")}>
-                    <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
-                      <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
-                      </div>
-                      <div className="p-3.5 space-y-1">
-                        <div className="grid grid-cols-[110px_14px_110px_60px_60px_60px] gap-1.5 pb-1.5 items-center">
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">CAUSE</span><span />
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EFFECT</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">F-STAT</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">p</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">LAG</span>
-                        </div>
-                        {group.data.slice(0, itemLimit).map((d, i) => (
-                          <div key={i} className="grid grid-cols-[110px_14px_110px_60px_60px_60px] gap-1.5 items-center border-b border-[#334155] last:border-none py-1.5 animate-in fade-in slide-in-from-left-2 duration-300">
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.c}</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center">→</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.e}</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right" style={{ color: d.f > 100 ? '#F59E0B' : '#CBD5E1' }}>{d.f.toFixed(1)}</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">{d.p}</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-right">{d.lag}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <LollipopChart
-                      labelX="F-Statistic"
-                      focusMetric={focusGranger}
-                      onFocusChange={setFocusGranger}
-                      metricsList={['util_pct', 'queue_depth', 'crc_errors', 'latency_ms', 'cpu_pct', 'mem_util_pct', 'temp_c', 'fan_speed_rpm']}
-                      data={group.data
-                        .filter(d => focusGranger === 'all' || d.c === focusGranger || d.e === focusGranger)
-                        .slice(0, 5)
-                        .map(d => ({
-                          label: `${d.c} → ${d.e}`,
-                          val: d.f,
-                          color: d.f > 80 ? '#F59E0B' : '#3B82F6'
-                        }))}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(6) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">04</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Statistical Time-Series Analysis</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Pre-Event Behavior Analysis (mean delta vs normal)</span>
-            </div>
-            {!isStepReady(6) ? <LoadingState title="Pre-Event Behavior" /> : (
-              <>
-
-                {[
-                  { data: D.preEvtR, device: 'router' as const, label: 'ROUTER' },
-                  { data: D.preEvtS, device: 'switch' as const, label: 'SWITCH' }
-                ].map((group, idx) => (
-                  <div key={idx} className={cn("mb-3", !shouldShow(6) && "hidden")}>
-                    <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] mb-2 tracking-[0.06em]">{group.label}</div>
-                    <div className="space-y-2.5">
-                      {group.data.slice(0, Math.ceil(itemLimit / 2)).map((pe, i) => {
-                        const maxD = Math.max(...pe.metrics.map(m => Math.abs(m.dpct)));
-                        return (
-                          <div key={i} className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
-                            <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center gap-2.5">
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] font-medium text-[#F8FAFC]">{pe.evt}</span>
-                              <span className={cn("px-1.5 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[9px] font-medium tracking-[0.04em]", pe.metrics.some(m => !m.up) ? 'bg-[#1E3A8A]/40 text-[#60A5FA]' : 'bg-[#7F1D1D]/40 text-[#EF4444]')}>
-                                {pe.metrics.some(m => !m.up) ? 'drain pattern' : 'all rising'}
-                              </span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] ml-1">{pe.n} events · {pe.windows} windows</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[#3B82F6] ml-auto uppercase">earliest {pe.warn}</span>
-                            </div>
-                            <div className="grid grid-cols-2">
-                              {pe.metrics.map((m, j) => {
-                                const w = Math.min(Math.log10(Math.abs(m.dpct) + 2) / Math.log10(maxD + 2) * 100, 100).toFixed(0);
-                                return (
-                                  <div key={j} className="flex items-center gap-2 px-3.5 py-1.5 border-b border-[#334155] border-r border-[#334155] odd:border-r even:border-r-0 last:border-b-0 [&:nth-last-child(2)]:border-b-0">
-                                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] min-w-[90px]">{m.m}</span>
-                                    <div className="flex-1 h-[5px] bg-[#0F172A] rounded-[3px] overflow-hidden">
-                                      <div className="h-full rounded-[3px]" style={{ width: `${w}%`, background: m.up ? '#EF4444' : '#3B82F6' }} />
+                    {!isStepReady(4) ? <LoadingState title="Statistical Correlation" /> : (
+                      <div className="grid grid-cols-1 gap-6">
+                        {[
+                          { data: D.xcorrR, device: 'router' as const, title: 'SECTION 1 — CROSS-CORRELATION [ROUTER]' },
+                          { data: D.xcorrS, device: 'switch' as const, title: 'SECTION 1 — CROSS-CORRELATION [SWITCH]' }
+                        ].map((group, idx) => (
+                          <div key={idx} className={cn("grid grid-cols-[1fr_400px] gap-4", !shouldShow(4) && "hidden")}>
+                            <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
+                              <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#3DDAB4] font-bold">{group.title} [TOP RELATIONS]</span>
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">{group.data.filter(d => Math.abs(d.r) > 0.7).length} significant pairs identified</span>
+                              </div>
+                              <div className="p-0">
+                                <div className="grid grid-cols-[100px_100px_80px_100px_70px_1fr] gap-4 py-2 px-4 items-center bg-[#0F172A]/30 border-b border-[#334155]">
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Metric A</span>
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Metric B</span>
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Best Lag</span>
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-center">Pearson r</span>
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-right">Spearman r</span>
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Interpretation</span>
+                                </div>
+                                {group.data.filter(d => Math.abs(d.r) > 0.7).slice(0, itemLimit).map((d, i) => (
+                                  <div key={i} className="grid grid-cols-[100px_100px_80px_100px_70px_1fr] gap-4 items-center border-b border-[#334155] last:border-none py-2 px-4 animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.02] transition-colors">
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#CBD5E1] truncate">{d.a}</span>
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#CBD5E1] truncate">{d.b}</span>
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] whitespace-nowrap">{d.lag}</span>
+                                    <div className="flex items-center justify-center gap-2">
+                                      <DonutChart val={d.r} size={28} />
+                                      <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#F8FAFC] w-12">{d.r.toFixed(3)}</span>
                                     </div>
-                                    <span className={cn("font-['IBM_Plex_Mono',monospace] text-[10px] min-w-[52px] text-right", m.up ? 'text-[#EF4444]' : 'text-[#3B82F6]')}>{fmt(m.dpct)}</span>
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-right text-[#94A3B8]">{d.s.toFixed(3)}</span>
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#3B82F6]">{d.interp}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            <LollipopChart
+                              labelX="Pearson R"
+                              focusMetric={focusXcorr}
+                              onFocusChange={setFocusXcorr}
+                              metricsList={['util_pct', 'queue_depth', 'crc_errors', 'latency_ms', 'cpu_pct', 'mem_util_pct', 'temp_c', 'fan_speed_rpm']}
+                              data={group.data
+                                .filter(d => Math.abs(d.r) > 0.7)
+                                .filter(d => focusXcorr === 'all' || d.a === focusXcorr || d.b === focusXcorr)
+                                .slice(0, 10)
+                                .map(d => ({
+                                  label: `${d.a} ↔ ${d.b}`,
+                                  val: d.r,
+                                  color: d.r > 0.8 ? '#3DDAB4' : d.r > 0.6 ? '#3B82F6' : '#F59E0B'
+                                }))}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+
+                  <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(5) && "hidden")}>
+                    <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">07</span>
+                      <span className="text-[14px] font-semibold tracking-[-0.01em]">Causal Correlation</span>
+                      <span className="text-[11px] text-[#94A3B8] ml-auto">Granger Causality Analysis</span>
+                    </div>
+                    {!isStepReady(5) ? <LoadingState title="Granger Causality" /> : (
+                      <div className="grid grid-cols-1 gap-6 items-start">
+                        {[
+                          { data: D.grangerR, device: 'router' as const, title: 'ROUTER' },
+                          { data: D.grangerS, device: 'switch' as const, title: 'SWITCH' }
+                        ].map((group, idx) => (
+                          <div key={idx} className={cn("grid grid-cols-[1fr_400px] gap-4", !shouldShow(5) && "hidden")}>
+                            <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
+                              <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
+                              </div>
+                              <div className="p-3.5 space-y-1">
+                                <div className="grid grid-cols-[110px_14px_110px_60px_60px_60px] gap-1.5 pb-1.5 items-center">
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">CAUSE</span><span />
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EFFECT</span>
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">F-STAT</span>
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">p</span>
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">LAG</span>
+                                </div>
+                                {group.data.slice(0, itemLimit).map((d, i) => (
+                                  <div key={i} className="grid grid-cols-[110px_14px_110px_60px_60px_60px] gap-1.5 items-center border-b border-[#334155] last:border-none py-1.5 animate-in fade-in slide-in-from-left-2 duration-300">
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.c}</span>
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center">→</span>
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.e}</span>
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right" style={{ color: d.f > 100 ? '#F59E0B' : '#CBD5E1' }}>{d.f.toFixed(1)}</span>
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">{d.p}</span>
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-right">{d.lag}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            <LollipopChart
+                              labelX="F-Statistic"
+                              focusMetric={focusGranger}
+                              onFocusChange={setFocusGranger}
+                              metricsList={['util_pct', 'queue_depth', 'crc_errors', 'latency_ms', 'cpu_pct', 'mem_util_pct', 'temp_c', 'fan_speed_rpm']}
+                              data={group.data
+                                .filter(d => focusGranger === 'all' || d.c === focusGranger || d.e === focusGranger)
+                                .slice(0, 5)
+                                .map(d => ({
+                                  label: `${d.c} → ${d.e}`,
+                                  val: d.f,
+                                  color: d.f > 80 ? '#F59E0B' : '#3B82F6'
+                                }))}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+
+                  <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(6) && "hidden")}>
+                    <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">05</span>
+                      <span className="text-[14px] font-semibold tracking-[-0.01em]">Statistical Time-Series Analysis</span>
+                      <span className="text-[11px] text-[#94A3B8] ml-auto">Pre-Event Behavior Analysis (mean delta vs normal)</span>
+                    </div>
+                    {!isStepReady(6) ? <LoadingState title="Pre-Event Behavior" /> : (
+                      <>
+
+                        {[
+                          { data: D.preEvtR, device: 'router' as const, label: 'ROUTER' },
+                          { data: D.preEvtS, device: 'switch' as const, label: 'SWITCH' }
+                        ].map((group, idx) => (
+                          <div key={idx} className={cn("mb-3", !shouldShow(6) && "hidden")}>
+                            <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] mb-2 tracking-[0.06em]">{group.label}</div>
+                            <div className="space-y-2.5">
+                              {group.data.slice(0, Math.ceil(itemLimit / 2)).map((pe, i) => {
+                                const maxD = Math.max(...pe.metrics.map(m => Math.abs(m.dpct)));
+                                return (
+                                  <div key={i} className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                    <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center gap-2.5">
+                                      <span className="font-['IBM_Plex_Mono',monospace] text-[11px] font-medium text-[#F8FAFC]">{pe.evt}</span>
+                                      <span className={cn("px-1.5 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[9px] font-medium tracking-[0.04em]", pe.metrics.some(m => !m.up) ? 'bg-[#1E3A8A]/40 text-[#60A5FA]' : 'bg-[#7F1D1D]/40 text-[#EF4444]')}>
+                                        {pe.metrics.some(m => !m.up) ? 'drain pattern' : 'all rising'}
+                                      </span>
+                                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] ml-1">{pe.n} events · {pe.windows} windows</span>
+                                      <span className="font-['IBM_Plex_Mono',monospace] text-[#3B82F6] ml-auto uppercase">earliest {pe.warn}</span>
+                                    </div>
+                                    <div className="grid grid-cols-2">
+                                      {pe.metrics.map((m, j) => {
+                                        const w = Math.min(Math.log10(Math.abs(m.dpct) + 2) / Math.log10(maxD + 2) * 100, 100).toFixed(0);
+                                        return (
+                                          <div key={j} className="flex items-center gap-2 px-3.5 py-1.5 border-b border-[#334155] border-r border-[#334155] odd:border-r even:border-r-0 last:border-b-0 [&:nth-last-child(2)]:border-b-0">
+                                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] min-w-[90px]">{m.m}</span>
+                                            <div className="flex-1 h-[5px] bg-[#0F172A] rounded-[3px] overflow-hidden">
+                                              <div className="h-full rounded-[3px]" style={{ width: `${w}%`, background: m.up ? '#EF4444' : '#3B82F6' }} />
+                                            </div>
+                                            <span className={cn("font-['IBM_Plex_Mono',monospace] text-[10px] min-w-[52px] text-right", m.up ? 'text-[#EF4444]' : 'text-[#3B82F6]')}>{fmt(m.dpct)}</span>
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
                                   </div>
                                 );
                               })}
                             </div>
                           </div>
-                        );
-                      })}
+                        ))}
+                      </>
+                    )}
+                  </section>
+
+                  <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(7) && "hidden")}>
+                    <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">03</span>
+                      <span className="text-[14px] font-semibold tracking-[-0.01em]">KMeans Clustering Patterns</span>
+                      <span className="text-[11px] text-[#94A3B8] ml-auto">KMeans Clustering (K=4) · StandardScaled feature vectors</span>
                     </div>
-                  </div>
-                ))}
-              </>
-            )}
-          </section>
+                    {!isStepReady(7) ? <LoadingState title="K-Means Clustering" /> : (
+                      <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
+                        <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#3DDAB4] font-bold uppercase">INTEGRATED NETWORK-WIDE PATTERN CLUSTERING</span>
+                          <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#3B82F6] uppercase">K=4 / Silhouette: 0.742</div>
+                        </div>
 
-          <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(7) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">03</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Unsupervised Learning: Clustering</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">KMeans Clustering (K=4) · StandardScaled feature vectors</span>
-            </div>
-            {!isStepReady(7) ? <LoadingState title="K-Means Clustering" /> : (
-              <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
-                <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                  <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#3DDAB4] font-bold uppercase">INTEGRATED NETWORK-WIDE PATTERN CLUSTERING</span>
-                  <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#3B82F6] uppercase">K=4 / Silhouette: 0.742</div>
-                </div>
-
-                <div className="p-6 grid grid-cols-[1fr_380px] gap-8 items-start">
-                  <div className="flex flex-col gap-4">
-                    <ClusterPlot clusters={D.clR} limit={itemLimit} />
-                    <div className="flex items-center justify-between px-2 font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">
-                      <span>AGGREGATED FROM 30 ENTITIES</span>
-                      <span>TOTAL SAMPLES: 8,156 WINDOWS</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-[0.1em] uppercase mb-1">Cluster Definitions & Statistical Impact</div>
-                    <div className="grid grid-cols-1 gap-2.5">
-                      {D.clR.map((c, i) => {
-                        const switchSize = D.clS[i]?.size || 0;
-                        const totalSize = c.size + switchSize;
-                        return (
-                          <div key={i} className="bg-[#1e293b]/20 border border-white/5 rounded-md p-3.5 flex flex-col gap-1 transition-all duration-500 hover:bg-[#1e293b]/40"
-                            style={{ opacity: itemLimit > i * 4 ? 1 : 0.2 }}>
-                            <div className="flex items-center justify-between">
-                              <span className="text-[12px] font-bold text-[#F8FAFC]">{c.n}</span>
-                              <div className="px-1.5 py-0.5 rounded bg-[#3B82F6]/10 text-[#3B82F6] text-[9px] font-bold border border-[#3B82F6]/20 uppercase">C{i}</div>
-                            </div>
-                            <div className="flex justify-between font-['IBM_Plex_Mono',monospace] text-[10px]">
-                              <span className="text-[#94A3B8] leading-none">{totalSize.toLocaleString()} windows</span>
-                              <span className="text-[#3DDAB4] leading-none">{((totalSize / 8156) * 100).toFixed(1)}% SHARE</span>
-                            </div>
-                            <div className="pt-2 border-t border-white/5 mt-1">
-                              <div className="flex justify-between text-[9px] mb-1">
-                                <span className="text-[#94A3B8] uppercase">Impact:</span>
-                                <span className="text-[#F8FAFC]/80 font-medium">{c.noEvt}</span>
-                              </div>
-                              <div className="text-[9px] text-[#94A3B8] leading-relaxed">
-                                <span className="text-[#3B82F6] font-bold uppercase mr-1">Correlated events:</span>
-                                {c.evt}
-                              </div>
+                        <div className="p-6 grid grid-cols-[1fr_380px] gap-8 items-start">
+                          <div className="flex flex-col gap-4">
+                            <ClusterPlot clusters={D.clR} limit={itemLimit} />
+                            <div className="flex items-center justify-between px-2 font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">
+                              <span>AGGREGATED FROM 30 ENTITIES</span>
+                              <span>TOTAL SAMPLES: 8,156 WINDOWS</span>
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </section>
 
-          <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(8) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">02</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Supervised ML (Classification)</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Random Forest Event Prediction (150 trees)</span>
-            </div>
-            {!isStepReady(8) ? <LoadingState title="Random Forest" /> : (
-              <>
-
-                {[
-                  { data: D.rfR, device: 'router' as const, title: 'ROUTER — 4 TRAINED / 2 SKIPPED' },
-                  { data: D.rfS, device: 'switch' as const, title: 'SWITCH — 3 TRAINED / 3 SKIPPED' }
-                ].map((group, idx) => (
-                  <div key={idx} className={cn("bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden mb-2.5 last:mb-0", !shouldShow(8) && "hidden")}>
-                    <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
-                    </div>
-                    <div className="p-3.5 space-y-2">
-                      <div className="grid grid-cols-[160px_50px_50px_50px_50px_1fr] gap-2 items-start pb-1.5 border-b border-[#334155]">
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-[0.07em]">EVENT</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-center">F1</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-center">PREC</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-center">REC</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-center">ACC</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">TOP 3 FEATURES</span>
+                          <div className="space-y-3">
+                            <div className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-[0.1em] uppercase mb-1">Cluster Definitions & Statistical Impact</div>
+                            <div className="grid grid-cols-1 gap-2.5">
+                              {D.clR.map((c, i) => {
+                                const switchSize = D.clS[i]?.size || 0;
+                                const totalSize = c.size + switchSize;
+                                return (
+                                  <div key={i} className="bg-[#1e293b]/20 border border-white/5 rounded-md p-3.5 flex flex-col gap-1 transition-all duration-500 hover:bg-[#1e293b]/40"
+                                    style={{ opacity: itemLimit > i * 4 ? 1 : 0.2 }}>
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-[12px] font-bold text-[#F8FAFC]">{c.n}</span>
+                                      <div className="px-1.5 py-0.5 rounded bg-[#3B82F6]/10 text-[#3B82F6] text-[9px] font-bold border border-[#3B82F6]/20 uppercase">C{i}</div>
+                                    </div>
+                                    <div className="flex justify-between font-['IBM_Plex_Mono',monospace] text-[10px]">
+                                      <span className="text-[#94A3B8] leading-none">{totalSize.toLocaleString()} windows</span>
+                                      <span className="text-[#3DDAB4] leading-none">{((totalSize / 8156) * 100).toFixed(1)}% SHARE</span>
+                                    </div>
+                                    <div className="pt-2 border-t border-white/5 mt-1">
+                                      <div className="flex justify-between text-[9px] mb-1">
+                                        <span className="text-[#94A3B8] uppercase">Impact:</span>
+                                        <span className="text-[#F8FAFC]/80 font-medium">{c.noEvt}</span>
+                                      </div>
+                                      <div className="text-[9px] text-[#94A3B8] leading-relaxed">
+                                        <span className="text-[#3B82F6] font-bold uppercase mr-1">Correlated events:</span>
+                                        {c.evt}
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      {group.data.slice(0, itemLimit).map((r, i) => (
-                        <div key={i} className={cn("grid grid-cols-[160px_50px_50px_50px_50px_1fr] gap-2 items-start py-2 border-b border-[#334155] last:border-none animate-in fade-in slide-in-from-left-2 duration-300", r.skip && "opacity-40")}>
-                          <div>
-                            <div className="text-[11px] font-medium text-[#F8FAFC]">{r.evt}</div>
-                            <div className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">{r.skip ? `SKIPPED — ${r.reason}` : `${r.pos} pos rate`}</div>
+                    )}
+                  </section>
+
+                  <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(8) && "hidden")}>
+                    <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">02</span>
+                      <span className="text-[14px] font-semibold tracking-[-0.01em]">Supervised ML (Classification)</span>
+                      <button
+                        onClick={() => setShowRFTable(!showRFTable)}
+                        className={cn("ml-2 p-1 rounded-full transition-all", showRFTable ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#94A3B8] hover:text-white")}
+                      >
+                        <Info className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                    {!isStepReady(8) ? <LoadingState title="Random Forest" /> : (
+                      <div className="animate-in fade-in duration-700">
+                        {!showRFTable ? (
+                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-2">
+                            {unifiedRFData.slice(0, itemLimit).map((r, i) => (
+                              <AccuracyGauge
+                                key={i}
+                                value={r.acc || 0}
+                                label={r.evt}
+                                dev={r.dev}
+                                feats={r.feats}
+                              />
+                            ))}
                           </div>
-                          {!r.skip && r.f1 !== undefined && (
-                            <>
-                              <div className="text-[11px] font-['IBM_Plex_Mono',monospace] text-center" style={{ color: (r.f1 as number) > 0.88 ? '#3B82F6' : (r.f1 as number) > 0.82 ? '#F8FAFC' : '#CBD5E1' }}>
-                                {r.f1}
-                                <div className="h-[2px] mt-0.5 rounded-[1px] bg-[#0B0F19]">
-                                  <div className="h-full rounded-[1px]" style={{ width: `${((r.f1 as number) * 100).toFixed(0)}%`, background: (r.f1 as number) > 0.88 ? '#3B82F6' : '#2563EB' }} />
+                        ) : (
+                          <div className="space-y-4">
+                            {[
+                              { data: D.rfR, device: 'router' as const, title: 'ROUTER — 4 TRAINED / 2 SKIPPED' },
+                              { data: D.rfS, device: 'switch' as const, title: 'SWITCH — 3 TRAINED / 3 SKIPPED' }
+                            ].map((group, idx) => (
+                              <div key={idx} className={cn("bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden mb-2.5 last:mb-0")}>
+                                <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
+                                </div>
+                                <div className="p-3.5 space-y-2">
+                                  <div className="grid grid-cols-[160px_50px_50px_50px_50px_1fr] gap-2 items-start pb-1.5 border-b border-[#334155]">
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-[0.07em]">EVENT</span>
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-center">F1</span>
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-center">PREC</span>
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-center">REC</span>
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-center">ACC</span>
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">TOP 3 FEATURES</span>
+                                  </div>
+                                  {group.data.slice(0, itemLimit).map((r, i) => (
+                                    <div key={i} className={cn("grid grid-cols-[160px_50px_50px_50px_50px_1fr] gap-2 items-start py-2 border-b border-[#334155] last:border-none animate-in fade-in slide-in-from-left-2 duration-300", r.skip && "opacity-40")}>
+                                      <div>
+                                        <div className="text-[11px] font-medium text-[#F8FAFC]">{r.evt}</div>
+                                        <div className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">{r.skip ? `SKIPPED — ${r.reason}` : `${r.pos} pos rate`}</div>
+                                      </div>
+                                      {!r.skip && r.f1 !== undefined && (
+                                        <>
+                                          <div className="text-[11px] font-['IBM_Plex_Mono',monospace] text-center" style={{ color: (r.f1 as number) > 0.88 ? '#3B82F6' : (r.f1 as number) > 0.82 ? '#F8FAFC' : '#CBD5E1' }}>
+                                            {r.f1}
+                                            <div className="h-[2px] mt-0.5 rounded-[1px] bg-[#0B0F19]">
+                                              <div className="h-full rounded-[1px]" style={{ width: `${((r.f1 as number) * 100).toFixed(0)}%`, background: (r.f1 as number) > 0.88 ? '#3B82F6' : '#2563EB' }} />
+                                            </div>
+                                          </div>
+                                          <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-center text-[#CBD5E1]">{r.prec}</div>
+                                          <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-center text-[#CBD5E1]">{r.rec}</div>
+                                          <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-center text-[#CBD5E1]">{r.acc}</div>
+                                          <div className="flex flex-col gap-1">
+                                            {r.feats?.map(([fn, fi], k) => (
+                                              <div key={k} className="flex items-center gap-1.5">
+                                                <div className="h-[2px] rounded-[1px] bg-[#3B82F6]" style={{ width: `${Math.min(fi * 150, 48)}px` }} />
+                                                <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] whitespace-nowrap">{fn}</span>
+                                                <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] ml-auto">{(fi * 100).toFixed(1)}%</span>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        </>
+                                      )}
+                                    </div>
+                                  ))}
                                 </div>
                               </div>
-                              <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-center text-[#CBD5E1]">{r.prec}</div>
-                              <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-center text-[#CBD5E1]">{r.rec}</div>
-                              <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-center text-[#CBD5E1]">{r.acc}</div>
-                              <div className="flex flex-col gap-1">
-                                {r.feats?.map(([fn, fi], k) => (
-                                  <div key={k} className="flex items-center gap-1.5">
-                                    <div className="h-[2px] rounded-[1px] bg-[#3B82F6]" style={{ width: `${Math.min(fi * 150, 48)}px` }} />
-                                    <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] whitespace-nowrap">{fn}</span>
-                                    <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] ml-auto">{(fi * 100).toFixed(1)}%</span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </section>
+                  <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(9) && "hidden")}>
+                    <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">08</span>
+                      <span className="text-[14px] font-semibold tracking-[-0.01em]">Sequential Pattern Mining</span>
+                      <span className="text-[11px] text-[#94A3B8] ml-auto">Event Sequence Mining (confidence-scored 3rd order sequences)</span>
+                    </div>
+                    {!isStepReady(9) ? <LoadingState title="Sequence Mining" /> : (
+                      <div className="grid grid-cols-2 gap-3 items-start">
+                        {[
+                          { data: D.seqR, device: 'router' as const, title: 'ROUTER — 32 sessions · 5 devices' },
+                          { data: D.seqS, device: 'switch' as const, title: 'SWITCH — 41 sessions · 5 devices' }
+                        ].map((group, idx) => {
+                          const evtShort: any = { 'HIGH_UTIL_WARNING': 'HUW', 'PACKET_DROP': 'PKT', 'INTERFACE_FLAP': 'IFLAP', 'HIGH_LATENCY': 'HLAT', 'LINK_DOWN': 'LDOWN', 'DEVICE_REBOOT': 'REBOOT' };
+                          const evtCol: any = {
+                            'HIGH_UTIL_WARNING': 'bg-[#78350F]/40 text-[#F59E0B]',
+                            'PACKET_DROP': 'bg-[#7F1D1D]/40 text-[#F87171]',
+                            'INTERFACE_FLAP': 'bg-[#7F1D1D]/40 text-[#F87171]',
+                            'HIGH_LATENCY': 'bg-[#78350F]/40 text-[#F59E0B]',
+                            'LINK_DOWN': 'bg-[#334155]/40 text-[#94A3B8]',
+                            'DEVICE_REBOOT': 'bg-[#7F1D1D]/40 text-[#F87171]'
+                          };
+                          return (
+                            <div key={idx} className={cn("bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden", !shouldShow(9) && "hidden")}>
+                              <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
+                              </div>
+                              <div className="p-3.5 space-y-2">
+                                {group.data.slice(0, itemLimit).map((s, i) => (
+                                  <div key={i} className="py-2 border-b border-[#334155] last:border-none animate-in fade-in slide-in-from-left-2 duration-300">
+                                    <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                                      {s.seq.map((e, k) => (
+                                        <div key={k} className="flex items-center gap-1.5">
+                                          <span className={cn("px-2 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[9px] whitespace-nowrap", evtCol[e] || 'bg-[#334155]/40 text-[#94A3B8]')}>
+                                            {evtShort[e] || e}
+                                          </span>
+                                          {k < s.seq.length - 1 && <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">→</span>}
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <div className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] mb-1">{s.seq.join(' → ')}</div>
+                                    <div className="flex gap-4 font-['IBM_Plex_Mono',monospace] text-[10px]">
+                                      <span><span className="text-[#94A3B8]">support</span> <span className="text-[#CBD5E1]">{s.supp}</span></span>
+                                      <span><span className="text-[#94A3B8]">conf</span> <span className="text-[#CBD5E1]">{s.conf.toFixed(2)}</span></span>
+                                      <div className="ml-auto flex items-center">
+                                        <div className="h-[2px] bg-[#3B82F6] rounded-[1px]" style={{ width: `${(s.conf * 50).toFixed(0)}px` }} />
+                                      </div>
+                                    </div>
                                   </div>
                                 ))}
                               </div>
-                            </>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </>
-            )}
-          </section>
-          <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(9) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">07</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Sequential Pattern Mining</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Event Sequence Mining (confidence-scored 3rd order sequences)</span>
-            </div>
-            {!isStepReady(9) ? <LoadingState title="Sequence Mining" /> : (
-              <div className="grid grid-cols-2 gap-3 items-start">
-                {[
-                  { data: D.seqR, device: 'router' as const, title: 'ROUTER — 32 sessions · 5 devices' },
-                  { data: D.seqS, device: 'switch' as const, title: 'SWITCH — 41 sessions · 5 devices' }
-                ].map((group, idx) => {
-                  const evtShort: any = { 'HIGH_UTIL_WARNING': 'HUW', 'PACKET_DROP': 'PKT', 'INTERFACE_FLAP': 'IFLAP', 'HIGH_LATENCY': 'HLAT', 'LINK_DOWN': 'LDOWN', 'DEVICE_REBOOT': 'REBOOT' };
-                  const evtCol: any = {
-                    'HIGH_UTIL_WARNING': 'bg-[#78350F]/40 text-[#F59E0B]',
-                    'PACKET_DROP': 'bg-[#7F1D1D]/40 text-[#F87171]',
-                    'INTERFACE_FLAP': 'bg-[#7F1D1D]/40 text-[#F87171]',
-                    'HIGH_LATENCY': 'bg-[#78350F]/40 text-[#F59E0B]',
-                    'LINK_DOWN': 'bg-[#334155]/40 text-[#94A3B8]',
-                    'DEVICE_REBOOT': 'bg-[#7F1D1D]/40 text-[#F87171]'
-                  };
-                  return (
-                    <div key={idx} className={cn("bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden", !shouldShow(9) && "hidden")}>
-                      <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
+                            </div>
+                          );
+                        })}
                       </div>
-                      <div className="p-3.5 space-y-2">
-                        {group.data.slice(0, itemLimit).map((s, i) => (
-                          <div key={i} className="py-2 border-b border-[#334155] last:border-none animate-in fade-in slide-in-from-left-2 duration-300">
-                            <div className="flex items-center gap-1.5 mb-1 flex-wrap">
-                              {s.seq.map((e, k) => (
-                                <div key={k} className="flex items-center gap-1.5">
-                                  <span className={cn("px-2 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[9px] whitespace-nowrap", evtCol[e] || 'bg-[#334155]/40 text-[#94A3B8]')}>
-                                    {evtShort[e] || e}
-                                  </span>
-                                  {k < s.seq.length - 1 && <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">→</span>}
+                    )}
+                  </section>
+
+                  <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(12) && "hidden")}>
+                    <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">09</span>
+                      <span className="text-[14px] font-semibold tracking-[-0.01em]">Analytical Step: Event Co-occurrence</span>
+                      <span className="text-[11px] text-[#94A3B8] ml-auto">Statistical Lift & Support Matrix (Lift &gt; 1.0)</span>
+                    </div>
+                    {!isStepReady(11) ? <LoadingState title="Co-occurrence Analysis" /> : (
+                      <div className="grid grid-cols-2 gap-3 items-start">
+                        {[
+                          { data: D.coocR, title: 'ROUTER — 32 sessions' },
+                          { data: D.coocS, title: 'SWITCH — 42 sessions' }
+                        ].map((group, idx) => (
+                          <div key={idx} className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
+                            <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
+                            </div>
+                            <div className="p-3.5 space-y-1.5">
+                              <div className="grid grid-cols-[130px_14px_130px_50px_50px] gap-2 pb-1.5 items-center border-b border-[#334155]">
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EVENT A</span>
+                                <span />
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EVENT B</span>
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">COUNT</span>
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">LIFT</span>
+                              </div>
+                              {group.data.slice(0, itemLimit).map((d, i) => (
+                                <div key={i} className="grid grid-cols-[130px_14px_130px_50px_50px] gap-2 items-center py-2 border-b border-[#334155] last:border-none animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.02]">
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.a}</span>
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center">&amp;</span>
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.b}</span>
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right text-[#94A3B8]">{d.n}</span>
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right font-bold" style={{ color: d.lift > 1.01 ? '#3DDAB4' : '#94A3B8' }}>{d.lift.toFixed(2)}</span>
                                 </div>
                               ))}
                             </div>
-                            <div className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] mb-1">{s.seq.join(' → ')}</div>
-                            <div className="flex gap-4 font-['IBM_Plex_Mono',monospace] text-[10px]">
-                              <span><span className="text-[#94A3B8]">support</span> <span className="text-[#CBD5E1]">{s.supp}</span></span>
-                              <span><span className="text-[#94A3B8]">conf</span> <span className="text-[#CBD5E1]">{s.conf.toFixed(2)}</span></span>
-                              <div className="ml-auto flex items-center">
-                                <div className="h-[2px] bg-[#3B82F6] rounded-[1px]" style={{ width: `${(s.conf * 50).toFixed(0)}px` }} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+
+                  <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(10) && "hidden")}>
+                    <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">10</span>
+                      <span className="text-[14px] font-semibold tracking-[-0.01em]">Failure Chain Patterns</span>
+                      <span className="text-[11px] text-[#94A3B8] ml-auto">Pattern Mining Logic (lead time ordering)</span>
+                    </div>
+                    {!isStepReady(10) ? <LoadingState title="Failure Chains" /> : (
+                      <div className="grid grid-cols-2 gap-3 items-start">
+                        {[
+                          { data: D.chainsR, device: 'router' as const, label: 'ROUTER — 4 chains' },
+                          { data: D.chainsS, device: 'switch' as const, label: 'SWITCH — 4 chains' }
+                        ].map((group, idx) => (
+                          <div key={idx} className={cn(!shouldShow(10) && "hidden")}>
+                            <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] mb-2 tracking-[0.06em]">{group.label}</div>
+                            <div className="space-y-2">
+                              {group.data.slice(0, itemLimit).map((c, i) => {
+                                const isCritical = ['PACKET_DROP', 'DEVICE_REBOOT', 'INTERFACE_FLAP'].includes(c.evt);
+                                const severityColor = isCritical ? 'border-l-[#EF4444]' : 'border-l-[#F59E0B]';
+                                const badgeColor = isCritical ? 'bg-[#7F1D1D]/40 text-[#F87171]' : 'bg-[#78350F]/40 text-[#F59E0B]';
+
+                                return (
+                                  <div key={i} className={cn("bg-[#1e293b]/40 border border-[#334155] rounded-[10px] p-3.5 border-l-[3px] animate-in fade-in slide-in-from-bottom-2 duration-500", severityColor)}>
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <span className={cn("px-1.5 py-1 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[9px] font-bold tracking-[0.06em] uppercase bg-[#334155]/60 text-[#CBD5E1]")}>
+                                        {group.device === 'router' ? 'router' : 'switch'}
+                                      </span>
+                                      <span className="font-['IBM_Plex_Mono',monospace] text-[11px] font-medium text-[#F8FAFC]">{c.evt}</span>
+                                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">seen {c.n}×</span>
+                                    </div>
+                                    <div className="flex flex-wrap items-center gap-1">
+                                      {c.steps.map((s, k) => (
+                                        <div key={k} className="flex items-center gap-1">
+                                          <span className={cn("px-2 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[9px] whitespace-nowrap bg-[#1E3A8A]/30 text-[#60A5FA] border border-[#3B82F6]/20")}>
+                                            {s.m} {s.d}
+                                          </span>
+                                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#334155]">→</span>
+                                        </div>
+                                      ))}
+                                      <span className={cn("px-2 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[10px] whitespace-nowrap font-bold", badgeColor)}>{c.evt}</span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </section>
+
+                  <section className={cn("mt-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(11) && "hidden")}>
+                    <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">04</span>
+                      <span className="text-[14px] font-semibold tracking-[-0.01em]">Isolation Forest Anomaly Risks</span>
+                      <button
+                        onClick={() => setShowAnomTable(!showAnomTable)}
+                        className={cn("ml-2 p-1 rounded-full transition-all", showAnomTable ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#94A3B8] hover:text-white")}
+                      >
+                        <Info className="w-3.5 h-3.5" />
+                      </button>
+                      <span className="text-[11px] text-[#94A3B8] ml-auto">Isolation Forest (contamination 5%)</span>
+                    </div>
+                    {!isStepReady(11) ? <LoadingState title="Isolation Forest" /> : (
+                      <div className="animate-in fade-in duration-700">
+                        {!showAnomTable ? (
+                          <div className="grid grid-cols-[1fr_400px] gap-6 items-start">
+                            <AnomalyHeatMap data={[...D.anomR.map(d => ({ ...d })), ...D.anomS.map(d => ({ ...d }))].sort((a, b) => b.rate - a.rate).slice(0, 15)} />
+
+                            <div className="space-y-4">
+                              <div className="bg-[#1E293B]/60 p-6 rounded-xl border border-white/5 flex flex-col items-center justify-center text-center shadow-lg">
+                                <div className="text-4xl font-black text-[#EF4444] mb-1">5.0%</div>
+                                <div className="text-[10px] font-black text-[#64748B] uppercase tracking-[3px]">Global Anomaly Rate</div>
+                                <div className="mt-4 text-[10px] text-[#475569] leading-relaxed max-w-[220px]">
+                                  205 windows significantly deviated from the isolation forest baseline topology.
+                                </div>
+                              </div>
+
+                              <div className="bg-[#1E293B]/60 p-5 rounded-xl border border-white/5 space-y-3 shadow-lg">
+                                <div className="text-[9px] font-black text-[#94A3B8] uppercase tracking-[0.2em] mb-2 border-b border-white/5 pb-2">TOP RISK VECTORS</div>
+                                {[...D.anomR, ...D.anomS].filter(d => d.risk === 'MED' || d.risk === 'HIGH').slice(0, 5).map((d, i) => (
+                                  <div key={i} className="flex flex-col gap-1 transition-all hover:translate-x-1 duration-300">
+                                    <div className="flex justify-between items-center bg-black/20 p-2 rounded border border-white/5">
+                                      <span className="text-[10px] font-bold text-[#F8FAFC] truncate max-w-[180px]">{d.e}</span>
+                                      <span className="text-[10px] font-bold text-[#EF4444]">{d.rate.toFixed(1)}%</span>
+                                    </div>
+                                    <div className="flex gap-1">
+                                      {['cpu', 'qd', 'crc'].map(m => (
+                                        <div key={m} className="flex-1 h-[2px] bg-[#334155] rounded-full overflow-hidden">
+                                          <div className="h-full bg-[#EF4444]" style={{ width: `${(d.metrics?.[m as keyof typeof d.metrics] || 0) * 8}%` }} />
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))}
                               </div>
                             </div>
                           </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
-
-          <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", activeTab !== 7 && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">08</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Event Co-occurrence</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Co-occurrence Matrix + Lift (Lift &gt; 1 indicates strong correlation)</span>
-            </div>
-            {!isStepReady(11) ? <LoadingState title="Co-occurrence Analysis" /> : (
-              <div className="grid grid-cols-2 gap-3 items-start">
-                {[
-                  { data: D.coocR, title: 'ROUTER — 32 sessions' },
-                  { data: D.coocS, title: 'SWITCH — 42 sessions' }
-                ].map((group, idx) => (
-                  <div key={idx} className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
-                    <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
-                    </div>
-                    <div className="p-3.5 space-y-1.5">
-                      <div className="grid grid-cols-[130px_14px_130px_50px_50px] gap-2 pb-1.5 items-center border-b border-[#334155]">
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EVENT A</span>
-                        <span />
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EVENT B</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">COUNT</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">LIFT</span>
-                      </div>
-                      {group.data.slice(0, itemLimit).map((d, i) => (
-                        <div key={i} className="grid grid-cols-[130px_14px_130px_50px_50px] gap-2 items-center py-2 border-b border-[#334155] last:border-none animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.02]">
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.a}</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center">&amp;</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.b}</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right text-[#94A3B8]">{d.n}</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right font-bold" style={{ color: d.lift > 1.01 ? '#3DDAB4' : '#94A3B8' }}>{d.lift.toFixed(2)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(10) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">09</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Failure Chain Patterns</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Pattern Mining Logic (lead time ordering)</span>
-            </div>
-            {!isStepReady(10) ? <LoadingState title="Failure Chains" /> : (
-              <div className="grid grid-cols-2 gap-3 items-start">
-                {[
-                  { data: D.chainsR, device: 'router' as const, label: 'ROUTER — 4 chains' },
-                  { data: D.chainsS, device: 'switch' as const, label: 'SWITCH — 4 chains' }
-                ].map((group, idx) => (
-                  <div key={idx} className={cn(!shouldShow(10) && "hidden")}>
-                    <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] mb-2 tracking-[0.06em]">{group.label}</div>
-                    <div className="space-y-2">
-                      {group.data.slice(0, itemLimit).map((c, i) => {
-                        const isCritical = ['PACKET_DROP', 'DEVICE_REBOOT', 'INTERFACE_FLAP'].includes(c.evt);
-                        const severityColor = isCritical ? 'border-l-[#EF4444]' : 'border-l-[#F59E0B]';
-                        const badgeColor = isCritical ? 'bg-[#7F1D1D]/40 text-[#F87171]' : 'bg-[#78350F]/40 text-[#F59E0B]';
-
-                        return (
-                          <div key={i} className={cn("bg-[#1e293b]/40 border border-[#334155] rounded-[10px] p-3.5 border-l-[3px] animate-in fade-in slide-in-from-bottom-2 duration-500", severityColor)}>
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className={cn("px-1.5 py-1 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[9px] font-bold tracking-[0.06em] uppercase bg-[#334155]/60 text-[#CBD5E1]")}>
-                                {group.device === 'router' ? 'router' : 'switch'}
-                              </span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] font-medium text-[#F8FAFC]">{c.evt}</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">seen {c.n}×</span>
+                        ) : (
+                          <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden shadow-2xl">
+                            <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium uppercase">STATISTICAL ANOMALY DISTRIBUTION (FULL TABLE)</span>
+                              <span className="text-[9px] text-[#475569] font-['IBM_Plex_Mono',monospace]">N=128 ENTITIES</span>
                             </div>
-                            <div className="flex flex-wrap items-center gap-1">
-                              {c.steps.map((s, k) => (
-                                <div key={k} className="flex items-center gap-1">
-                                  <span className={cn("px-2 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[9px] whitespace-nowrap bg-[#1E3A8A]/30 text-[#60A5FA] border border-[#3B82F6]/20")}>
-                                    {s.m} {s.d}
-                                  </span>
-                                  <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#334155]">→</span>
-                                </div>
-                              ))}
-                              <span className={cn("px-2 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[10px] whitespace-nowrap font-bold", badgeColor)}>{c.evt}</span>
+                            <div className="p-0 overflow-auto max-h-[500px]">
+                              <div className="grid grid-cols-[160px_60px_1fr_65px_60px_80px] gap-4 py-2 px-4 items-center bg-[#0F172A]/30 border-b border-[#334155] sticky top-0 z-10">
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Entity</span>
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Type</span>
+                                <span />
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-right">Anom %</span>
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-right">Score</span>
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-center">Risk</span>
+                              </div>
+                              {[...D.anomR.map(d => ({ ...d, dev: 'Router' })), ...D.anomS.map(d => ({ ...d, dev: 'Switch' }))].sort((a, b) => b.rate - a.rate).slice(0, 40).map((d, i) => {
+                                const maxRate = 12;
+                                return (
+                                  <div key={i} className="grid grid-cols-[160px_60px_1fr_65px_60px_80px] gap-4 items-center py-2.5 px-4 border-b border-[#334155] last:border-none animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.02] transition-colors">
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#F8FAFC] truncate font-bold">{d.e}</span>
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[8px] text-[#94A3B8] uppercase opacity-60">{d.dev}</span>
+                                    <Bar val={d.rate} max={maxRate} col={d.risk === 'HIGH' ? '#EF4444' : d.risk === 'MED' ? '#F59E0B' : '#3B82F6'} />
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-right font-medium" style={{ color: d.risk === 'HIGH' ? '#EF4444' : d.risk === 'MED' ? '#F59E0B' : '#94A3B8' }}>{d.rate.toFixed(1)}%</span>
+                                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right text-[#475569]">{d.score.toFixed(4)}</span>
+                                    <div className="flex justify-center">
+                                      <span className={cn("px-2 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[9px] font-black tracking-[0.04em] text-center w-full max-w-[60px]",
+                                        d.risk === 'HIGH' ? 'bg-[#7F1D1D]/40 text-[#F87171] border border-[#EF4444]/20' :
+                                          d.risk === 'MED' ? 'bg-[#78350F]/40 text-[#F59E0B] border border-[#F59E0B]/20' :
+                                            'bg-[#334155]/40 text-[#94A3B8] border border-white/5')}>
+                                        {d.risk}
+                                      </span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          <section className={cn("mt-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(11) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">03</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Unsupervised Learning: Anomaly Detection</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Isolation Forest (contamination 5%)</span>
-            </div>
-            {!isStepReady(11) ? <LoadingState title="Isolation Forest" /> : (
-              <div className="grid grid-cols-2 gap-3 items-start">
-                {[
-                  { data: D.anomR, device: 'router' as const, title: 'ROUTER — 204/4,079 flagged (5.0%)' },
-                  { data: D.anomS, device: 'switch' as const, title: 'SWITCH — 204/4,077 flagged (5.0%)' }
-                ].map((group, idx) => {
-                  const maxAnomR = Math.max(...group.data.map(d => d.rate));
-                  return (
-                    <div key={idx} className={cn("bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden", !shouldShow(11) && "hidden")}>
-                      <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
+                        )}
                       </div>
-                      <div className="p-3.5 space-y-1.5">
-                        {group.data.slice(0, itemLimit).map((d, i) => (
-                          <div key={i} className="grid grid-cols-[150px_1fr_55px_50px] gap-2 items-center py-1.5 border-b border-[#334155] last:border-none animate-in fade-in slide-in-from-left-2 duration-300">
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1]">{d.e}</span>
-                            <Bar val={d.rate} max={maxAnomR} col={d.risk === 'HIGH' ? '#EF4444' : d.risk === 'MED' ? '#F59E0B' : '#3B82F6'} />
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right" style={{ color: d.risk === 'HIGH' ? '#EF4444' : d.risk === 'MED' ? '#F59E0B' : '#94A3B8' }}>{d.rate.toFixed(1)}%</span>
-                            <span className={cn("px-1.5 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[9px] font-medium tracking-[0.04em] text-center", d.risk === 'HIGH' ? 'bg-[#7F1D1D]/40 text-[#F87171]' : d.risk === 'MED' ? 'bg-[#78350F]/40 text-[#F59E0B]' : 'bg-[#334155]/40 text-[#94A3B8]')}>
-                              {d.risk}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </section>
+                    )}
+                  </section>
 
 
 
-          <section className={cn("mt-8 pb-32 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(12) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3DDAB4]/50 mb-6">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">10</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Training Artifacts & Model Registry</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Compiled binary objects (.pkl) and deployment metadata</span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {COMPILED_MODELS.map((m, i) => (
-                <div
-                  key={i}
-                  className="bg-[#1e293b]/40 border border-[#334155] hover:border-[#3B82F6]/50 rounded-[12px] p-4 group transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] animate-in fade-in zoom-in duration-500"
-                  style={{ animationDelay: `${i * 40}ms` }}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="w-10 h-10 bg-[#0F172A] rounded-lg border border-white/5 flex items-center justify-center group-hover:scale-110 transition-transform">
-                      <div className="w-1.5 h-1.5 rounded-full" style={{ background: m.col }} />
-                    </div>
-                    <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] bg-[#0F172A] px-2 py-0.5 rounded border border-white/5 uppercase tracking-wider">
-                      {m.size}
-                    </span>
-                  </div>
-
-                  <div className="space-y-1">
-                    <div className="font-['IBM_Plex_Mono',monospace] text-[11px] font-bold text-[#F8FAFC] truncate" title={m.name}>
-                      {m.name}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] text-[#94A3B8] uppercase tracking-tight">{m.type}</span>
-                      <span className="w-1 h-1 rounded-full bg-[#334155]" />
-                      <span className="text-[10px] text-[#3B82F6] font-medium uppercase tracking-tighter">{m.device}</span>
-                    </div>
-                  </div>
-
-                  <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-[#3DDAB4] shadow-[0_0_8px_#3DDAB480]" />
-                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#3DDAB4] font-bold tracking-tighter">READY FOR INFERENCE</span>
-                    </div>
-                    <button className="text-[#94A3B8] hover:text-white transition-colors">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-8 p-6 bg-[#3DDAB4]/5 border border-[#3DDAB4]/20 rounded-xl flex items-center gap-6">
-              <div className="w-12 h-12 rounded-full bg-[#3DDAB4]/10 flex items-center justify-center flex-shrink-0 border border-[#3DDAB4]/30">
-                <CheckCircle2 className="w-6 h-6 text-[#3DDAB4]" />
-              </div>
-              <div className="space-y-1">
-                <div className="text-[14px] font-bold text-[#F8FAFC]">Model Registry Successfully Updated</div>
-                <p className="text-[#94A3B8] text-[11px] leading-relaxed">
-                  All binary objects have been serialized and pushed to the inference engine. These patterns are now active for live-streaming predictions and automated root cause analysis.
-                </p>
-              </div>
-              <button className="ml-auto bg-[#3DDAB4] text-[#0F172A] px-5 py-2 rounded-md font-bold text-[11px] hover:bg-[#2bc4a0] transition-all shadow-[0_4px_12px_rgba(61,218,180,0.2)]">
-                DEPLOY TO PRODUCTION
-              </button>
-            </div>
-          </section>
 
         </main>
       </div>
@@ -2472,4 +2613,7 @@ export default function TrainingLovelablePage() {
     </MainLayout>
   );
 }
+
+
+
 
