@@ -12,6 +12,12 @@ const fmt = (v: number) => {
   return (v > 0 ? '+' : '') + v.toFixed(0) + '%';
 };
 
+const colors = ['#3B82F6', '#8B5CF6', '#3DDAB4', '#F59E0B', '#EF4444', '#EC4899'];
+const chartHeight = 320;
+const paddingX = 80;
+const paddingY = 100;
+
+
 const Bar = ({ val, max, col }: { val: number, max: number, col: string }) => {
   const pct = Math.min(val / max * 100, 100).toFixed(1);
   return (
@@ -275,43 +281,64 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
     { key: 'crc', label: 'CRC_ERRORS' }
   ];
 
-  const chartScale = 1.2;
-  const chartHeight = 160 * chartScale;
-  const paddingX = 60;
-  const paddingY = 60;
-  const colors = ['#EF4444', '#F59E0B', '#3B82F6', '#10B981', '#A855F7'];
-
   return (
-    <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden shadow-2xl animate-in fade-in duration-700 mt-6">
-      <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#3B82F6] font-bold uppercase">MULTIVARIATE ANOMALY SPIKE ANALYSIS</span>
-        <div className="flex gap-4 items-center">
+    <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[15px] overflow-hidden shadow-2xl animate-in fade-in duration-1000 mt-6 relative group">
+      <div className="px-5 py-3.5 bg-[#0F172A] border-b border-[#334155] flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="flex flex-col">
+          <span className="font-['IBM_Plex_Mono',monospace] text-[11px] tracking-[0.15em] text-[#3B82F6] font-black uppercase flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse" />
+            Multivariate Anomaly Spike Analysis
+          </span>
+          <span className="text-[9px] text-[#475569] font-bold mt-1 uppercase tracking-tight">Quantitative Drift Vectorization (Scale: 0.0% — 15.0%)</span>
+        </div>
+        <div className="flex flex-wrap gap-3 items-center">
           {data.slice(0, 5).map((d, i) => (
-            <div key={i} className="flex items-center gap-1.5 animate-in fade-in slide-in-from-right-2 duration-500" style={{ animationDelay: `${i * 100}ms` }}>
-              <div className="w-1.5 h-1.5 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.2)]" style={{ background: colors[i % colors.length] }} />
-              <span className="font-['IBM_Plex_Mono',monospace] text-[9px] font-bold text-[#94A3B8] uppercase tracking-tighter">{d.e}</span>
+            <div key={i} className="flex items-center gap-2 bg-[#0F172A] border border-white/5 px-2 py-1 rounded-md" style={{ animationDelay: `${i * 100}ms` }}>
+              <div className="w-2 h-2 rounded-full" style={{ background: colors[i % colors.length], boxShadow: `0 0 10px ${colors[i % colors.length]}` }} />
+              <span className="font-['IBM_Plex_Mono',monospace] text-[9px] font-bold text-[#CBD5E1] uppercase tracking-tighter whitespace-nowrap">{d.e}</span>
             </div>
           ))}
         </div>
       </div>
-      <div className="p-8 pb-12 h-[320px] relative">
+
+      <div className="p-10 h-[400px] relative mt-2">
+        {/* Y-Axis Label */}
+        <div className="absolute left-4 top-1/2 -rotate-90 origin-left -translate-y-1/2 flex items-center gap-2 transition-opacity group-hover:opacity-100 opacity-40">
+           <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] font-black uppercase tracking-widest whitespace-nowrap">Spike Magnitude (%)</span>
+        </div>
+
         <svg className="w-full h-full overflow-visible" viewBox={`0 0 1000 ${chartHeight + paddingY}`}>
-          {/* Grids */}
-          {[0, 25, 50, 75, 100].map(v => (
-            <line
-              key={v}
-              x1={paddingX}
-              y1={chartHeight - (v / 100 * chartHeight)}
-              x2="1000"
-              y2={chartHeight - (v / 100 * chartHeight)}
-              stroke="#334155"
-              strokeWidth="0.5"
-              strokeDasharray="4 4"
-            />
-          ))}
+          {/* Y-Axis Lines & Labels */}
+          {[0, 3.75, 7.5, 11.25, 15].map((v, i) => {
+            const y = chartHeight - (v / 15 * chartHeight);
+            return (
+              <g key={i}>
+                <line
+                  x1={paddingX}
+                  y1={y}
+                  x2="1000"
+                  y2={y}
+                  stroke="#334155"
+                  strokeWidth="0.5"
+                  strokeDasharray="4 4"
+                  className="opacity-40"
+                />
+                <text 
+                  x={paddingX - 15} 
+                  y={y} 
+                  textAnchor="end" 
+                  alignmentBaseline="middle"
+                  className="font-['IBM_Plex_Mono',monospace] text-[10px] fill-[#475569] font-black"
+                >
+                  {v.toFixed(1)}%
+                </text>
+              </g>
+            );
+          })}
 
           {/* Lines for each top entity */}
           {data.slice(0, 5).map((d, i) => {
+            const color = colors[i % colors.length];
             const points = metrics.map((m, idx) => {
               const x = paddingX + (idx * (1000 - paddingX) / (metrics.length - 1));
               const val = d.metrics?.[m.key] || 0;
@@ -319,25 +346,52 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
               return `${x},${y}`;
             }).join(' ');
 
-            const color = colors[i % colors.length];
-
             return (
-              <g key={i} className="group/line">
+              <g key={i} className="group/line transition-all duration-300">
                 <polyline
                   points={points}
                   fill="none"
                   stroke={color}
-                  strokeWidth="3"
+                  strokeWidth="3.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="opacity-60 transition-all duration-500 group-hover/line:opacity-100 group-hover/line:stroke-[5px]"
+                  className="opacity-40 transition-all duration-500 group-hover/line:opacity-100 group-hover/line:stroke-[5px]"
+                />
+                <polyline
+                  points={points}
+                  fill="none"
+                  stroke={color}
+                  strokeWidth="12"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="opacity-0 group-hover/line:opacity-5 transition-all duration-500"
                 />
                 {metrics.map((m, idx) => {
                   const x = paddingX + (idx * (1000 - paddingX) / (metrics.length - 1));
                   const val = d.metrics?.[m.key] || 0;
                   const y = chartHeight - (Math.min(val, 15) / 15 * chartHeight);
                   return (
-                    <circle key={idx} cx={x} cy={y} r="5" fill={color} className="shadow-2xl transition-all duration-500 group-hover/line:r-7 group-hover/line:opacity-100 opacity-80" />
+                    <g key={idx}>
+                      <circle 
+                        cx={x} 
+                        cy={y} 
+                        r="6" 
+                        fill="#0F172A"
+                        stroke={color}
+                        strokeWidth="2.5"
+                        className="transition-all duration-500 group-hover/line:r-8 group-hover/line:opacity-100" 
+                      />
+                      {/* Data point value labels */}
+                      <text
+                        x={x}
+                        y={y - 12}
+                        textAnchor="middle"
+                        className="font-['IBM_Plex_Mono',monospace] text-[10px] font-black opacity-0 group-hover/line:opacity-100 transition-opacity duration-300"
+                        fill={color}
+                      >
+                        {val.toFixed(1)}%
+                      </text>
+                    </g>
                   );
                 })}
               </g>
@@ -348,18 +402,27 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
           {metrics.map((m, idx) => {
             const x = paddingX + (idx * (1000 - paddingX) / (metrics.length - 1));
             return (
-              <text
-                key={idx}
-                x={x}
-                y={chartHeight + 35}
-                textAnchor="middle"
-                className="font-['IBM_Plex_Mono',monospace] text-[10px] fill-[#64748B] font-black uppercase"
-              >
-                {m.label}
-              </text>
+              <g key={idx}>
+                <line x1={x} y1={chartHeight} x2={x} y2={chartHeight + 8} stroke="#334155" strokeWidth="1" />
+                <text
+                  x={x}
+                  y={chartHeight + 35}
+                  textAnchor="middle"
+                  className="font-['IBM_Plex_Mono',monospace] text-[11px] fill-[#64748B] font-black uppercase tracking-tighter"
+                >
+                  {m.label}
+                </text>
+              </g>
             );
           })}
         </svg>
+
+        {/* X-Axis Footer Label */}
+        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-3">
+           <div className="h-[1px] w-8 bg-[#334155]" />
+           <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] font-black uppercase tracking-[0.3em] whitespace-nowrap">Normalized Feature Space Vector</span>
+           <div className="h-[1px] w-8 bg-[#334155]" />
+        </div>
       </div>
     </div>
   );

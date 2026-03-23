@@ -4,18 +4,55 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/shared/components/ui
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
-import { Activity, RefreshCw, Maximize, AlertCircle, TrendingUp, AlertTriangle, MonitorPlay, Zap, ArrowRight, X, Info, BrainCircuit, ActivitySquare, ChevronDown } from 'lucide-react';
+import { 
+    Activity, 
+    Maximize, 
+    AlertCircle, 
+    TrendingUp, 
+    AlertTriangle, 
+    MonitorPlay, 
+    Zap, 
+    ArrowRight, 
+    X, 
+    Info, 
+    BrainCircuit, 
+    ActivitySquare, 
+    ChevronDown,
+    Cpu,
+    Network,
+    Gauge,
+    Timer,
+    History,
+    Router,
+    Shield,
+    Server,
+    Database,
+    Cloud,
+    Wifi,
+    CheckCircle2,
+    Clock,
+    Search,
+    ListTree,
+    Workflow,
+    Terminal,
+    Settings,
+    ShieldCheck,
+    ChevronRight,
+    Play,
+    TimerReset,
+    ShieldAlert
+} from 'lucide-react';
 import { toast } from 'sonner';
 
 // --- DATA DEFINITIONS ---
 const topologies: Record<string, any> = {
     enterprise: {
         nodes: [
-            { id: 'CORE-RTR-01', x: 400, y: 150, type: 'router', status: 'critical', predicted: false },
+            { id: 'CORE-RTR-01', x: 400, y: 150, type: 'router', status: 'critical', predicted: false, anomalies: [{ metric: 'CPU_LOAD', value: '98%', spike: '+42%', legend: 'Sustained peak detected' }, { metric: 'MEMORY_USAGE', value: '92%', spike: '+15%', legend: 'Buffer pressure rising' }] },
             { id: 'CORE-RTR-02', x: 500, y: 150, type: 'router', status: 'normal', predicted: false },
             { id: 'FW-01', x: 300, y: 250, type: 'firewall', status: 'warning', predicted: false },
             { id: 'FW-02', x: 600, y: 250, type: 'firewall', status: 'normal', predicted: false },
-            { id: 'LB-PRIMARY', x: 450, y: 320, type: 'loadbalancer', status: 'warning', predicted: true, reason: 'Traffic spike indicative of imminent congestion threshold breach' },
+            { id: 'LB-PRIMARY', x: 450, y: 320, type: 'loadbalancer', status: 'warning', predicted: true, reason: 'Traffic spike indicative of imminent congestion threshold breach', anomalies: [{ metric: 'LINK_UTIL', value: '88%', spike: '+28%', legend: 'Traffic surge on primary' }] },
             { id: 'EDGE-SW-05', x: 250, y: 400, type: 'switch', status: 'critical', predicted: true, reason: 'Buffer utilization predicted to exceed 95% within 10 minutes' },
             { id: 'DIST-SW-03', x: 450, y: 400, type: 'switch', status: 'warning', predicted: false },
             { id: 'DIST-SW-04', x: 650, y: 400, type: 'switch', status: 'normal', predicted: false },
@@ -42,176 +79,161 @@ const topologies: Record<string, any> = {
             { source: 'DIST-SW-04', target: 'ACCESS-SW-15', status: 'normal', predicted: false }
         ]
     },
-    cloud: {
-        nodes: [
-            { id: 'VPN-GW-01', x: 300, y: 100, type: 'router', status: 'normal', predicted: false },
-            { id: 'VPN-GW-02', x: 600, y: 100, type: 'router', status: 'normal', predicted: false },
-            { id: 'CLOUD-LB-AWS', x: 200, y: 220, type: 'loadbalancer', status: 'normal', predicted: false },
-            { id: 'CLOUD-LB-AZURE', x: 450, y: 220, type: 'loadbalancer', status: 'warning', predicted: true, reason: 'Connection drop rate escalating dynamically toward SLA violation limit' },
-            { id: 'CLOUD-LB-GCP', x: 700, y: 220, type: 'loadbalancer', status: 'normal', predicted: false },
-            { id: 'K8S-MASTER-1', x: 250, y: 350, type: 'server', status: 'normal', predicted: false },
-            { id: 'K8S-MASTER-2', x: 400, y: 350, type: 'server', status: 'normal', predicted: false },
-            { id: 'K8S-MASTER-3', x: 550, y: 350, type: 'server', status: 'warning', predicted: false },
-            { id: 'WORKER-NODE-1', x: 150, y: 480, type: 'server', status: 'normal', predicted: false },
-            { id: 'WORKER-NODE-2', x: 300, y: 480, type: 'server', status: 'normal', predicted: false },
-            { id: 'WORKER-NODE-3', x: 450, y: 480, type: 'server', status: 'critical', predicted: false },
-            { id: 'WORKER-NODE-4', x: 600, y: 480, type: 'server', status: 'normal', predicted: false },
-            { id: 'WORKER-NODE-5', x: 750, y: 480, type: 'server', status: 'normal', predicted: false },
-            { id: 'DB-PRIMARY', x: 300, y: 550, type: 'database', status: 'warning', predicted: true, reason: 'Deadlock frequency rising; predictive cluster failure within 30m' },
-            { id: 'DB-REPLICA', x: 600, y: 550, type: 'database', status: 'normal', predicted: false }
-        ],
-        links: [
-            { source: 'VPN-GW-01', target: 'CLOUD-LB-AWS', status: 'normal', predicted: false },
-            { source: 'VPN-GW-01', target: 'CLOUD-LB-AZURE', status: 'warning', predicted: false },
-            { source: 'VPN-GW-02', target: 'CLOUD-LB-AZURE', status: 'normal', predicted: false },
-            { source: 'VPN-GW-02', target: 'CLOUD-LB-GCP', status: 'normal', predicted: false },
-            { source: 'CLOUD-LB-AWS', target: 'K8S-MASTER-1', status: 'normal', predicted: false },
-            { source: 'CLOUD-LB-AZURE', target: 'K8S-MASTER-2', status: 'warning', predicted: true, reason: 'Consistent with historical load balancer cascading routing errors' },
-            { source: 'CLOUD-LB-GCP', target: 'K8S-MASTER-3', status: 'normal', predicted: false },
-            { source: 'K8S-MASTER-1', target: 'WORKER-NODE-1', status: 'normal', predicted: false },
-            { source: 'K8S-MASTER-1', target: 'WORKER-NODE-2', status: 'normal', predicted: false },
-            { source: 'K8S-MASTER-2', target: 'WORKER-NODE-2', status: 'normal', predicted: false },
-            { source: 'K8S-MASTER-2', target: 'WORKER-NODE-3', status: 'critical', predicted: false },
-            { source: 'K8S-MASTER-3', target: 'WORKER-NODE-4', status: 'normal', predicted: false },
-            { source: 'K8S-MASTER-3', target: 'WORKER-NODE-5', status: 'normal', predicted: false },
-            { source: 'WORKER-NODE-2', target: 'DB-PRIMARY', status: 'warning', predicted: false },
-            { source: 'WORKER-NODE-3', target: 'DB-PRIMARY', status: 'critical', predicted: true, reason: 'I/O wait pattern matches impending storage cluster latency spike event' },
-            { source: 'DB-PRIMARY', target: 'DB-REPLICA', status: 'normal', predicted: false }
-        ]
-    },
-    edge: {
-        nodes: [
-            { id: 'CENTRAL-DC', x: 450, y: 150, type: 'datacenter', status: 'normal', predicted: false },
-            { id: 'EDGE-POP-01', x: 250, y: 280, type: 'router', status: 'warning', predicted: true },
-            { id: 'EDGE-POP-02', x: 450, y: 280, type: 'router', status: 'normal', predicted: false },
-            { id: 'EDGE-POP-03', x: 650, y: 280, type: 'router', status: 'normal', predicted: false },
-            { id: 'CDN-CACHE-1', x: 150, y: 420, type: 'server', status: 'warning', predicted: false },
-            { id: 'CDN-CACHE-2', x: 350, y: 420, type: 'server', status: 'normal', predicted: false },
-            { id: 'CDN-CACHE-3', x: 550, y: 420, type: 'server', status: 'critical', predicted: false },
-            { id: 'CDN-CACHE-4', x: 750, y: 420, type: 'server', status: 'normal', predicted: false },
-            { id: 'IOT-GW-1', x: 200, y: 540, type: 'gateway', status: 'normal', predicted: false },
-            { id: 'IOT-GW-2', x: 700, y: 540, type: 'gateway', status: 'normal', predicted: false }
-        ],
-        links: [
-            { source: 'CENTRAL-DC', target: 'EDGE-POP-01', status: 'warning', predicted: false },
-            { source: 'CENTRAL-DC', target: 'EDGE-POP-02', status: 'normal', predicted: false },
-            { source: 'CENTRAL-DC', target: 'EDGE-POP-03', status: 'normal', predicted: false },
-            { source: 'EDGE-POP-01', target: 'CDN-CACHE-1', status: 'warning', predicted: true },
-            { source: 'EDGE-POP-01', target: 'CDN-CACHE-2', status: 'normal', predicted: false },
-            { source: 'EDGE-POP-02', target: 'CDN-CACHE-2', status: 'normal', predicted: false },
-            { source: 'EDGE-POP-02', target: 'CDN-CACHE-3', status: 'critical', predicted: false },
-            { source: 'EDGE-POP-03', target: 'CDN-CACHE-3', status: 'normal', predicted: false },
-            { source: 'EDGE-POP-03', target: 'CDN-CACHE-4', status: 'normal', predicted: false },
-            { source: 'CDN-CACHE-1', target: 'IOT-GW-1', status: 'normal', predicted: false },
-            { source: 'CDN-CACHE-4', target: 'IOT-GW-2', status: 'normal', predicted: false }
-        ]
-    },
-    hybrid: {
-        nodes: [
-            { id: 'MPLS-PE-01', x: 300, y: 120, type: 'router', status: 'normal', predicted: false },
-            { id: 'MPLS-PE-02', x: 600, y: 120, type: 'router', status: 'normal', predicted: false },
-            { id: 'SD-WAN-HUB', x: 450, y: 230, type: 'router', status: 'warning', predicted: true, reason: 'IPSec tunnel keepalive failures rising beyond stable baseline' },
-            { id: 'BRANCH-FW-1', x: 200, y: 350, type: 'firewall', status: 'normal', predicted: false },
-            { id: 'BRANCH-FW-2', x: 400, y: 350, type: 'firewall', status: 'warning', predicted: false },
-            { id: 'BRANCH-FW-3', x: 600, y: 350, type: 'firewall', status: 'normal', predicted: false },
-            { id: 'BRANCH-FW-4', x: 800, y: 350, type: 'firewall', status: 'normal', predicted: false },
-            { id: 'LAN-SW-1', x: 150, y: 480, type: 'switch', status: 'normal', predicted: false },
-            { id: 'LAN-SW-2', x: 300, y: 480, type: 'switch', status: 'normal', predicted: false },
-            { id: 'LAN-SW-3', x: 450, y: 480, type: 'switch', status: 'critical', predicted: false },
-            { id: 'LAN-SW-4', x: 600, y: 480, type: 'switch', status: 'warning', predicted: false },
-            { id: 'LAN-SW-5', x: 750, y: 480, type: 'switch', status: 'normal', predicted: false },
-            { id: 'WIFI-AP-1', x: 250, y: 560, type: 'accesspoint', status: 'normal', predicted: false },
-            { id: 'WIFI-AP-2', x: 650, y: 560, type: 'accesspoint', status: 'normal', predicted: false }
-        ],
-        links: [
-            { source: 'MPLS-PE-01', target: 'SD-WAN-HUB', status: 'normal', predicted: false },
-            { source: 'MPLS-PE-02', target: 'SD-WAN-HUB', status: 'normal', predicted: false },
-            { source: 'SD-WAN-HUB', target: 'BRANCH-FW-1', status: 'normal', predicted: false },
-            { source: 'SD-WAN-HUB', target: 'BRANCH-FW-2', status: 'warning', predicted: true, reason: 'Jitter thresholds prediction exceeded based on current network degradation' },
-            { source: 'SD-WAN-HUB', target: 'BRANCH-FW-3', status: 'normal', predicted: false },
-            { source: 'SD-WAN-HUB', target: 'BRANCH-FW-4', status: 'normal', predicted: false },
-            { source: 'BRANCH-FW-1', target: 'LAN-SW-1', status: 'normal', predicted: false },
-            { source: 'BRANCH-FW-1', target: 'LAN-SW-2', status: 'normal', predicted: false },
-            { source: 'BRANCH-FW-2', target: 'LAN-SW-2', status: 'warning', predicted: false },
-            { source: 'BRANCH-FW-2', target: 'LAN-SW-3', status: 'critical', predicted: false },
-            { source: 'BRANCH-FW-3', target: 'LAN-SW-4', status: 'normal', predicted: false },
-            { source: 'BRANCH-FW-4', target: 'LAN-SW-5', status: 'normal', predicted: false },
-            { source: 'LAN-SW-2', target: 'WIFI-AP-1', status: 'normal', predicted: false },
-            { source: 'LAN-SW-4', target: 'WIFI-AP-2', status: 'normal', predicted: false }
-        ]
-    }
 };
 
 const STATUS_COLORS: Record<string, string> = {
-    normal: '#10b981', // Tailwind emerald-500
-    warning: '#f59e0b', // Tailwind amber-500
-    critical: '#ef4444', // Tailwind red-500
-    info: '#3b82f6'     // Tailwind blue-500
+    normal: '#10b981', 
+    warning: '#f59e0b', 
+    critical: '#ef4444', 
+    info: '#3b82f6'
 };
 
-const NODE_TYPES: Record<string, { size: number, icon: string }> = {
-    router: { size: 20, icon: 'R' },
-    switch: { size: 18, icon: 'S' },
-    firewall: { size: 20, icon: 'F' },
-    loadbalancer: { size: 19, icon: 'L' },
-    server: { size: 17, icon: 'Sv' },
-    database: { size: 18, icon: 'DB' },
-    datacenter: { size: 22, icon: 'DC' },
-    gateway: { size: 18, icon: 'G' },
-    accesspoint: { size: 16, icon: 'AP' }
+const NODE_TYPES: Record<string, { size: number, icon: any }> = {
+    router: { size: 24, icon: Router },
+    switch: { size: 22, icon: Network },
+    firewall: { size: 24, icon: Shield },
+    loadbalancer: { size: 23, icon: Cpu },
+    server: { size: 21, icon: Server },
+    database: { size: 22, icon: Database },
+    datacenter: { size: 26, icon: Cloud },
+    gateway: { size: 22, icon: Zap },
+    accesspoint: { size: 20, icon: Wifi }
 };
+
+// --- INVESTIGATION TIMELINE DATA ---
+const INVESTIGATION_TIMELINE = [
+    { 
+        id: 1, 
+        status: 'MISSED', 
+        type: 'MISSED · METRIC', 
+        label: 'LINK_UTIL_BREACH', 
+        time: '12:53:47 PM', 
+        desc: 'Expected window passed — event not observed', 
+        detail: 'Link saturation drives buffer pressure', 
+        penalty: '-8% confidence penalty', 
+        color: '#F97316',
+        meta_status: 'GAP DETECTED'
+    },
+    { 
+        id: 2, 
+        status: 'ARRIVED', 
+        type: 'TRAP · SYSLOG', 
+        label: 'HIGH_CPU_TRAP', 
+        time: '12:53:45 PM', 
+        detail: 'arrived at 12:53:45 PM', 
+        color: '#10B981', 
+        confirmed: true,
+        meta_status: 'CONFIRMED'
+    },
+    { 
+        id: 3, 
+        status: 'ARRIVED', 
+        type: 'METRIC · POLL', 
+        label: 'BUFFER_UTIL_BREACH', 
+        time: '12:53:48 PM', 
+        detail: '72% arrived at 12:53:48 PM', 
+        color: '#10B981', 
+        confirmed: true,
+        meta_status: 'CONFIRMED'
+    },
+    { 
+        id: 4, 
+        status: 'ARRIVED', 
+        type: 'METRIC · POLL', 
+        label: 'CRC_ERRORS_BREACH', 
+        time: '12:53:56 PM', 
+        detail: 'arrived at 12:53:56 PM', 
+        color: '#10B981', 
+        confirmed: true,
+        meta_status: 'CONFIRMED'
+    },
+    { 
+        id: 5, 
+        status: 'ARRIVED', 
+        type: 'TRAP · SYSLOG', 
+        label: 'PACKET_DROP_EVENT', 
+        time: '12:53:59 PM', 
+        detail: 'arrived at 12:53:59 PM', 
+        color: '#10B981', 
+        confirmed: true,
+        meta_status: 'CONFIRMED'
+    },
+    { 
+        id: 6, 
+        status: 'PREDICTED', 
+        type: 'PREDICTED · TRAP', 
+        label: 'INTERFACE_FLAP', 
+        time: '01:02:40 PM', 
+        desc: 'All precursors active — flap is imminent', 
+        horizon: '1s', 
+        sub: '~60s / 1 poll', 
+        color: '#F97316', 
+        next: true,
+        meta_status: 'NEXT EVENT'
+    },
+];
+
+const REMEDIATION_STEPS = [
+    { id: 'rem-1', title: 'Isolate Neighbor AS-65102', description: 'Shut down peering on interface Gi0/0/1 to stop routing loop propagation.', complexity: 'High', automated: false, icon: Router },
+    { id: 'rem-2', title: 'Rollback BGP Policy', description: 'Revert to version 2 (stable) of EXT-ROUTE-MAP policies.', complexity: 'Medium', automated: true, icon: History },
+    { id: 'rem-3', title: 'Execute Soft-Reset', description: 'Initiate soft-reset of IBGP peering sessions to refresh adjacency table.', complexity: 'Low', automated: true, icon: Zap },
+    { id: 'rem-4', title: 'Shift Traffic via redundant paths', description: 'Adjust OSPF weights to push traffic through backup DIST-SW-04 link.', complexity: 'Medium', automated: false, icon: Network }
+];
 
 export default function PredictionDashboard() {
     const [currentTopology, setCurrentTopology] = useState('enterprise');
     const [contextMenu, setContextMenu] = useState<{ visible: boolean, x: number, y: number, type: string, node?: string | null }>({ visible: false, x: 0, y: 0, type: 'topology', node: null });
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [sidebarView, setSidebarView] = useState<'timeline' | 'remediation'>('timeline');
+    const [selectedNode, setSelectedNode] = useState<any>(null);
 
-    const activeTopo = topologies[currentTopology];
+    const activeTopo = topologies[currentTopology] || topologies.enterprise;
 
-    // Handlers
-    const handleContextMenu = (e: React.MouseEvent, type: string, node?: string | null) => {
-        e.preventDefault();
-        setContextMenu({
-            visible: true,
-            x: e.clientX,
-            y: e.clientY,
-            type,
-            node
-        });
-    };
-
-    const closeContextMenu = () => {
-        setContextMenu(prev => ({ ...prev, visible: false }));
-    };
-
-    const selectTimeline = (period: string) => {
-        toast.info(`Training initiated for ${contextMenu.node || 'entire topology'}. Timeline: ${period}`);
-        closeContextMenu();
-    };
-
-    const selectML = (algo: string) => {
-        toast.success(`Training ${contextMenu.node || 'network'} using ${algo} in background...`);
-        closeContextMenu();
-    };
-
-    const viewDetails = () => {
-        toast(`Viewing details for ${contextMenu.node || 'network'}...`);
-        closeContextMenu();
+    const handleNodeClick = (node: any) => {
+        if (node.predicted || node.anomalies) {
+            setSelectedNode(node);
+            setSidebarView('timeline');
+            setSidebarOpen(true);
+        } else {
+            toast(`Node: ${node.id} | Status: ${node.status}`);
+        }
     };
 
     return (
         <MainLayout>
             <style dangerouslySetInnerHTML={{
                 __html: `
-                .pulse-circle { animation: pulse 2s ease-in-out infinite; }
-                .link-dotted { stroke-dasharray: 5, 5; animation: dash-link 20s linear infinite; }
-                .node-blinking circle { animation: node-blink 1.5s ease-in-out infinite; }
-                @keyframes dash-link { to { stroke-dashoffset: -1000; } }
-                @keyframes node-blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; filter: saturate(2) brightness(1.5); } }
-                @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.9); } }
+                .pulse-ring { 
+                    animation: pulse-ring 2s cubic-bezier(0.24, 0, 0.38, 1) infinite; 
+                }
+                @keyframes pulse-ring {
+                    0% { transform: scale(0.8); opacity: 0.8; }
+                    80%, 100% { transform: scale(2.5); opacity: 0; }
+                }
+                .anomaly-glow { 
+                    filter: drop-shadow(0 0 8px currentcolor);
+                    animation: glow-breathe 2.5s ease-in-out infinite; 
+                }
+                @keyframes glow-breathe {
+                    0%, 100% { filter: drop-shadow(0 0 5px currentcolor); opacity: 0.9; }
+                    50% { filter: drop-shadow(0 0 20px currentcolor); opacity: 1; }
+                }
+                .link-pulse {
+                    stroke-dasharray: 8, 4;
+                    animation: dash-flow 30s linear infinite;
+                }
+                @keyframes dash-flow {
+                    to { stroke-dashoffset: -1000; }
+                }
+                .critical-blink {
+                    animation: flash-red 1s steps(2, start) infinite;
+                }
+                @keyframes flash-red {
+                    to { visibility: hidden; }
+                }
             `}} />
 
-            <div className="p-6 space-y-6 max-w-[1920px] mx-auto animate-in fade-in duration-500 min-h-screen" onClick={closeContextMenu}>
+            <div className="p-6 space-y-6 max-w-[1920px] mx-auto animate-in fade-in duration-500 min-h-screen">
 
                 {/* HEADER */}
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-4">
@@ -220,53 +242,45 @@ export default function PredictionDashboard() {
                             <div className="p-2 bg-primary/10 rounded-lg">
                                 <Activity className="h-5 w-5 text-primary" />
                             </div>
-                            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                            <h1 className="text-2xl font-black tracking-tight text-foreground italic uppercase">
                                 NetOps Intelligence
                             </h1>
-                            <Badge variant="outline" className="ml-2 text-[10px] h-5 px-2 bg-emerald-500/10 text-emerald-500 border-emerald-500/30 flex gap-1.5 items-center">
+                            <Badge variant="outline" className="ml-2 text-[10px] h-5 px-2 bg-emerald-500/10 text-emerald-500 border-emerald-500/30 flex gap-1.5 items-center font-black italic">
                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-circle"></div>
-                                SYSTEM ACTIVE
+                                AI ENGINE ACTIVE
                             </Badge>
                         </div>
-                        <p className="text-muted-foreground text-sm">
-                            Network topology graph and active intelligence predictions
+                        <p className="text-muted-foreground text-[11px] font-bold uppercase tracking-widest">
+                            Real-time structural topology and predictive analytics pipeline
                         </p>
                     </div>
 
                     <div className="flex flex-col">
                         <Select value={currentTopology} onValueChange={setCurrentTopology}>
-                            <SelectTrigger className="w-[280px] bg-card/40 border-border/50 font-mono text-sm">
+                            <SelectTrigger className="w-[300px] bg-card/60 border-border/40 font-black text-[11px] uppercase tracking-wider h-10 italic">
                                 <SelectValue placeholder="Select topology" />
                             </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="enterprise">Enterprise Data Center (12 nodes)</SelectItem>
-                                <SelectItem value="cloud">Multi-Cloud Infrastructure (15 nodes)</SelectItem>
-                                <SelectItem value="edge">Edge Computing Network (10 nodes)</SelectItem>
-                                <SelectItem value="hybrid">Hybrid WAN Architecture (14 nodes)</SelectItem>
+                            <SelectContent className="bg-[#0F172A] border-white/10">
+                                <SelectItem value="enterprise">Enterprise Data Center [E-12]</SelectItem>
+                                <SelectItem value="cloud">Cloud Infrastructure [C-15]</SelectItem>
+                                <SelectItem value="edge">Edge Compute Network [X-10]</SelectItem>
+                                <SelectItem value="hybrid">Hybrid WAN Mesh [H-14]</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
                 </div>
 
-                {/* MAIN GRID */}
-                <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_0.8fr] gap-6">
-
-                    {/* TOPOLOGY CANVAS */}
-                    <Card className="border-border/50 bg-card/40 relative overflow-hidden group rounded-xl">
-                        <CardHeader className="flex flex-row items-center justify-between">
-                            <CardTitle className="text-base font-bold flex items-center gap-2 text-foreground">
-                                <MonitorPlay className="h-5 w-5 text-primary" /> Network Topology
+                {/* TOPOLOGY CANVAS */}
+                <div className="grid grid-cols-1 gap-6">
+                    <Card className="border-border/50 bg-[#111827]/40 relative overflow-hidden group rounded-xl">
+                        <CardHeader className="flex flex-row items-center justify-between border-b border-border/30 bg-white/[0.02] py-3">
+                            <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-2 text-foreground">
+                                <MonitorPlay className="h-4 w-4 text-blue-500" /> structural Topology graph
                             </CardTitle>
-                            <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-500 border-blue-500/30 font-mono gap-1">
-                                    <RefreshCw className="w-3 h-3 animate-spin" /> ML TRAINING
-                                </Badge>
-                                <Button variant="ghost" size="icon" className="h-7 w-7"><Maximize className="w-4 h-4" /></Button>
-                            </div>
                         </CardHeader>
-                        <CardContent className="p-0 relative" onContextMenu={(e) => handleContextMenu(e, 'topology')}>
-                            <div className="h-[500px] w-full bg-background/50 relative overflow-auto custom-scrollbar">
-                                <svg className="min-w-[900px] min-h-[650px] w-full h-full" id="topologySvg">
+                        <CardContent className="p-0 relative">
+                            <div className="h-[520px] w-full bg-black/20 relative overflow-auto custom-scrollbar">
+                                <svg className="min-w-[900px] min-h-[600px] w-full h-full">
                                     {/* Links */}
                                     {activeTopo.links.map((link: any, i: number) => {
                                         const src = activeTopo.nodes.find((n: any) => n.id === link.source);
@@ -275,445 +289,325 @@ export default function PredictionDashboard() {
                                             <line
                                                 key={`link-${i}`} x1={src.x} y1={src.y} x2={tgt.x} y2={tgt.y}
                                                 stroke={STATUS_COLORS[link.status]}
-                                                className={`stroke-2 transition-all duration-300 ${link.predicted ? 'link-dotted' : ''}`}
-                                            >
-                                                <title>{`${link.source} → ${link.target} (${link.status.toUpperCase()})${link.predicted && link.reason ? `\n\nAI Prediction Context:\n${link.reason}` : ''}`}</title>
-                                            </line>
+                                                className={cn(
+                                                    "stroke-2 transition-all duration-300",
+                                                    link.predicted && "link-pulse",
+                                                    link.status === 'critical' && "stroke-[3px]"
+                                                )}
+                                                strokeOpacity={link.status === 'normal' ? 0.3 : 0.8}
+                                            />
                                         );
                                     })}
                                     {/* Nodes */}
-                                    {activeTopo.nodes.map((node: any, i: number) => (
-                                        <g
-                                            key={`node-${i}`}
-                                            className={`cursor-pointer ${node.predicted ? 'node-blinking' : ''}`}
-                                            transform={`translate(${node.x}, ${node.y})`}
-                                            onContextMenu={(e) => { e.stopPropagation(); handleContextMenu(e, 'node', node.id); }}
-                                            onClick={() => toast(`Node: ${node.id} | Status: ${node.status}`)}
-                                        >
-                                            <circle r={NODE_TYPES[node.type].size} fill={STATUS_COLORS[node.status]} stroke="hsl(var(--background))" strokeWidth="2" className="transition-all hover:brightness-125" />
-                                            <title>{`${node.id} (${node.status.toUpperCase()})${node.predicted && node.reason ? `\n\nAI Prediction Context:\n${node.reason}` : ''}`}</title>
-                                            <text y={NODE_TYPES[node.type].size + 16} textAnchor="middle" className="text-[11px] font-mono fill-foreground pointer-events-none drop-shadow-md">
-                                                {node.id}
-                                            </text>
-                                        </g>
-                                    ))}
+                                    {activeTopo.nodes.map((node: any, i: number) => {
+                                        const IconComp = NODE_TYPES[node.type].icon;
+                                        const size = NODE_TYPES[node.type].size;
+                                        const isHighPriority = node.predicted || node.status === 'critical';
+                                        
+                                        return (
+                                            <g
+                                                key={`node-${i}`}
+                                                className="cursor-pointer group"
+                                                transform={`translate(${node.x}, ${node.y})`}
+                                                onClick={() => handleNodeClick(node)}
+                                            >
+                                                {/* Pulse Ring for predicted nodes */}
+                                                {node.predicted && (
+                                                    <circle 
+                                                        r={size * 1.5} 
+                                                        fill="none" 
+                                                        stroke={STATUS_COLORS[node.status]} 
+                                                        strokeWidth="2" 
+                                                        className="pulse-ring" 
+                                                    />
+                                                )}
+                                                
+                                                {/* Node main body */}
+                                                <circle 
+                                                    r={size} 
+                                                    fill={STATUS_COLORS[node.status]} 
+                                                    stroke="#0B0F19" 
+                                                    strokeWidth="2" 
+                                                    className={cn(
+                                                        "transition-all hover:scale-110",
+                                                        isHighPriority && "anomaly-glow"
+                                                    )}
+                                                    style={{ color: STATUS_COLORS[node.status] }}
+                                                />
+
+                                                {/* Icon */}
+                                                <foreignObject x={-size/2} y={-size/2} width={size} height={size} style={{ pointerEvents: 'none' }}>
+                                                    <div className={cn(
+                                                        "flex items-center justify-center w-full h-full",
+                                                        node.status === 'critical' && "critical-blink"
+                                                    )}>
+                                                        <IconComp className="text-white w-[70%] h-[70%]" strokeWidth={2.5} />
+                                                    </div>
+                                                </foreignObject>
+                                                
+                                                <text 
+                                                    y={size + 18} 
+                                                    textAnchor="middle" 
+                                                    className={cn(
+                                                        "text-[9px] font-black uppercase tracking-widest pointer-events-none transition-colors",
+                                                        isHighPriority ? "fill-white" : "fill-slate-500"
+                                                    )}
+                                                >
+                                                    {node.id}
+                                                </text>
+                                            </g>
+                                        );
+                                    })}
                                 </svg>
                             </div>
-
-                            <div className="absolute bottom-4 left-4 right-4 flex flex-wrap gap-4 bg-background/90 backdrop-blur rounded-lg p-3 border border-border/50">
-                                <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground"><div className="w-4 h-1 rounded-sm bg-emerald-500"></div> Normal</div>
-                                <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground"><div className="w-4 h-1 rounded-sm bg-amber-500"></div> Warning</div>
-                                <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground"><div className="w-4 h-1 rounded-sm bg-red-500"></div> Critical</div>
-                                <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground"><div className="w-4 h-0 border-t-[3px] border-dotted border-muted-foreground"></div> Predicted Link</div>
-                                <div className="flex items-center gap-2 text-xs font-mono text-muted-foreground"><div className="w-3 h-3 rounded-full border-2 border-muted-foreground animate-pulse flex-shrink-0"></div> Predicted Node</div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* SYSTEM SUMMARY OVERVIEW */}
-                    <Card className="border-border/50 bg-card/40 flex flex-col rounded-xl h-full">
-                        <CardHeader>
-                            <CardTitle className="text-base font-bold flex items-center gap-2 text-foreground">
-                                <ActivitySquare className="h-5 w-5 text-primary" /> System Overview
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex-1 flex flex-col justify-between">
-                            <div className="grid grid-cols-2 gap-4 mb-auto">
-                                <div className="py-5 px-4 rounded-xl bg-secondary/30 border border-border/50 text-center flex flex-col items-center justify-center transition-colors hover:bg-secondary/50">
-                                    <div className="text-4xl font-black text-emerald-500 mb-2 drop-shadow-sm">24</div>
-                                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Active Nodes</div>
-                                </div>
-                                <div className="py-5 px-4 rounded-xl bg-secondary/30 border border-border/50 text-center flex flex-col items-center justify-center transition-colors hover:bg-secondary/50">
-                                    <div className="text-4xl font-black text-amber-500 mb-2 drop-shadow-sm">8</div>
-                                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Predictions</div>
-                                </div>
-                                <div className="py-5 px-4 rounded-xl bg-secondary/30 border border-border/50 text-center flex flex-col items-center justify-center transition-colors hover:bg-secondary/50">
-                                    <div className="text-4xl font-black text-red-500 mb-2 drop-shadow-sm">3</div>
-                                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Anomalies</div>
-                                </div>
-                                <div className="py-5 px-4 rounded-xl bg-secondary/30 border border-border/50 text-center flex flex-col items-center justify-center transition-colors hover:bg-secondary/50">
-                                    <div className="text-4xl font-black text-blue-500 mb-2 drop-shadow-sm">12</div>
-                                    <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Patterns</div>
-                                </div>
-                            </div>
-
-                            <div className="mt-8 pt-6 border-t border-border/50">
-                                <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">ML Model Status</h4>
-                                <div className="space-y-3">
-                                    <div className="flex justify-between items-center text-sm">
-                                        <span className="font-mono flex items-center gap-2"><BrainCircuit className="w-4 h-4 text-emerald-400" /> Random Forest</span>
-                                        <span className="text-emerald-500 font-semibold">91.8% ACC</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-sm">
-                                        <span className="font-mono flex items-center gap-2"><BrainCircuit className="w-4 h-4 text-emerald-400" /> Isolation Forest</span>
-                                        <span className="text-emerald-500 font-semibold">89.5% ACC</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-sm">
-                                        <span className="font-mono flex items-center gap-2"><BrainCircuit className="w-4 h-4 text-emerald-400" /> KMeans Clustering</span>
-                                        <span className="text-emerald-500 font-semibold">Active</span>
-                                    </div>
-                                    <div className="flex justify-between items-center text-sm">
-                                        <span className="font-mono flex items-center gap-2"><BrainCircuit className="w-4 h-4 text-emerald-400" /> Granger Causality</span>
-                                        <span className="text-emerald-500 font-semibold">Active</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                </div>
-
-                {/* BOTTOM GRID */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* PREDICTIONS */}
-                    <Card className="border-border/50 bg-card/40 rounded-xl flex flex-col h-full">
-                        <CardHeader className="flex justify-between flex-row items-center">
-                            <CardTitle className="text-base font-bold flex items-center gap-2 text-foreground">
-                                <TrendingUp className="h-5 w-5 text-primary" /> Predictions (Time Series)
-                            </CardTitle>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 mt-0" onClick={() => setSidebarOpen(true)}><ArrowRight className="w-4 h-4 text-muted-foreground hover:text-foreground" /></Button>
-                        </CardHeader>
-                        <CardContent className="pt-0 overflow-y-auto max-h-[460px] custom-scrollbar flex flex-col gap-3">
-                            <div className="bg-muted/30 border border-border border-l-4 border-l-red-500 rounded-lg p-3 hover:-translate-y-0.5 transition-transform cursor-pointer">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="font-mono font-bold text-[13px]">CORE-RTR-01 → EDGE-SW-05</span>
-                                    <span className="font-mono text-[11px] text-muted-foreground">+18m</span>
-                                </div>
-                                <p className="text-xs text-muted-foreground leading-relaxed">
-                                    Link capacity approaching threshold. Predicted: <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-400 border-none px-1 py-0">95% util</Badge> based on traffic growth pattern.
-                                </p>
-                            </div>
-                            <div className="bg-muted/30 border border-border border-l-4 border-l-amber-500 rounded-lg p-3 hover:-translate-y-0.5 transition-transform cursor-pointer">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="font-mono font-bold text-[13px]">EDGE-SW-05</span>
-                                    <span className="font-mono text-[11px] text-muted-foreground">+24m</span>
-                                </div>
-                                <p className="text-xs text-muted-foreground leading-relaxed">High packet loss probability. Correlation detected with buffer exhaustion pattern.</p>
-                            </div>
-                            <div className="bg-muted/30 border border-border border-l-4 border-l-blue-500 rounded-lg p-3 hover:-translate-y-0.5 transition-transform cursor-pointer">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="font-mono font-bold text-[13px]">FW-01 → CORE-RTR-02</span>
-                                    <span className="font-mono text-[11px] text-muted-foreground">+35m</span>
-                                </div>
-                                <p className="text-xs text-muted-foreground leading-relaxed">Connection flap predicted. Historical pattern matches <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-400 border-none px-1 py-0">BGP instability</Badge> signature.</p>
-                            </div>
-                            <div className="bg-muted/30 border border-border border-l-4 border-l-amber-500 rounded-lg p-3 hover:-translate-y-0.5 transition-transform cursor-pointer">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="font-mono font-bold text-[13px]">LB-PRIMARY</span>
-                                    <span className="font-mono text-[11px] text-muted-foreground">+42m</span>
-                                </div>
-                                <p className="text-xs text-muted-foreground leading-relaxed">CPU threshold breach forecast. Current trend: <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-400 border-none px-1 py-0">68% → 92%</Badge> within hour.</p>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* ANOMALIES */}
-                    <Card className="border-border/50 bg-card/40 rounded-xl flex flex-col h-full">
-                        <CardHeader className="flex justify-between flex-row items-center">
-                            <CardTitle className="text-base font-bold flex items-center gap-2 text-foreground">
-                                <AlertTriangle className="h-5 w-5 text-primary" /> Anomalies Detected
-                            </CardTitle>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 mt-0" onClick={() => setSidebarOpen(true)}><ArrowRight className="w-4 h-4 text-muted-foreground hover:text-foreground" /></Button>
-                        </CardHeader>
-                        <CardContent className="pt-0 overflow-y-auto max-h-[460px] custom-scrollbar flex flex-col gap-3">
-                            <div className="bg-muted/30 border border-border border-l-4 border-l-red-500 rounded-lg p-3 hover:-translate-y-0.5 transition-transform cursor-pointer">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="font-mono font-bold text-[13px]">CORE-RTR-01</span>
-                                    <span className="font-mono text-[11px] text-muted-foreground">NOW</span>
-                                </div>
-                                <p className="text-xs text-muted-foreground leading-relaxed">Unusual traffic pattern detected. Volume spike: <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-400 border-none px-1 py-0">2.4GB/s → 8.7GB/s</Badge> in 90 seconds.</p>
-                            </div>
-                            <div className="bg-muted/30 border border-border border-l-4 border-l-red-500 rounded-lg p-3 hover:-translate-y-0.5 transition-transform cursor-pointer">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="font-mono font-bold text-[13px]">EDGE-SW-05 → DIST-SW-03</span>
-                                    <span className="font-mono text-[11px] text-muted-foreground">2m ago</span>
-                                </div>
-                                <p className="text-xs text-muted-foreground leading-relaxed">Latency anomaly. Mean latency deviation: <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-400 border-none px-1 py-0">+450ms</Badge> (6.2σ).</p>
-                            </div>
-                            <div className="bg-muted/30 border border-border border-l-4 border-l-amber-500 rounded-lg p-3 hover:-translate-y-0.5 transition-transform cursor-pointer">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="font-mono font-bold text-[13px]">FW-01</span>
-                                    <span className="font-mono text-[11px] text-muted-foreground">5m ago</span>
-                                </div>
-                                <p className="text-xs text-muted-foreground leading-relaxed">Session table growth rate anomaly. Isolation Forest detected outlier behavior.</p>
-                            </div>
-                            <div className="bg-muted/30 border border-border border-l-4 border-l-amber-500 rounded-lg p-3 hover:-translate-y-0.5 transition-transform cursor-pointer">
-                                <div className="flex justify-between items-center mb-2">
-                                    <span className="font-mono font-bold text-[13px]">LB-PRIMARY</span>
-                                    <span className="font-mono text-[11px] text-muted-foreground">8m ago</span>
-                                </div>
-                                <p className="text-xs text-muted-foreground leading-relaxed">Request distribution imbalance. Backend pool utilization: <Badge variant="outline" className="text-[10px] bg-blue-500/10 text-blue-400 border-none px-1 py-0">45%, 78%, 12%</Badge></p>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* CORRELATION PATTERNS */}
-                    <Card className="border-border/50 bg-card/40 rounded-xl flex flex-col h-full">
-                        <CardHeader className="flex justify-between flex-row items-center">
-                            <CardTitle className="text-base font-bold flex items-center gap-2 text-foreground">
-                                <Zap className="h-5 w-5 text-primary" /> Correlation Patterns
-                            </CardTitle>
-                            <Button variant="ghost" size="icon" className="h-7 w-7 mt-0" onClick={() => setSidebarOpen(true)}><ArrowRight className="w-4 h-4 text-muted-foreground hover:text-foreground" /></Button>
-                        </CardHeader>
-                        <CardContent className="pt-0 px-4 pb-4 overflow-y-auto max-h-[460px] custom-scrollbar flex flex-col gap-5">
-
-                            {/* Pattern 1 */}
-                            <details className="group" open>
-                                <summary className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1 flex items-center justify-between cursor-pointer list-none [&::-webkit-details-marker]:hidden select-none hover:text-foreground transition-colors p-2 -mx-2 rounded-lg hover:bg-muted/20">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></div> Link Flap Pattern
-                                    </div>
-                                    <ChevronDown className="w-4 h-4 transition-transform duration-300 group-open:-rotate-180" />
-                                </summary>
-                                <div className="flex flex-col gap-3 border-l-2 border-border/40 pl-4 ml-1.5 relative mt-2 mb-2">
-                                    <div className="relative">
-                                        <div className="absolute -left-[21.5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-amber-500 bg-background"></div>
-                                        <div className="bg-muted/30 border border-border/50 rounded-lg p-2.5 flex justify-between items-center transition-colors hover:bg-muted/50 cursor-default">
-                                            <div className="font-mono text-xs font-bold">1. link_util <span className="text-amber-500">↑</span></div>
-                                            <div className="text-[10px] text-muted-foreground font-mono flex items-center gap-2">
-                                                50% → 90% <Badge variant="outline" className="text-[8px] px-1 py-0 bg-amber-500/10 text-amber-500 border-none">+4m</Badge>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="relative">
-                                        <div className="absolute -left-[21.5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-amber-500 bg-background"></div>
-                                        <div className="bg-muted/30 border border-border/50 rounded-lg p-2.5 flex justify-between items-center transition-colors hover:bg-muted/50 cursor-default">
-                                            <div className="font-mono text-xs font-bold">2. buffer_util <span className="text-amber-500">↑</span></div>
-                                            <div className="text-[10px] text-muted-foreground font-mono flex items-center gap-2">
-                                                20% → 85% <Badge variant="outline" className="text-[8px] px-1 py-0 bg-amber-500/10 text-amber-500 border-none">+2m</Badge>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="relative">
-                                        <div className="absolute -left-[21.5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-amber-500 bg-background"></div>
-                                        <div className="bg-muted/30 border border-border/50 rounded-lg p-2.5 flex justify-between items-center transition-colors hover:bg-muted/50 cursor-default">
-                                            <div className="font-mono text-xs font-bold flex gap-1">3. crc_errors <span className="text-amber-500">↑</span></div>
-                                            <div className="text-[10px] text-muted-foreground font-mono flex items-center gap-2">
-                                                0 → 70 <Badge variant="outline" className="text-[8px] px-1 py-0 bg-amber-500/10 text-amber-500 border-none">+5m</Badge>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="relative">
-                                        <div className="absolute -left-[21.5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-amber-500 bg-background"></div>
-                                        <div className="bg-muted/30 border border-border/50 rounded-lg p-2.5 flex justify-between items-center transition-colors hover:bg-muted/50 cursor-default">
-                                            <div className="font-mono text-xs font-bold flex gap-1">4. packet_loss <span className="text-amber-500">↑</span></div>
-                                            <div className="text-[10px] text-muted-foreground font-mono flex items-center gap-2">
-                                                0% → 5% <Badge variant="outline" className="text-[8px] px-1 py-0 bg-amber-500/10 text-amber-500 border-none">+1m</Badge>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="relative">
-                                        <div className="absolute -left-[21.5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-red-500 bg-background"></div>
-                                        <div className="bg-border/30 border border-red-500/20 rounded-lg p-2.5 flex justify-between items-center transition-colors hover:bg-border/50 cursor-default">
-                                            <div className="font-mono text-xs font-bold text-red-400 flex gap-1">5. interface_flap <span className="text-red-500">!</span></div>
-                                            <div className="text-[10px] text-muted-foreground font-mono flex items-center gap-2">
-                                                UP → DOWN <Badge variant="outline" className="text-[8px] px-1 py-0 bg-red-500/10 text-red-500 border-none animate-pulse">EVENT</Badge>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </details>
-
-                            <div className="h-px bg-border/40 w-full"></div>
-
-                            {/* Pattern 2 */}
-                            <details className="group">
-                                <summary className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1 flex items-center justify-between cursor-pointer list-none [&::-webkit-details-marker]:hidden select-none hover:text-foreground transition-colors p-2 -mx-2 rounded-lg hover:bg-muted/20">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-amber-500"></div> Control Plane Pattern
-                                    </div>
-                                    <ChevronDown className="w-4 h-4 transition-transform duration-300 group-open:-rotate-180" />
-                                </summary>
-                                <div className="flex flex-col gap-3 border-l-2 border-border/40 pl-4 ml-1.5 relative mt-2 mb-2">
-                                    <div className="relative">
-                                        <div className="absolute -left-[21.5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-amber-500 bg-background"></div>
-                                        <div className="bg-muted/30 border border-border/50 rounded-lg p-2.5 flex justify-between items-center transition-colors hover:bg-muted/50 cursor-default">
-                                            <div className="font-mono text-xs font-bold">1. cpu_util <span className="text-amber-500">↑</span></div>
-                                            <div className="text-[10px] text-muted-foreground font-mono flex items-center gap-2">
-                                                60% → 99% <Badge variant="outline" className="text-[8px] px-1 py-0 bg-amber-500/10 text-amber-500 border-none">+8m</Badge>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="relative">
-                                        <div className="absolute -left-[21.5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-amber-500 bg-background"></div>
-                                        <div className="bg-muted/30 border border-border/50 rounded-lg p-2.5 flex justify-between items-center transition-colors hover:bg-muted/50 cursor-default">
-                                            <div className="font-mono text-xs font-bold">2. bgp_keepalive_miss <span className="text-amber-500">↑</span></div>
-                                            <div className="text-[10px] text-muted-foreground font-mono flex items-center gap-2">
-                                                0 → 2 <Badge variant="outline" className="text-[8px] px-1 py-0 bg-amber-500/10 text-amber-500 border-none">+1m</Badge>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="relative">
-                                        <div className="absolute -left-[21.5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-red-500 bg-background"></div>
-                                        <div className="bg-border/30 border border-red-500/20 rounded-lg p-2.5 flex justify-between items-center transition-colors hover:bg-border/50 cursor-default">
-                                            <div className="font-mono text-xs font-bold text-red-400">3. bgp_session_drop <span className="text-red-500">!</span></div>
-                                            <div className="text-[10px] text-muted-foreground font-mono flex items-center gap-2">
-                                                ESTAB → IDLE <Badge variant="outline" className="text-[8px] px-1 py-0 bg-red-500/10 text-red-500 border-none animate-pulse">EVENT</Badge>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </details>
-
-                            <div className="h-px bg-border/40 w-full"></div>
-
-                            {/* Pattern 3 */}
-                            <details className="group">
-                                <summary className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-1 flex items-center justify-between cursor-pointer list-none [&::-webkit-details-marker]:hidden select-none hover:text-foreground transition-colors p-2 -mx-2 rounded-lg hover:bg-muted/20">
-                                    <div className="flex items-center gap-2">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div> Optical Drop Pattern
-                                    </div>
-                                    <ChevronDown className="w-4 h-4 transition-transform duration-300 group-open:-rotate-180" />
-                                </summary>
-                                <div className="flex flex-col gap-3 border-l-2 border-border/40 pl-4 ml-1.5 relative mt-2 mb-2">
-                                    <div className="relative">
-                                        <div className="absolute -left-[21.5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-amber-500 bg-background"></div>
-                                        <div className="bg-muted/30 border border-border/50 rounded-lg p-2.5 flex justify-between items-center transition-colors hover:bg-muted/50 cursor-default">
-                                            <div className="font-mono text-xs font-bold">1. rx_power_dbm <span className="text-blue-500">↓</span></div>
-                                            <div className="text-[10px] text-muted-foreground font-mono flex items-center gap-2">
-                                                -5.2 → -14.8 <Badge variant="outline" className="text-[8px] px-1 py-0 bg-amber-500/10 text-amber-500 border-none">+12m</Badge>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="relative">
-                                        <div className="absolute -left-[21.5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-amber-500 bg-background"></div>
-                                        <div className="bg-muted/30 border border-border/50 rounded-lg p-2.5 flex justify-between items-center transition-colors hover:bg-muted/50 cursor-default">
-                                            <div className="font-mono text-xs font-bold">2. crc_errors <span className="text-amber-500">↑</span></div>
-                                            <div className="text-[10px] text-muted-foreground font-mono flex items-center gap-2">
-                                                0 → 1450 <Badge variant="outline" className="text-[8px] px-1 py-0 bg-amber-500/10 text-amber-500 border-none">+25m</Badge>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="relative">
-                                        <div className="absolute -left-[21.5px] top-1.5 w-2.5 h-2.5 rounded-full border-2 border-red-500 bg-background"></div>
-                                        <div className="bg-border/30 border border-red-500/20 rounded-lg p-2.5 flex justify-between items-center transition-colors hover:bg-border/50 cursor-default">
-                                            <div className="font-mono text-xs font-bold text-red-400">3. link_flap <span className="text-red-500">!</span></div>
-                                            <div className="text-[10px] text-muted-foreground font-mono flex items-center gap-2">
-                                                UP → DOWN <Badge variant="outline" className="text-[8px] px-1 py-0 bg-red-500/10 text-red-500 border-none animate-pulse">EVENT</Badge>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </details>
                         </CardContent>
                     </Card>
                 </div>
             </div>
 
-            {/* CUSTOM CONTEXT MENU */}
-            {contextMenu.visible && (
-                <div
-                    className="fixed z-50 bg-card border border-border shadow-md rounded-lg p-1.5 min-w-[200px] animate-in slide-in-from-top-2"
-                    style={{ left: contextMenu.x, top: contextMenu.y }}
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    <div className="px-2 py-1.5 text-xs text-muted-foreground font-semibold flex items-center gap-2 mb-1">
-                        <ActivitySquare className="h-3 w-3" /> Actions for {contextMenu.node || 'Topology'}
-                    </div>
-                    <div className="h-px bg-border/60 my-1" />
-                    <div className="custom-menu-group group relative">
-                        <button className="w-full text-left px-3 py-1.5 text-sm hover:bg-muted/50 rounded-md transition-colors flex justify-between items-center group">
-                            Time Window <ArrowRight className="w-3 h-3 text-muted-foreground" />
-                        </button>
-                        <div className="absolute left-[95%] top-0 bg-card border border-border shadow-md rounded-lg p-1 min-w-[150px] hidden group-hover:block ml-2 animate-in slide-in-from-left-2">
-                            <button onClick={() => selectTimeline('1week')} className="w-full text-left px-3 py-1.5 text-sm hover:bg-muted/50 rounded-md">1 Week Back</button>
-                            <button onClick={() => selectTimeline('15days')} className="w-full text-left px-3 py-1.5 text-sm hover:bg-muted/50 rounded-md">15 Days</button>
-                            <button onClick={() => selectTimeline('1month')} className="w-full text-left px-3 py-1.5 text-sm hover:bg-muted/50 rounded-md">1 Month</button>
-                        </div>
-                    </div>
-                    <div className="custom-menu-group group relative">
-                        <button className="w-full text-left px-3 py-1.5 text-sm hover:bg-muted/50 rounded-md transition-colors flex justify-between items-center group">
-                            Train Algorithm <ArrowRight className="w-3 h-3 text-muted-foreground" />
-                        </button>
-                        <div className="absolute left-[95%] top-0 bg-card border border-border shadow-md rounded-lg p-1 min-w-[180px] hidden group-hover:block ml-2 animate-in slide-in-from-left-2">
-                            <button onClick={() => selectML('Random Forest')} className="w-full text-left px-3 py-1.5 text-sm hover:bg-muted/50 rounded-md">Random Forest Predictor</button>
-                            <button onClick={() => selectML('Isolation Forest')} className="w-full text-left px-3 py-1.5 text-sm hover:bg-muted/50 rounded-md">Isolation Forest</button>
-                            <button onClick={() => selectML('KMeans')} className="w-full text-left px-3 py-1.5 text-sm hover:bg-muted/50 rounded-md">KMeans Clustering</button>
-                            <button onClick={() => selectML('Granger Causality')} className="w-full text-left px-3 py-1.5 text-sm hover:bg-muted/50 rounded-md">Granger Causality</button>
-                            <button onClick={() => selectML('Sequence Mining')} className="w-full text-left px-3 py-1.5 text-sm hover:bg-muted/50 rounded-md">Event Sequence Mining</button>
-                        </div>
-                    </div>
-                    <div className="h-px bg-border/60 my-1" />
-                    <button onClick={viewDetails} className="w-full text-left px-3 py-1.5 text-sm hover:bg-muted/50 rounded-md transition-colors flex items-center gap-2">
-                        <Info className="w-3.5 h-3.5" /> View Raw Metrics
-                    </button>
-                </div>
-            )}
-
-            {/* IMPACT SIDEBAR */}
+            {/* PREDICTION INVESTIGATION SIDEBAR */}
             {sidebarOpen && (
                 <>
-                    <div className="fixed inset-0 bg-background/50 backdrop-blur-sm z-[100] animate-in fade-in" onClick={() => setSidebarOpen(false)} />
-                    <div className="fixed right-0 top-0 h-full w-[450px] bg-card border-l border-border shadow-2xl z-[101] animate-in slide-in-from-right flex flex-col">
-                        <div className="flex items-center justify-between p-4 border-b border-border">
-                            <h2 className="text-lg font-bold flex items-center gap-2"><AlertCircle className="w-5 h-5 text-amber-500" /> Impact Analysis</h2>
-                            <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)}><X className="h-5 w-5" /></Button>
+                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] animate-in fade-in" onClick={() => setSidebarOpen(false)} />
+                    <div className="fixed right-0 top-0 h-full w-[800px] bg-[#0F172A] border-l border-white/5 shadow-2xl z-[101] animate-in slide-in-from-right flex flex-col overflow-hidden font-['Sora']">
+                        
+                        {/* Sidebar Header */}
+                        <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[#111827]/80 backdrop-blur-md">
+                            <div className="flex items-center gap-4">
+                                <div className={cn("p-2.5 rounded-xl border", sidebarView === 'timeline' ? "bg-amber-500/10 border-amber-500/20" : "bg-blue-500/10 border-blue-500/20")}>
+                                    {sidebarView === 'timeline' ? <Activity className="w-5 h-5 text-amber-500" /> : <ShieldAlert className="w-5 h-5 text-blue-500" />}
+                                </div>
+                                <div>
+                                    <h2 className="text-sm font-black text-white uppercase tracking-widest italic leading-none mb-1">
+                                        {selectedNode?.id} {sidebarView === 'timeline' ? 'Prediction flow' : 'Remediation Engine'}
+                                    </h2>
+                                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">
+                                        {sidebarView === 'timeline' ? 'Structural Trace Analysis' : 'Automated Recovery Protocol'}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                {sidebarView === 'remediation' && (
+                                    <Button variant="ghost" size="sm" onClick={() => setSidebarView('timeline')} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white hover:bg-white/5">
+                                        <History className="w-3.5 h-3.5 mr-2" /> View Trace
+                                    </Button>
+                                )}
+                                <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} className="text-slate-400 hover:text-white hover:bg-white/5 h-10 w-10 rounded-xl">
+                                    <X className="h-5 w-5" />
+                                </Button>
+                            </div>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-6 space-y-8">
 
-                            <section>
-                                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Impacted Services</h3>
-                                <div className="space-y-3">
-                                    <div className="bg-muted/20 border-l-4 border-l-blue-500 rounded-md p-3">
-                                        <div className="font-bold text-sm mb-1">E-Commerce Platform</div>
-                                        <div className="text-xs text-muted-foreground font-mono">Latency +340ms | Users: 12,450</div>
-                                    </div>
-                                    <div className="bg-muted/20 border-l-4 border-l-blue-500 rounded-md p-3">
-                                        <div className="font-bold text-sm mb-1">API Gateway</div>
-                                        <div className="text-xs text-muted-foreground font-mono">Throughput -35% | Requests: 4.2K/s</div>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <section>
-                                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Blast Radius</h3>
-                                <div className="space-y-3">
-                                    <div className="bg-muted/20 border-l-4 border-l-amber-500 rounded-md p-3 justify-between flex items-center">
-                                        <div>
-                                            <div className="font-bold text-sm mb-1">Enterprise Tier</div>
-                                            <div className="text-xs text-muted-foreground">SLA Breach Warning</div>
+                        {/* Sidebar Content */}
+                        <div className="flex-1 overflow-y-auto bg-[#0B0F19] custom-scrollbar">
+                            {sidebarView === 'timeline' ? (
+                                <div className="p-0">
+                                    {/* Anomaly Metrics Highlight (Vivid) */}
+                                    {selectedNode?.anomalies && (
+                                        <div className="px-8 py-8 bg-gradient-to-b from-red-500/10 to-transparent border-b border-white/5">
+                                            <div className="flex items-center gap-2 mb-6">
+                                                <Badge className="bg-red-500 text-white border-none text-[10px] font-black italic tracking-widest px-3 py-1">REAL-TIME ANOMALIES DETECTED</Badge>
+                                            </div>
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                {selectedNode.anomalies.map((anom: any, idx: number) => (
+                                                    <div key={idx} className="p-4 rounded-xl bg-white/[0.03] border border-white/5 backdrop-blur-md relative overflow-hidden group">
+                                                        <div className="absolute top-0 right-0 p-2 opacity-10">
+                                                            <ActivitySquare className="w-8 h-8 text-red-500" />
+                                                        </div>
+                                                        <div className="flex justify-between items-start mb-2">
+                                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{anom.metric}</span>
+                                                            <span className="text-sm font-black text-red-500 animate-pulse">{anom.spike} spike</span>
+                                                        </div>
+                                                        <div className="text-2xl font-black text-white italic tracking-tighter mb-1">{anom.value}</div>
+                                                        <p className="text-[10px] text-slate-400 font-bold uppercase italic">{anom.legend}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
-                                        <Badge variant="outline">47 Accounts</Badge>
-                                    </div>
-                                    <div className="bg-muted/20 border-l-4 border-l-red-500 rounded-md p-3 justify-between flex items-center">
-                                        <div>
-                                            <div className="font-bold text-sm mb-1">Premium Cluster</div>
-                                            <div className="text-xs text-muted-foreground">Performance Degradation</div>
-                                        </div>
-                                        <Badge variant="outline">2,340 Users</Badge>
-                                    </div>
-                                </div>
-                            </section>
+                                    )}
 
-                            <section>
-                                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">Propagation Matrix</h3>
-                                <div className="flex flex-col gap-4 border-l border-border/50 pl-4 ml-2 relative">
                                     <div className="relative">
-                                        <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-red-500"></div>
-                                        <div className="text-sm font-bold">CORE-RTR-01</div>
-                                        <div className="text-xs text-muted-foreground">Initial Source (T+0)</div>
-                                    </div>
-                                    <div className="relative">
-                                        <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-amber-500"></div>
-                                        <div className="text-sm font-bold">EDGE-SW-05</div>
-                                        <div className="text-xs text-muted-foreground">Buffer Overflow (T+4m)</div>
-                                    </div>
-                                    <div className="relative">
-                                        <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-amber-500"></div>
-                                        <div className="text-sm font-bold">DIST-SW-03</div>
-                                        <div className="text-xs text-muted-foreground">Latency Spike (T+6m)</div>
-                                    </div>
-                                    <div className="relative">
-                                        <div className="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-blue-500"></div>
-                                        <div className="text-sm font-bold">ACCESS Nodes</div>
-                                        <div className="text-xs text-muted-foreground">Downstream Impact (T+8m)</div>
+                                        <div className="px-8 pt-8 pb-4">
+                                            <h4 className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 italic">Sequential Trace Analysis</h4>
+                                        </div>
+                                        {/* Left Connecting Line */}
+                                        <div className="absolute left-[40px] top-[100px] bottom-0 w-[2px] bg-gradient-to-b from-orange-500/40 via-emerald-500/40 to-orange-500/40" />
+                                        
+                                        <div className="flex flex-col">
+                                        {INVESTIGATION_TIMELINE.map((event, idx) => (
+                                            <div key={event.id} className="relative flex min-h-[140px] border-b border-white/[0.03] hover:bg-white/[0.01] transition-colors group">
+                                                
+                                                {/* Left Column (Icons) */}
+                                                <div className="w-[80px] flex-shrink-0 flex items-center justify-center relative">
+                                                    <div className={cn(
+                                                        "w-10 h-10 rounded-full border-2 bg-[#0B0F19] z-10 flex items-center justify-center transition-all group-hover:scale-110",
+                                                        event.status === 'MISSED' ? "border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.2)]" : 
+                                                        event.status === 'ARRIVED' ? "border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.2)]" : 
+                                                        "border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.4)]"
+                                                    )}>
+                                                        {event.status === 'MISSED' && <span className="text-lg font-black text-orange-500/70">?</span>}
+                                                        {event.status === 'ARRIVED' && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
+                                                        {event.status === 'PREDICTED' && <span className="text-lg font-black text-orange-500">6</span>}
+                                                    </div>
+                                                </div>
+
+                                                {/* Center Column (Content) */}
+                                                <div className="flex-1 py-6 px-4">
+                                                    <div className="flex items-center gap-3 mb-2">
+                                                        <Badge variant="outline" className={cn(
+                                                           "bg-white/[0.03] border-white/5 text-[9px] font-black px-2 py-0.5 uppercase tracking-widest",
+                                                           event.status === 'MISSED' ? "text-orange-400" : "text-slate-400"
+                                                        )}>
+                                                            {event.type}
+                                                        </Badge>
+                                                    </div>
+                                                    <h3 className={cn(
+                                                        "text-lg font-black tracking-tight mb-1",
+                                                        event.status === 'MISSED' || event.status === 'PREDICTED' ? "text-orange-500/90" : "text-emerald-500/90"
+                                                    )}>
+                                                        {event.label}
+                                                    </h3>
+                                                    <p className="text-[12px] text-slate-400 font-bold leading-tight mb-1">{event.desc || (event.status === 'ARRIVED' ? 'Confirmed by neighbor router traps' : '')}</p>
+                                                    
+                                                    {event.detail && (
+                                                        <div className="flex items-center gap-2 mt-2">
+                                                            {event.status === 'ARRIVED' && <div className="w-3 h-[2px] bg-emerald-500/30" />}
+                                                            <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">{event.detail}</p>
+                                                        </div>
+                                                    )}
+
+                                                    {event.penalty && (
+                                                        <div className="mt-3 inline-flex items-center px-3 py-1 rounded-md bg-orange-500/10 border border-orange-500/20 text-[10px] font-black text-orange-500 uppercase tracking-widest italic">
+                                                            {event.penalty}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Right Column (Status & Time) */}
+                                                <div className="w-[200px] flex-shrink-0 py-6 px-8 flex flex-col items-end justify-start">
+                                                    <h4 className={cn(
+                                                        "text-xl font-black italic tracking-tighter leading-none mb-1",
+                                                        event.status === 'MISSED' ? "text-orange-500" : event.status === 'ARRIVED' ? "text-emerald-500" : "text-orange-500 text-3xl"
+                                                    )}>
+                                                        {event.status === 'PREDICTED' ? event.horizon : event.status}
+                                                    </h4>
+                                                    <div className="flex flex-col items-end">
+                                                        <span className="text-[10px] text-slate-500 font-mono font-bold">{event.status === 'MISSED' ? `window: ${event.time}` : `@ ${event.time}`}</span>
+                                                        <Badge className={cn(
+                                                            "mt-2 text-[10px] font-black border-none px-2 py-0.5",
+                                                            event.status === 'MISSED' ? "bg-orange-500/20 text-orange-500" : 
+                                                            event.status === 'ARRIVED' ? "bg-emerald-500/20 text-emerald-500" : "bg-orange-500 text-black shadow-[0_0_15px_rgba(249,115,22,0.4)]"
+                                                        )}>
+                                                            {event.meta_status}
+                                                        </Badge>
+                                                        {event.status === 'PREDICTED' && (
+                                                            <span className="text-[9px] text-slate-600 font-black uppercase tracking-widest mt-2">{event.sub}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        ))}
+                                        </div>
                                     </div>
                                 </div>
-                            </section>
+                            ) : (
+                                <div className="p-8 space-y-8">
+                                    {/* Predicted RCA Summary */}
+                                    <div className="relative p-8 rounded-2xl bg-[#111827]/40 border border-white/5 overflow-hidden group">
+                                        <div className="absolute top-0 right-0 p-4">
+                                            <ShieldCheck className="w-12 h-12 text-blue-500/10 group-hover:text-blue-500/20 transition-colors" />
+                                        </div>
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <Badge className="bg-blue-500/10 text-blue-400 border-none text-[10px] font-black tracking-[0.2em] px-3 py-1 uppercase">Predicted Root Cause</Badge>
+                                        </div>
+                                        <h3 className="text-2xl font-black text-white italic tracking-tight mb-6">BGP Neighbor Adjacency Instability (Loop)</h3>
+                                        <div className="grid grid-cols-2 gap-8">
+                                            <div className="space-y-1">
+                                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Confidence Level</span>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="text-3xl font-black text-emerald-500 italic">94.2%</div>
+                                                    <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
+                                                        <div className="h-full bg-emerald-500 w-[94.2%]" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Incident Risk</span>
+                                                <div className="text-3xl font-black text-amber-500 italic uppercase">Critical</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Remediation Steps */}
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-3 px-2 mb-6">
+                                            <div className="h-px flex-1 bg-white/5" />
+                                            <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] italic">Automated Remediation path</span>
+                                            <div className="h-px flex-1 bg-white/5" />
+                                        </div>
+                                        
+                                        {REMEDIATION_STEPS.map((step, idx) => (
+                                            <div key={step.id} className="relative flex gap-6 p-6 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all group">
+                                                <div className="flex flex-col items-center">
+                                                    <div className="w-12 h-12 rounded-xl bg-[#0B0F19] border border-white/10 flex items-center justify-center group-hover:border-blue-500/30 transition-colors">
+                                                        <step.icon className="w-6 h-6 text-blue-400/80" />
+                                                    </div>
+                                                    {idx < REMEDIATION_STEPS.length - 1 && <div className="w-px flex-1 bg-white/10 mt-4" />}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <div className="flex items-center justify-between mb-2">
+                                                        <h5 className="text-[15px] font-black text-white italic tracking-wide">{step.title}</h5>
+                                                        {step.automated && (
+                                                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black text-emerald-500 uppercase italic">
+                                                                < Zap className="w-2.5 h-2.5 fill-current" /> Auto-Sync
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <p className="text-[13px] text-slate-400 font-medium leading-relaxed mb-4">{step.description}</p>
+                                                    <div className="flex items-center gap-6">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className={cn(
+                                                                "w-2 h-2 rounded-full",
+                                                                step.complexity === 'High' ? 'bg-red-500' : step.complexity === 'Medium' ? 'bg-amber-500' : 'bg-emerald-500'
+                                                            )} />
+                                                            <span className="text-[11px] font-black text-slate-500 uppercase">{step.complexity} COMPLEXITY</span>
+                                                        </div>
+                                                        <div className="text-[11px] font-black text-slate-600 uppercase">Est. Time: ~45s</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Sidebar Footer */}
+                        <div className="p-8 border-t border-white/5 bg-[#111827]/80 backdrop-blur-md">
+                            {sidebarView === 'timeline' ? (
+                                <Button 
+                                    onClick={() => setSidebarView('remediation')}
+                                    className="w-full bg-[#F97316] hover:bg-[#EA580C] text-black font-black text-[13px] uppercase tracking-[0.2em] italic py-8 transition-all hover:scale-[1.01] hover:shadow-[0_0_30px_rgba(249,115,22,0.3)] group"
+                                >
+                                    <ShieldAlert className="w-5 h-5 mr-3" /> remediate <ChevronRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
+                                </Button>
+                            ) : (
+                                <div className="w-full">
+                                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-[13px] uppercase tracking-[0.2em] italic h-14 shadow-[0_0_30px_rgba(37,99,235,0.4)] group">
+                                        Execute Recovery <Play className="w-4 h-4 ml-3 fill-current transition-transform group-hover:scale-110" />
+                                    </Button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </>
             )}
         </MainLayout>
     );
+}
+
+// Helper for conditional class merging
+function cn(...classes: string[]) {
+    return classes.filter(Boolean).join(' ');
 }

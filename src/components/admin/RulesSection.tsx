@@ -1,29 +1,45 @@
 import { useState, useEffect } from 'react';
-import { Copy, Layers, GitBranch, Plus, Edit2, Trash2, GripVertical, ToggleLeft, Clock, Wrench, AlertTriangle, MapPin, Network, Brain, Search, X, Server, RefreshCw, Timer, ListChecks, ArrowRightCircle, Zap } from 'lucide-react';
+import { Copy, Layers, GitBranch, Plus, Edit2, Trash2, GripVertical, ToggleLeft, Clock, Wrench, AlertTriangle, MapPin, Network, Brain, Search, X, Server, RefreshCw, Timer, ListChecks, ArrowRightCircle, Zap, Activity, Shield, Terminal } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
 import { Switch } from '@/shared/components/ui/switch';
 import { Input } from '@/shared/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
+import { Dialog, DialogContent } from '@/shared/components/ui/dialog';
 import { mockDeduplicationRules, mockSuppressionRules, mockCorrelationRules } from '@/data/mock/mockData';
 import { DeduplicationRuleForm, SuppressionRuleForm, CorrelationRuleForm, DeleteRuleDialog } from './RuleForms';
 import { DeduplicationRule, SuppressionRule, CorrelationRule } from '@/shared/types';
 import { useToast } from '@/shared/hooks/use-toast';
+import { cn } from '@/shared/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 // Deduplication rule icons and labels
 const dedupRuleConfig: Record<string, { icon: any; label: string }> = {
   exact_match: { icon: Copy, label: 'Exact Match' },
-  time_window: { icon: Clock, label: 'Time Window' },
-  source_based: { icon: Server, label: 'Source Based' },
+  structured_exact: { icon: ListChecks, label: 'Structured Exact' },
+  temporal_sliding: { icon: Clock, label: 'Sliding Window' },
+  temporal_bucket: { icon: Layers, label: 'Time-Bucket' },
+  state_flap: { icon: Activity, label: 'Flap-Aware' },
+  state_transition: { icon: RefreshCw, label: 'State Transition' },
+  template_based: { icon: GitBranch, label: 'Template-Based' },
+  similarity_fuzzy: { icon: Brain, label: 'Similarity Fuzzy' },
 };
 
 // Suppression rule icons and labels
 const suppressionRuleConfig: Record<string, { icon: any; label: string }> = {
   maintenance: { icon: Wrench, label: 'Maintenance' },
   business_hours: { icon: Clock, label: 'Business Hours' },
-  reboot_pattern: { icon: RefreshCw, label: 'Reboot Pattern' },
-  time_based: { icon: Timer, label: 'Time Based' },
+  tag_policy: { icon: MapPin, label: 'Tag / Policy' },
+  parent_child: { icon: Network, label: 'Parent-Child' },
+  spatial_site: { icon: Layers, label: 'Spatial Site' },
+  dedup_noise: { icon: Copy, label: 'Dedup Noise' },
+  time_window: { icon: Timer, label: 'Time Window' },
+  flap_detection: { icon: Activity, label: 'Flap Detection' },
+  temporal_clustering: { icon: ListChecks, label: 'Temporal Cluster' },
+  static_threshold: { icon: AlertTriangle, label: 'Static Threshold' },
+  dynamic_threshold: { icon: Brain, label: 'Dynamic Threshold' },
+  event_storm: { icon: Zap, label: 'Event Storm' },
 };
 
 // Correlation rule icons and labels
@@ -42,7 +58,9 @@ export function RulesSection({ section }: { section: 'suppression' | 'deduplicat
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const { toast } = useToast();
+  const navigate = useNavigate();
 
+  // Search and filter state
   const handleStatusChange = (name: string, currentStatus: boolean) => {
     const nextStatus = !currentStatus;
     toast({
@@ -63,6 +81,9 @@ export function RulesSection({ section }: { section: 'suppression' | 'deduplicat
   const [editingDedupRule, setEditingDedupRule] = useState<DeduplicationRule | undefined>();
   const [editingSuppressionRule, setEditingSuppressionRule] = useState<SuppressionRule | undefined>();
   const [editingCorrelationRule, setEditingCorrelationRule] = useState<CorrelationRule | undefined>();
+
+  // Detail dialog state
+  const [selectedRuleDetail, setSelectedRuleDetail] = useState<DeduplicationRule | SuppressionRule | null>(null);
 
   // Delete dialog state
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -235,6 +256,7 @@ export function RulesSection({ section }: { section: 'suppression' | 'deduplicat
                 return (
                   <div
                     key={rule.id}
+                    onClick={() => setSelectedRuleDetail(rule)}
                     className="glass-card rounded-xl p-5 hover-lift cursor-pointer group"
                   >
                     <div className="flex items-start justify-between mb-3">
@@ -243,15 +265,22 @@ export function RulesSection({ section }: { section: 'suppression' | 'deduplicat
                           <Icon className="h-5 w-5 text-severity-high" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-foreground">{rule.name}</h3>
+                          <h3 className="font-semibold text-foreground text-sm sm:text-base">{rule.name}</h3>
+                          <div className="mt-1">
+                            <Badge variant="outline" className="text-[9px] py-0.5 px-2 border-severity-high/30 text-severity-high uppercase font-bold tracking-wider leading-none">
+                              {rule.category}
+                            </Badge>
+                          </div>
                         </div>
                       </div>
                       <GripVertical className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-grab" />
                     </div>
-                    <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
-                      {rule.description}
-                    </p>
-                    <div className="flex items-center justify-end pt-3 border-t border-border/50">
+                    <div className="mb-4">
+                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                        {rule.description}
+                      </p>
+                    </div>
+                    <div className="flex items-center justify-end pt-3 border-t border-border/50" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-2">
                         <Switch
                           checked={rule.status === 'active'}
@@ -297,6 +326,7 @@ export function RulesSection({ section }: { section: 'suppression' | 'deduplicat
                 return (
                   <div
                     key={rule.id}
+                    onClick={() => setSelectedRuleDetail(rule)}
                     className="glass-card rounded-xl p-5 hover-lift cursor-pointer group"
                   >
                     <div className="flex items-start justify-between mb-3">
@@ -305,15 +335,32 @@ export function RulesSection({ section }: { section: 'suppression' | 'deduplicat
                           <Icon className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-foreground">{rule.name}</h3>
+                          <h3 className="font-semibold text-foreground text-sm sm:text-base">{rule.name}</h3>
+                          <div className="mt-1">
+                            <Badge variant="outline" className="text-[9px] py-0.5 px-2 border-primary/30 text-primary uppercase font-bold tracking-wider leading-none">
+                              {rule.category}
+                            </Badge>
+                          </div>
                         </div>
                       </div>
                       <GripVertical className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-grab" />
                     </div>
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {rule.description}
-                    </p>
-                    <div className="flex items-center justify-end pt-3 border-t border-border/50">
+                    <div className="space-y-2 mb-4">
+                      <p className="text-xs text-muted-foreground line-clamp-2">
+                        {rule.description}
+                      </p>
+                      <div className="bg-white/5 rounded-md p-2.5 space-y-1.5 border border-white/5">
+                        <div className="flex justify-between items-start text-[10px]">
+                          <span className="text-slate-500 font-black uppercase tracking-widest text-[8px]">Strategy Logic</span>
+                          <span className="text-slate-400 text-right max-w-[140px] truncate leading-tight" title={rule.implementationLogic}>{rule.implementationLogic}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-[10px] border-t border-white/5 pt-1.5">
+                          <span className="text-slate-500 font-black uppercase text-[8px] tracking-widest">Concrete E.g.</span>
+                          <span className="text-amber-500/80 text-[10px] italic line-clamp-1 text-right font-medium">{rule.example}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-end pt-3 border-t border-border/50" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-2">
                         <Switch
                           checked={rule.status === 'active'}
@@ -355,7 +402,12 @@ export function RulesSection({ section }: { section: 'suppression' | 'deduplicat
                 return (
                   <div
                     key={rule.id}
-                    className="glass-card rounded-lg p-3 hover-lift cursor-pointer group flex flex-col justify-between"
+                    onClick={() => {
+                      if (rule.name.toLowerCase().includes('dynamic')) {
+                        navigate('/pattern-prediction/pattern');
+                      }
+                    }}
+                    className="glass-card rounded-lg p-3 hover-lift cursor-pointer group flex flex-col justify-between border border-transparent hover:border-status-success/30 transition-all"
                   >
                     <div>
                       <div className="flex items-start justify-between mb-2">
@@ -431,6 +483,91 @@ export function RulesSection({ section }: { section: 'suppression' | 'deduplicat
         ruleName={ruleToDelete?.name || ''}
         onConfirm={handleDeleteConfirm}
       />
+
+      {/* Rule Detail Dialog */}
+      <Dialog open={!!selectedRuleDetail} onOpenChange={(open) => !open && setSelectedRuleDetail(null)}>
+        <DialogContent className="max-w-2xl w-[95vw] sm:w-full bg-[#0F172A] border-white/10 shadow-2xl p-0 overflow-hidden font-['Sora'] focus:outline-none">
+          {selectedRuleDetail && (
+            <div className="relative flex flex-col max-h-[90vh]">
+              {/* Header */}
+              <div className="p-6 sm:p-8 border-b border-white/5 bg-[#111827]/80 backdrop-blur-md shrink-0">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className={cn("p-2 rounded-xl border", section === 'deduplication' ? "bg-primary/10 border-primary/20" : "bg-severity-high/10 border-severity-high/20")}>
+                    {section === 'deduplication' ? <Copy className="w-4 h-4 text-primary" /> : <Shield className="w-4 h-4 text-severity-high" />}
+                  </div>
+                  <Badge variant="outline" className={cn("text-[10px] font-black uppercase tracking-widest px-2.5", section === 'deduplication' ? "text-primary border-primary/20" : "text-severity-high border-severity-high/20")}>
+                    {selectedRuleDetail.category}
+                  </Badge>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-white italic tracking-tight mb-2 uppercase break-words">{selectedRuleDetail.name}</h2>
+                <p className="text-slate-400 text-xs sm:text-sm font-medium leading-relaxed">{selectedRuleDetail.description}</p>
+              </div>
+
+              {/* Body - Scrollable Area */}
+              <div className="p-6 sm:p-8 space-y-8 bg-[#0B0F19] overflow-y-auto custom-scrollbar">
+                <div className="grid grid-cols-1 gap-6">
+                  {/* Operational Identity */}
+                  <div className="space-y-4">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic px-1">Operational Identity</p>
+                    
+                    <div className="grid grid-cols-1 gap-2">
+                      <div className="flex flex-col p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Rule Mechanism</span>
+                        <span className="text-sm font-black text-white italic">{selectedRuleDetail.mechanism}</span>
+                      </div>
+                      
+                      <div className="flex flex-col p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1.5">Strategic Explanation</span>
+                        <span className="text-sm font-medium text-slate-300 leading-relaxed">{selectedRuleDetail.explanation}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Technical Implementation */}
+                  <div className="space-y-4 pt-2">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic px-1">Technical Execution Logic</p>
+                    
+                    <div className="p-4 rounded-xl bg-emerald-500/[0.03] border border-emerald-500/10 font-mono text-[12px] text-emerald-500/90 leading-relaxed relative overflow-hidden">
+                      <div className="absolute top-0 right-0 p-3 opacity-20 hidden sm:block">
+                        <Terminal className="w-6 h-6" />
+                      </div>
+                      <div className="whitespace-pre-wrap break-all uppercase">
+                        {selectedRuleDetail.implementationLogic}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Concrete Context */}
+                  <div className="space-y-4 pt-2">
+                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic px-1">Real-World Application Example</p>
+                    
+                    <div className="p-4 rounded-xl bg-amber-500/[0.03] border border-amber-500/10 relative overflow-hidden group">
+                      <div className="flex gap-4">
+                        <div className="p-2 h-fit rounded-lg bg-amber-500/10 text-amber-500 hidden sm:block">
+                          <Search className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="text-[9px] font-black text-amber-500/70 uppercase tracking-widest block mb-2">Contextual Footprint</span>
+                          <p className="text-[13px] font-black text-amber-500 italic leading-relaxed">
+                            {selectedRuleDetail.example}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="p-4 sm:p-6 border-t border-white/5 bg-[#111827]/80 backdrop-blur-md flex justify-end shrink-0">
+                <Button variant="outline" className="text-slate-400 hover:text-white border-white/10 hover:bg-white/5" onClick={() => setSelectedRuleDetail(null)}>
+                  Close Detailed View
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

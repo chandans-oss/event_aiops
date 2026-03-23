@@ -45,6 +45,8 @@ const navItems: NavItem[] = [
     children: [
       { path: "/", label: "Overview", icon: LayoutDashboard },
       { path: "/dashboard/prediction", label: "Prediction Dashboard", icon: Activity },
+      { path: "/dashboard/kpi", label: "KPI Dashboard", icon: BarChart3 },
+      { path: "/dashboard/rca-analysis", label: "RCA Analysis", icon: Search },
       { path: "/dashboard/alarm-prediction", label: "Alarm Prediction", icon: TrendingUp },
       { path: "/dashboard/roi", label: "ROI Dashboard", icon: Target },
     ]

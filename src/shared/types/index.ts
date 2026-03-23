@@ -36,10 +36,28 @@ export interface Cluster {
   suppressedCount?: number;
 }
 
-// Rule Types
-// Rule Types
-export type DeduplicationRuleType = 'exact_match' | 'time_window' | 'source_based';
-export type SuppressionRuleType = 'maintenance' | 'business_hours' | 'reboot_pattern' | 'time_based';
+export type DeduplicationRuleType = 
+  | 'exact_match' 
+  | 'structured_exact' 
+  | 'temporal_sliding' 
+  | 'temporal_bucket' 
+  | 'state_flap' 
+  | 'state_transition' 
+  | 'template_based' 
+  | 'similarity_fuzzy';
+export type SuppressionRuleType = 
+  | 'maintenance' 
+  | 'business_hours' 
+  | 'tag_policy' 
+  | 'parent_child' 
+  | 'spatial_site' 
+  | 'dedup_noise' 
+  | 'time_window' 
+  | 'flap_detection' 
+  | 'temporal_clustering' 
+  | 'static_threshold' 
+  | 'dynamic_threshold' 
+  | 'event_storm';
 export type CorrelationRuleType = 'temporal' | 'spatial' | 'topological' | 'causal_rule_based' | 'ml_gnn_refinement' | 'llm_semantic' | 'dynamic_rule';
 
 export interface BaseRule {
@@ -55,17 +73,26 @@ export interface BaseRule {
 
 export interface DeduplicationRule extends BaseRule {
   type: DeduplicationRuleType;
-  timeWindow: number;
-  fields: string[];
+  category: string;
+  mechanism: string;
+  explanation: string;
+  example: string;
+  implementationLogic: string;
+  timeWindow?: number;
+  fields?: string[];
   matchCount?: number;
-  // Legacy config support if needed, but we are moving to flat properties mostly
   config?: any;
 }
 
 export interface SuppressionRule extends BaseRule {
   type: SuppressionRuleType;
+  category: string;
+  mechanism: string;
+  explanation: string;
+  example: string;
+  implementationLogic: string;
   affectedDevices?: string[];
-  schedule: Record<string, any>;
+  schedule?: Record<string, any>;
   suppressCount?: number;
   config?: any;
 }

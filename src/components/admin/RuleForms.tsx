@@ -24,13 +24,45 @@ const baseRuleSchema = z.object({
 
 // Deduplication rule schema
 const deduplicationRuleSchema = baseRuleSchema.extend({
-  type: z.enum(['exact_match', 'time_window', 'source_based']),
+  type: z.enum([
+    'exact_match', 
+    'structured_exact', 
+    'temporal_sliding', 
+    'temporal_bucket', 
+    'state_flap', 
+    'state_transition', 
+    'template_based', 
+    'similarity_fuzzy'
+  ]),
+  category: z.string().min(1, 'Category is required'),
+  mechanism: z.string().min(1, 'Mechanism is required'),
+  explanation: z.string().min(1, 'Explanation is required'),
+  example: z.string().min(1, 'Example is required'),
+  implementationLogic: z.string().min(1, 'Implementation Logic is required'),
   matchCriteria: z.string().optional(),
 });
 
 // Suppression rule schema
 const suppressionRuleSchema = baseRuleSchema.extend({
-  type: z.enum(['maintenance', 'business_hours', 'reboot_pattern', 'time_based']),
+  type: z.enum([
+    'maintenance', 
+    'business_hours', 
+    'tag_policy', 
+    'parent_child', 
+    'spatial_site', 
+    'dedup_noise', 
+    'time_window', 
+    'flap_detection', 
+    'temporal_clustering', 
+    'static_threshold', 
+    'dynamic_threshold', 
+    'event_storm'
+  ]),
+  category: z.string().min(1, 'Category is required'),
+  mechanism: z.string().min(1, 'Mechanism is required'),
+  explanation: z.string().min(1, 'Explanation is required'),
+  example: z.string().min(1, 'Example is required'),
+  implementationLogic: z.string().min(1, 'Implementation Logic is required'),
   affectedDevices: z.string().optional(),
   scheduleStart: z.string().optional(),
   scheduleEnd: z.string().optional(),
@@ -115,7 +147,12 @@ export function DeduplicationRuleForm({ open, onOpenChange, rule, onSave }: Dedu
       description: rule?.description || '',
       status: rule?.status || 'active',
       type: rule?.type || 'exact_match',
-      matchCriteria: rule?.config?.matchCriteria?.join(', ') || '',
+      category: rule?.category || '',
+      mechanism: rule?.mechanism || '',
+      explanation: rule?.explanation || '',
+      example: rule?.example || '',
+      implementationLogic: rule?.implementationLogic || '',
+      matchCriteria: rule?.fields?.join(', ') || '',
     },
   });
 
@@ -126,7 +163,12 @@ export function DeduplicationRuleForm({ open, onOpenChange, rule, onSave }: Dedu
         description: rule?.description || '',
         status: rule?.status || 'active',
         type: rule?.type || 'exact_match',
-        matchCriteria: rule?.config?.matchCriteria?.join(', ') || '',
+        category: rule?.category || '',
+        mechanism: rule?.mechanism || '',
+        explanation: rule?.explanation || '',
+        example: rule?.example || '',
+        implementationLogic: rule?.implementationLogic || '',
+        matchCriteria: rule?.fields?.join(', ') || '',
       });
     }
   }, [rule, open]);
@@ -178,10 +220,86 @@ export function DeduplicationRuleForm({ open, onOpenChange, rule, onSave }: Dedu
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="exact_match">Exact Match</SelectItem>
-                      <SelectItem value="time_window">Time Window</SelectItem>
-                      <SelectItem value="source_based">Source Based</SelectItem>
+                      <SelectItem value="structured_exact">Structured Exact</SelectItem>
+                      <SelectItem value="temporal_sliding">Temporal (Sliding Window)</SelectItem>
+                      <SelectItem value="temporal_bucket">Temporal (Time-Bucket)</SelectItem>
+                      <SelectItem value="state_flap">State-Based (Flap-Aware)</SelectItem>
+                      <SelectItem value="state_transition">State-Based (Transition)</SelectItem>
+                      <SelectItem value="template_based">Template-Based</SelectItem>
+                      <SelectItem value="similarity_fuzzy">Similarity-Based (Fuzzy)</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Dedup Category *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Temporal Deduplication" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="mechanism"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Dedup Mechanism *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Sliding window deduplication" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="explanation"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Explanation (Why deduped) *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Describe the reason..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="example"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Example (Exact & Concrete) *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., 50 LINK_DOWN events within 30s" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="implementationLogic"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>How to Achieve (Implementation Logic) *</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Describe the technical implementation..." rows={2} {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -273,6 +391,11 @@ export function SuppressionRuleForm({ open, onOpenChange, rule, onSave }: Suppre
       description: rule?.description || '',
       status: rule?.status || 'active',
       type: rule?.type || 'business_hours',
+      category: rule?.category || '',
+      mechanism: rule?.mechanism || '',
+      explanation: rule?.explanation || '',
+      example: rule?.example || '',
+      implementationLogic: rule?.implementationLogic || '',
       affectedDevices: rule?.affectedDevices?.join(', ') || '',
       scheduleStart: rule?.config?.schedule?.start || '',
       scheduleEnd: rule?.config?.schedule?.end || '',
@@ -289,6 +412,11 @@ export function SuppressionRuleForm({ open, onOpenChange, rule, onSave }: Suppre
         description: rule?.description || '',
         status: rule?.status || 'active',
         type: rule?.type || 'business_hours',
+        category: rule?.category || '',
+        mechanism: rule?.mechanism || '',
+        explanation: rule?.explanation || '',
+        example: rule?.example || '',
+        implementationLogic: rule?.implementationLogic || '',
         affectedDevices: rule?.affectedDevices?.join(', ') || '',
         scheduleStart: rule?.config?.schedule?.start || '',
         scheduleEnd: rule?.config?.schedule?.end || '',
@@ -346,13 +474,92 @@ export function SuppressionRuleForm({ open, onOpenChange, rule, onSave }: Suppre
                         <SelectValue placeholder="Select type" />
                       </SelectTrigger>
                     </FormControl>
-                    <SelectContent>
+                     <SelectContent>
                       <SelectItem value="maintenance">Maintenance</SelectItem>
                       <SelectItem value="business_hours">Business Hours</SelectItem>
-                      <SelectItem value="reboot_pattern">Reboot Pattern</SelectItem>
-                      <SelectItem value="time_based">Time Based</SelectItem>
+                      <SelectItem value="tag_policy">Tag / Policy Based</SelectItem>
+                      <SelectItem value="parent_child">Topology: Parent-Child</SelectItem>
+                      <SelectItem value="spatial_site">Topology: Spatial Site</SelectItem>
+                      <SelectItem value="dedup_noise">Noise: Dedup Based</SelectItem>
+                      <SelectItem value="time_window">Noise: Time-Window</SelectItem>
+                      <SelectItem value="flap_detection">Noise: Flap Detection</SelectItem>
+                      <SelectItem value="temporal_clustering">Noise: Temporal Cluster</SelectItem>
+                      <SelectItem value="static_threshold">Threshold: Static</SelectItem>
+                      <SelectItem value="dynamic_threshold">Threshold: Dynamic</SelectItem>
+                      <SelectItem value="event_storm">Pattern: Event Storm</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Suppression Category *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Topology-Based Suppression" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="mechanism"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Suppression Mechanism *</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Parent-child suppression" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name="explanation"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Explanation (Why suppressed) *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Describe the operational reason..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="example"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Example (Exact & Concrete) *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Core-R1 LINK_DOWN → symptom suppression" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="implementationLogic"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>How to Achieve (Implementation Logic) *</FormLabel>
+                  <FormControl>
+                    <Textarea placeholder="Describe the BFS tree traversal or threshold logic..." rows={2} {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

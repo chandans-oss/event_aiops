@@ -297,12 +297,12 @@ export default function LiveInferencePage() {
 
       // Handle Pattern Matches
       const activePatterns: PatternMatchItem[] = [...patternMatches];
-      
+
       // Randomly start a new pattern or progress existing ones
       if (Math.random() > 0.4) {
         const dev = DEVICES[Math.floor(Math.random() * DEVICES.length)];
         const existingIdx = activePatterns.findIndex(p => p.device === dev.n);
-        
+
         if (existingIdx === -1) {
           // New Pattern
           const templates = Object.keys(CHAIN_TEMPLATES);
@@ -335,21 +335,43 @@ export default function LiveInferencePage() {
           const p = activePatterns[existingIdx];
           const template = CHAIN_TEMPLATES[p.templateId];
           if (p.currentStep < template.steps.length - 1) {
-             const nextStep = p.currentStep + 1;
-             p.currentStep = nextStep;
-             p.steps[nextStep] = {
-               status: Math.random() > 0.15 ? 'arrived' : 'gap',
-               timestamp: now.toLocaleTimeString(),
-               confValue: 0.4 + (Math.random() * 0.5)
-             };
-             
-             const baseConf = CONFIDENCE_JUMPS[nextStep] || p.confidence;
-             const gaps = p.steps.filter(s => s.status === 'gap').length;
-             p.confidence = Math.max(0, baseConf - (gaps * GAP_PENALTY));
-             
-             addLog(`KMEANS: Pattern progression detected on ${p.device} [Step ${nextStep + 1}: ${template.steps[nextStep].label}]`);
+            // Support skipping steps (out of order arrival)
+            const maxJump = Math.min(2, template.steps.length - 1 - p.currentStep);
+            const jump = Math.random() > 0.85 ? maxJump : 1; // 15% chance to jump
+            const targetStep = p.currentStep + jump;
+
+            // Mark intermediate steps as gap if we jumped
+            for (let i = p.currentStep + 1; i < targetStep; i++) {
+              p.steps[i] = {
+                status: 'gap',
+                timestamp: now.toLocaleTimeString(),
+                confValue: 0
+              };
+            }
+
+            // Mark target step as arrived
+            p.currentStep = targetStep;
+            p.steps[targetStep] = {
+              status: 'arrived',
+              timestamp: now.toLocaleTimeString(),
+              confValue: 0.4 + (Math.random() * 0.5)
+            };
+
+            const baseConf = CONFIDENCE_JUMPS[targetStep] || p.confidence;
+            const gaps = p.steps.filter(s => s?.status === 'gap').length;
+            p.confidence = Math.max(0, baseConf - (gaps * GAP_PENALTY));
+
+            addLog(`KMEANS: Pattern ${jump > 1 ? 'JUMP' : 'progression'} detected on ${p.device} [Step ${targetStep + 1}: ${template.steps[targetStep].label}]`);
           }
         }
+      }
+
+      let currentProgressions = patCount; // Start with the new patterns created this cycle
+      // If we progressed existing patterns, count those too
+      if (Math.random() > 0.4 && activePatterns.length > 0) {
+          // In the current logic, we only potentially do ONE progression or ONE new pattern per cycle.
+          // Let's make it more realistic by allowing multiple matches per cycle if polls are high.
+          currentProgressions += Math.floor(Math.random() * 2); 
       }
 
       setPatternMatches(activePatterns.slice(0, 10));
@@ -358,7 +380,8 @@ export default function LiveInferencePage() {
         ...prev,
         predictions: prev.predictions + pCount,
         anomalies: prev.anomalies + aCount,
-        patterns: activePatterns.length
+        patterns: prev.patterns + currentProgressions,
+        polls: currentPollCount
       }));
       setInferences(prev => [...newInferences, ...prev].slice(0, 20));
       setProcessingState('IDLE');
@@ -431,11 +454,8 @@ export default function LiveInferencePage() {
                     {viewMode === 'default' ? 'Live Inference Stream' : 'Pattern Match Intelligence'}
                   </h1>
                   <div className="flex items-center gap-3 mt-1.5">
-                    <p className="text-[10px] text-[#64748B] uppercase tracking-[0.2em] font-['IBM_Plex_Mono',monospace]">
-                      {viewMode === 'default' ? 'Real-time Telemetry Processing' : 'Causal Chain Analysis / V3'}
-                    </p>
                     {viewMode === 'patterns' && (
-                      <button 
+                      <button
                         onClick={() => setViewMode('default')}
                         className="px-2 py-0.5 rounded bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[9px] text-[#3B82F6] font-bold uppercase tracking-widest hover:bg-[#3B82F6]/20 transition-all flex items-center gap-1"
                       >
@@ -456,7 +476,7 @@ export default function LiveInferencePage() {
                   <div className="text-[8px] text-[#64748B] uppercase font-black mb-1 tracking-widest">Predictions</div>
                   <div className="text-xl font-black tracking-tighter tabular-nums text-[#3B82F6]">{stats.predictions}</div>
                 </div>
-                <button 
+                <button
                   onClick={() => setViewMode('patterns')}
                   className={cn(
                     "px-5 py-3 rounded-xl border transition-all text-center group",
@@ -563,19 +583,19 @@ export default function LiveInferencePage() {
                       <div className="col-span-2">
                         <div className="text-[8px] font-black text-[#475569] uppercase mb-1.5 tracking-[0.2em] text-center">Lead Time</div>
                         <div className="flex justify-center">
-                        {item.type === 'PREDICTION' && item.estimatedWait ? (
-                          <div className={cn(
-                            "flex items-center gap-2 text-[10px] font-black px-3 py-1.5 rounded-xl border-2 w-fit",
-                            item.estimatedWait.includes('min') && parseInt(item.estimatedWait.match(/\d+/)?.[0] || '60') <= 15
-                              ? "bg-[#EF4444]/5 text-[#EF4444] border-[#EF4444]/20 shadow-[0_0_15px_rgba(239,68,68,0.1)] animate-pulse"
-                              : "bg-[#3B82F6]/5 text-[#3B82F6] border-[#3B82F6]/20"
-                          )}>
-                            <Clock className="w-3.5 h-3.5" />
-                            {item.estimatedWait}
-                          </div>
-                        ) : (
-                          <div className="text-[10px] font-bold text-[#475569] italic opacity-40">-- active --</div>
-                        )}
+                          {item.type === 'PREDICTION' && item.estimatedWait ? (
+                            <div className={cn(
+                              "flex items-center gap-2 text-[10px] font-black px-3 py-1.5 rounded-xl border-2 w-fit",
+                              item.estimatedWait.includes('min') && parseInt(item.estimatedWait.match(/\d+/)?.[0] || '60') <= 15
+                                ? "bg-[#EF4444]/5 text-[#EF4444] border-[#EF4444]/20 shadow-[0_0_15px_rgba(239,68,68,0.1)] animate-pulse"
+                                : "bg-[#3B82F6]/5 text-[#3B82F6] border-[#3B82F6]/20"
+                            )}>
+                              <Clock className="w-3.5 h-3.5" />
+                              {item.estimatedWait}
+                            </div>
+                          ) : (
+                            <div className="text-[10px] font-bold text-[#475569] italic opacity-40">-- active --</div>
+                          )}
                         </div>
                       </div>
 
@@ -633,217 +653,175 @@ export default function LiveInferencePage() {
               ) : (
                 <div className="flex flex-col gap-[1px] bg-white/5 border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
                   {/* Table Header */}
-                  <div className="grid grid-cols-[1.5fr_3fr_1fr_1fr_40px] gap-4 px-8 py-5 bg-[#0F172A] border-b border-white/5">
-                    <div className="text-[10px] font-black text-[#64748B] uppercase tracking-[0.2em]">Device / Interface</div>
-                    <div className="text-[10px] font-black text-[#64748B] uppercase tracking-[0.2em]">Pattern - Observed Events</div>
-                    <div className="text-[10px] font-black text-[#64748B] uppercase tracking-[0.2em] text-center">Confidence</div>
-                    <div className="text-[10px] font-black text-[#64748B] uppercase tracking-[0.2em] text-center">Severity</div>
-                    <div />
+                  <div className="flex items-center px-8 py-4 bg-[#0F172A] border-b border-white/5 font-['IBM_Plex_Mono',monospace] text-[9px] text-[#64748B] uppercase tracking-[0.07em]">
+                    <div style={{ width: '200px', flexShrink: 0 }}>device</div>
+                    <div style={{ flex: 1 }}>pattern chain</div>
+                    <div style={{ width: '88px', textAlign: 'right' }}>confidence</div>
+                    <div style={{ width: '80px', textAlign: 'center' }}>status</div>
+                    <div style={{ width: '14px' }} />
                   </div>
 
-                  {patternMatches.map((pat) => (
-                    <div key={pat.id}>
-                      <div 
-                        className={cn(
-                          "grid grid-cols-[1.5fr_3fr_1fr_1fr_40px] gap-4 px-8 py-6 bg-[#0B0F19]/40 hover:bg-[#111827] transition-all items-center group relative cursor-pointer",
-                          expandedId === pat.id && "bg-[#111827] border-b border-blue-500/30"
-                        )}
-                        onClick={() => setExpandedId(expandedId === pat.id ? null : pat.id)}
-                      >
-                        <div className="absolute left-0 inset-y-0 w-1 bg-[#3B82F6] opacity-0 group-hover:opacity-100 transition-opacity" />
-                        
-                        {/* Col 1: Identity */}
-                        <div className="flex items-center gap-5">
-                          <div className={cn(
-                            "w-10 h-10 rounded-lg border flex items-center justify-center font-black text-[10px] transition-all group-hover:scale-105",
-                            pat.prefix === 'NXS' ? "bg-[#3B82F6]/10 border-[#3B82F6]/30 text-[#3B82F6]" :
-                            pat.prefix === 'ARI' ? "bg-[#F59E0B]/10 border-[#F59E0B]/30 text-[#F59E0B]" :
-                            pat.prefix === 'ISR' ? "bg-[#06B6D4]/10 border-[#06B6D4]/30 text-[#06B6D4]" :
-                            pat.prefix === 'JNX' ? "bg-[#10B981]/10 border-[#10B981]/30 text-[#10B981]" :
-                            "bg-white/5 border-white/10 text-[#94A3B8]"
-                          )}>
-                            {pat.prefix}
-                          </div>
-                          <div className="flex flex-col min-w-0">
-                            <span className="text-[15px] font-black text-white tracking-tight leading-none mb-1.5 truncate">{pat.device}</span>
-                            <div className="flex items-center gap-2 font-['IBM_Plex_Mono',monospace]">
-                              <span className="text-[10px] font-bold text-[#64748B]">{pat.ip}</span>
-                              <span className="text-[10px] font-black text-[#3B82F6] uppercase tracking-tighter bg-[#3B82F6]/5 px-1.5 py-0.5 rounded border border-[#3B82F6]/10">{pat.interface}</span>
-                              <span className="text-[10px] font-bold text-[#475569] truncate max-w-[80px]">{pat.model}</span>
+                  {patternMatches.map((pat) => {
+                    const sev = pat.confidence >= 0.9 ? 'r' : pat.confidence >= 0.7 ? 'o' : 'y';
+                    const isOp = expandedId === pat.id;
+                    const bclr = sev === 'r' ? '#ef4444' : sev === 'o' ? '#f59e0b' : '#3b82f6';
+                    const isCf = pat.currentStep >= CHAIN_TEMPLATES[pat.templateId].steps.length - 1;
+
+                    return (
+                      <div key={pat.id} className={cn("border-b border-white/5 bg-[#0B0F19]/40 hover:bg-[#111827] transition-all group", isOp && "bg-[#111827]")}>
+                        <div
+                          className="flex items-center gap-[9px] px-8 py-3 cursor-pointer"
+                          onClick={() => setExpandedId(isOp ? null : pat.id)}
+                        >
+                          {/* device cell */}
+                          <div className="w-[200px] flex-shrink-0">
+                            <span className={cn("di", `di-${pat.prefix.toLowerCase().charAt(0)}`)}>{pat.prefix.substring(0, 3)}</span>
+                            <span className="dh font-['IBM_Plex_Mono',monospace] text-[10px] font-bold text-white">{pat.device.split('.')[0]}</span>
+                            <div className="dm font-['IBM_Plex_Mono',monospace] text-[8px] color-[#7f8ea3] mt-1 flex items-center gap-[4px] pl-[28px] opacity-60">
+                              <span className="dip">{pat.ip}</span>
+                              <span className="dif text-[#3b82f6] bg-[#3b82f6]/10 border border-[#3b82f6]/10 rounded px-1">{pat.interface}</span>
                             </div>
                           </div>
+
+                          {/* chain pills */}
+                          <div className="flex-1 overflow-hidden flex items-center gap-[2px]">
+                            {CHAIN_TEMPLATES[pat.templateId].steps.map((step, i) => {
+                              const stepData = pat.steps[i];
+                              const st = i <= pat.currentStep ? (stepData?.status || 'arrived') : (i === pat.currentStep + 1 ? 'nxt' : 'fut');
+                              const cls = `mp mp-${st === 'arrived' ? 'ok' : st}`;
+                              const lbl = step.label.replace(/_BREACH|_TRAP|_EVENT/g, '');
+                              return (
+                                <span key={i} className="flex items-center">
+                                  <span className={cls}>{lbl}</span>
+                                  {i < CHAIN_TEMPLATES[pat.templateId].steps.length - 1 && <span className="marr text-[#233044] text-[8px] px-0.5">›</span>}
+                                </span>
+                              );
+                            })}
+                          </div>
+
+                          {/* right */}
+                          <div className="w-[88px] flex-shrink-0 text-right">
+                            <div className={cn("rn font-['IBM_Plex_Mono',monospace] text-[13px] font-bold", sev === 'r' ? 'text-[#ef4444]' : sev === 'o' ? 'text-[#f59e0b]' : 'text-[#3b82f6]')}>
+                              {Math.round(pat.confidence * 100)}%
+                            </div>
+                            <div className="rb w-[52px] h-[2px] bg-[#1c2b3e] rounded-[1px] overflow-hidden mt-[3px] ml-auto">
+                              <div className="rf h-full transition-all duration-700" style={{ width: `${pat.confidence * 100}%`, background: bclr }}></div>
+                            </div>
+                          </div>
+
+                          <div className="w-[80px] flex-shrink-0 text-center">
+                            <span className={cn("sp text-[8px] font-bold px-1.5 py-0.5 rounded border uppercase tracking-wider", `sp-${sev}`)}>
+                              {isCf ? 'CONFIRMED' : 'PREDICTING'}
+                            </span>
+                          </div>
+
+                          <div className={cn("ec w-[14px] flex-shrink-0 text-[#3d5066] transition-transform", isOp && "rotate-90 text-blue-500")}>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </div>
                         </div>
 
-                        {/* Col 2: Events */}
-                        <div className="flex items-center gap-2 overflow-hidden">
-                          {CHAIN_TEMPLATES[pat.templateId].steps.map((step, sIdx) => {
-                            const stepData = pat.steps[sIdx];
-                            const status = stepData?.status || 'pending';
-                            if (status === 'pending') return null;
-                            return (
-                              <div key={sIdx} className="flex items-center gap-2 animate-in fade-in slide-in-from-left-2 duration-300">
-                                <div className={cn(
-                                  "px-3 py-1.5 rounded bg-black/30 border text-[9px] font-black uppercase tracking-widest leading-none flex items-center justify-center min-w-[70px]",
-                                  status === 'arrived' ? "text-[#3DDAB4] border-[#3DDAB4]/20 shadow-[0_0_10px_rgba(61,218,180,0.05)]" : 
-                                  "text-[#F59E0B] border-[#F59E0B]/20 border-dashed"
-                                )}>
-                                  {step.label.replace('_BREACH', '').replace('_EVENT', '').split('_').slice(0, 2).join(' ')}
-                                </div>
-                                {sIdx < pat.currentStep && (
-                                  <ChevronRight className="w-3.5 h-3.5 text-[#334155] flex-shrink-0" />
-                                )}
+                        {/* DETAIL */}
+                        {isOp && (
+                          <div className="det bg-[#0b0f1a] border-t border-white/5 animate-in slide-in-from-top-2 duration-300">
+                            {/* horizontal stepper container */}
+                            <div className="stpr px-8 py-10 pb-12 bg-[#0b0f1a] overflow-x-auto no-scrollbar">
+                              <div className="stpr-h text-[9px] text-[#7f8ea3] font-['IBM_Plex_Mono',monospace] mb-8 flex items-center gap-2 sticky left-0">
+                                <div className="stpr-dot w-1 h-1 rounded-full" style={{ background: bclr }}></div>
+                                {isCf ? 'full pattern matched — sequence confirmed' : `predicting ${pat.templateId.toLowerCase()} · ${CHAIN_TEMPLATES[pat.templateId].steps.length - (pat.currentStep + 1)} steps remaining`}
                               </div>
-                            );
-                          })}
-                        </div>
+                              
+                              <div className="flex items-start">
+                                {CHAIN_TEMPLATES[pat.templateId].steps.map((step, i) => {
+                                  const stepState = pat.steps[i];
+                                  const st = i <= pat.currentStep ? (stepState?.status || 'arrived') : (i === pat.currentStep + 1 ? 'nxt' : 'fut');
+                                  const isArrived = st === 'arrived';
+                                  const isGap = st === 'gap';
+                                  const isNxt = st === 'nxt';
+                                  const isCfN = i === CHAIN_TEMPLATES[pat.templateId].steps.length - 1 && isArrived;
 
-                        {/* Col 3: Confidence */}
-                        <div className="flex flex-col items-center gap-2.5">
-                          <div className="text-[22px] font-black text-white tabular-nums tracking-tighter leading-none">
-                            {(pat.confidence * 100).toFixed(0)}<span className="text-xs ml-0.5 opacity-30">%</span>
-                          </div>
-                          <div className="w-24 h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/5">
-                            <div 
-                              className={cn(
-                                "h-full transition-all duration-1000 ease-out",
-                                pat.confidence > 0.6 ? "bg-[#F59E0B]" : "bg-[#EF4444]"
-                              )}
-                              style={{ width: `${pat.confidence * 100}%` }}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Col 4: Severity */}
-                        <div className="flex justify-center">
-                          <div className="px-5 py-2 rounded-lg bg-[#F59E0B]/10 border border-[#F59E0B]/30 text-[10px] font-black text-[#F59E0B] uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(245,158,11,0.1)] leading-none">
-                            Predicting
-                          </div>
-                        </div>
-
-                        {/* Col 5: Arrow */}
-                        <div className="flex justify-end pr-2">
-                          <ChevronRight className={cn("w-5 h-5 text-[#334155] group-hover:text-white transition-all transform", expandedId === pat.id ? "rotate-90 text-blue-500" : "group-hover:translate-x-1")} />
-                        </div>
-                      </div>
-
-                      {/* INLINE HORIZONTAL EXPANDER */}
-                      <div className={cn(
-                        "grid transition-all duration-500 ease-in-out bg-[#0F172A]/40",
-                        expandedId === pat.id ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-                      )}>
-                        <div className="overflow-hidden">
-                          <div className="p-8 px-12 space-y-8 animate-in fade-in slide-in-from-top-4 duration-700">
-                             <div className="flex items-center justify-between mb-4 border-b border-white/5 pb-4">
-                               <div className="flex items-center gap-6">
-                                 <div className="flex flex-col gap-1">
-                                   <span className="text-[10px] font-black text-[#64748B] uppercase tracking-widest">{pat.templateId} Forensic Analysis</span>
-                                   <span className="text-xs font-bold text-white uppercase tracking-tight">{CHAIN_TEMPLATES[pat.templateId].meta}</span>
-                                 </div>
-                                 <div className="h-8 w-px bg-white/10" />
-                                 <div className="flex items-center gap-4">
-                                   <div className="flex items-center gap-2">
-                                     <div className="w-2 h-2 rounded-full bg-[#3DDAB4]" />
-                                     <span className="text-[9px] font-black text-[#94A3B8] uppercase">Arrived</span>
-                                   </div>
-                                   <div className="flex items-center gap-2">
-                                     <div className="w-2 h-2 rounded-full bg-[#F59E0B]" />
-                                     <span className="text-[9px] font-black text-[#94A3B8] uppercase">Anomalous Gap</span>
-                                   </div>
-                                 </div>
-                               </div>
-                               <div className="flex items-center gap-4">
-                                 <span className="text-[10px] font-black text-[#475569] uppercase tracking-widest font-['IBM_Plex_Mono',monospace]">Current Sequence Confidence: <span className="text-white">{(pat.confidence * 100).toFixed(0)}%</span></span>
-                               </div>
-                             </div>
-
-                             <div className="flex items-start gap-3 overflow-x-auto no-scrollbar pb-6 justify-between">
-                                {CHAIN_TEMPLATES[pat.templateId].steps.map((step, sIdx) => {
-                                  const stepState = pat.steps[sIdx];
-                                  const status = stepState?.status || 'pending';
-                                  const isNext = sIdx === pat.currentStep + 1;
+                                  const pOk = i > 0 && (pat.steps[i - 1]?.status === 'arrived' || (i - 1 <= pat.currentStep && !pat.steps[i - 1]));
+                                  const pGap = i > 0 && pat.steps[i - 1]?.status === 'gap';
                                   
+                                  const cLeft = i === 0 ? 'cn' : (pOk ? 'cg' : (pGap ? 'cg2' : (i === pat.currentStep + 1 ? 'cy2' : 'cd')));
+                                  const cRight = i === CHAIN_TEMPLATES[pat.templateId].steps.length - 1 ? 'cn' : (isArrived && i < pat.currentStep ? 'cg' : (isGap ? 'cg2' : (isNxt ? 'cy2' : 'cd')));
+
+                                  const hasVal = step.label.includes('UTIL') || step.label.includes('ERRORS') || step.label.includes('DROP') || step.label.includes('CPU');
+                                  const mVal = step.label.includes('UTIL') ? `${Math.round(80 + Math.random() * 5)}%` : 'TRIGGERED';
+
                                   return (
-                                    <div key={sIdx} className="flex items-center gap-3">
-                                      <div className={cn(
-                                        "w-[140px] flex flex-col gap-3 transition-all duration-500",
-                                        status === 'pending' && !isNext ? "opacity-20" : "opacity-100"
-                                      )}>
-                                        <div className="flex flex-col gap-1">
-                                          <div className={cn(
-                                            "text-[8px] font-black uppercase tracking-widest py-0.5 rounded px-1.5 w-fit",
-                                            status === 'arrived' ? "bg-[#3DDAB4]/10 text-[#3DDAB4]" :
-                                            status === 'gap' ? "bg-[#F59E0B]/10 text-[#F59E0B]" :
-                                            isNext ? "bg-[#3B82F6]/10 text-[#3B82F6]" : "bg-white/5 text-[#475569]"
-                                          )}>
-                                            {step.subLabel}
-                                          </div>
+                                    <div key={i} className="flex flex-col items-center min-w-[170px] flex-shrink-0 group">
+                                      {/* Node & Lines Row */}
+                                      <div className="w-full flex items-center h-[24px] mb-4">
+                                        <div className={cn("h-[2px] flex-1", cLeft)}></div>
+                                        <div className={cn("sn w-[20px] h-[20px] rounded-full flex items-center justify-center text-[8px] font-bold border-2 mx-2 flex-shrink-0 transition-transform group-hover:scale-110", 
+                                          isCfN ? "sn-cf" : isArrived ? "sn-ok" : isGap ? "sn-gap" : isNxt ? "sn-nxt" : "sn-fut")}>
+                                          {isArrived ? '✓' : isGap ? '' : i + 1}
                                         </div>
-
-                                        <div className={cn(
-                                          "p-3 rounded-xl border flex flex-col gap-2 relative transition-all duration-500 hover:scale-105",
-                                          status === 'arrived' ? "bg-white/[0.04] border-[#3DDAB4]/30 shadow-[0_4px_20px_rgba(61,218,180,0.05)]" :
-                                          status === 'gap' ? "bg-[#F59E0B]/5 border-[#F59E0B]/30" :
-                                          isNext ? "bg-[#3B82F6]/5 border-[#3B82F6]/30 border-dashed animate-pulse" :
-                                          "bg-white/[0.02] border-white/5"
-                                        )}>
-                                          <div className="flex items-center justify-between">
-                                             <span className={cn(
-                                               "text-[10px] font-black uppercase truncate",
-                                               status !== 'pending' || isNext ? "text-white" : "text-[#475569]"
-                                             )}>
-                                               {step.label.split('_').join(' ')}
-                                             </span>
-                                             {status === 'arrived' && <CheckCircle2 className="w-3 h-3 text-[#3DDAB4]" />}
-                                             {status === 'gap' && <AlertTriangle className="w-3 h-3 text-[#F59E0B]" />}
-                                          </div>
-                                          
-                                          {stepState?.timestamp && (
-                                             <div className="text-[8px] font-bold text-[#475569] font-['IBM_Plex_Mono',monospace]">
-                                               {stepState.timestamp.split(' ')[0]}
-                                             </div>
-                                          )}
-
-                                          {status === 'arrived' && stepState?.confValue && (
-                                            <div className="w-full h-[2px] bg-white/5 rounded-full overflow-hidden mt-1">
-                                              <div 
-                                                className="h-full bg-[#3DDAB4] transition-all duration-1000" 
-                                                style={{ width: `${stepState.confValue * 100}%` }}
-                                              />
-                                            </div>
-                                          )}
-                                        </div>
-
-                                        <p className="text-[9px] text-[#475569] font-medium leading-tight">
-                                          {isNext ? 'Predicting arrival in next 30s poll interval...' : status === 'gap' ? 'Metric missed window' : status === 'arrived' ? 'Observed in stream' : 'Awaiting baseline'}
-                                        </p>
+                                        <div className={cn("h-[2px] flex-1", cRight)}></div>
                                       </div>
-                                      {sIdx < CHAIN_TEMPLATES[pat.templateId].steps.length - 1 && (
-                                        <div className="pt-10">
-                                          <ChevronRight className={cn(
-                                            "w-4 h-4",
-                                            sIdx < pat.currentStep ? "text-[#3DDAB4]" : "text-white/5"
-                                          )} />
+
+                                      {/* Content below line */}
+                                      <div className="flex flex-col items-center text-center px-4 w-full">
+                                        {!isGap && (
+                                          <div className={cn("ec2 text-[7px] px-1.5 py-0.5 rounded mb-1.5 font-['IBM_Plex_Mono',monospace] uppercase tracking-wider", 
+                                            isArrived ? (step.subLabel.includes('TRAP') ? 'ec-t' : 'ec-m') : isNxt ? 'ec-p' : 'ec-m')}>
+                                            {isArrived ? (step.subLabel || 'METRIC POLL') : isNxt ? 'PREDICTED' : 'PENDING'}
+                                          </div>
+                                        )}
+                                        <div className={cn("sl text-[10px] font-bold font-['IBM_Plex_Mono',monospace] tracking-tight mb-2 h-[24px] flex items-center justify-center leading-tight line-clamp-2", 
+                                          isCfN ? "sl-cf" : isArrived ? "sl-ok" : isGap ? "sl-gap" : isNxt ? "sl-nxt" : "sl-fut")}>
+                                          {step.label.split('_').join(' ')}
                                         </div>
-                                      )}
+
+                                        {isArrived && (
+                                          <div className="flex flex-col items-center gap-1.5 animate-in slide-in-from-top-1 duration-500">
+                                            {hasVal && (
+                                              <span className="text-[8px] font-black bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/20 px-1.5 py-0.5 rounded uppercase">
+                                                {mVal}
+                                              </span>
+                                            )}
+                                            <div className="flex items-center gap-2">
+                                              <span className="text-[8px] text-[#10B981] font-bold uppercase tracking-wider">arrived</span>
+                                              <span className="text-[8px] text-[#475569] font-['IBM_Plex_Mono',monospace]">{stepState?.timestamp?.split(' ')[0] || '--'}</span>
+                                            </div>
+                                            <span className="px-1.5 py-0.5 bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 rounded-[2px] text-[7.5px] font-bold uppercase tracking-widest mt-0.5">confirmed</span>
+                                          </div>
+                                        )}
+
+                                        {isNxt && (
+                                          <div className="flex flex-col items-center gap-1.5 animate-pulse duration-1000">
+                                            <div className="text-[12px] font-black text-[#f59e0b] font-['IBM_Plex_Mono',monospace]">~2s</div>
+                                            <span className="px-1.5 py-0.5 bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/20 rounded-[2px] text-[8px] font-bold uppercase tracking-widest">NEXT EVENT</span>
+                                          </div>
+                                        )}
+
+                                        {isGap && (
+                                          <div className="flex flex-col items-center opacity-30">
+                                            <div className="text-[9px] font-bold text-[#475569] italic uppercase">MISSED</div>
+                                          </div>
+                                        )}
+
+                                        {isNxt && i > 0 && (
+                                          <div className="text-[8px] text-[#3d5066] mt-3 leading-relaxed max-w-[140px] italic opacity-80 border-t border-white/5 pt-2">
+                                            {CHAIN_TEMPLATES[pat.templateId].steps[i - 1].description}
+                                          </div>
+                                        )}
+                                      </div>
                                     </div>
                                   );
                                 })}
+                              </div>
                             </div>
-                            <div className="flex justify-end pt-2 border-t border-white/5">
-                              <button className="text-[9px] font-black text-[#3B82F6] uppercase tracking-[0.2em] hover:underline flex items-center gap-2">
-                                View Correlation Matrix <ChevronRight className="w-3 h-3" />
-                               </button>
-                             </div>
-                           </div>
-                         </div>
-                       </div>
-                     </div>
-                   ))}
-                 </div>
-               ))}
-             </div>
-           </div>
-         </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
 
         {/* OVERLAY SIDEBAR */}
         <div
@@ -997,6 +975,48 @@ export default function LiveInferencePage() {
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.1); }
+        
+        .di{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:3px;font-family:'IBM_Plex_Mono',monospace;font-size:8px;font-weight:600;flex-shrink:0;margin-right:6px;vertical-align:middle;}
+        .di-c{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.15);}
+        .di-j{background:rgba(16,185,129,.09);color:#10b981;border:1px solid rgba(16,185,129,.15);}
+        .di-a{background:rgba(245,158,11,.09);color:#f59e0b;border:1px solid rgba(245,158,11,.15);}
+        .di-n{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.15);}
+        .di-s{background:rgba(6,186,212,.09);color:#06b6d4;border:1px solid rgba(6,186,212,.15);}
+        .di-r{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.15);}
+        .di-i{background:rgba(139,92,246,.12);color:#8b5cf6;border:1px solid rgba(139,92,246,.15);}
+
+        .mp{font-family:'JetBrains Mono',monospace;font-size:8px;padding:2px 5px;border-radius:3px;white-space:nowrap;flex-shrink:0;}
+        .mp-ok{background:rgba(16,185,129,.09);color:rgba(110,231,183,.9);border:1px solid rgba(16,185,129,.15);}
+        .mp-gap{background:rgba(255,255,255,.01);color:#233044;border:1px solid #1c2b3e;opacity:.5;}
+        .mp-nxt{background:rgba(245,158,11,.07);color:rgba(252,211,77,.9);border:1px dashed rgba(245,158,11,.25);animation:mpN 1.6s infinite;}
+        .mp-fut{background:transparent;color:#233044;border:1px solid #1c2b3e;}
+        @keyframes mpN{0%,100%{opacity:.55}50%{opacity:1}}
+        
+        .sp-y{background:rgba(59,130,246,.09);color:#3b82f6;border:1px solid rgba(59,130,246,.16);}
+        .sp-o{background:rgba(245,158,11,.09);color:#f59e0b;border:1px solid rgba(245,158,11,.16);}
+        .sp-r{background:rgba(239,68,68,.09);color:#ef4444;border:1px solid rgba(239,68,68,.16);}
+
+        .cg{background:rgba(16,185,129,.38);}
+        .cg2{background:rgba(16,185,129,.12);}
+        .cy2{background:rgba(245,158,11,.4);}
+        .cd{background:#1c2b3e;}
+        .cn{background:transparent;}
+        
+        .sn-ok{background:rgba(16,185,129,0.12);border:1.5px solid #10b981;color:#10b981;}
+        .sn-gap{background:transparent;border:1.5px solid #283852;color:transparent;}
+        .sn-nxt{background:rgba(245,158,11,.07);border:1.5px dashed #f59e0b;color:#f59e0b;animation:nxA 1.5s infinite;}
+        .sn-fut{background:transparent;border:1.5px solid #223044;color:#233044;}
+        .sn-cf{background:rgba(239,68,68,0.1);border:1.5px solid #ef4444;color:#ef4444;}
+        @keyframes nxA{0%,100%{opacity:.6}50%{opacity:1}}
+
+        .ec-m{background:rgba(59,130,246,.07);color:rgba(96,165,250,.75);border:1px solid rgba(59,130,246,.1);}
+        .ec-t{background:rgba(139,92,246,.06);color:rgba(196,181,253,.75);border:1px solid rgba(139,92,246,.1);}
+        .ec-p{background:rgba(239,68,68,.05);color:rgba(252,165,165,.65);border:1px solid rgba(239,68,68,.08);}
+
+        .spill-ok{background:rgba(16,185,129,.07);color:#10b981;border:1px solid rgba(16,185,129,.1);}
+        .spill-nxt{background:rgba(245,158,11,.07);color:#f59e0b;border:1px solid rgba(245,158,11,.1);}
+        .spill-fut{background:transparent;color:#233044;border:1px solid #1c2b3e;}
+        .spill-cf{background:rgba(239,68,68,.08);color:#ef4444;border:1px solid rgba(239,68,68,.12);}
       `}</style>
     </MainLayout>
   );
