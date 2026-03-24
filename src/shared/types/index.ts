@@ -124,7 +124,7 @@ export interface KBArticle {
 export interface IntentSignal {
   metric: string;
   op: string;
-  value: number;
+  value: number | string;
   weight: number;
 }
 
@@ -165,6 +165,7 @@ export interface IntentFull {
   signals: IntentSignal[];
   hypotheses: IntentHypothesis[];
   situationDesc: string;
+  linkedKB?: string;
 }
 
 export interface IntentCategory {

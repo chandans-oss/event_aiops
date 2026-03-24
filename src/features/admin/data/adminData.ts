@@ -3,41 +3,187 @@ import { IntentFull, IntentCategory, KBArticle, RemediationPermission } from '@/
 // Intent Categories and Subcategories
 export const mockIntentCategories: IntentCategory[] = [
   {
-    id: 'network',
-    name: 'Network Infrastructure',
-    domain: 'Network',
+    id: "network",
+    name: "Network",
+    domain: "Network",
     subcategories: [
-      { id: 'connectivity', name: 'Connectivity', function: 'Reachability & Flow', intentCount: 5 },
-      { id: 'routing', name: 'Routing Protocols', function: 'Path Vector & IGP', intentCount: 6 },
-      { id: 'switching', name: 'Switching Fabric', function: 'L2 Control & Data', intentCount: 4 },
-      { id: 'interface', name: 'Physical Interfaces', function: 'Link Integrity', intentCount: 3 },
+      {
+        id: "link",
+        name: "Link",
+        function: "Link Layer",
+        intentCount: 5
+      },
+      {
+        id: "performance",
+        name: "Performance",
+        function: "Performance",
+        intentCount: 2
+      },
+      {
+        id: "routing",
+        name: "Routing",
+        function: "Routing",
+        intentCount: 2
+      },
+      {
+        id: "wan",
+        name: "Wan",
+        function: "WAN",
+        intentCount: 1
+      },
+      {
+        id: "wireless",
+        name: "Wireless",
+        function: "Wireless",
+        intentCount: 1
+      }
     ]
   },
   {
-    id: 'services',
-    name: 'Core Services',
-    domain: 'Services',
+    id: "compute",
+    name: "Compute",
+    domain: "Compute",
     subcategories: [
-      { id: 'dns', name: 'DNS', function: 'Name Resolution', intentCount: 2 },
-      { id: 'dhcp', name: 'DHCP', function: 'IP Management', intentCount: 2 },
+      {
+        id: "system",
+        name: "System",
+        function: "CPU",
+        intentCount: 6
+      },
+      {
+        id: "container",
+        name: "Container",
+        function: "Containers",
+        intentCount: 1
+      }
     ]
   },
   {
-    id: 'performance',
-    name: 'Performance & QoS',
-    domain: 'Performance',
+    id: "security",
+    name: "Security",
+    domain: "Security",
     subcategories: [
-      { id: 'latency', name: 'Latency & Jitter', function: 'Quality of Experience', intentCount: 3 },
-      { id: 'bandwidth', name: 'Throughput', function: 'Congestion Management', intentCount: 2 },
+      {
+        id: "security",
+        name: "Security",
+        function: "Threat",
+        intentCount: 5
+      }
     ]
   },
   {
-    id: 'security',
-    name: 'Security & VPN',
-    domain: 'Security',
+    id: "platform",
+    name: "Platform",
+    domain: "Platform",
     subcategories: [
-      { id: 'acl', name: 'Access Control', function: 'Security Policy', intentCount: 3 },
-      { id: 'vpn', name: 'VPN Gateway', function: 'Secure Transport', intentCount: 4 },
+      {
+        id: "unknown",
+        name: "Unknown",
+        function: "Intent Quality",
+        intentCount: 1
+      },
+      {
+        id: "platform",
+        name: "Platform",
+        function: "Intent Quality",
+        intentCount: 4
+      }
+    ]
+  },
+  {
+    id: "facility",
+    name: "Facility",
+    domain: "Facility",
+    subcategories: [
+      {
+        id: "thermal",
+        name: "Thermal",
+        function: "Device Thermal",
+        intentCount: 2
+      },
+      {
+        id: "cooling",
+        name: "Cooling",
+        function: "Cooling",
+        intentCount: 1
+      },
+      {
+        id: "power",
+        name: "Power",
+        function: "Power",
+        intentCount: 1
+      }
+    ]
+  },
+  {
+    id: "storage",
+    name: "Storage",
+    domain: "Storage",
+    subcategories: [
+      {
+        id: "storage",
+        name: "Storage",
+        function: "Disk Health",
+        intentCount: 5
+      }
+    ]
+  },
+  {
+    id: "database",
+    name: "Database",
+    domain: "Database",
+    subcategories: [
+      {
+        id: "db",
+        name: "Db",
+        function: "Availability",
+        intentCount: 5
+      }
+    ]
+  },
+  {
+    id: "middleware",
+    name: "Middleware",
+    domain: "Middleware",
+    subcategories: [
+      {
+        id: "mq",
+        name: "Mq",
+        function: "Queue Health",
+        intentCount: 2
+      },
+      {
+        id: "txn",
+        name: "Txn",
+        function: "Transaction Health",
+        intentCount: 1
+      }
+    ]
+  },
+  {
+    id: "load-balancer",
+    name: "Load Balancer",
+    domain: "Load Balancer",
+    subcategories: [
+      {
+        id: "lb",
+        name: "Lb",
+        function: "VIP Availability",
+        intentCount: 5
+      }
+    ]
+  },
+  {
+    id: "sd-wan",
+    name: "SD-WAN",
+    domain: "SD-WAN",
+    subcategories: [
+      {
+        id: "sdwan",
+        name: "Sdwan",
+        function: "Transport Health",
+        intentCount: 4
+      }
     ]
   }
 ];
@@ -45,1602 +191,2884 @@ export const mockIntentCategories: IntentCategory[] = [
 // Full Intent Data
 export const mockIntentsFull: IntentFull[] = [
   {
-    _id: { $oid: '69381e8e2c85e919f613923f' },
-    id: 'connectivity.host_down',
-    intent: 'connectivity',
-    subIntent: 'host_down',
-    domain: 'Network',
-    function: 'Reachability',
-    description: 'A monitored device is unreachable from the NMS poller',
-    keywords: ['host down', 'unreachable', 'snmp timeout', 'icmp fail', 'device offline'],
+    _id: {
+      $oid: "6937d9c6a4cd14665b75cdf8"
+    },
+    id: "link.down",
+    intent: "link",
+    description: "Physical/optical link down",
+    domain: "Network",
+    function: "Link Layer",
+    keywords: [
+      "interface down",
+      "link down",
+      "port down",
+      "los",
+      "loss of signal"
+    ],
     signals: [
-      { metric: 'icmp_reachability', op: '==', value: 0, weight: 0.5 },
-      { metric: 'snmp_poll_success', op: '==', value: 0, weight: 0.4 },
-      { metric: 'interface_oper_status', op: '==', value: 0, weight: 0.3 }
+      {
+        metric: "oper_status",
+        op: "==",
+        value: "down",
+        weight: 0.7
+      },
+      {
+        metric: "admin_status",
+        op: "==",
+        value: "up",
+        weight: 0.2
+      }
     ],
     hypotheses: [
       {
-        id: 'H_HOST_DOWN_SNMP_BLOCKED',
-        description: 'SNMP or ICMP is blocked by an ACL or firewall between NMS and device',
+        id: "H_CABLE_UNPLUGGED",
+        description: "Physical cable disconnected or optical signal lost",
         signals: [
-          { metric: 'icmp_reachability', op: '==', value: 0, weight: 0.5 },
-          { metric: 'snmp_poll_success', op: '==', value: 0, weight: 0.5 }
+          {
+            metric: "oper_status",
+            op: "==",
+            value: "down",
+            weight: 0.7
+          },
+          {
+            metric: "admin_status",
+            op: "==",
+            value: "up",
+            weight: 0.2
+          }
         ],
         logPatterns: [
-          { keyword: 'access-list deny', weight: 0.4 },
-          { keyword: 'snmp timeout', weight: 0.4 },
-          { keyword: 'ACL drop', weight: 0.3 }
+          {
+            keyword: "loss of signal",
+            weight: 0.3
+          },
+          {
+            keyword: "LOS",
+            weight: 0.3
+          }
         ]
       },
       {
-        id: 'H_HOST_DOWN_INTERFACE_DOWN',
-        description: 'Physical or logical interface on the device is down',
+        id: "H_TRANSCEIVER_FAILURE",
+        description: "Optical module or SFP failure",
         signals: [
-          { metric: 'interface_oper_status', op: '==', value: 0, weight: 0.6 },
-          { metric: 'interface_admin_status', op: '==', value: 1, weight: 0.3 }
+          {
+            metric: "oper_status",
+            op: "==",
+            value: "down",
+            weight: 0.6
+          }
         ],
         logPatterns: [
-          { keyword: 'line protocol is down', weight: 0.5 },
-          { keyword: 'interface down', weight: 0.4 },
-          { keyword: 'link down', weight: 0.3 }
+          {
+            keyword: "transceiver",
+            weight: 0.3
+          },
+          {
+            keyword: "module failure",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Link/Interface {interface} on device {device} is down. Operational status is {oper_status}, while administrative status is {admin_status}. Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "down"
+  },
+  {
+    _id: {
+      $oid: "6937d9c6a4cd14665b75cdf9"
+    },
+    id: "link.flap",
+    intent: "link",
+    description: "Interface flapping frequently",
+    domain: "Network",
+    function: "Link Layer",
+    keywords: [
+      "flap",
+      "bouncing",
+      "up/down",
+      "interface changed state"
+    ],
+    signals: [
+      {
+        metric: "flap_count",
+        op: ">",
+        value: 3,
+        weight: 0.7
+      },
+      {
+        metric: "oper_changes_per_min",
+        op: ">",
+        value: 1,
+        weight: 0.3
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_LOOSE_CONNECTION",
+        description: "Loose connection or faulty cable",
+        signals: [
+          {
+            metric: "flap_count",
+            op: ">",
+            value: 3,
+            weight: 0.7
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "changed state to down",
+            weight: 0.3
+          }
         ]
       },
       {
-        id: 'H_HOST_DOWN_ROUTING',
-        description: 'No routing path exists from poller to the device management IP',
+        id: "H_NEGOTIATION_ISSUE",
+        description: "Speed/Duplex negotiation mismatch",
         signals: [
-          { metric: 'icmp_reachability', op: '==', value: 0, weight: 0.5 },
-          { metric: 'route_exists', op: '==', value: 0, weight: 0.5 }
+          {
+            metric: "oper_changes_per_min",
+            op: ">",
+            value: 1,
+            weight: 0.3
+          }
         ],
         logPatterns: [
-          { keyword: 'unreachable', weight: 0.4 },
-          { keyword: 'no route to host', weight: 0.5 },
-          { keyword: 'VRF mismatch', weight: 0.3 }
+          {
+            keyword: "duplex",
+            weight: 0.3
+          },
+          {
+            keyword: "speed mismatch",
+            weight: 0.3
+          }
         ]
       }
     ],
-    situationDesc: 'Device {device} is showing Host Down in NMS. ICMP reachability={icmp_reachability}, SNMP poll success={snmp_poll_success}. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-001 for remediation steps.'
+    situationDesc: "Interface {resoure_name} on {device} is flapping frequently ({flap_count} flaps, {oper_changes_per_min} state changes per minute). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "flap"
   },
   {
-    _id: { $oid: '69381e8e2c85e919f6139240' },
-    id: 'connectivity.packet_loss',
-    intent: 'connectivity',
-    subIntent: 'packet_loss',
-    domain: 'Network',
-    function: 'Data Plane',
-    description: 'Intermittent packet loss detected on a path to a site or segment',
-    keywords: ['packet loss', 'drops', 'latency', 'intermittent', 'CRC', 'congestion'],
+    _id: {
+      $oid: "6937d9c6a4cd14665b75cdfa"
+    },
+    id: "link.high_errors",
+    intent: "link",
+    description: "High CRC/Input/Output errors",
+    domain: "Network",
+    function: "Link Layer",
+    keywords: [
+      "crc",
+      "input error",
+      "output error",
+      "frame error"
+    ],
     signals: [
-      { metric: 'icmp_loss_percent', op: '>', value: 1, weight: 0.5 },
-      { metric: 'interface_output_drops', op: '>', value: 50, weight: 0.4 },
-      { metric: 'crc_errors', op: '>', value: 10, weight: 0.3 }
+      {
+        metric: "in_errors",
+        op: ">",
+        value: 100,
+        weight: 0.5
+      },
+      {
+        metric: "out_discards",
+        op: ">",
+        value: 100,
+        weight: 0.3
+      }
     ],
     hypotheses: [
       {
-        id: 'H_PKTLOSS_LINK_ERRORS',
-        description: 'Physical layer errors (CRC, giants) on the interface causing frame drops',
+        id: "H_CRC_ERRORS",
+        description: "CRC or physical layer corruption",
         signals: [
-          { metric: 'crc_errors', op: '>', value: 100, weight: 0.6 },
-          { metric: 'interface_output_drops', op: '>', value: 50, weight: 0.3 }
+          {
+            metric: "in_errors",
+            op: ">",
+            value: 100,
+            weight: 0.6
+          }
         ],
         logPatterns: [
-          { keyword: 'CRC error', weight: 0.5 },
-          { keyword: 'input errors', weight: 0.4 },
-          { keyword: 'duplex mismatch', weight: 0.3 }
+          {
+            keyword: "crc error",
+            weight: 0.3
+          }
         ]
       },
       {
-        id: 'H_PKTLOSS_CONGESTION',
-        description: 'Queue congestion causing tail-drop on the egress interface',
+        id: "H_BUFFER_OVERFLOW",
+        description: "Packet drops due to output queue overflow",
         signals: [
-          { metric: 'interface_output_drops', op: '>', value: 200, weight: 0.6 },
-          { metric: 'interface_utilization_percent', op: '>', value: 85, weight: 0.5 }
+          {
+            metric: "out_discards",
+            op: ">",
+            value: 100,
+            weight: 0.4
+          }
         ],
         logPatterns: [
-          { keyword: 'output drops', weight: 0.5 },
-          { keyword: 'queue full', weight: 0.4 },
-          { keyword: 'WRED discard', weight: 0.3 }
+          {
+            keyword: "queue full",
+            weight: 0.2
+          },
+          {
+            keyword: "tail drop",
+            weight: 0.2
+          }
         ]
       }
     ],
-    situationDesc: 'Packet loss detected toward {device}. Loss={icmp_loss_percent}%, output_drops={interface_output_drops}, CRC={crc_errors}. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-002.'
+    situationDesc: "Interface {resoure_name} on {device} is experiencing high error rates {in_errors} input errors, {out_discards} output discards. Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "high_errors"
   },
   {
-    _id: { $oid: '69381e8e2c85e919f6139241' },
-    id: 'services.dns_failure',
-    intent: 'services',
-    subIntent: 'dns_failure',
-    domain: 'Network',
-    function: 'Name Resolution',
-    description: 'DNS resolution failing for clients — server not responding or incorrect responses',
-    keywords: ['dns failure', 'nxdomain', 'dns timeout', 'name resolution', 'dns server down'],
+    _id: {
+      $oid: "6937d9c6a4cd14665b75cdfb"
+    },
+    id: "performance.congestion",
+    intent: "performance",
+    description: "Interface congestion",
+    domain: "Network",
+    function: "Performance",
+    keywords: [
+      "congestion",
+      "queue drop",
+      "buffer full",
+      "tail drop",
+      "backup",
+      "rsync"
+    ],
     signals: [
-      { metric: 'dns_query_success_rate', op: '<', value: 95, weight: 0.6 },
-      { metric: 'udp_53_reachability', op: '==', value: 0, weight: 0.5 },
-      { metric: 'nxdomain_rate', op: '>', value: 10, weight: 0.3 }
-    ],
-    hypotheses: [
       {
-        id: 'H_DNS_SERVER_DOWN',
-        description: 'DNS server process has crashed or the host is unreachable',
-        signals: [
-          { metric: 'udp_53_reachability', op: '==', value: 0, weight: 0.6 },
-          { metric: 'dns_query_success_rate', op: '<', value: 10, weight: 0.5 }
-        ],
-        logPatterns: [
-          { keyword: 'DNS service stopped', weight: 0.5 },
-          { keyword: 'named crashed', weight: 0.5 },
-          { keyword: 'connection refused port 53', weight: 0.4 }
-        ]
-      }
-    ],
-    situationDesc: 'DNS resolution failing. Query success rate={dns_query_success_rate}%, UDP 53 reachable={udp_53_reachability}, NXDOMAIN rate={nxdomain_rate}/min. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-003.'
-  },
-  {
-    _id: { $oid: '69381e8e2c85e919f6139242' },
-    id: 'services.dhcp_failure',
-    intent: 'services',
-    subIntent: 'dhcp_failure',
-    domain: 'Network',
-    function: 'IP Address Management',
-    description: 'Clients unable to obtain IP addresses via DHCP',
-    keywords: ['dhcp timeout', 'no ip address', 'dhcp fail', 'ip-helper', 'scope exhausted'],
-    signals: [
-      { metric: 'dhcp_discover_no_offer_count', op: '>', value: 5, weight: 0.6 },
-      { metric: 'dhcp_pool_utilization_percent', op: '>', value: 90, weight: 0.5 },
-      { metric: 'udp_67_reachability', op: '==', value: 0, weight: 0.4 }
-    ],
-    hypotheses: [
-      {
-        id: 'H_DHCP_POOL_EXHAUSTED',
-        description: 'DHCP address pool is full — no IPs available to lease',
-        signals: [
-          { metric: 'dhcp_pool_utilization_percent', op: '>', value: 95, weight: 0.8 },
-          { metric: 'dhcp_discover_no_offer_count', op: '>', value: 10, weight: 0.5 }
-        ],
-        logPatterns: [
-          { keyword: 'DHCP pool exhausted', weight: 0.6 },
-          { keyword: 'no available address', weight: 0.5 },
-          { keyword: 'pool utilization 100%', weight: 0.5 }
-        ]
-      }
-    ],
-    situationDesc: 'DHCP failure detected. Discover-no-offer count={dhcp_discover_no_offer_count}, pool utilization={dhcp_pool_utilization_percent}%, relay path={udp_67_reachability}. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-004.'
-  },
-  {
-    _id: { $oid: '69381e8e2c85e919f6139243' },
-    id: 'routing.bgp_flap',
-    intent: 'routing',
-    subIntent: 'bgp_flap',
-    domain: 'Network',
-    function: 'Routing Protocol',
-    description: 'BGP session with ISP or peer is repeatedly dropping and re-establishing',
-    keywords: ['bgp flap', 'bgp session down', 'neighbor reset', 'hold timer expired', 'max-prefix'],
-    signals: [
-      { metric: 'bgp_session_state', op: '==', value: 0, weight: 0.7 },
-      { metric: 'bgp_flap_count', op: '>', value: 3, weight: 0.5 },
-      { metric: 'interface_error_rate', op: '>', value: 10, weight: 0.3 }
-    ],
-    hypotheses: [
-      {
-        id: 'H_BGP_PHYSICAL_LINK',
-        description: 'Physical link instability causing BGP TCP session drops',
-        signals: [
-          { metric: 'interface_error_rate', op: '>', value: 50, weight: 0.6 },
-          { metric: 'bgp_flap_count', op: '>', value: 5, weight: 0.5 }
-        ],
-        logPatterns: [
-          { keyword: 'line protocol down', weight: 0.5 },
-          { keyword: 'TCP reset', weight: 0.4 },
-          { keyword: 'BGP session closed', weight: 0.4 }
-        ]
+        metric: "utilization_percent",
+        op: ">",
+        value: 90,
+        weight: 0.5
       },
       {
-        id: 'H_BGP_MAX_PREFIX',
-        description: 'Max-prefix limit hit causing session teardown',
-        signals: [
-          { metric: 'bgp_prefix_count', op: '>', value: 950, weight: 0.6 },
-          { metric: 'bgp_session_state', op: '==', value: 0, weight: 0.5 }
-        ],
-        logPatterns: [
-          { keyword: 'maximum prefix limit reached', weight: 0.7 },
-          { keyword: 'CEASE max-prefix', weight: 0.6 }
-        ]
+        metric: "out_discards",
+        op: ">",
+        value: 0,
+        weight: 0.4
       }
-    ],
-    situationDesc: 'BGP session to {peer} is flapping. Session state={bgp_session_state}, flap count={bgp_flap_count}, prefix count={bgp_prefix_count}. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-005.'
-  },
-  {
-    _id: { $oid: '69381e8e2c85e919f6139244' },
-    id: 'routing.ospf_stuck',
-    intent: 'routing',
-    subIntent: 'ospf_stuck',
-    domain: 'Network',
-    function: 'Routing Protocol',
-    description: 'OSPF neighbor stuck in EXSTART or EXCHANGE state — adjacency not forming',
-    keywords: ['ospf exstart', 'ospf exchange', 'ospf neighbor stuck', 'ospf adjacency'],
-    signals: [
-      { metric: 'ospf_neighbor_state', op: '==', value: 5, weight: 0.8 },
-      { metric: 'ospf_mtu_mismatch', op: '==', value: 1, weight: 0.5 },
-      { metric: 'ospf_dd_retransmit_count', op: '>', value: 3, weight: 0.4 }
     ],
     hypotheses: [
       {
-        id: 'H_OSPF_MTU_MISMATCH',
-        description: 'MTU mismatch between OSPF peers causing DBD exchange to fail',
+        id: "H_QOS_CONGESTION",
+        description: "High utilization and queue discards",
         signals: [
-          { metric: 'ospf_mtu_mismatch', op: '==', value: 1, weight: 0.8 },
-          { metric: 'ospf_dd_retransmit_count', op: '>', value: 3, weight: 0.5 }
+          {
+            metric: "utilization_percent",
+            op: ">",
+            value: 90,
+            weight: 0.5
+          },
+          {
+            metric: "out_discards",
+            op: ">",
+            value: 0,
+            weight: 0.4
+          }
         ],
         logPatterns: [
-          { keyword: 'MTU mismatch', weight: 0.7 },
-          { keyword: 'OSPF DD retransmit', weight: 0.4 }
+          {
+            keyword: "tail drop",
+            weight: 0.3
+          },
+          {
+            keyword: "buffer full",
+            weight: 0.3
+          },
+          {
+            keyword: "queue full",
+            weight: 0.3
+          }
         ]
       }
     ],
-    situationDesc: 'OSPF neighbor {peer} on {device} is stuck in state={ospf_neighbor_state}. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-006.'
+    situationDesc: "Interface {resoure_name} on {device} shows high utilization ({utilization_percent}%), with {out_discards} queue drops. Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "congestion"
   },
   {
-    _id: { $oid: '69381e8e2c85e919f6139245' },
-    id: 'switching.stp_instability',
-    intent: 'switching',
-    subIntent: 'stp_instability',
-    domain: 'Network',
-    function: 'Layer 2 Control Plane',
-    description: 'STP topology changes causing intermittent access outages or broadcast storms',
-    keywords: ['stp', 'topology change', 'tcn', 'root bridge', 'bpdu guard', 'loop'],
+    _id: {
+      $oid: "6937d9c6a4cd14665b75cdfc"
+    },
+    id: "routing.bgp_down",
+    intent: "routing",
+    description: "BGP session down",
+    domain: "Network",
+    function: "Routing",
+    keywords: [
+      "bgp",
+      "neighbor down"
+    ],
     signals: [
-      { metric: 'stp_tcn_count', op: '>', value: 10, weight: 0.6 },
-      { metric: 'stp_root_change_count', op: '>', value: 1, weight: 0.7 },
-      { metric: 'broadcast_rate_pps', op: '>', value: 5000, weight: 0.5 }
+      {
+        metric: "bgp_session_state",
+        op: "==",
+        value: "down",
+        weight: 0.8
+      }
     ],
     hypotheses: [
       {
-        id: 'H_STP_LOOP',
-        description: 'Physical loop detected causing broadcast storm and MAC thrashing',
+        id: "H_BGP_NEIGHBOR_LOST",
+        description: "BGP peer or transport failure",
         signals: [
-          { metric: 'broadcast_rate_pps', op: '>', value: 10000, weight: 0.7 },
-          { metric: 'stp_tcn_count', op: '>', value: 50, weight: 0.6 }
+          {
+            metric: "bgp_session_state",
+            op: "==",
+            value: "down",
+            weight: 0.8
+          }
         ],
         logPatterns: [
-          { keyword: 'MAC flap detected', weight: 0.6 },
-          { keyword: 'broadcast storm', weight: 0.7 }
+          {
+            keyword: "BGP-5-ADJCHANGE",
+            weight: 0.3
+          },
+          {
+            keyword: "neighbor down",
+            weight: 0.3
+          }
         ]
       }
     ],
-    situationDesc: 'STP instability on {device}. TCN count={stp_tcn_count}, root changes={stp_root_change_count}. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-007.'
+    situationDesc: "BGP session between {device} and neighbor {peer} is down (state={bgp_session_state}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "bgp_down"
   },
   {
-    _id: { $oid: '69381e8e2c85e919f6139246' },
-    id: 'switching.vlan_gateway_unreachable',
-    intent: 'switching',
-    subIntent: 'vlan_gateway_unreachable',
-    domain: 'Network',
-    function: 'Layer 2/3 Gateway',
-    description: 'Hosts in a VLAN cannot reach their default gateway',
-    keywords: ['vlan gateway', 'svi down', 'hsrp', 'vrrp', 'trunk missing vlan'],
+    _id: {
+      $oid: "6937d9c6a4cd14665b75cdfd"
+    },
+    id: "system.cpu_high",
+    intent: "system",
+    description: "High CPU on device",
+    domain: "Compute",
+    function: "CPU",
+    keywords: [
+      "cpu high",
+      "high load"
+    ],
     signals: [
-      { metric: 'svi_line_protocol', op: '==', value: 0, weight: 0.7 },
-      { metric: 'vlan_on_trunk', op: '==', value: 0, weight: 0.6 },
-      { metric: 'hsrp_state_active', op: '==', value: 0, weight: 0.5 }
+      {
+        metric: "cpu_percent",
+        op: ">",
+        value: 80,
+        weight: 0.8
+      }
     ],
     hypotheses: [
       {
-        id: 'H_VLAN_TRUNK_MISSING',
-        description: 'VLAN not permitted on the trunk link between access and distribution switch',
+        id: "H_CPU_SPIKE",
+        description: "CPU nearing threshold causing impact",
         signals: [
-          { metric: 'vlan_on_trunk', op: '==', value: 0, weight: 0.8 }
+          {
+            metric: "cpu_percent",
+            op: ">",
+            value: 80,
+            weight: 0.8
+          }
         ],
         logPatterns: [
-          { keyword: 'VLAN not allowed on trunk', weight: 0.7 },
-          { keyword: 'native VLAN mismatch', weight: 0.4 }
+          {
+            keyword: "high cpu",
+            weight: 0.3
+          },
+          {
+            keyword: "process",
+            weight: 0.2
+          }
         ]
       }
     ],
-    situationDesc: 'Hosts in VLAN {vlan_id} cannot reach gateway. SVI state={svi_line_protocol}. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-008.'
+    situationDesc: "Device {device} CPU utilization is high ({cpu_percent}%). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "cpu_high"
   },
   {
-    _id: { $oid: '69381e8e2c85e919f6139247' },
-    id: 'interface.crc_errors',
-    intent: 'interface',
-    subIntent: 'crc_errors',
-    domain: 'Network',
-    function: 'Physical Layer',
-    description: 'CRC errors increasing on an uplink interface indicating physical layer issues',
-    keywords: ['crc errors', 'input errors', 'giants', 'runts', 'bad cable', 'sfp', 'duplex mismatch'],
+    _id: {
+      $oid: "6937d9c6a4cd14665b75cdfe"
+    },
+    id: "system.memory_high",
+    intent: "system",
+    description: "High memory usage",
+    domain: "Compute",
+    function: "Memory",
+    keywords: [
+      "memory high",
+      "ram usage"
+    ],
     signals: [
-      { metric: 'crc_errors_per_min', op: '>', value: 10, weight: 0.7 },
-      { metric: 'input_errors_total', op: '>', value: 100, weight: 0.5 },
-      { metric: 'duplex_mismatch', op: '==', value: 1, weight: 0.4 }
+      {
+        metric: "mem_percent",
+        op: ">",
+        value: 80,
+        weight: 0.8
+      }
     ],
     hypotheses: [
       {
-        id: 'H_CRC_BAD_CABLE_SFP',
-        description: 'Faulty patch cable or SFP transceiver causing physical bit errors',
+        id: "H_MEMORY_PRESSURE",
+        description: "Memory nearing full capacity",
         signals: [
-          { metric: 'crc_errors_per_min', op: '>', value: 50, weight: 0.7 },
-          { metric: 'optical_rx_power_dbm', op: '<', value: -20, weight: 0.5 }
+          {
+            metric: "mem_percent",
+            op: ">",
+            value: 80,
+            weight: 0.8
+          }
         ],
         logPatterns: [
-          { keyword: 'CRC error', weight: 0.6 },
-          { keyword: 'optical power low', weight: 0.5 }
+          {
+            keyword: "memory",
+            weight: 0.3
+          },
+          {
+            keyword: "oom",
+            weight: 0.3
+          }
         ]
       }
     ],
-    situationDesc: 'CRC errors on {device} interface {interface}. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-009.'
+    situationDesc: "Device {device} memory utilization is high ({mem_percent}%). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "memory_high"
   },
   {
-    _id: { $oid: '69381e8e2c85e919f6139248' },
-    id: 'interface.port_flap',
-    intent: 'interface',
-    subIntent: 'port_flap',
-    domain: 'Network',
-    function: 'Physical Layer',
-    description: 'Access port repeatedly cycling up and down',
-    keywords: ['port flap', 'link up down', 'errdisable', 'PoE', 'loose cable'],
+    _id: {
+      $oid: "6937d9c6a4cd14665b75cdff"
+    },
+    id: "security.ddos",
+    intent: "security",
+    description: "High PPS traffic – potential DDOS",
+    domain: "Security",
+    function: "Threat",
+    keywords: [
+      "ddos",
+      "attack",
+      "flood"
+    ],
     signals: [
-      { metric: 'link_flap_count_per_hour', op: '>', value: 3, weight: 0.7 },
-      { metric: 'poe_power_deny_count', op: '>', value: 0, weight: 0.4 },
-      { metric: 'errdisable_triggered', op: '==', value: 1, weight: 0.5 }
+      {
+        metric: "pps_rate",
+        op: ">",
+        value: 1000000,
+        weight: 0.6
+      }
     ],
     hypotheses: [
       {
-        id: 'H_FLAP_LOOSE_CABLE',
-        description: 'Loose or damaged patch cable causing intermittent link loss',
+        id: "H_VOLUME_ATTACK",
+        description: "High-volume packet flood attack",
         signals: [
-          { metric: 'link_flap_count_per_hour', op: '>', value: 5, weight: 0.7 }
+          {
+            metric: "pps_rate",
+            op: ">",
+            value: 1000000,
+            weight: 0.6
+          }
         ],
         logPatterns: [
-          { keyword: 'link up', weight: 0.3 },
-          { keyword: 'link down', weight: 0.3 }
+          {
+            keyword: "attack",
+            weight: 0.3
+          },
+          {
+            keyword: "flood",
+            weight: 0.3
+          }
         ]
       }
     ],
-    situationDesc: 'Port {interface} on {device} is flapping. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-010.'
+    situationDesc: "Device {device} is experiencing unusually high packet rate ({pps_rate} PPS) indicating possible DDOS. Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "ddos"
   },
   {
-    _id: { $oid: '69381e8e2c85e919f6139249' },
-    id: 'performance.voip_jitter',
-    intent: 'performance',
-    subIntent: 'voip_jitter',
-    domain: 'Network',
-    function: 'QoS',
-    description: 'High jitter causing degraded VoIP call quality',
-    keywords: ['voip jitter', 'mos score', 'voice quality', 'dscp', 'qos', 'llq'],
+    _id: {
+      $oid: "6937d9c6a4cd14665b75ce00"
+    },
+    id: "unknown.low_confidence",
+    intent: "unknown",
+    description: "No confident match",
+    domain: "Platform",
+    function: "Intent Quality",
+    keywords: [
+      "unknown",
+      "investigate"
+    ],
     signals: [
-      { metric: 'ipsla_jitter_ms', op: '>', value: 30, weight: 0.7 },
-      { metric: 'ipsla_mos_score', op: '<', value: 3.5, weight: 0.6 },
-      { metric: 'voice_queue_drops', op: '>', value: 0, weight: 0.5 }
+      {
+        metric: "combined_score",
+        op: "<",
+        value: 0.6,
+        weight: 1
+      }
     ],
     hypotheses: [
       {
-        id: 'H_JITTER_QUEUE_CONGESTION',
-        description: 'Congestion on WAN link causing voice packets to queue with data traffic',
+        id: "H_MANUAL_INVESTIGATION",
+        description: "Not enough evidence – manual analysis required",
         signals: [
-          { metric: 'interface_utilization_percent', op: '>', value: 80, weight: 0.7 },
-          { metric: 'voice_queue_drops', op: '>', value: 0, weight: 0.6 }
+          {
+            metric: "combined_score",
+            op: "<",
+            value: 0.6,
+            weight: 1
+          }
         ],
         logPatterns: [
-          { keyword: 'queue drops', weight: 0.5 },
-          { keyword: 'output queue full', weight: 0.5 }
+          {
+            keyword: "unknown",
+            weight: 0.2
+          }
         ]
       }
     ],
-    situationDesc: 'VoIP jitter elevated toward {peer}. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-011.'
+    situationDesc: "No clear pattern detected for {device}. Combined score = {combined_score}. Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "low_confidence"
   },
   {
-    _id: { $oid: '69381e8e2c85e919f613924a' },
-    id: 'security.ddos_detected',
-    intent: 'security',
-    subIntent: 'ddos_detected',
-    domain: 'Network',
-    function: 'Security',
-    description: "Sudden volumetric traffic surge and CPU spike indicating a DDoS attack",
-    keywords: ['ddos', 'flood', 'amplification', 'traffic surge', 'copp', 'rate limit', 'rtbh'],
+    _id: {
+      $oid: "693811d3a4cd14665b75ce01"
+    },
+    id: "link.unidirectional",
+    intent: "link",
+    domain: "Network",
+    function: "Link Layer",
+    description: "Unidirectional link issue detected between two devices",
+    keywords: [
+      "unidirectional",
+      "rx only",
+      "tx only",
+      "fiber issue"
+    ],
     signals: [
-      { metric: 'interface_pps_in', op: '>', value: 1000000, weight: 0.7 },
-      { metric: 'copp_drop_rate', op: '>', value: 1000, weight: 0.6 },
-      { metric: 'device_cpu_percent', op: '>', value: 90, weight: 0.5 }
+      {
+        metric: "rx_errors",
+        op: ">",
+        value: 100,
+        weight: 0.5
+      },
+      {
+        metric: "tx_errors",
+        op: "==",
+        value: 0,
+        weight: 0.3
+      }
     ],
     hypotheses: [
       {
-        id: 'H_DDOS_VOLUMETRIC',
-        description: 'Volumetric UDP/ICMP/SYN flood overwhelming interface and control plane',
+        id: "H_FIBER_ONE_SIDE_BROKEN",
+        description: "One strand of the fiber pair is broken or mispatched",
         signals: [
-          { metric: 'interface_pps_in', op: '>', value: 5000000, weight: 0.8 },
-          { metric: 'copp_drop_rate', op: '>', value: 5000, weight: 0.6 }
+          {
+            metric: "rx_errors",
+            op: ">",
+            value: 100,
+            weight: 0.6
+          },
+          {
+            metric: "tx_errors",
+            op: "==",
+            value: 0,
+            weight: 0.3
+          }
         ],
         logPatterns: [
-          { keyword: 'CoPP rate-limit exceeded', weight: 0.6 },
-          { keyword: 'UDP flood', weight: 0.6 }
+          {
+            keyword: "unidirectional link",
+            weight: 0.3
+          },
+          {
+            keyword: "no light received",
+            weight: 0.3
+          }
         ]
       }
     ],
-    situationDesc: 'DDoS suspected on {device}. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-029.'
+    situationDesc: "Link between {device} and {peer} appears unidirectional. {device} is receiving frames with errors (rx_errors={rx_errors}) while not transmitting successfully (tx_errors={tx_errors}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "unidirectional"
   },
   {
-    _id: { $oid: '69381e8e2c85e919f613924b' },
-    id: 'device.high_cpu',
-    intent: 'device',
-    subIntent: 'high_cpu',
-    domain: 'Network',
-    function: 'Control Plane',
-    description: 'Device CPU spiking high — control plane or process overload',
-    keywords: ['high cpu', 'cpu spike', 'control plane', 'process', 'copp', 'netflow overload'],
+    _id: {
+      $oid: "693811d3a4cd14665b75ce02"
+    },
+    id: "link.duplex_mismatch",
+    intent: "link",
+    domain: "Network",
+    function: "Link Layer",
+    description: "Possible speed/duplex mismatch detected on interface",
+    keywords: [
+      "duplex mismatch",
+      "late collisions",
+      "half duplex"
+    ],
     signals: [
-      { metric: 'device_cpu_percent', op: '>', value: 80, weight: 0.7 },
-      { metric: 'copp_drop_rate', op: '>', value: 100, weight: 0.4 },
-      { metric: 'top_process_cpu_percent', op: '>', value: 50, weight: 0.5 }
+      {
+        metric: "collisions",
+        op: ">",
+        value: 10,
+        weight: 0.5
+      },
+      {
+        metric: "speed_mismatch_flag",
+        op: "==",
+        value: 1,
+        weight: 0.4
+      }
     ],
     hypotheses: [
       {
-        id: 'H_CPU_PROCESS_LEAK',
-        description: 'Software process memory or CPU leak consuming resources over time',
+        id: "H_AUTONEG_FAILED",
+        description: "Auto-negotiation failed leading to speed/duplex mismatch",
         signals: [
-          { metric: 'top_process_cpu_percent', op: '>', value: 60, weight: 0.8 },
-          { metric: 'process_memory_mb', op: '>', value: 512, weight: 0.5 }
+          {
+            metric: "collisions",
+            op: ">",
+            value: 10,
+            weight: 0.5
+          },
+          {
+            metric: "speed_mismatch_flag",
+            op: "==",
+            value: 1,
+            weight: 0.4
+          }
         ],
         logPatterns: [
-          { keyword: 'process memory high', weight: 0.5 },
-          { keyword: 'traceback', weight: 0.5 }
+          {
+            keyword: "duplex mismatch",
+            weight: 0.3
+          },
+          {
+            keyword: "late collision",
+            weight: 0.3
+          }
         ]
       }
     ],
-    situationDesc: 'High CPU on {device}. CPU={device_cpu_percent}%. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-019.'
+    situationDesc: "Interface {interface} on {device} shows collision errors (collisions={collisions}) and a speed/duplex mismatch indicator. Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "duplex_mismatch"
   },
   {
-    _id: { $oid: '69381e8e2c85e919f613924c' },
-    id: 'vpn.ipsec_traffic_drop',
-    intent: 'vpn',
-    subIntent: 'ipsec_traffic_drop',
-    domain: 'Network',
-    function: 'VPN',
-    description: 'IPsec tunnel established but encrypted traffic is being dropped',
-    keywords: ['ipsec drop', 'tunnel up traffic fail', 'proxy-id', 'mss mtu', 'phase2'],
+    _id: {
+      $oid: "693811d3a4cd14665b75ce03"
+    },
+    id: "performance.jitter_high",
+    intent: "performance",
+    domain: "Network",
+    function: "Performance",
+    description: "High jitter observed on path impacting real-time traffic",
+    keywords: [
+      "jitter",
+      "voice quality",
+      "realtime",
+      "RTP"
+    ],
     signals: [
-      { metric: 'ipsec_sa_state', op: '==', value: 1, weight: 0.4 },
-      { metric: 'ipsec_encrypted_pkts', op: '>', value: 0, weight: 0.3 },
-      { metric: 'ipsec_decrypted_pkts', op: '==', value: 0, weight: 0.7 }
+      {
+        metric: "jitter_ms",
+        op: ">",
+        value: 30,
+        weight: 0.6
+      },
+      {
+        metric: "packet_loss_percent",
+        op: ">",
+        value: 1,
+        weight: 0.3
+      }
     ],
     hypotheses: [
       {
-        id: 'H_IPSEC_MTU_MSS',
-        description: 'MTU or MSS issue causing large packets to be dropped inside the tunnel',
+        id: "H_TRANSIENT_CONGESTION",
+        description: "Transient congestion or microbursts causing jitter",
         signals: [
-          { metric: 'ipsec_fragment_drop_count', op: '>', value: 0, weight: 0.7 },
-          { metric: 'icmp_df_drop_count', op: '>', value: 0, weight: 0.5 }
+          {
+            metric: "jitter_ms",
+            op: ">",
+            value: 30,
+            weight: 0.6
+          },
+          {
+            metric: "packet_loss_percent",
+            op: ">",
+            value: 1,
+            weight: 0.3
+          }
         ],
         logPatterns: [
-          { keyword: 'fragment needed', weight: 0.5 },
-          { keyword: 'DF bit set drop', weight: 0.6 }
+          {
+            keyword: "voice quality degraded",
+            weight: 0.3
+          },
+          {
+            keyword: "RTP jitter",
+            weight: 0.3
+          }
         ]
       }
     ],
-    situationDesc: 'IPsec tunnel to {peer} is up but traffic dropping. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-013.'
+    situationDesc: "High jitter detected on path involving {device} (jitter={jitter_ms} ms, loss={packet_loss_percent}%). Real-time applications may be impacted. Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "jitter_high"
   },
   {
-    _id: { $oid: '69381e8e2c85e919f613924d' },
-    id: 'monitoring.snmp_poll_failure',
-    intent: 'monitoring',
-    subIntent: 'snmp_poll_failure',
-    domain: 'Network',
-    function: 'Observability',
-    description: 'SNMP polling intermittently failing causing gaps in NMS data',
-    keywords: ['snmp timeout', 'snmp fail', 'engineid', 'copp', 'snmp v3', 'poll failure'],
+    _id: {
+      $oid: "693811d3a4cd14665b75ce04"
+    },
+    id: "routing.ospf_flap",
+    intent: "routing",
+    domain: "Network",
+    function: "Routing",
+    description: "OSPF adjacency flapping between neighbors",
+    keywords: [
+      "ospf",
+      "adjacency reset",
+      "routing flap"
+    ],
     signals: [
-      { metric: 'snmp_poll_success_rate', op: '<', value: 95, weight: 0.7 },
-      { metric: 'copp_snmp_drop_rate', op: '>', value: 10, weight: 0.5 },
-      { metric: 'device_cpu_percent', op: '>', value: 70, weight: 0.3 }
+      {
+        metric: "ospf_adj_changes",
+        op: ">",
+        value: 3,
+        weight: 0.7
+      }
     ],
     hypotheses: [
       {
-        id: 'H_SNMP_COPP_RATELIMIT',
-        description: 'CoPP policy rate-limiting SNMP packets from the poller',
+        id: "H_OSPF_HELLO_MISS",
+        description: "Hello packets being missed due to loss or delay",
         signals: [
-          { metric: 'copp_snmp_drop_rate', op: '>', value: 50, weight: 0.8 }
+          {
+            metric: "ospf_adj_changes",
+            op: ">",
+            value: 3,
+            weight: 0.7
+          }
         ],
         logPatterns: [
-          { keyword: 'CoPP SNMP dropped', weight: 0.7 },
-          { keyword: 'rate-limit SNMP exceeded', weight: 0.6 }
+          {
+            keyword: "LOST_ADJACENCY",
+            weight: 0.3
+          },
+          {
+            keyword: "Dead timer expired",
+            weight: 0.3
+          }
         ]
       }
     ],
-    situationDesc: 'SNMP polling failing for {device}. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-014.'
+    situationDesc: "OSPF adjacency between {device} and {peer} is flapping (changes={ospf_adj_changes}). This can cause route instability. Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "ospf_flap"
   },
   {
-    _id: { $oid: '69381e8e2c85e919f613924e' },
-    id: 'routing.eigrp_neighbor_down',
-    intent: 'routing',
-    subIntent: 'eigrp_neighbor_down',
-    domain: 'Network',
-    function: 'Routing Protocol',
-    description: 'EIGRP neighbor adjacency dropped and routes removed from RIB',
-    keywords: ['eigrp neighbor down', 'dual stuck', 'k-value mismatch', 'eigrp authentication'],
+    _id: {
+      $oid: "693811d3a4cd14665b75ce05"
+    },
+    id: "wan.mtu_mismatch",
+    intent: "wan",
+    domain: "Network",
+    function: "WAN",
+    description: "Possible MTU mismatch on WAN path",
+    keywords: [
+      "mtu",
+      "fragmentation",
+      "path mtu"
+    ],
     signals: [
-      { metric: 'eigrp_neighbor_count', op: '<', value: 1, weight: 0.8 },
-      { metric: 'eigrp_hello_miss_count', op: '>', value: 3, weight: 0.5 }
+      {
+        metric: "fragmented_packets",
+        op: ">",
+        value: 100,
+        weight: 0.5
+      },
+      {
+        metric: "icmp_frag_needed",
+        op: ">",
+        value: 0,
+        weight: 0.3
+      }
     ],
     hypotheses: [
       {
-        id: 'H_EIGRP_K_VALUE',
-        description: 'K-value mismatch preventing EIGRP neighbor from forming',
+        id: "H_PATH_MTU_MISMATCH",
+        description: "Intermediate hop enforcing smaller MTU than endpoints",
         signals: [
-          { metric: 'eigrp_k_value_mismatch', op: '==', value: 1, weight: 0.9 }
+          {
+            metric: "fragmented_packets",
+            op: ">",
+            value: 100,
+            weight: 0.5
+          },
+          {
+            metric: "icmp_frag_needed",
+            op: ">",
+            value: 0,
+            weight: 0.3
+          }
         ],
         logPatterns: [
-          { keyword: 'K-value mismatch', weight: 0.8 },
-          { keyword: 'EIGRP neighbor not compatible', weight: 0.7 }
+          {
+            keyword: "fragmentation needed",
+            weight: 0.3
+          },
+          {
+            keyword: "DF bit set",
+            weight: 0.3
+          }
         ]
       }
     ],
-    situationDesc: 'EIGRP neighbor loss on {device}. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-025.'
+    situationDesc: "WAN path involving {device} shows fragmentation events (fragmented_packets={fragmented_packets}) and ICMP 'fragmentation needed' messages. Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "mtu_mismatch"
   },
   {
-    _id: { $oid: '69381e8e2c85e919f613924f' },
-    id: 'switching.lacp_degraded',
-    intent: 'switching',
-    subIntent: 'lacp_degraded',
-    domain: 'Network',
-    function: 'Link Aggregation',
-    description: 'Port-channel bundle degraded with fewer members than expected',
-    keywords: ['lacp', 'port-channel', 'etherchannel', 'bundle degraded', 'member down'],
+    _id: {
+      $oid: "693811d3a4cd14665b75ce06"
+    },
+    id: "wireless.client_auth_failure",
+    intent: "wireless",
+    domain: "Network",
+    function: "Wireless",
+    description: "Multiple wireless client authentication failures on SSID",
+    keywords: [
+      "wifi",
+      "auth failure",
+      "802.1x",
+      "EAP"
+    ],
     signals: [
-      { metric: 'portchannel_active_members', op: '<', value: 2, weight: 0.7 },
-      { metric: 'lacp_pdu_timeout_count', op: '>', value: 0, weight: 0.5 }
+      {
+        metric: "wifi_auth_failures",
+        op: ">",
+        value: 20,
+        weight: 0.7
+      }
     ],
     hypotheses: [
       {
-        id: 'H_LACP_MODE_MISMATCH',
-        description: 'LACP mode mismatch (active vs passive vs on) preventing member from joining',
+        id: "H_RADIUS_ISSUE",
+        description: "RADIUS or 802.1X authentication issues",
         signals: [
-          { metric: 'lacp_mode_mismatch', op: '==', value: 1, weight: 0.9 }
+          {
+            metric: "wifi_auth_failures",
+            op: ">",
+            value: 20,
+            weight: 0.7
+          }
         ],
         logPatterns: [
-          { keyword: 'LACP mode mismatch', weight: 0.8 },
-          { keyword: 'channel not forming', weight: 0.6 }
+          {
+            keyword: "EAP failure",
+            weight: 0.3
+          },
+          {
+            keyword: "RADIUS server not responding",
+            weight: 0.3
+          }
         ]
       }
     ],
-    situationDesc: 'Port-channel on {device} degraded. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-028.'
+    situationDesc: "High wireless authentication failure rate detected on {ssid} at {device} (failures={wifi_auth_failures}). Users may be unable to join the network. Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "client_auth_failure"
   },
   {
-    _id: { $oid: '69381e8e2c85e919f6139250' },
-    id: 'connectivity.multicast_failure',
-    intent: 'connectivity',
-    subIntent: 'multicast_failure',
-    domain: 'Network',
-    function: 'Multicast Routing',
-    description: 'Multicast streams not reaching receivers — PIM or IGMP issue',
-    keywords: ['multicast drop', 'pim neighbor', 'igmp join', 'rp unreachable', 'rpf failure'],
+    _id: {
+      $oid: "693811d3a4cd14665b75ce07"
+    },
+    id: "system.cpu_spike",
+    intent: "system",
+    domain: "Compute",
+    function: "CPU",
+    description: "Short-term CPU spike on host",
+    keywords: [
+      "cpu spike",
+      "high load",
+      "process spike"
+    ],
     signals: [
-      { metric: 'pim_neighbor_count', op: '<', value: 1, weight: 0.6 },
-      { metric: 'igmp_group_count', op: '==', value: 0, weight: 0.5 }
+      {
+        metric: "cpu_percent",
+        op: ">",
+        value: 90,
+        weight: 0.7
+      },
+      {
+        metric: "cpu_load_1min",
+        op: ">",
+        value: 4,
+        weight: 0.3
+      }
     ],
     hypotheses: [
       {
-        id: 'H_MULTICAST_RP_UNREACHABLE',
-        description: 'Rendezvous Point (RP) unreachable causing (*, G) join to fail',
+        id: "H_BATCH_JOB",
+        description: "Batch or background job temporarily consuming CPU",
         signals: [
-          { metric: 'rp_reachability', op: '==', value: 0, weight: 0.9 }
+          {
+            metric: "cpu_percent",
+            op: ">",
+            value: 90,
+            weight: 0.7
+          },
+          {
+            metric: "cpu_load_1min",
+            op: ">",
+            value: 4,
+            weight: 0.3
+          }
         ],
         logPatterns: [
-          { keyword: 'RP unreachable', weight: 0.8 },
-          { keyword: 'no RP mapping', weight: 0.6 }
+          {
+            keyword: "cron",
+            weight: 0.3
+          },
+          {
+            keyword: "scheduled job",
+            weight: 0.3
+          }
         ]
       }
     ],
-    situationDesc: 'Multicast failure on {device}. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-048.'
+    situationDesc: "Host {device} shows a CPU spike (cpu={cpu_percent}%, load_1={cpu_load_1min}). Short bursts may impact latency-sensitive workloads. Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "cpu_spike"
   },
   {
-    _id: { $oid: '69381e8e2c85e919f6139251' },
-    id: 'connectivity.fhrp_flap',
-    intent: 'connectivity',
-    subIntent: 'fhrp_flap',
-    domain: 'Network',
-    function: 'Gateway Redundancy',
-    description: 'HSRP/VRRP/GLBP role changing unexpectedly causing gateway unreachability',
-    keywords: ['hsrp flap', 'vrrp flap', 'gateway unreachable', 'preempt', 'fhrp state change'],
+    _id: {
+      $oid: "693811d3a4cd14665b75ce08"
+    },
+    id: "system.memory_leak_suspected",
+    intent: "system",
+    domain: "Compute",
+    function: "Memory",
+    description: "Sustained growth in memory usage suggesting a leak",
+    keywords: [
+      "memory leak",
+      "heap growth",
+      "rss increasing"
+    ],
     signals: [
-      { metric: 'fhrp_state_change_count', op: '>', value: 2, weight: 0.7 },
-      { metric: 'fhrp_active_count', op: '<', value: 1, weight: 0.8 }
+      {
+        metric: "mem_percent",
+        op: ">",
+        value: 85,
+        weight: 0.6
+      },
+      {
+        metric: "mem_trend_1h",
+        op: ">",
+        value: 10,
+        weight: 0.3
+      }
     ],
     hypotheses: [
       {
-        id: 'H_FHRP_PREEMPT_FLAP',
-        description: 'Aggressive preempt causing repeated active/standby role switches',
+        id: "H_APP_MEMORY_LEAK",
+        description: "Application memory leak causing continuous growth in RAM usage",
         signals: [
-          { metric: 'fhrp_state_change_count', op: '>', value: 5, weight: 0.8 }
+          {
+            metric: "mem_percent",
+            op: ">",
+            value: 85,
+            weight: 0.6
+          },
+          {
+            metric: "mem_trend_1h",
+            op: ">",
+            value: 10,
+            weight: 0.3
+          }
         ],
         logPatterns: [
-          { keyword: 'HSRP state change', weight: 0.6 },
-          { keyword: 'preempt triggered', weight: 0.6 }
+          {
+            keyword: "OutOfMemoryError",
+            weight: 0.3
+          },
+          {
+            keyword: "memory allocation failure",
+            weight: 0.3
+          }
         ]
       }
     ],
-    situationDesc: 'FHRP instability on {device}. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-049.'
+    situationDesc: "Host {device} shows sustained high memory usage (mem={mem_percent}%, 1h increase={mem_trend_1h}%). This may indicate a leak. Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "memory_leak_suspected"
   },
   {
-    _id: { $oid: '69381e8e2c85e919f6139252' },
-    id: 'wan.failover_not_triggered',
-    intent: 'wan',
-    subIntent: 'failover_not_triggered',
-    domain: 'Network',
-    function: 'WAN Redundancy',
-    description: 'WAN primary link failed but automatic failover to backup did not occur',
-    keywords: ['wan failover', 'ip sla', 'track object', 'backup link', 'floating static'],
+    _id: {
+      $oid: "693811d3a4cd14665b75ce09"
+    },
+    id: "system.psu_sensor_alarm",
+    intent: "system",
+    domain: "Compute",
+    function: "Sensors",
+    description: "Power supply unit sensor reporting alarm",
+    keywords: [
+      "psu failure",
+      "power supply",
+      "sensor alarm"
+    ],
     signals: [
-      { metric: 'primary_wan_state', op: '==', value: 0, weight: 0.8 },
-      { metric: 'backup_wan_state', op: '==', value: 0, weight: 0.7 }
+      {
+        metric: "psu_status",
+        op: "==",
+        value: "failed",
+        weight: 0.8
+      }
     ],
     hypotheses: [
       {
-        id: 'H_WAN_FLOATING_STATIC_AD',
-        description: 'Floating static route AD value incorrect — backup route not entering RIB',
+        id: "H_PSU_FAILED",
+        description: "One of the PSUs on the server has failed",
         signals: [
-          { metric: 'backup_route_in_rib', op: '==', value: 0, weight: 0.9 }
+          {
+            metric: "psu_status",
+            op: "==",
+            value: "failed",
+            weight: 0.8
+          }
         ],
         logPatterns: [
-          { keyword: 'track object down', weight: 0.7 }
+          {
+            keyword: "PSU failure",
+            weight: 0.3
+          },
+          {
+            keyword: "power supply error",
+            weight: 0.3
+          }
         ]
       }
     ],
-    situationDesc: 'WAN failover not triggered on {device}. Top hypothesis: {top_hypothesis} (confidence={prior}). Refer to KB kb-050.'
-  }
-];
-
-export const mockKBArticlesEnhanced: KBArticle[] = [
-  {
-    id: 'kb-001',
-    title: 'Host Down in NMS',
-    category: 'Connectivity',
-    subcategory: 'Reachability',
-    content: 'Triage process for devices showing as unreachable in the Network Management System.',
-    problem: 'Device is showing Host Down. Likely Causes: SNMP or ICMP blocked, Device/Interface down, ACL/Firewall drop, Routing not present, VRF mismatch, or Power/Hardware issue.',
-    area: 'Network Management & Reachability',
-    remedyItems: [
-      'Verify management IP and VRF assignments.',
-      'Check ICMP/SNMP reachability from poller.',
-      'Validate local link and neighbor state on the preceding hop.',
-      'Inspect routing path and intervening ACLs for management traffic blocks.',
-      'Verify physical power and hardware status of the target device.'
-    ],
-    tags: ['host-down', 'snmp', 'icmp', 'reachability'],
-    linkedIntents: ['connectivity.host_down'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 92
+    situationDesc: "Power supply sensor on {device} reports a failure (psu_status={psu_status}). Redundancy may be degraded. Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "psu_sensor_alarm"
   },
   {
-    id: 'kb-002',
-    title: 'Intermittent Packet Loss to Site',
-    category: 'Connectivity',
-    subcategory: 'Packet Loss',
-    content: 'Root cause analysis for intermittent drops affecting application traffic.',
-    problem: 'Traffic loss detected. Likely Causes: Interface errors (CRC/Giants), Queue congestion, Duplex mismatch, or ISP-side path degradation.',
-    area: 'Performance & Flow',
-    remedyItems: [
-      'Perform MTR/Ping tests to isolate the segment experiencing drops.',
-      'Inspect interface counters for increasing CRC, overrun, or discard errors.',
-      'Check QoS queue stats for tail-drops or buffer exhaustion.',
-      'Validate speed/duplex settings on all intervening ports.',
-      'Cross-examine ISP SLA compliance if the issue is in the WAN underlay.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce0a"
+    },
+    id: "system.critical_service_down",
+    intent: "system",
+    domain: "Compute",
+    function: "OS Services",
+    description: "Critical OS-level service is not running",
+    keywords: [
+      "service down",
+      "daemon stopped",
+      "process not running"
     ],
-    tags: ['packet-loss', 'crc', 'congestion', 'wan'],
-    linkedIntents: ['connectivity.packet_loss'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 88
+    signals: [
+      {
+        metric: "service_running",
+        op: "==",
+        value: 0,
+        weight: 0.8
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_SERVICE_CRASHED",
+        description: "Critical service crashed or failed to start",
+        signals: [
+          {
+            metric: "service_running",
+            op: "==",
+            value: 0,
+            weight: 0.8
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "service crashed",
+            weight: 0.3
+          },
+          {
+            keyword: "failed to start",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Service {service_name} on {device} is not running (service_running={service_running}). This may impact application availability. Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "critical_service_down"
   },
   {
-    id: 'kb-003',
-    title: 'DNS Server Not Responding',
-    category: 'Services',
-    subcategory: 'DNS',
-    content: 'Resolving failed name resolution for internal or external hosts.',
-    problem: 'DNS Query failure. Likely Causes: DNS process crash, UDP 53 blocked, Anycast convergence failure, or zone synchronization lag.',
-    area: 'Core Infrastructure Services',
-    remedyItems: [
-      'Test direct UDP 53 reachability to the DNS server IP.',
-      'Check DNS server CPU/Memory health and service status (named/unbound).',
-      'Validate firewall ACLs for DNS traffic permission.',
-      'Confirm DNS record replication and TTL status across the infrastructure.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce0b"
+    },
+    id: "container.restart_loop",
+    intent: "container",
+    domain: "Compute",
+    function: "Containers",
+    description: "Container repeatedly restarting on host",
+    keywords: [
+      "crashloop",
+      "restart backoff",
+      "container crash"
     ],
-    tags: ['dns', 'udp-53', 'resolution'],
-    linkedIntents: ['services.dns_failure'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 94
+    signals: [
+      {
+        metric: "container_restarts",
+        op: ">",
+        value: 5,
+        weight: 0.7
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_BAD_CONFIG_OR_DEPENDENCY",
+        description: "Misconfiguration or missing dependency causing container to crash",
+        signals: [
+          {
+            metric: "container_restarts",
+            op: ">",
+            value: 5,
+            weight: 0.7
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "CrashLoopBackOff",
+            weight: 0.3
+          },
+          {
+            keyword: "ImagePullBackOff",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Container {container_name} on {device} is restarting repeatedly (restarts={container_restarts}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "restart_loop"
   },
   {
-    id: 'kb-004',
-    title: 'DHCP Timeout / IP Assignment Failure',
-    category: 'Services',
-    subcategory: 'DHCP',
-    content: 'Triage for clients failing to obtain IP addresses automatically.',
-    problem: 'DHCP failure. Likely Causes: IP Pool exhaustion, relay agent (IP-helper) misconfiguration, or ACL blocks on UDP 67/68.',
-    area: 'End-User Services',
-    remedyItems: [
-      'Verify DHCP pool utilization and expand range if exhausted.',
-      'Confirm IP-helper address is correctly configured on the VLAN SVI.',
-      'Validate path from gateway to DHCP server for UDP 67/68 traffic.',
-      'Inspect DHCP server logs for "no free addresses" or lease conflicts.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce0c"
+    },
+    id: "security.port_scan",
+    intent: "security",
+    domain: "Security",
+    function: "Threat",
+    description: "Possible port scanning activity detected",
+    keywords: [
+      "port scan",
+      "nmap",
+      "reconnaissance"
     ],
-    tags: ['dhcp', 'ip-helper', 'pool-exhaustion'],
-    linkedIntents: ['services.dhcp_failure'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 91
+    signals: [
+      {
+        metric: "unique_dest_ports",
+        op: ">",
+        value: 100,
+        weight: 0.7
+      },
+      {
+        metric: "conn_attempts_per_sec",
+        op: ">",
+        value: 200,
+        weight: 0.5
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_EXTERNAL_RECON",
+        description: "External actor scanning ports to discover open services",
+        signals: [
+          {
+            metric: "unique_dest_ports",
+            op: ">",
+            value: 100,
+            weight: 0.7
+          },
+          {
+            metric: "conn_attempts_per_sec",
+            op: ">",
+            value: 200,
+            weight: 0.5
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "port scan detected",
+            weight: 0.3
+          },
+          {
+            keyword: "reconnaissance",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "High rate of connection attempts to many ports observed on {device} (ports={unique_dest_ports}, rate={conn_attempts_per_sec}/s). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "port_scan"
   },
   {
-    id: 'kb-005',
-    title: 'BGP Session Flapping',
-    category: 'Routing',
-    subcategory: 'BGP',
-    content: 'Resolving BGP resets and instability with ISP or Internal peers.',
-    problem: 'BGP Down/Flapping. Likely Causes: Hold-timer expiration, MD5 mismatch, MTU issues, or max-prefix limit reached.',
-    area: 'Inter-Domain Routing',
-    remedyItems: [
-      'Check physical link stability for frame errors or flaps.',
-      'Validate MD5 password consistency on both sides.',
-      'Ensure the path MTU supports BGP packets (check for DF-bit drops).',
-      'Verify prefix-count against configured maximum limit.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce0d"
+    },
+    id: "security.policy_block",
+    intent: "security",
+    domain: "Security",
+    function: "Policy",
+    description: "Traffic blocked due to security policy",
+    keywords: [
+      "policy deny",
+      "acl drop",
+      "firewall block"
     ],
-    tags: ['bgp', 'max-prefix', 'flap', 'mtu'],
-    linkedIntents: ['routing.bgp_flap'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 95
+    signals: [
+      {
+        metric: "policy_denies",
+        op: ">",
+        value: 100,
+        weight: 0.7
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_MISCONFIGURED_RULE",
+        description: "Overly restrictive or misconfigured security rule blocking legitimate traffic",
+        signals: [
+          {
+            metric: "policy_denies",
+            op: ">",
+            value: 100,
+            weight: 0.7
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "deny",
+            weight: 0.3
+          },
+          {
+            keyword: "dropped by policy",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Security device {device} is blocking a high volume of traffic (policy_denies={policy_denies}). This may impact legitimate flows. Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "policy_block"
   },
   {
-    id: 'kb-006',
-    title: 'OSPF Neighbor Stuck in EXSTART/EXCHANGE',
-    category: 'Routing',
-    subcategory: 'OSPF',
-    content: 'Adjacency failure triage for OSPF neighbors.',
-    problem: 'Neighbor not reaching FULL state. Likely Causes: MTU mismatch, Duplicate Router ID, or multicast/unicast block.',
-    area: 'IGP Routing',
-    remedyItems: [
-      'Align MTU values on both ends or use `ip ospf mtu-ignore`.',
-      'Verify unique Router IDs within the OSPF area.',
-      'Confirm multicast reachability (224.0.0.5) on the shared segment.',
-      'Check for network type mismatch (Point-to-Point vs Broadcast).'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce0e"
+    },
+    id: "security.login_bruteforce",
+    intent: "security",
+    domain: "Security",
+    function: "Authentication",
+    description: "Multiple failed login attempts from same source",
+    keywords: [
+      "bruteforce",
+      "login failure",
+      "account attack"
     ],
-    tags: ['ospf', 'exstart', 'mtu-mismatch'],
-    linkedIntents: ['routing.ospf_stuck'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 89
+    signals: [
+      {
+        metric: "auth_failures",
+        op: ">",
+        value: 50,
+        weight: 0.7
+      },
+      {
+        metric: "unique_usernames",
+        op: ">",
+        value: 5,
+        weight: 0.3
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_PASSWORD_BRUTEFORCE",
+        description: "Attacker attempting to guess passwords on multiple accounts",
+        signals: [
+          {
+            metric: "auth_failures",
+            op: ">",
+            value: 50,
+            weight: 0.7
+          },
+          {
+            metric: "unique_usernames",
+            op: ">",
+            value: 5,
+            weight: 0.3
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "invalid credentials",
+            weight: 0.3
+          },
+          {
+            keyword: "too many failed attempts",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Authentication system on {device} sees many failed logins (failures={auth_failures}, users={unique_usernames}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "login_bruteforce"
   },
   {
-    id: 'kb-007',
-    title: 'STP Instability / Topology Change Spikes',
-    category: 'Switching',
-    subcategory: 'STP',
-    content: 'Mitigating broadcast storms and L2 instability caused by STP.',
-    problem: 'TCN (Topology Change Notification) spike. Likely Causes: Flapping port without Portfast, L2 loop, or Root Bridge change.',
-    area: 'L2 Control Plane',
-    remedyItems: [
-      'Locate the origin of TCNs using `show spanning-tree detail`.',
-      'Enable BPDU Guard and Portfast on all access/edge ports.',
-      'Verify deterministic Root Bridge placement (Priority 4096).',
-      'Inspect for physical loops in non-STP segments.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce0f"
+    },
+    id: "security.malware_detected",
+    intent: "security",
+    domain: "Security",
+    function: "Detection",
+    description: "Endpoint or network malware indicator detected",
+    keywords: [
+      "malware",
+      "virus",
+      "trojan",
+      "endpoint alert"
     ],
-    tags: ['stp', 'tcn', 'bpdu', 'loop'],
-    linkedIntents: ['switching.stp_instability'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 96
+    signals: [
+      {
+        metric: "malware_alerts",
+        op: ">",
+        value: 1,
+        weight: 0.8
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_CONFIRMED_MALWARE",
+        description: "Malware detected and classified by endpoint or IDS/IPS",
+        signals: [
+          {
+            metric: "malware_alerts",
+            op: ">",
+            value: 1,
+            weight: 0.8
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "malware detected",
+            weight: 0.3
+          },
+          {
+            keyword: "quarantined file",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Malware detection event raised for {device} (alerts={malware_alerts}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "malware_detected"
   },
   {
-    id: 'kb-008',
-    title: 'VLAN Gateway Unreachable / SVI Down',
-    category: 'Switching',
-    subcategory: 'Gateway Redundancy',
-    content: 'Resolving gateway-level connectivity issues for local segments.',
-    problem: 'VLAN gateway Down. Likely Causes: Missing native VLAN, FHRP state-flap, or trunk pruning errors.',
-    area: 'Layer 3 Switching Core',
-    remedyItems: [
-      'Confirm the VLAN is permitted on all upstream trunk ports.',
-      'Verify SVI (Switch Virtual Interface) up/up status and IP address.',
-      'Monitor HSRP/VRRP states for transition events or priority mismatches.',
-      'Inspect MAC address learning on the trunk for evidence of L2 isolation.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce10"
+    },
+    id: "platform.intent_ambiguous",
+    intent: "platform",
+    domain: "Platform",
+    function: "Intent Quality",
+    description: "User query maps to multiple low-confidence intents",
+    keywords: [
+      "ambiguous intent",
+      "overlapping intents",
+      "low confidence"
     ],
-    tags: ['vlan-gateway', 'svi', 'hsrp', 'vrrp'],
-    linkedIntents: ['switching.vlan_gateway_unreachable'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 93
+    signals: [
+      {
+        metric: "top_intent_score",
+        op: "<",
+        value: 0.6,
+        weight: 0.7
+      },
+      {
+        metric: "intent_score_gap",
+        op: "<",
+        value: 0.1,
+        weight: 0.3
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_INTENT_OVERLAP",
+        description: "Two or more intents modeled too similarly causing ambiguity",
+        signals: [
+          {
+            metric: "top_intent_score",
+            op: "<",
+            value: 0.6,
+            weight: 0.7
+          },
+          {
+            metric: "intent_score_gap",
+            op: "<",
+            value: 0.1,
+            weight: 0.3
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "multiple candidate intents",
+            weight: 0.3
+          },
+          {
+            keyword: "intent overlap",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Platform detected ambiguous mapping for input on {device}: top_intent_score={top_intent_score}, gap={intent_score_gap}. Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "intent_ambiguous"
   },
   {
-    id: 'kb-009',
-    title: 'Uplink CRC Error Analysis',
-    category: 'Interface',
-    subcategory: 'Physical Integrity',
-    content: 'Fixing physical bit errors and corrupted frames on backbone links.',
-    problem: 'CRC Errors Detected. Likely Causes: Bad optics (SFP), faulty patch cable, or link distance exceeding spec.',
-    area: 'Infrastructure Physical Layer',
-    remedyItems: [
-      'Replace the patch cable and clean all optical connectors.',
-      'Verify optical power levels (RX/TX dbm) using `show controllers`.',
-      'Swap the SFP transceiver with a known-good spare.',
-      'Perform a physical inspection for cable bends or patch panel faults.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce11"
+    },
+    id: "platform.correlation_missing",
+    intent: "platform",
+    domain: "Platform",
+    function: "Correlation",
+    description: "Correlator unable to link related events into a single situation",
+    keywords: [
+      "correlation gap",
+      "uncorrelated alarms"
     ],
-    tags: ['crc', 'physical-layer', 'sfp'],
-    linkedIntents: ['interface.crc_errors'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 94
+    signals: [
+      {
+        metric: "raw_events_clustered",
+        op: "<",
+        value: 2,
+        weight: 0.6
+      },
+      {
+        metric: "events_in_window",
+        op: ">",
+        value: 20,
+        weight: 0.4
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_TOPOLOGY_MISSING",
+        description: "Missing or outdated topology/metadata causing correlation failure",
+        signals: [
+          {
+            metric: "raw_events_clustered",
+            op: "<",
+            value: 2,
+            weight: 0.6
+          },
+          {
+            metric: "events_in_window",
+            op: ">",
+            value: 20,
+            weight: 0.4
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "no correlation rule matched",
+            weight: 0.3
+          },
+          {
+            keyword: "topology information missing",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Platform sees many raw events (events_in_window={events_in_window}) but few clusters (raw_events_clustered={raw_events_clustered}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "correlation_missing"
   },
   {
-    id: 'kb-010',
-    title: 'Frequent Port Flaps / Link Cycle Triage',
-    category: 'Interface',
-    subcategory: 'Link Flap',
-    content: 'Remediating access ports cycling rapidly up/down.',
-    problem: 'Fast Flapping Interface. Likely Causes: Powering issue (PoE), NIC driver bug, or loose cabling.',
-    area: 'Campus Physical Layer',
-    remedyItems: [
-      'Isolate whether the flap coincides with PoE load changes.',
-      'Secure or replace the target device patch lead.',
-      'Verify that `link-flap` protection is tuned to prevent err-disable loops.',
-      'Review NIC logs on the connected endpoint for driver-initiated resets.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce12"
+    },
+    id: "platform.metric_gaps",
+    intent: "platform",
+    domain: "Platform",
+    function: "Data Quality",
+    description: "Significant gaps in metric ingestion for monitored resource",
+    keywords: [
+      "data gap",
+      "missing metrics",
+      "telemetry loss"
     ],
-    tags: ['port-flap', 'poe', 'cabling'],
-    linkedIntents: ['interface.port_flap'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 90
+    signals: [
+      {
+        metric: "missing_points_percent",
+        op: ">",
+        value: 20,
+        weight: 0.8
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_AGENT_OR_EXPORTER_DOWN",
+        description: "Metric agent or exporter stopped sending data",
+        signals: [
+          {
+            metric: "missing_points_percent",
+            op: ">",
+            value: 20,
+            weight: 0.8
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "exporter timeout",
+            weight: 0.3
+          },
+          {
+            keyword: "scrape failed",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Metrics for {device} show data gaps (missing={missing_points_percent}%). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "metric_gaps"
   },
   {
-    id: 'kb-011',
-    title: 'Voice Jitter & Call Quality (MOS) Degradation',
-    category: 'Performance',
-    subcategory: 'VoIP/Quality',
-    content: 'Diagnostic path for audio artifacts and high jitter in voice streams.',
-    problem: 'Audio choppy or dropped. Likely Causes: Inconsistent QoS tagging (DSCP), shallow buffers, or asymmetric path jitter.',
-    area: 'Real-Time Services QoS',
-    remedyItems: [
-      'Confirm end-to-end DSCP 46 (EF) markings for all voice traffic.',
-      'Review LLQ (Low Latency Queuing) stats for any voice-class drops.',
-      'Measure jitter variance using IP SLA probes across the WAN.',
-      'Ensure the jitter buffer on receiving handsets is properly tuned or replaced.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce13"
+    },
+    id: "platform.synthetic_probe_loss",
+    intent: "platform",
+    domain: "Platform",
+    function: "Synthetic",
+    description: "Synthetic transaction probes failing on a monitored path",
+    keywords: [
+      "synthetic failure",
+      "probe fail",
+      "transaction monitoring"
     ],
-    tags: ['voip', 'jitter', 'qos', 'pps'],
-    linkedIntents: ['performance.voip_jitter'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 87
+    signals: [
+      {
+        metric: "probe_success_rate",
+        op: "<",
+        value: 90,
+        weight: 0.8
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_APP_OR_PATH_DEGRADED",
+        description: "Application or path degradation detected via synthetic checks",
+        signals: [
+          {
+            metric: "probe_success_rate",
+            op: "<",
+            value: 90,
+            weight: 0.8
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "probe timeout",
+            weight: 0.3
+          },
+          {
+            keyword: "transaction failed",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Synthetic probes to {endpoint} are failing (success_rate={probe_success_rate}%). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "synthetic_probe_loss"
   },
   {
-    id: 'kb-012',
-    title: 'Global Anycast DNS Latency & Convergence',
-    category: 'WAN',
-    subcategory: 'Cloud Routing',
-    content: 'Resolving sub-optimal pathing and latency for Anycast services.',
-    problem: 'Slow DNS resolution. Likely Causes: Sub-optimal BGP Anycast pathing, PoP overload, or DNS PoP convergence issues.',
-    area: 'Cloud & WAN Infrastructure',
-    remedyItems: [
-      'Trace the Anycast path to verify the nearest regional POP is used.',
-      'Verify transit ISP BGP metric preferences for Anycast prefixes.',
-      'Validate TTL and Ramping settings in Global Load Balancers.',
-      'Check regional DNS server CPU and memory load status.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce14"
+    },
+    id: "thermal.chassis_hot",
+    intent: "thermal",
+    domain: "Facility",
+    function: "Device Thermal",
+    description: "Device chassis temperature above safe operating range",
+    keywords: [
+      "chassis hot",
+      "overheat",
+      "thermal alarm"
     ],
-    tags: ['anycast', 'dns', 'bgp', 'latency'],
-    linkedIntents: ['services.dns_failure'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 91
+    signals: [
+      {
+        metric: "temp_c",
+        op: ">",
+        value: 70,
+        weight: 0.8
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_AIRFLOW_BLOCKED",
+        description: "Front or rear airflow blocked causing heat buildup",
+        signals: [
+          {
+            metric: "temp_c",
+            op: ">",
+            value: 70,
+            weight: 0.8
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "temperature alarm",
+            weight: 0.3
+          },
+          {
+            keyword: "over temperature",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Device {device} chassis temperature is high (temp_c={temp_c}°C). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "chassis_hot"
   },
   {
-    id: 'kb-013',
-    title: 'IPSec Phase 2 Tunnel Traffic Drop',
-    category: 'Security',
-    subcategory: 'VPN Gateway',
-    content: 'Solving the "Tunnel Up but Traffic Failing" scenario in S2S VPNs.',
-    problem: 'VPN Traffic Blackhole. Likely Causes: Proxy-ID (ACL) mismatch, MSS/MTU clamping missing, or Phase 2 lifetime timeout.',
-    area: 'Secure Transport Layer',
-    remedyItems: [
-      'Ensure IKEv2 Phase-2 selector ACLs match perfectly on both peers.',
-      'Apply TCP MSS Clamping to 1350 bytes on the tunnel interfaces.',
-      'Verify firewall policies allow the specific source/destination subnet pair.',
-      'Inspect Phase 2 security associations for valid SPI counts.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce15"
+    },
+    id: "thermal.room_hot",
+    intent: "thermal",
+    domain: "Facility",
+    function: "Environmental Heat",
+    description: "Room or rack inlet temperature above recommended levels",
+    keywords: [
+      "room hot",
+      "rack hotspot",
+      "environment heat"
     ],
-    tags: ['ipsec', 'vpn', 'mss', 'clamping'],
-    linkedIntents: ['vpn.ipsec_traffic_drop'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 92
+    signals: [
+      {
+        metric: "inlet_temp_c",
+        op: ">",
+        value: 30,
+        weight: 0.7
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_HOTSPOT_IN_RACK",
+        description: "Local hotspot in rack causing elevated inlet temperature",
+        signals: [
+          {
+            metric: "inlet_temp_c",
+            op: ">",
+            value: 30,
+            weight: 0.7
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "rack temperature high",
+            weight: 0.3
+          },
+          {
+            keyword: "hot aisle alarm",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Room or rack inlet temperature near {device} is high (inlet_temp_c={inlet_temp_c}°C). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "room_hot"
   },
   {
-    id: 'kb-014',
-    title: 'SNMPv3 Poll Timeouts & EngineID Conflicts',
-    category: 'Monitoring',
-    subcategory: 'Observability',
-    content: 'Fixing authentication and sync issues for secure monitoring.',
-    problem: 'NMS/Monitoring gaps. Likely Causes: SNMP engineID collision, credential mismatch, or restrictive CoPP policies.',
-    area: 'Device Management & Visibility',
-    remedyItems: [
-      'Confirm the unique `snmp-server engineid` for all fabric devices.',
-      'Validate SNMPv3 user authentication (SHA/AES) password strings.',
-      'Inspect CoPP (Control Plane Policing) for UDP 161 rate-limiting drops.',
-      'Verify management VRF reachability to the central poller IP.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce16"
+    },
+    id: "cooling.crac_fault",
+    intent: "cooling",
+    domain: "Facility",
+    function: "Cooling",
+    description: "Cooling unit or CRAC reporting a fault condition",
+    keywords: [
+      "crac fault",
+      "cooling failure",
+      "hvac"
     ],
-    tags: ['snmpv3', 'monitoring', 'copp', 'engineid'],
-    linkedIntents: ['monitoring.snmp_poll_failure'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 89
+    signals: [
+      {
+        metric: "crac_status",
+        op: "==",
+        value: "fault",
+        weight: 0.9
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_CRAC_FAILED",
+        description: "Cooling unit malfunction reducing cold air supply",
+        signals: [
+          {
+            metric: "crac_status",
+            op: "==",
+            value: "fault",
+            weight: 0.9
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "CRAC fault",
+            weight: 0.3
+          },
+          {
+            keyword: "cooling failure",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Cooling system near {room} reports a fault (crac_status={crac_status}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "crac_fault"
   },
   {
-    id: 'kb-015',
-    title: 'EIGRP Stuck-in-Active (SIA) Resolution',
-    category: 'Routing',
-    subcategory: 'EIGRP',
-    content: 'Remediating neighbor loss due to SIA queries and unresponsive peers.',
-    problem: 'Adjacency loss. Likely Causes: Unresponsive remote peer, overloaded CPU responding slow, or unidirectional link.',
-    area: 'Internal Routing Fabric',
-    remedyItems: [
-      'Locate the SIA origin using `show ip eigrp topology active`.',
-      'Optimize EIGRP query boundaries using "Stub" configuration.',
-      'Check for unidirectional link failure using UDLD on member ports.',
-      'Investigate link congestion causing Hello/Query packet loss.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce17"
+    },
+    id: "power.redundancy_lost",
+    intent: "power",
+    domain: "Facility",
+    function: "Power",
+    description: "Device is running on single power feed due to failure",
+    keywords: [
+      "power redundancy",
+      "single supply",
+      "psu failed"
     ],
-    tags: ['eigrp', 'sia', 'stub', 'routing'],
-    linkedIntents: ['routing.eigrp_neighbor_down'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 94
-  },
-
-  {
-    id: 'kb-016',
-    title: 'LACP Bundle Degradation & Hash Triage',
-    category: 'Switching',
-    subcategory: 'Link Aggregation',
-    content: 'Resolving throughput issues and member failures in Port-Channels.',
-    problem: 'Port-channel bundle degraded. Likely Causes: LACP mode mismatch, physical link failure, or hashing skew.',
-    area: 'Link Aggregation Fabric',
-    remedyItems: [
-      'Verify `lacp mode active` is configured on both ends of the bundle.',
-      'Inspect physical member ports for layer 1 errors or flaps.',
-      'Review `show lacp neighbor` for PDU exchange timeouts.',
-      'Validate that the hashing algorithm (e.g., src-dst-ip) is appropriate for the traffic profile.'
+    signals: [
+      {
+        metric: "psu_redundant",
+        op: "==",
+        value: 0,
+        weight: 0.8
+      }
     ],
-    tags: ['lacp', 'port-channel', 'etherchannel'],
-    linkedIntents: ['switching.lacp_degraded'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 91
-  },
-  {
-    id: 'kb-017',
-    title: 'Multicast Stream Dropout / RPF Failure',
-    category: 'Routing',
-    subcategory: 'Multicast',
-    content: 'Fixing missing or choppy multicast video/data streams.',
-    problem: 'Multicast loss. Likely Causes: RP unreachability, RPF failure, or IGMP snooping timeouts.',
-    area: 'Multicast Delivery Path',
-    remedyItems: [
-      'Verify the Rendezvous Point (RP) address is reachable via the Unicast RIB.',
-      'Check `show ip mroute` for RPF (Reverse Path Forwarding) failures.',
-      'Ensure IGMP querier is active on the local VLAN segment.',
-      'Validate PIM neighbor adjacencies on the entire distribution path.'
+    hypotheses: [
+      {
+        id: "H_SINGLE_PSU_REMAINING",
+        description: "One PSU or power feed has failed; device on single supply",
+        signals: [
+          {
+            metric: "psu_redundant",
+            op: "==",
+            value: 0,
+            weight: 0.8
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "power supply failed",
+            weight: 0.3
+          },
+          {
+            keyword: "running on single PSU",
+            weight: 0.3
+          }
+        ]
+      }
     ],
-    tags: ['multicast', 'pim', 'igmp', 'rpf'],
-    linkedIntents: ['connectivity.multicast_failure'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 88
+    situationDesc: "Device {device} has lost power redundancy (psu_redundant={psu_redundant}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "redundancy_lost"
   },
   {
-    id: 'kb-018',
-    title: 'SD-WAN Tunnel Jitter & FEC Optimization',
-    category: 'WAN',
-    subcategory: 'SD-WAN',
-    content: 'Optimizing overlay performance over low-quality internet circuits.',
-    problem: 'High overlay jitter. Likely Causes: ISP routing churn, high packet loss on underlay, or FEC (Forward Error Correction) overhead.',
-    area: 'Software Defined WAN',
-    remedyItems: [
-      'Enable Adaptive FEC to mitigate underlay packet loss impacts.',
-      'Review App-Route policies to prefer lower-jitter paths for voice.',
-      'Inspect IPsec tunnel MTU to avoid fragmentation-induced jitter.',
-      'Verify ISP circuit utilization against provisioned bandwidth.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce18"
+    },
+    id: "storage.disk_iops_degraded",
+    intent: "storage",
+    domain: "Storage",
+    function: "Disk Health",
+    description: "Disk or LUN IOPS capability degraded",
+    keywords: [
+      "iops",
+      "disk slow",
+      "storage performance"
     ],
-    tags: ['sd-wan', 'jitter', 'fec', 'overlay'],
-    linkedIntents: ['performance.voip_jitter'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 90
+    signals: [
+      {
+        metric: "disk_iops",
+        op: "<",
+        value: 500,
+        weight: 0.7
+      },
+      {
+        metric: "disk_queue_depth",
+        op: ">",
+        value: 20,
+        weight: 0.3
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_BACKEND_CONTENTION",
+        description: "Backend disk contention or failing disk slowing I/O",
+        signals: [
+          {
+            metric: "disk_iops",
+            op: "<",
+            value: 500,
+            weight: 0.7
+          },
+          {
+            metric: "disk_queue_depth",
+            op: ">",
+            value: 20,
+            weight: 0.3
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "disk latency high",
+            weight: 0.3
+          },
+          {
+            keyword: "backend busy",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Storage for {volume} on {device} shows degraded IOPS (disk_iops={disk_iops}, qdepth={disk_queue_depth}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "disk_iops_degraded"
   },
   {
-    id: 'kb-019',
-    title: 'Device High CPU / Control Plane Protection',
-    category: 'Compute',
-    subcategory: 'CPU',
-    content: 'Mitigating device management lag and control plane instability.',
-    problem: 'CPU Spike > 90%. Likely Causes: Process leak, broadcast storm, or NetFlow export overload.',
-    area: 'Device Management',
-    remedyItems: [
-      'Identify the offending process using `show processes cpu sorted`.',
-      'Verify CoPP (Control Plane Policing) is actively dropping excessive punts.',
-      'Optimize NetFlow sampling rates to reduce CPU processing load.',
-      'Check for L2 loops causing interrupt-driven CPU exhaustion.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce19"
+    },
+    id: "storage.volume_near_full",
+    intent: "storage",
+    domain: "Storage",
+    function: "Capacity",
+    description: "Storage volume usage nearing full capacity",
+    keywords: [
+      "volume full",
+      "low free space",
+      "capacity"
     ],
-    tags: ['high-cpu', 'copp', 'management'],
-    linkedIntents: ['device.high_cpu'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 95
+    signals: [
+      {
+        metric: "volume_used_percent",
+        op: ">",
+        value: 90,
+        weight: 0.9
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_LOG_OR_BACKUP_GROWTH",
+        description: "Logs, backups or data growth filling the volume",
+        signals: [
+          {
+            metric: "volume_used_percent",
+            op: ">",
+            value: 90,
+            weight: 0.9
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "no space left",
+            weight: 0.3
+          },
+          {
+            keyword: "disk quota exceeded",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Volume {volume} on {device} is nearly full (used={volume_used_percent}%). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "volume_near_full"
   },
   {
-    id: 'kb-020',
-    title: 'SaaS Latency & CDN Path Optimization',
-    category: 'Performance',
-    subcategory: 'Latency',
-    content: 'Improving response times for critical cloud applications (O365, Salesforce).',
-    problem: 'Slow SaaS response. Likely Causes: Hair-pinning through DC, sub-optimal DNS GEO-location, or ISP peering congestion.',
-    area: 'Cloud Application Access',
-    remedyItems: [
-      'Implement Local Internet Breakout (DIA) for trusted SaaS prefixes.',
-      'Verify that DNS resolution occurs locally at the branch office.',
-      'Trace the path to the SaaS front-door to identify high-latency hops.',
-      'Monitor ISP peering health at major internet exchange points.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce1a"
+    },
+    id: "storage.snapshot_failures",
+    intent: "storage",
+    domain: "Storage",
+    function: "Snapshot",
+    description: "Repeated failures in taking storage snapshots",
+    keywords: [
+      "snapshot failed",
+      "backup snapshot"
     ],
-    tags: ['latency', 'saas', 'dia', 'cloud'],
-    linkedIntents: ['performance.latency_spike'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 89
+    signals: [
+      {
+        metric: "snapshot_failures",
+        op: ">",
+        value: 1,
+        weight: 0.8
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_SNAPSHOT_CONFIG_OR_SPACE",
+        description: "Snapshot misconfiguration or insufficient space",
+        signals: [
+          {
+            metric: "snapshot_failures",
+            op: ">",
+            value: 1,
+            weight: 0.8
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "snapshot failed",
+            weight: 0.3
+          },
+          {
+            keyword: "insufficient space",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Snapshot operations for {volume} on {device} are failing (snapshot_failures={snapshot_failures}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "snapshot_failures"
   },
   {
-    id: 'kb-021',
-    title: 'ACL Log Overload & Impact Analysis',
-    category: 'Security',
-    subcategory: 'Logging',
-    content: 'Managing excessive syslog generation from security policies.',
-    problem: 'Log Volume surge. Likely Causes: "log" keyword on high-hit ACE rules, or active scanning/attack vector.',
-    area: 'Security Operations',
-    remedyItems: [
-      'Remove the "log" keyword from high-frequency Permit rules.',
-      'Implement `logging rate-limit` to protect the syslog transport.',
-      'Aggregate log data to identify the source of the traffic surge.',
-      'Confirm if logged Deny hits correlate with a known lateral movement pattern.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce1b"
+    },
+    id: "storage.latency_spike",
+    intent: "storage",
+    domain: "Storage",
+    function: "IO Latency",
+    description: "Spikes in storage I/O latency",
+    keywords: [
+      "io latency",
+      "slow disk",
+      "storage delay"
     ],
-    tags: ['acl', 'logging', 'syslog', 'security'],
-    linkedIntents: ['security.acl_breach_suspect'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 92
+    signals: [
+      {
+        metric: "io_latency_ms",
+        op: ">",
+        value: 20,
+        weight: 0.8
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_BACKEND_BUSY",
+        description: "Backend array under heavy load causing latency",
+        signals: [
+          {
+            metric: "io_latency_ms",
+            op: ">",
+            value: 20,
+            weight: 0.8
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "I/O latency warning",
+            weight: 0.3
+          },
+          {
+            keyword: "backend busy",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "I/O latency for {volume} on {device} is high (io_latency_ms={io_latency_ms}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "latency_spike"
   },
   {
-    id: 'kb-022',
-    title: 'ARP Table Exhaustion & Spoofing Prevention',
-    category: 'Switching',
-    subcategory: 'L2 Security',
-    content: 'Maintaining L2 reachability and preventing MAC/ARP attacks.',
-    problem: 'Missing ARP entries. Likely Causes: Table full (CAM overflow), ARP timeout mismatch, or malicious spoofing.',
-    area: 'Edge Security',
-    remedyItems: [
-      'Verify ARP table utilization against hardware platform limits.',
-      'Enable Dynamic ARP Inspection (DAI) to prevent spoofing.',
-      'Align ARP timeouts with DHCP lease times or MAC ages.',
-      'Clear stale entries for specific blocked or moved hosts.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce1c"
+    },
+    id: "storage.replication_lag",
+    intent: "storage",
+    domain: "Storage",
+    function: "Replication",
+    description: "Storage replication lag exceeding threshold",
+    keywords: [
+      "replication delay",
+      "async mirror",
+      "lag"
     ],
-    tags: ['arp', 'spoofing', 'security', 'dai'],
-    linkedIntents: ['switching.arp_limit'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 91
+    signals: [
+      {
+        metric: "replication_lag_sec",
+        op: ">",
+        value: 300,
+        weight: 0.8
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_LINK_OR_TARGET_SLOW",
+        description: "Replication link or target array is slow causing lag",
+        signals: [
+          {
+            metric: "replication_lag_sec",
+            op: ">",
+            value: 300,
+            weight: 0.8
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "replication behind",
+            weight: 0.3
+          },
+          {
+            keyword: "mirror out of sync",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Replication for {volume} is lagging (replication_lag_sec={replication_lag_sec}s). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "replication_lag"
   },
   {
-    id: 'kb-023',
-    title: 'DHCP Snooping & Rogue Server Isolation',
-    category: 'Security',
-    subcategory: 'Core Services',
-    content: 'Preventing unauthorized DHCP servers from disrupting the network.',
-    problem: 'Wrong IP assigned. Likely Causes: Rogue DHCP server on segment, or misconfigured helper-address.',
-    area: 'Network Access Control',
-    remedyItems: [
-      'Enable DHCP Snooping on the access VLANs.',
-      'Configure "Trusted Port" only on the legitimate uplink/server port.',
-      'Identify the rogue MAC address via trailing snooping logs.',
-      'Shut down the offending physical port until the rogue device is removed.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce1d"
+    },
+    id: "db.down",
+    intent: "db",
+    domain: "Database",
+    function: "Availability",
+    description: "Database instance not reachable",
+    keywords: [
+      "database down",
+      "connection refused"
     ],
-    tags: ['dhcp', 'snooping', 'rogue-server'],
-    linkedIntents: ['services.dhcp_failure'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 96
+    signals: [
+      {
+        metric: "db_up",
+        op: "==",
+        value: 0,
+        weight: 0.9
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_DB_PROCESS_STOPPED",
+        description: "Database process stopped or host unreachable",
+        signals: [
+          {
+            metric: "db_up",
+            op: "==",
+            value: 0,
+            weight: 0.9
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "could not connect",
+            weight: 0.3
+          },
+          {
+            keyword: "connection refused",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Database {db_name} on {device} is not reachable (db_up={db_up}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "down"
   },
   {
-    id: 'kb-024',
-    title: 'BGP Max-Prefix Limit Hit / Session Cease',
-    category: 'Routing',
-    subcategory: 'BGP',
-    content: 'Recovering from BGP sessions being shut down due to prefix overflow.',
-    problem: 'BGP Session IDLE (PfxCt). Likely Causes: ISP sending more routes than expected, or leak from peer.',
-    area: 'External Gateways',
-    remedyItems: [
-      'Increase the `maximum-prefix` threshold ONLY if legitimate growth is confirmed.',
-      'Request prefix-list filtering verification from the upstream peer.',
-      'Use `restart` command on the session after adjusting limits.',
-      'Analyze the reason for prefix surge (e.g., aggregate route failure at peer).'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce1e"
+    },
+    id: "db.slow_queries",
+    intent: "db",
+    domain: "Database",
+    function: "Query Performance",
+    description: "Slow query rate above normal",
+    keywords: [
+      "slow query",
+      "long running",
+      "performance"
     ],
-    tags: ['bgp', 'prefix-limit', 'cease'],
-    linkedIntents: ['routing.bgp_flap'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 93
+    signals: [
+      {
+        metric: "slow_queries_per_min",
+        op: ">",
+        value: 20,
+        weight: 0.8
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_MISSING_INDEX_OR_PLAN",
+        description: "Missing indexes or bad execution plan causing slow queries",
+        signals: [
+          {
+            metric: "slow_queries_per_min",
+            op: ">",
+            value: 20,
+            weight: 0.8
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "slow query",
+            weight: 0.3
+          },
+          {
+            keyword: "full table scan",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Database {db_name} shows high slow query rate (slow_queries_per_min={slow_queries_per_min}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "slow_queries"
   },
   {
-    id: 'kb-025',
-    title: 'HSRP/VRRP Dual-Active (Split-Brain) Triage',
-    category: 'Switching',
-    subcategory: 'Redundancy',
-    content: 'Resolving gateway instability when two routers think they are Active.',
-    problem: 'Dual-Active state. Likely Causes: Hello packet block on VPC/Trunk, or high CPU delaying packets.',
-    area: 'High Availability Fabric',
-    remedyItems: [
-      'Verify the peer-link and VLAN trunk allow FHRP control traffic.',
-      'Check for ACLs blocking multicast (224.0.0.2 / 224.0.0.102).',
-      'Ensure priority values are distinct and deterministic.',
-      'Inspect for unidirectional link failure between the HSRP/VRRP peers.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce1f"
+    },
+    id: "db.replication_delay",
+    intent: "db",
+    domain: "Database",
+    function: "Replication",
+    description: "Database replication delay above threshold",
+    keywords: [
+      "replica lag",
+      "replication delay"
     ],
-    tags: ['hsrp', 'vrrp', 'redundancy', 'dual-active'],
-    linkedIntents: ['connectivity.fhrp_flap'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 94
+    signals: [
+      {
+        metric: "db_replication_delay_sec",
+        op: ">",
+        value: 120,
+        weight: 0.8
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_REPLICA_UNDERPOWERED",
+        description: "Replica instance not able to keep up with primary write rate",
+        signals: [
+          {
+            metric: "db_replication_delay_sec",
+            op: ">",
+            value: 120,
+            weight: 0.8
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "replication delay",
+            weight: 0.3
+          },
+          {
+            keyword: "seconds behind master",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Database replication for {db_name} is delayed (db_replication_delay_sec={db_replication_delay_sec}s). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "replication_delay"
   },
   {
-    id: 'kb-026',
-    title: 'SD-WAN Controller Connection Loss',
-    category: 'WAN',
-    subcategory: 'Management Overlay',
-    content: 'Recovering vEdge/cEdge connectivity to vSmart or vManage.',
-    problem: 'Controller Down. Likely Causes: Firewall block on DTLS (12346), DNS failure for controller FQDN, or NAT-T issues.',
-    area: 'SD-WAN Control Plane',
-    remedyItems: [
-      'Validate that the device can resolve the vBond/vManage FQDN.',
-      'Check `show sdwan control local-properties` for valid organization-name.',
-      'Verify firewall permission for DTLS/TLS ports from the underlay IP.',
-      'Inspect root certificate validity for control session authentication.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce20"
+    },
+    id: "db.tablespace_full",
+    intent: "db",
+    domain: "Database",
+    function: "Capacity",
+    description: "Database tablespace nearing full utilization",
+    keywords: [
+      "tablespace full",
+      "db space",
+      "segment growth"
     ],
-    tags: ['sd-wan', 'vmanage', 'control-plane'],
-    linkedIntents: ['wan.controller_unreachable'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 92
+    signals: [
+      {
+        metric: "tablespace_used_percent",
+        op: ">",
+        value: 90,
+        weight: 0.9
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_TABLE_OR_INDEX_GROWTH",
+        description: "Table or index growth filling tablespace",
+        signals: [
+          {
+            metric: "tablespace_used_percent",
+            op: ">",
+            value: 90,
+            weight: 0.9
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "unable to extend",
+            weight: 0.3
+          },
+          {
+            keyword: "no space left in tablespace",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Tablespace for {db_name} is nearly full (used={tablespace_used_percent}%). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "tablespace_full"
   },
   {
-    id: 'kb-027',
-    title: 'Optical Power (DDM) Low-Light Analysis',
-    category: 'Interface',
-    subcategory: 'Physical Integrity',
-    content: 'Preventing link failures by monitoring transceiver signal quality.',
-    problem: 'Input Power Low (<-20dBm). Likely Causes: Dirty fiber end-face, damaged jumper, or failing Laser.',
-    area: 'Data Center / WAN Physical',
-    remedyItems: [
-      'Clean all fiber junctions with a clicker-pen cleaner.',
-      'Replace the fiber patch lead if light levels do not improve.',
-      'Verify patch panel connections are fully seated.',
-      'Check the far-end TX power to determine if the loss is in the local or remote side.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce21"
+    },
+    id: "db.backup_failed",
+    intent: "db",
+    domain: "Database",
+    function: "Backup",
+    description: "Database backup job failure detected",
+    keywords: [
+      "backup failed",
+      "db backup",
+      "job error"
     ],
-    tags: ['optical', 'sfp', 'ddm', 'fiber'],
-    linkedIntents: ['interface.crc_errors'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 95
+    signals: [
+      {
+        metric: "db_backup_success",
+        op: "==",
+        value: 0,
+        weight: 0.9
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_BACKUP_JOB_OR_STORAGE_ISSUE",
+        description: "Backup job misconfigured or target storage unavailable",
+        signals: [
+          {
+            metric: "db_backup_success",
+            op: "==",
+            value: 0,
+            weight: 0.9
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "backup job failed",
+            weight: 0.3
+          },
+          {
+            keyword: "cannot write backup",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Database backup for {db_name} failed (db_backup_success={db_backup_success}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "backup_failed"
   },
   {
-    id: 'kb-028',
-    title: 'MPLS L3VPN Label Inconsistency / VRF Loss',
-    category: 'WAN',
-    subcategory: 'Core Routing',
-    content: 'Resolving end-to-end VPN reachability in MPLS provider fabrics.',
-    problem: 'Traffic loss in VRF. Likely Causes: LDP label session down, BGP-VPNv4 peer reset, or Route-Target mismatch.',
-    area: 'Service Provider Core',
-    remedyItems: [
-      'Check `show mpls ldp neighbor` for valid label exchange.',
-      'Verify BGP VPNv4 address-family state with the provider PE.',
-      'Confirm import/export Route-Targets match across all VRF sites.',
-      'Validate MPLS MTU supports the extra label overhead (minimum 1508 bytes).'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce22"
+    },
+    id: "mq.queue_depth_high",
+    intent: "mq",
+    domain: "Middleware",
+    function: "Queue Health",
+    description: "Message queue depth above threshold",
+    keywords: [
+      "queue depth",
+      "message backlog",
+      "mq delay"
     ],
-    tags: ['mpls', 'vrf', 'vpn', 'ldp'],
-    linkedIntents: ['wan.vpn_outage'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 87
+    signals: [
+      {
+        metric: "queue_depth",
+        op: ">",
+        value: 1000,
+        weight: 0.8
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_CONSUMERS_SLOW_OR_DOWN",
+        description: "Consumers not processing messages fast enough",
+        signals: [
+          {
+            metric: "queue_depth",
+            op: ">",
+            value: 1000,
+            weight: 0.8
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "consumer lagging",
+            weight: 0.3
+          },
+          {
+            keyword: "queue depth high",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Queue {queue} on {device} has high depth (queue_depth={queue_depth}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "queue_depth_high"
   },
   {
-    id: 'kb-029',
-    title: 'DDoS Volumetric Mitigation with RTBH',
-    category: 'Security',
-    subcategory: 'Threat Defense',
-    content: 'Using Remote Triggered Black Hole to stop massive inbound floods.',
-    problem: 'Interface Saturated. Likely Causes: External volumetric attack (UDP/ICMP flood).',
-    area: 'Internet Edge Security',
-    remedyItems: [
-      'Identify the target IP being attacked via NetFlow/SFlow.',
-      'Trigger RTBH by advertising the target /32 with the designated community.',
-      'Apply CoPP rate-limits for remaining fragmented traffic.',
-      'Engage with upstream ISP / DDoS Mitigation scrubbers.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce23"
+    },
+    id: "mq.broker_unreachable",
+    intent: "mq",
+    domain: "Middleware",
+    function: "Broker Health",
+    description: "Message broker not reachable from clients",
+    keywords: [
+      "broker down",
+      "mq unavailable"
     ],
-    tags: ['ddos', 'rtbh', 'security', 'flood'],
-    linkedIntents: ['security.ddos_detected'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 98
+    signals: [
+      {
+        metric: "broker_up",
+        op: "==",
+        value: 0,
+        weight: 0.9
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_BROKER_PROCESS_OR_NETWORK",
+        description: "Broker process down or network connectivity problem",
+        signals: [
+          {
+            metric: "broker_up",
+            op: "==",
+            value: 0,
+            weight: 0.9
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "connection refused",
+            weight: 0.3
+          },
+          {
+            keyword: "broker not responding",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Message broker {broker} is unreachable (broker_up={broker_up}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "broker_unreachable"
   },
   {
-    id: 'kb-030',
-    title: 'NMS Polling Interval & Payload Tuning',
-    category: 'Monitoring',
-    subcategory: 'Observability',
-    content: 'Balancing monitoring granularity with device management overhead.',
-    problem: 'NMS Overhead high. Likely Causes: Aggressive polling (< 1min) for too many OIDs, or large SNMP walk requests.',
-    area: 'Network Visibility Optimization',
-    remedyItems: [
-      'Increase the polling interval for non-critical interfaces.',
-      'Use Bulk-Get where supported to reduce the number of SNMP packets.',
-      'Filter out "Admin Down" ports from the active polling list.',
-      'Leverage Streaming Telemetry (gRPC/NETCONF) for high-fidelity counters.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce24"
+    },
+    id: "txn.failure_rate_high",
+    intent: "txn",
+    domain: "Middleware",
+    function: "Transaction Health",
+    description: "Application transaction failure rate above normal",
+    keywords: [
+      "transaction failure",
+      "error rate",
+      "api errors"
     ],
-    tags: ['monitoring', 'snmp', 'telemetry', 'nms'],
-    linkedIntents: ['monitoring.snmp_poll_failure'],
-    lastUpdated: '2026-03-24T10:00:00Z',
-    effectiveness: 90
+    signals: [
+      {
+        metric: "txn_error_rate_percent",
+        op: ">",
+        value: 5,
+        weight: 0.8
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_DOWNSTREAM_DEPENDENCY",
+        description: "Downstream dependency or service causing transaction errors",
+        signals: [
+          {
+            metric: "txn_error_rate_percent",
+            op: ">",
+            value: 5,
+            weight: 0.8
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "500 Internal Server Error",
+            weight: 0.3
+          },
+          {
+            keyword: "timeout while calling",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Transaction failure rate for {service} is elevated (txn_error_rate_percent={txn_error_rate_percent}%). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "failure_rate_high"
   },
   {
-    id: 'kb-031',
-    title: 'Route Redistribution Loops & Missing Prefixes',
-    category: 'Routing',
-    subcategory: 'Route Redistribution',
-    content: 'Isolation of loops and suboptimal routing between disparate IGPs and BGP.',
-    problem: 'Redistributed routes missing or looping. Likely Causes: Missing route-map filters, Suboptimal seed metrics, or Bi-directional feedback loops.',
-    area: 'Inter-Protocol Routing Policy',
-    remedyItems: [
-      'Identify all mutual redistribution points across the infrastructure.',
-      'Verify route-map hit counters to ensure prefixes are meeting filter criteria.',
-      'Inspect metric seed values to ensure the resulting cost is mathematically viable.',
-      'Implement route tagging (Tags) to prevent bi-directional redistribution loops.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce25"
+    },
+    id: "lb.vip_down",
+    intent: "lb",
+    domain: "Load Balancer",
+    function: "VIP Availability",
+    description: "Virtual IP (VIP) not reachable",
+    keywords: [
+      "vip down",
+      "virtual service down"
     ],
-    tags: ['redistribution', 'route-map', 'loop', 'bgp', 'ospf'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 93
+    signals: [
+      {
+        metric: "vip_up",
+        op: "==",
+        value: 0,
+        weight: 0.9
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_ALL_POOL_MEMBERS_DOWN",
+        description: "All backend pool members for this VIP are down",
+        signals: [
+          {
+            metric: "vip_up",
+            op: "==",
+            value: 0,
+            weight: 0.9
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "no available pool members",
+            weight: 0.3
+          },
+          {
+            keyword: "virtual server disabled",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Load balancer VIP {vip} on {device} is down (vip_up={vip_up}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "vip_down"
   },
   {
-    id: 'kb-032',
-    title: 'MAC Address Table Exhaustion & Flooding',
-    category: 'Switching',
-    subcategory: 'MAC Table',
-    content: 'Mitigation of L2 traffic flooding caused by unstable or overflowing CAM tables.',
-    problem: 'Traffic flooding across VLAN. Likely Causes: MAC table overflow (Unicast flooding), Loops causing flapping, or aggressive aging timers.',
-    area: 'Layer 2 Connectivity Fabric',
-    remedyItems: [
-      'Compare current MAC table capacity against hardware utilization limits.',
-      'Locate specific "MAC_MOVE" messages in syslog indicating a physical loop.',
-      'Correlate MAC instability with Spanning Tree TCN (Topology Change) events.',
-      'Audit VM migration logs to see if rapid movement is aging out table entries too fast.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce26"
+    },
+    id: "lb.pool_members_down",
+    intent: "lb",
+    domain: "Load Balancer",
+    function: "Pool Health",
+    description: "Significant portion of pool members are down",
+    keywords: [
+      "pool member down",
+      "health check failed"
     ],
-    tags: ['mac-table', 'flooding', 'mac-flap', 'vlan'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 94
+    signals: [
+      {
+        metric: "pool_down_members_percent",
+        op: ">",
+        value: 50,
+        weight: 0.8
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_BACKEND_SERVICE_OUTAGE",
+        description: "Backend service failure affecting many pool members",
+        signals: [
+          {
+            metric: "pool_down_members_percent",
+            op: ">",
+            value: 50,
+            weight: 0.8
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "health check failed",
+            weight: 0.3
+          },
+          {
+            keyword: "pool member marked down",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Pool {pool} on {device} has many members down (pool_down_members_percent={pool_down_members_percent}%). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "pool_members_down"
   },
   {
-    id: 'kb-033',
-    title: 'Port-Channel/LACP Bundle Degradation',
-    category: 'Switching',
-    subcategory: 'Port-Channel/LACP',
-    content: 'Triage for EtherChannel member link failures and traffic imbalance.',
-    problem: 'Bundle degraded or members not joining. Likely Causes: LACP mode mismatch, VLAN inconsistency, or Hash algorithm imbalance.',
-    area: 'Physical Link Aggregation',
-    remedyItems: [
-      'Verify LACP modes (Active/Passive) match on both ends of the bundle.',
-      'Ensure all physical member ports have identical speed and duplex settings.',
-      'Validate that the VLAN allowed list is perfectly identical on all member interfaces.',
-      'Inspect traffic distribution and adjust the hash algorithm to mitigate skewed load.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce27"
+    },
+    id: "lb.session_drop",
+    intent: "lb",
+    domain: "Load Balancer",
+    function: "Session Quality",
+    description: "Client sessions being dropped or reset unexpectedly",
+    keywords: [
+      "session reset",
+      "connection reset",
+      "lb drops"
     ],
-    tags: ['lacp', 'port-channel', 'etherchannel', 'bonding'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 95
+    signals: [
+      {
+        metric: "session_resets_per_min",
+        op: ">",
+        value: 50,
+        weight: 0.7
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_IDLE_OR_TIMEOUT_MISCONFIG",
+        description: "Session idle timeout or TCP settings causing resets",
+        signals: [
+          {
+            metric: "session_resets_per_min",
+            op: ">",
+            value: 50,
+            weight: 0.7
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "connection reset",
+            weight: 0.3
+          },
+          {
+            keyword: "idle timeout",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Load balancer {device} is resetting many sessions (session_resets_per_min={session_resets_per_min}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "session_drop"
   },
   {
-    id: 'kb-034',
-    title: 'Volumetric DDoS Attack Response',
-    category: 'Security',
-    subcategory: 'DDoS/Rate Limiting',
-    content: 'Immediate countermeasures for SYN floods and amplification attacks.',
-    problem: 'CPU spikes and traffic surges. Likely Causes: Volumetric floods (UDP/SYN), Amplification (DNS/NTP), or App-layer DDoS.',
-    area: 'Infrastructure Perimeter Protection',
-    remedyItems: [
-      'Confirm the volumetric nature via interface pps (packets per second) rate counters.',
-      'Utilize NetFlow top-talker analysis to pinpoint offending source IPs and protocols.',
-      'Trigger Remotely Triggered Black Hole (RTBH) or apply upstream CoPP rate-limiting.',
-      'Engage the ISP for volumetric scrubbing if the attack exceeds edge capacity.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce28"
+    },
+    id: "lb.ssl_error_rate",
+    intent: "lb",
+    domain: "Load Balancer",
+    function: "SSL Health",
+    description: "High rate of SSL/TLS handshake errors",
+    keywords: [
+      "ssl error",
+      "tls handshake",
+      "certificate"
     ],
-    tags: ['ddos', 'rtbh', 'copp', 'amplification', 'rate-limit'],
-    linkedIntents: ['compute.cpu_spike'],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 96
+    signals: [
+      {
+        metric: "ssl_handshake_errors_per_min",
+        op: ">",
+        value: 20,
+        weight: 0.8
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_CERT_OR_CIPHER_MISMATCH",
+        description: "Certificate issue or cipher mismatch causing handshake failures",
+        signals: [
+          {
+            metric: "ssl_handshake_errors_per_min",
+            op: ">",
+            value: 20,
+            weight: 0.8
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "handshake failure",
+            weight: 0.3
+          },
+          {
+            keyword: "unsupported protocol",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "SSL/TLS errors on {device} are elevated (ssl_handshake_errors_per_min={ssl_handshake_errors_per_min}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "ssl_error_rate"
   },
   {
-    id: 'kb-035',
-    title: 'TLS Certificate Expiry & CA Chain Triage',
-    category: 'Security',
-    subcategory: 'Certificate/TLS',
-    content: 'Resolving HTTPS errors and broken TLS handshakes during service inspection.',
-    problem: 'TLS certificate errors. Likely Causes: Expiration, CN/SAN mismatch, Broken intermediate chains, or Cipher mismatches.',
-    area: 'Application Security & Encryption',
-    remedyItems: [
-      'Check the expiration date and CN/SAN strings of the presented certificate.',
-      'Validate the full certificate chain manually using `openssl s_client`.',
-      'Temporarily disable SSL/TLS inspection engines to isolate middlebox interference.',
-      'Verify supported TLS versions and cipher suites on both client and server.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce29"
+    },
+    id: "lb.misrouting",
+    intent: "lb",
+    domain: "Load Balancer",
+    function: "Routing",
+    description: "Traffic being routed to unexpected or wrong backend",
+    keywords: [
+      "wrong backend",
+      "misrouting",
+      "policy mismatch"
     ],
-    tags: ['tls', 'certificate', 'ssl', 'expiry', 'inspection'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 94
+    signals: [
+      {
+        metric: "policy_mismatch_hits",
+        op: ">",
+        value: 10,
+        weight: 0.7
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_L7_RULE_MISCONFIG",
+        description: "Incorrect L7 routing rule causing misrouted requests",
+        signals: [
+          {
+            metric: "policy_mismatch_hits",
+            op: ">",
+            value: 10,
+            weight: 0.7
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "no matching policy",
+            weight: 0.3
+          },
+          {
+            keyword: "default pool used",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "Load balancer {device} is misrouting some requests (policy_mismatch_hits={policy_mismatch_hits}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "misrouting"
   },
   {
-    id: 'kb-036',
-    title: 'AAA/RADIUS Authentication Timeouts',
-    category: 'Security',
-    subcategory: 'AAA/RADIUS',
-    content: 'Isolating login failures and shared secret mismatches on network devices.',
-    problem: 'Administrative lockout risk. Likely Causes: RADIUS/TACACS unreachable, Secret mismatch, NAS-IP whitelist failure, or VRF isolation.',
-    area: 'Identity & Access Management',
-    remedyItems: [
-      'Perform a ping test from the device management VRF to the AAA server IP.',
-      'Verify the shared secret consistency between the network device and RADIUS server.',
-      'Ensure the NAS-IP used by the device is whitelisted on the AAA appliance.',
-      'Check RADIUS statistics for specific Reject vs Timeout patterns.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce2a"
+    },
+    id: "sdwan.transport_degraded",
+    intent: "sdwan",
+    domain: "SD-WAN",
+    function: "Transport Health",
+    description: "Underlay transport showing high loss or latency",
+    keywords: [
+      "underlay loss",
+      "transport degraded"
     ],
-    tags: ['aaa', 'radius', 'tacacs', 'authentication', 'vrf'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 92
+    signals: [
+      {
+        metric: "transport_latency_ms",
+        op: ">",
+        value: 100,
+        weight: 0.6
+      },
+      {
+        metric: "transport_loss_percent",
+        op: ">",
+        value: 2,
+        weight: 0.4
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_ISP_ISSUE",
+        description: "ISP or underlay provider experiencing degradation",
+        signals: [
+          {
+            metric: "transport_latency_ms",
+            op: ">",
+            value: 100,
+            weight: 0.6
+          },
+          {
+            metric: "transport_loss_percent",
+            op: ">",
+            value: 2,
+            weight: 0.4
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "underlay degraded",
+            weight: 0.3
+          },
+          {
+            keyword: "transport path issue",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "SD-WAN transport path for {site} is degraded (latency={transport_latency_ms} ms, loss={transport_loss_percent}%). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "transport_degraded"
   },
   {
-    id: 'kb-037',
-    title: 'SSL VPN Internal Resource Reachability',
-    category: 'VPN',
-    subcategory: 'SSL/TLS VPN',
-    content: 'Diagnostic path for AnyConnect users failing to reach internal VLANs.',
-    problem: 'Remote users connected but no traffic. Likely Causes: Split-tunnel misconfig, IP pool exhaustion, or missing DNS profile.',
-    area: 'Remote Workplace Connectivity',
-    remedyItems: [
-      'Confirm the assigned address is within the intended pool and not exhausted.',
-      'Audit the split-tunnel ACL to ensure all required internal subnets are included.',
-      'Verify that DNS server IPs and domains are being pushed in the VPN group-policy.',
-      'Check the ACLs applied to the VPN interface for specific blocking rules.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce2b"
+    },
+    id: "sdwan.tunnel_flap",
+    intent: "sdwan",
+    domain: "SD-WAN",
+    function: "Overlay Health",
+    description: "SD-WAN overlay tunnel flapping between peers",
+    keywords: [
+      "tunnel down",
+      "overlay flap"
     ],
-    tags: ['ssl-vpn', 'anyconnect', 'split-tunnel', 'dns', 'ip-pool'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 90
+    signals: [
+      {
+        metric: "tunnel_state_changes",
+        op: ">",
+        value: 3,
+        weight: 0.8
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_UNDERLAY_UNSTABLE",
+        description: "Underlying transport instability causing tunnel flaps",
+        signals: [
+          {
+            metric: "tunnel_state_changes",
+            op: ">",
+            value: 3,
+            weight: 0.8
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "tunnel down",
+            weight: 0.3
+          },
+          {
+            keyword: "keepalive failure",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "SD-WAN tunnel between {site} and {peer_site} is flapping (tunnel_state_changes={tunnel_state_changes}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "tunnel_flap"
   },
   {
-    id: 'kb-038',
-    title: 'DMVPN Spoke-to-Spoke Tunnel Formation',
-    category: 'VPN',
-    subcategory: 'DMVPN',
-    content: 'Triage for spoke-to-spoke resolution failures and NHRP registration issues.',
-    problem: 'Spoke tunnels not forming. Likely Causes: NHRP registration failure, IKE phase errors, or NAT breaking NHRP packets.',
-    area: 'Hub-and-Spoke Enterprise VPN',
-    remedyItems: [
-      'Verify the spoke successfully registered its NHS (Next Hop Server) with the hub.',
-      'Check for valid IKE SAs between the two spoke pair endpoints.',
-      'Confirm that the hub is correctly redistributing spoke subnets to the fabric.',
-      'Monitor for NAT-T issues specifically on the underlay transport path.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce2c"
+    },
+    id: "sdwan.controller_unreachable",
+    intent: "sdwan",
+    domain: "SD-WAN",
+    function: "Control Plane",
+    description: "Edge device unable to reach SD-WAN controller",
+    keywords: [
+      "controller down",
+      "orchestrator unreachable"
     ],
-    tags: ['dmvpn', 'nhrp', 'ike', 'gre', 'spoke'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 91
+    signals: [
+      {
+        metric: "controller_up",
+        op: "==",
+        value: 0,
+        weight: 0.9
+      }
+    ],
+    hypotheses: [
+      {
+        id: "H_CONTROLLER_OR_CONTROL_LINK",
+        description: "Controller outage or control path connectivity issue",
+        signals: [
+          {
+            metric: "controller_up",
+            op: "==",
+            value: 0,
+            weight: 0.9
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "controller not reachable",
+            weight: 0.3
+          },
+          {
+            keyword: "control connection lost",
+            weight: 0.3
+          }
+        ]
+      }
+    ],
+    situationDesc: "SD-WAN edge {device} cannot reach controller (controller_up={controller_up}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "controller_unreachable"
   },
   {
-    id: 'kb-039',
-    title: 'Application Throughput & TCP Window Scaling',
-    category: 'Performance',
-    subcategory: 'Throughput/Bandwidth',
-    content: 'Isolating network-side slowdowns vs application-layer bottlenecks.',
-    problem: 'Slow file transfers. Likely Causes: TCP window scaling issues, Oversubscription, or Asymmetric path reordering.',
-    area: 'Application Transport Performance',
-    remedyItems: [
-      'Run a parallel-stream iperf3 test to stress the path bandwidth capacity.',
-      'Inspect interface utilization vs CIR (Committed Information Rate) thresholds.',
-      'Look for high TCP retransmit counts using `netstat -s` or packet captures.',
-      'Review QoS shapers for aggressive policies that may be dropping micro-bursts.'
+    _id: {
+      $oid: "693811d3a4cd14665b75ce2d"
+    },
+    id: "sdwan.branch_down",
+    intent: "sdwan",
+    domain: "SD-WAN",
+    function: "Branch Connectivity",
+    description: "Branch site unreachable over SD-WAN fabric",
+    keywords: [
+      "branch down",
+      "site unreachable"
     ],
-    tags: ['throughput', 'tcp', 'bandwidth', 'qos', 'wan-optimizer'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 88
-  },
-  {
-    id: 'kb-040',
-    title: 'QoS Buffer Tuning & WRED Optimization',
-    category: 'Performance',
-    subcategory: 'Buffer/Queue',
-    content: 'Mitigation of burst drops and tail-drop events on high-traffic interfaces.',
-    problem: 'Intermittent drops during bursts. Likely Causes: Shallow queues, Missing WRED, or undersized hold-queues.',
-    area: 'Buffer Management & Congestion Avoidance',
-    remedyItems: [
-      'Identify which specific class-queue is experiencing discard events.',
-      'Evaluate current buffer depth against expected micro-burst traffic patterns.',
-      'Configure WRED (Weighted Random Early Detection) thresholds for non-voice traffic.',
-      'Increase the interface output hold-queue to absorb occasional burst spikes.'
+    signals: [
+      {
+        metric: "branch_reachable",
+        op: "==",
+        value: 0,
+        weight: 0.9
+      }
     ],
-    tags: ['qos', 'wred', 'queue', 'buffer', 'drops'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 93
-  },
-  {
-    id: 'kb-041',
-    title: 'Firmware Upgrade Regressions & Incompatibilities',
-    category: 'Device',
-    subcategory: 'Firmware/Software',
-    content: 'Post-upgrade triage to isolate software bugs from configuration drift.',
-    problem: 'Unexpected device behavior. Likely Causes: Known vendor bugs, Config incompatibility, or Feature flag changes.',
-    area: 'Lifecycle Management & Stability',
-    remedyItems: [
-      'Compare observed behavior patterns against vendor-published "Caveats" and known bugs.',
-      'Examine syslog for new, non-standard error message patterns post-upgrade.',
-      'Check for changes in CLI syntax or default behavior between firmware versions.',
-      'Execute a rollback to the previous stable image if service impact is P1.'
+    hypotheses: [
+      {
+        id: "H_EDGE_DEVICE_OR_ACCESS_CIRCUIT",
+        description: "Branch edge device down or access circuit failure",
+        signals: [
+          {
+            metric: "branch_reachable",
+            op: "==",
+            value: 0,
+            weight: 0.9
+          }
+        ],
+        logPatterns: [
+          {
+            keyword: "site down",
+            weight: 0.3
+          },
+          {
+            keyword: "branch offline",
+            weight: 0.3
+          }
+        ]
+      }
     ],
-    tags: ['firmware', 'upgrade', 'regression', 'rollback', 'bug'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 95
-  },
-  {
-    id: 'kb-042',
-    title: 'Hardware Alarms & PSU/ECC Error Resolution',
-    category: 'Device',
-    subcategory: 'Hardware/Environment',
-    content: 'Triage for environmental failures, memory parity, and chassis alarms.',
-    problem: 'Device Alarms/Reboots. Likely Causes: PSU failure, Overheating, Line card fault, or ECC memory errors.',
-    area: 'Physical Chassis Integrity',
-    remedyItems: [
-      'Check environmental status for temperature, fan speed, and PSU voltage alarms.',
-      'Review device crash logs to identify specific hardware parity or soft errors.',
-      'Verify PSU redundancy status and current draw vs total system capacity.',
-      'Coordinate with vendor TAC for RMA (Return Merchandise Authorization) planning.'
-    ],
-    tags: ['hardware', 'psu', 'temperature', 'fan', 'ecc', 'rma'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 96
-  },
-  {
-    id: 'kb-043',
-    title: 'NetFlow Exporter Drops & Collector Inconsistency',
-    category: 'Monitoring',
-    subcategory: 'NetFlow/sFlow',
-    content: 'Debugging visibility gaps in network-wide traffic telemetry streams.',
-    problem: 'Missing/Inconsistent Flow data. Likely Causes: UDP export blocks, Sampler mismatch, or NTP skew.',
-    area: 'Observability Infrastructure',
-    remedyItems: [
-      'Verify UDP port 2055 (or configured port) is open across all security zones.',
-      'Confirm that the flow sampler rates match on both the exporter and collector.',
-      'Check local exporter send statistics for high drop counts at the source.',
-      'Validate NTP synchronization to prevent flow record timestamp misplacement.'
-    ],
-    tags: ['netflow', 'sflow', 'collector', 'exporter', 'sampling'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 87
-  },
-  {
-    id: 'kb-044',
-    title: 'Syslog Ingest Pipeline & SIEM Visibility',
-    category: 'Monitoring',
-    subcategory: 'Syslog',
-    content: 'Troubleshooting guide for missing event logs in centralized SIEM systems.',
-    problem: 'Logs not appearing in SIEM. Likely Causes: UDP 514 blocked, Wrong destination IP, or Restrictive logging levels.',
-    area: 'Security Operations & Auditing',
-    remedyItems: [
-      'Verify the configured syslog destination IP and port are reachable.',
-      'Ensure the audit logging level captures the required event severity (e.g. Informational +).',
-      'Validate that the source management VRF has a clean routing path to the SIEM.',
-      'Perform a packet capture at the SIEM ingress to verify receipt of UDP packets.'
-    ],
-    tags: ['syslog', 'siem', 'logging', 'udp-514', 'vrf'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 89
-  },
-  {
-    id: 'kb-045',
-    title: 'Wireless AP Join Failures & CAPWAP/DTLS',
-    category: 'Wireless',
-    subcategory: 'Controller/AP',
-    content: 'Diagnostic process for APs failing to register with the Wireless Controller.',
-    problem: 'AP stuck in Joining state. Likely Causes: CAPWAP port blocks, License limits, DHCP Option 43 errors, or Cert mismatch.',
-    area: 'Enterprise Campus Mobility',
-    remedyItems: [
-      'Examine the WLC join logs for specific reason codes (e.g. Cert failure, Radius reject).',
-      'Verify DHCP Option 43 is providing the correct controller management IP.',
-      'Confirm the WLC has available AP capacity licenses to accept new registrations.',
-      'Validate that UDP 5246/5247 ports are not blocked by intermediate firewalls.'
-    ],
-    tags: ['wlc', 'capwap', 'ap-join', 'dhcp-option43', 'license'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 91
-  },
-  {
-    id: 'kb-046',
-    title: 'RF Spectrum Interference & DFS Event Analysis',
-    category: 'Wireless',
-    subcategory: 'Spectrum/Interference',
-    content: 'Identification of non-Wi-Fi interference and channel-plan instability.',
-    problem: 'Degraded areas. Likely Causes: Non-Wi-Fi interference (Microwave/Bluetooth), Co-channel congestion, or DFS radar events.',
-    area: 'RF Environment Health',
-    remedyItems: [
-      'Utilize built-in spectrum analysis on APs to classify interference sources.',
-      'Check for Co-channel interference (CCI) from neighboring or rogue APs.',
-      'Review DFS (Dynamic Frequency Selection) event logs for forced channel moves.',
-      'Enable automated interference avoidance features like CleanAir/RRM.'
-    ],
-    tags: ['spectrum', 'interference', 'dfs', 'co-channel', '2.4ghz'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 86
-  },
-  {
-    id: 'kb-047',
-    title: 'IPv6 NDP & Router Advertisement (RA) Troubleshooting',
-    category: 'Connectivity',
-    subcategory: 'IPv6',
-    content: 'Resolution guide for IPv6-only or dual-stack connectivity failures.',
-    problem: 'IPv4 works, IPv6 fails. Likely Causes: ACL blocks, RA suppression, NDP resolution failure, or DHCPv6 issues.',
-    area: 'Next-Generation Protocol Support',
-    remedyItems: [
-      'Verify that the client has received a valid IPv6 prefix via RA or DHCPv6.',
-      'Confirm that Router Advertisements are being sent periodically on the SVI/interface.',
-      'Check the NDP (Neighbor Discovery Protocol) table for gateway reachability.',
-      'Audit IPv6 ACLs for implicit permits/denies of ICMPv6 control traffic.'
-    ],
-    tags: ['ipv6', 'ndp', 'ra', 'dhcpv6', 'dual-stack'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 92
-  },
-  {
-    id: 'kb-048',
-    title: 'NAT/PAT Translation Pool & Overflow Triage',
-    category: 'Connectivity',
-    subcategory: 'NAT/PAT',
-    content: 'Identifying PAT port-exhaustion and inside/outside interface issues.',
-    problem: 'Internet access outage. Likely Causes: Pool exhaustion (PAT full), ACL mismatch, or missing NAT designations.',
-    area: 'Network Address Orchestration',
-    remedyItems: [
-      'Check NAT translation statistics for high "miss" counts or PAT port exhaustion.',
-      'Verify that `ip nat inside` and `ip nat outside` are applied to the correct paths.',
-      'Confirm the NAT ACL includes all required source subnets.',
-      'Monitor NAT rule order to ensure high-priority static rules are not masked.'
-    ],
-    tags: ['nat', 'pat', 'translation', 'acl', 'pool'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 93
-  },
-  {
-    id: 'kb-049',
-    title: 'MPLS L3VPN RD/RT & Label Exchange Failures',
-    category: 'WAN',
-    subcategory: 'MPLS/L3VPN',
-    content: 'Diagnostic workflow for isolated sites or missing VPNv4 prefixes.',
-    problem: 'VPN inter-site connectivity loss. Likely Causes: RD/RT mismatch, MP-BGP session down, or LDP label binding issues.',
-    area: 'Service Provider & Enterprise WAN Core',
-    remedyItems: [
-      'Verify that RD (Route Distinguisher) and RT (Route Target) values match on both PEs.',
-      'Check the MP-BGP VPNv4 address-family sessions between PE routers.',
-      'Confirm LDP (Label Distribution Protocol) is correctly exchanging bindings on P links.',
-      'Use `show ip route vrf` to verify the presence of remote site prefixes in the RIB.'
-    ],
-    tags: ['mpls', 'l3vpn', 'vrf', 'mp-bgp', 'ldp', 'rt-rd'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 94
-  },
-  {
-    id: 'kb-050',
-    title: 'Carrier Leased-Line LOS & Alarm Isolation',
-    category: 'WAN',
-    subcategory: 'Circuit/Leased Line',
-    content: 'Differentiating CPE hardware faults from carrier-side backbone outages.',
-    problem: 'Primary circuit Down. Likely Causes: Physical cable/SFP fault, Local loop outage, or Carrier maintenance.',
-    area: 'Carrier Transport & Physical WAN',
-    remedyItems: [
-      'Conduct a local physical layer check (Demarc, SFP, patch cable) at the CPE.',
-      'Analyze interface alarms for specific loss-of-signal (LOS) or framing (LOF) flags.',
-      'Request a loopback test from the carrier to isolate the point of failure.',
-      'Cross-reference downtime with known carrier maintenance windows or portal status.'
-    ],
-    tags: ['wan', 'circuit', 'carrier', 'leased-line', 'los', 'alarm'],
-    linkedIntents: [],
-    lastUpdated: '2026-03-23T18:20:00Z',
-    effectiveness: 95
+    situationDesc: "Branch {site} is unreachable via SD-WAN (branch_reachable={branch_reachable}). Top hypothesis: {top_hypothesis} (score={prior}).",
+    subIntent: "branch_down"
   }
 ];
 
@@ -1648,27 +3076,183 @@ export const mockKBArticlesEnhanced: KBArticle[] = [
 export const mockKBCategories = [
   {
     id: 'network-kb',
-    name: 'Network',
-    subcategories: ['Link Layer', 'Routing', 'Switching'],
-    articleCount: 8
+    name: 'Network Intelligence',
+    subcategories: [
+      'Connectivity', 
+      'Routing', 
+      'Switching', 
+      'Wireless', 
+      'WAN', 
+      'Security', 
+      'Performance', 
+      'Monitoring'
+    ],
+    articleCount: 4
   },
   {
     id: 'database-kb',
     name: 'Database',
     subcategories: ['Connection Management', 'Performance', 'Replication'],
-    articleCount: 5
+    articleCount: 1
   },
   {
     id: 'compute-kb',
     name: 'Compute',
     subcategories: ['CPU', 'Memory', 'Process Management'],
-    articleCount: 6
+    articleCount: 2
   },
   {
     id: 'storage-kb',
     name: 'Storage',
     subcategories: ['Disk', 'I/O Operations'],
-    articleCount: 3
+    articleCount: 1
+  }
+];
+
+export const mockKBArticlesEnhanced: KBArticle[] = [
+  {
+    id: 'kb-net-001',
+    title: 'Troubleshooting SD-WAN Packet Loss',
+    category: 'Network Intelligence',
+    subcategory: 'WAN',
+    content: 'Comprehensive guide for diagnosing and resolving packet loss over SD-WAN underlay and overlay tunnels...',
+    problem: 'Branch unreachable or performance degraded due to transport-layer packet loss.',
+    area: 'SD-WAN Fabric',
+    remedyItems: [
+      'Check underlay transport health and switch to secondary path if loss exceeds 2%.',
+      'Verify MTU/MSS settings to prevent fragmentation-induced loss.',
+      'Investigate edge device CPU/Memory pressure.'
+    ],
+    tags: ['sd-wan', 'packet-loss', 'wan'],
+    linkedIntents: ['sdwan.transport_degraded', 'sdwan.branch_down'],
+    lastUpdated: '2026-03-01T00:00:00Z',
+    effectiveness: 94
+  },
+  {
+    id: 'kb-net-002',
+    title: 'Resolving External BGP Flaps',
+    category: 'Network Intelligence',
+    subcategory: 'Routing',
+    content: 'Diagnosis and remediation steps for BGP sessions that frequently restart...',
+    problem: 'BGP sessions flapping causing route instability and traffic drops.',
+    area: 'Core Routing',
+    remedyItems: [
+      'Check physical interface errors (CRC/Runts) on peering links.',
+      'Verify hold-time and keepalive timer consistency between peers.',
+      'Analyze peer CPU load and incoming route advertisements for churn.'
+    ],
+    tags: ['bgp', 'routing', 'flapping'],
+    linkedIntents: ['performance.congestion', 'link.network_latency'],
+    lastUpdated: '2026-02-15T00:00:00Z',
+    effectiveness: 89
+  },
+  {
+    id: 'kb-db-001',
+    title: 'Managing MySQL Replication Delay',
+    category: 'Database',
+    subcategory: 'Replication',
+    content: 'Steps to reduce lag between primary and replica database instances...',
+    problem: 'Replication lag exceeds 120 seconds, causing stale reads on replicas.',
+    area: 'Database Replicas',
+    remedyItems: [
+      'Check disk I/O performance on the replica instance.',
+      'Optimize long-running write queries on the primary.',
+      'Increase thread count for parallel replication if supported.'
+    ],
+    tags: ['mysql', 'replication', 'database'],
+    linkedIntents: ['db.replication_delay'],
+    lastUpdated: '2026-01-10T12:00:00Z',
+    effectiveness: 91
+  },
+  {
+    id: 'kb-comp-001',
+    title: 'CPU Spike Analysis on Linux Hosts',
+    category: 'Compute',
+    subcategory: 'CPU',
+    content: 'General methodology for identifying processes causing CPU exhaustion...',
+    problem: 'Sustained CPU usage above 90% impacting application responsiveness.',
+    area: 'Compute Instances',
+    remedyItems: [
+      'Use "top" or "htop" to identify high-consumption PID.',
+      'Check for runaway background jobs or cron processes.',
+      'Profile application if a single process is consuming excessive resources.'
+    ],
+    tags: ['cpu', 'linux', 'performance'],
+    linkedIntents: ['system.cpu_spike'],
+    lastUpdated: '2026-03-05T09:00:00Z',
+    effectiveness: 87
+  },
+  {
+    id: 'kb-store-001',
+    title: 'Resolving Disk IOPS Contention',
+    category: 'Storage',
+    subcategory: 'Disk',
+    content: 'Dealing with heavy backend array load affecting LUN performance...',
+    problem: 'High I/O latency (avg > 20ms) causing application timeouts.',
+    area: 'Storage Area Network',
+    remedyItems: [
+      'Redistribute heavy I/O workloads to different storage tiers.',
+      'Check for snapshot operations or backups causing temporary IOPS spikes.',
+      'Identify and throttle processes generating excessive small random I/O.'
+    ],
+    tags: ['storage', 'iops', 'latency'],
+    linkedIntents: ['storage.latency_spike', 'storage.disk_iops_degraded'],
+    lastUpdated: '2026-02-28T14:00:00Z',
+    effectiveness: 93
+  },
+  {
+      id: 'kb-net-003',
+      title: 'Wireless Client Authentication Failures',
+      category: 'Network Intelligence',
+      subcategory: 'Wireless',
+      content: 'Troubleshooting steps for 802.1X and EAP failures in enterprise Wi-Fi networks...',
+      problem: 'Multiple users unable to authenticate with RADIUS server on corporate SSID.',
+      area: 'WLAN Infrastructure',
+      remedyItems: [
+          'Verify RADIUS server reachability from WLAN controller.',
+          'Check RADIUS shared secret consistency and certificate validity.',
+          'Validate client-side credentials and certificate trust chain.'
+      ],
+      tags: ['wifi', 'wireless', 'authentication', 'radius'],
+      linkedIntents: ['wireless.client_auth_failure'],
+      lastUpdated: '2026-03-10T11:00:00Z',
+      effectiveness: 90
+  },
+  {
+      id: 'kb-net-004',
+      title: 'DDoS Traffic Mitigation Strategy',
+      category: 'Network Intelligence',
+      subcategory: 'Security',
+      content: 'Standard operating procedure for responding to large-scale inbound DDoS attacks...',
+      problem: 'External traffic flood overwhelming edge links and firewall resources.',
+      area: 'Network Perimeter',
+      remedyItems: [
+          'Activate cloud-based scrubbers or BGP FlowSpec rules.',
+          'Implement rate-limiting on perimeter interfaces for targeted destination IPs.',
+          'Analyze traffic headers for common attack signatures to refine ACLs.'
+      ],
+      tags: ['ddos', 'security', 'mitigation'],
+      linkedIntents: ['security.policy_block'],
+      lastUpdated: '2026-03-12T15:30:00Z',
+      effectiveness: 96
+  },
+  {
+      id: 'kb-comp-002',
+      title: 'Container CrashLoopBackOff Resolution',
+      category: 'Compute',
+      subcategory: 'Process Management',
+      content: 'Debugging guide for Kubernetes pods stuck in restart loops...',
+      problem: 'Containers repeatedly crashing on startup due to config errors or missing dependencies.',
+      area: 'Container Platform',
+      remedyItems: [
+          'Examine container logs using "kubectl logs --previous".',
+          'Check environment variable completeness and secret availability.',
+          'Verify resource limits (CPU/MEM) are not causing immediate OOM kills.'
+      ],
+      tags: ['k8s', 'containers', 'crashloop'],
+      linkedIntents: ['container.restart_loop'],
+      lastUpdated: '2026-03-08T10:15:00Z',
+      effectiveness: 92
   }
 ];
 

@@ -75,7 +75,8 @@ export function KBSection() {
 
   const filteredArticles = mockKBArticlesEnhanced.filter((article) => {
     if (!selectedCategory || !selectedSubcategory) return false;
-    return article.category === selectedCategory.name && article.subcategory === selectedSubcategory;
+    // Match either the category or subcategory against the selected subcategory name
+    return article.category === selectedSubcategory || article.subcategory === selectedSubcategory;
   });
 
   const getBreadcrumb = () => {
@@ -167,7 +168,10 @@ export function KBSection() {
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-1">{category.name}</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                {category.articleCount} articles
+                {mockKBArticlesEnhanced.filter(a => 
+                  category.subcategories.includes(a.category) || 
+                  category.subcategories.includes(a.subcategory)
+                ).length} articles
               </p>
               <div className="flex flex-wrap gap-1">
                 {category.subcategories.slice(0, 2).map((sub) => (
@@ -191,7 +195,7 @@ export function KBSection() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {selectedCategory.subcategories.map((subcategory) => {
             const articleCount = mockKBArticlesEnhanced.filter(
-              (a) => a.category === selectedCategory.name && a.subcategory === subcategory
+              (a) => a.category === subcategory || a.subcategory === subcategory
             ).length;
             return (
               <div

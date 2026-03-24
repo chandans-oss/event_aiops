@@ -359,6 +359,73 @@ export default function PredictionDashboard() {
                                         );
                                     })}
                                 </svg>
+
+                                {/* FLOATING LEGEND */}
+                                <div className="absolute bottom-4 right-4 flex flex-col gap-4 p-4 rounded-xl bg-[#0F172A]/90 border border-white/10 backdrop-blur-md shadow-2xl animate-in slide-in-from-bottom-2 duration-700 pointer-events-none overflow-hidden max-w-[280px]">
+                                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
+                                    
+                                    <div className="space-y-3">
+                                        <h4 className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Diagnostic Legend</h4>
+                                        
+                                        {/* Row 1: Status */}
+                                        <div className="flex flex-wrap gap-x-4 gap-y-2 pb-3 border-b border-white/5">
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-2 h-2 rounded-full bg-[#10b981]" />
+                                                <span className="text-[8px] font-bold text-slate-300 uppercase tracking-wider">Normal</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-2 h-2 rounded-full bg-[#f59e0b]" />
+                                                <span className="text-[8px] font-bold text-slate-300 uppercase tracking-wider">Warning</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-2 h-2 rounded-full bg-[#ef4444]" />
+                                                <span className="text-[8px] font-bold text-slate-300 uppercase tracking-wider">Critical</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Row 2: Prediction Visuals */}
+                                        <div className="space-y-2.5 pb-3 border-b border-white/5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-3.5 h-3.5 rounded-full border border-orange-500 relative flex items-center justify-center">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-ping opacity-75" />
+                                                </div>
+                                                <span className="text-[8px] font-bold text-white uppercase tracking-wider">Predicted Anomaly <span className="text-orange-500 ml-1">· ML-Target</span></span>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex items-center gap-0.5">
+                                                    <div className="w-1 h-0.5 bg-blue-500" />
+                                                    <div className="w-1 h-0.5 bg-blue-500/20" />
+                                                    <div className="w-1 h-0.5 bg-blue-500" />
+                                                </div>
+                                                <span className="text-[8px] font-bold text-white uppercase tracking-wider">Predictive Link <span className="text-blue-500 ml-1">· Path Risk</span></span>
+                                            </div>
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-3.5 h-3.5 rounded-full bg-red-500/20 border border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                                                <span className="text-[8px] font-bold text-white uppercase tracking-wider">Real-time Anomaly <span className="text-red-500 ml-1">· Active</span></span>
+                                            </div>
+                                        </div>
+
+                                        {/* Row 3: Node Icons */}
+                                        <div className="grid grid-cols-2 gap-2 pt-1 opacity-70">
+                                            <div className="flex items-center gap-2">
+                                                <Router className="w-3 h-3 text-slate-400" />
+                                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Router</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Network className="w-3 h-3 text-slate-400" />
+                                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Switch</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Shield className="w-3 h-3 text-slate-400" />
+                                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Firewall</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Cpu className="w-3 h-3 text-slate-400" />
+                                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Balancer</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </CardContent>
                     </Card>

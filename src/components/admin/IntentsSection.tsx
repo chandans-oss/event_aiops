@@ -42,7 +42,7 @@ export function IntentsSection() {
 
   const filteredIntents = mockIntentsFull.filter((intent) => {
     if (!selectedCategory || !selectedSubcategory) return false;
-    return intent.domain === selectedCategory.domain && intent.function === selectedSubcategory.function;
+    return intent.intent === selectedSubcategory.id;
   });
 
   const getBreadcrumb = () => {
@@ -130,7 +130,7 @@ export function IntentsSection() {
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-1">{category.name}</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                {category.subcategories.length} subcategories
+                {mockIntentsFull.filter(i => category.subcategories.some(s => i.intent === s.id)).length} intents across {category.subcategories.length} modules
               </p>
               <div className="flex flex-wrap gap-1">
                 {category.subcategories.slice(0, 3).map((sub) => (
@@ -166,7 +166,7 @@ export function IntentsSection() {
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-1">{subcategory.name}</h3>
               <p className="text-sm text-muted-foreground">
-                {subcategory.intentCount} intents
+                {mockIntentsFull.filter(i => i.intent === subcategory.id).length} intents
               </p>
             </div>
           ))}

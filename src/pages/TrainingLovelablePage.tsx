@@ -1832,25 +1832,53 @@ export default function TrainingLovelablePage() {
   const [showCausalVenn, setShowCausalVenn] = useState(true);
 
   const combinedXcorr = useMemo(() => {
-    return [...D.xcorrR.map(d => ({ ...d, dev: 'Router' })), ...D.xcorrS.map(d => ({ ...d, dev: 'Switch' }))]
+    if (deviceFilter === 'topology') {
+      return D.xcorrT.map(d => ({ ...d, dev: 'DC EAST TOPOLOGY' }))
+        .sort((a, b) => Math.abs(b.r) - Math.abs(a.r));
+    }
+    return [
+      ...D.xcorrR.map(d => ({ ...d, dev: 'Router' })), 
+      ...D.xcorrS.map(d => ({ ...d, dev: 'Switch' }))
+    ]
       .filter(d => Math.abs(d.r) > 0.75)
       .sort((a, b) => Math.abs(b.r) - Math.abs(a.r));
-  }, []);
+  }, [deviceFilter]);
 
   const combinedGranger = useMemo(() => {
-    return [...D.grangerR.map(d => ({ ...d, dev: 'Router' })), ...D.grangerS.map(d => ({ ...d, dev: 'Switch' }))]
+    if (deviceFilter === 'topology') {
+      return D.grangerT.map(d => ({ ...d, dev: 'DC EAST TOPOLOGY' }))
+        .sort((a, b) => b.f - a.f);
+    }
+    return [
+      ...D.grangerR.map(d => ({ ...d, dev: 'Router' })), 
+      ...D.grangerS.map(d => ({ ...d, dev: 'Switch' }))
+    ]
       .sort((a, b) => b.f - a.f);
-  }, []);
+  }, [deviceFilter]);
 
   const combinedSeq = useMemo(() => {
-    return [...D.seqR.map(d => ({ ...d, dev: 'Router' })), ...D.seqS.map(d => ({ ...d, dev: 'Switch' }))]
+    if (deviceFilter === 'topology') {
+      return D.seqT.map(d => ({ ...d, dev: 'DC EAST TOPOLOGY' }))
+        .sort((a, b) => b.conf - a.conf);
+    }
+    return [
+      ...D.seqR.map(d => ({ ...d, dev: 'Router' })), 
+      ...D.seqS.map(d => ({ ...d, dev: 'Switch' }))
+    ]
       .sort((a, b) => b.conf - a.conf);
-  }, []);
+  }, [deviceFilter]);
 
   const combinedChains = useMemo(() => {
-    return [...D.chainsR.map(d => ({ ...d, dev: 'Router' })), ...D.chainsS.map(d => ({ ...d, dev: 'Switch' }))]
+    if (deviceFilter === 'topology') {
+      return D.chainsT.map(d => ({ ...d, dev: 'DC EAST TOPOLOGY' }))
+        .sort((a, b) => b.n - a.n);
+    }
+    return [
+      ...D.chainsR.map(d => ({ ...d, dev: 'Router' })), 
+      ...D.chainsS.map(d => ({ ...d, dev: 'Switch' }))
+    ]
       .sort((a, b) => b.n - a.n);
-  }, []);
+  }, [deviceFilter]);
 
   useEffect(() => {
     const activeEl = document.getElementById(`tab-btn-${activeTab}`);
@@ -1885,7 +1913,11 @@ export default function TrainingLovelablePage() {
 
   // Unified RF Data
   const unifiedRFData = useMemo(() => {
-    const combined = [...D.rfR.map(r => ({ ...r, dev: 'Router' })), ...D.rfS.map(s => ({ ...s, dev: 'Switch' }))];
+    const topoLabel = deviceFilter === 'topology' ? 'DC EAST TOPOLOGY' : '';
+    const combined = [
+      ...D.rfR.map(r => ({ ...r, dev: topoLabel || 'Router' })), 
+      ...D.rfS.map(s => ({ ...s, dev: topoLabel || 'Switch' }))
+    ];
     const unique = new Map<string, RFData & { dev: string }>();
     combined.forEach(item => {
       if (item.skip) return;
@@ -1893,7 +1925,7 @@ export default function TrainingLovelablePage() {
       unique.set(key, item);
     });
     return Array.from(unique.values()).sort((a, b) => (b.acc || 0) - (a.acc || 0));
-  }, []);
+  }, [deviceFilter]);
 
   const AccuracyGauge = ({ value, label, dev, feats }: { value: number, label: string, dev: string, feats?: [string, number][] }) => {
     const percentage = value * 100;
@@ -2811,63 +2843,69 @@ export default function TrainingLovelablePage() {
             )}
           </section>
 
-          <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(10) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+          {/* SECTION 10: FAILURE CHAINS */}
+          <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12", !shouldShow(10) && "hidden")}>
+            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-6">
               <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">10</span>
               <span className="text-[14px] font-semibold tracking-[-0.01em]">Failure Chain Patterns</span>
+              <span className="text-[11px] text-[#94A3B8] ml-auto italic">End-to-end causal sequences (90%+ confidence)</span>
             </div>
             {!isStepReady(10) ? <LoadingState title="Failure Chains" /> : (
-              <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden shadow-xl">
+              <div className="grid grid-cols-1 gap-5">
+                {combinedChains.slice(0, Math.ceil(itemLimit / 2)).map((c, i) => {
+                  const isCritical = ['PACKET_DROP', 'DEVICE_REBOOT', 'INTERFACE_FLAP'].includes(c.evt);
+                  const severityColor = isCritical ? 'border-l-[#EF4444]' : 'border-l-[#F59E0B]';
+                  const badgeColor = isCritical ? 'bg-[#7F1D1D]/40 text-[#F87171]' : 'bg-[#78350F]/40 text-[#F59E0B]';
+                  const confVal = Math.min(0.72 + (c.n / 1000) * 0.28, 0.99);
 
-                <div className="p-4 grid grid-cols-1 gap-4">
-                  {combinedChains.map((c, i) => {
-                    const isCritical = ['PACKET_DROP', 'DEVICE_REBOOT', 'INTERFACE_FLAP'].includes(c.evt);
-                    const severityColor = isCritical ? 'border-l-[#EF4444]' : 'border-l-[#F59E0B]';
-                    const badgeColor = isCritical ? 'bg-[#7F1D1D]/40 text-[#F87171]' : 'bg-[#78350F]/40 text-[#F59E0B]';
-                    const conf = Math.min(0.72 + (c.n / 1000) * 0.28, 0.99);
+                  return (
+                    <div key={i} className={cn("bg-[#1e293b]/30 border border-[#334155] rounded-xl p-5 border-l-4 group hover:border-[#3B82F6]/30 transition-all duration-300 flex items-center gap-8 shadow-lg", severityColor)}>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-4">
+                          <span className={cn("px-2 py-0.5 rounded-sm text-[8px] font-black uppercase tracking-[0.1em]", c.dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'bg-[#3DDAB4]/20 text-[#3DDAB4]')}>{c.dev}</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[13px] font-bold text-[#F8FAFC] tracking-tight truncate">{c.evt}</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#64748B] ml-2 uppercase tracking-wide">observed in {c.n} training sessions</span>
+                        </div>
 
-                    return (
-                      <div key={i} className={cn("bg-[#0F172A]/40 border border-[#334155] rounded-xl p-4 border-l-4 group hover:border-[#3B82F6]/30 transition-all duration-300 animate-in fade-in slide-in-from-bottom-2 flex items-center gap-6", severityColor)}>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-3">
-                            <span className={cn("px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter", c.dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'bg-[#3DDAB4]/20 text-[#3DDAB4]')}>{c.dev}</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[12px] font-bold text-[#F8FAFC] tracking-tight">{c.evt}</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#475569] ml-1 uppercase font-bold">seen {c.n}x in last training run</span>
-                          </div>
-
-                          <div className="flex flex-wrap items-center gap-2">
-                            {c.steps.map((s, k) => (
-                              <React.Fragment key={k}>
-                                <div className="flex flex-col items-center gap-1">
-                                  <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] uppercase font-bold mb-1">Step {k + 1}</span>
-                                  <span className={cn("px-3 py-1.5 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[10px] font-bold whitespace-nowrap bg-[#1E3A8A]/30 text-[#60A5FA] border border-[#3B82F6]/20 shadow-sm")}>
-                                    {s.m} <span className="ml-1 opacity-80">{s.d}</span>
-                                  </span>
+                        <div className="flex flex-wrap items-center gap-y-4 gap-x-2">
+                          {c.steps.map((s: any, k: number) => (
+                            <React.Fragment key={k}>
+                              <div className="flex flex-col gap-1.5 font-['IBM_Plex_Mono',monospace]">
+                                <span className="text-[8px] text-[#475569] uppercase font-black opacity-60">Step 0{k + 1}</span>
+                                <div className="px-3 py-2 rounded-lg bg-[#0F172A]/80 border border-[#334155] flex items-center gap-2 shadow-inner group-hover:border-[#3B82F6]/20 transition-colors">
+                                  <span className="text-[10px] text-[#CBD5E1] font-medium">{s.m}</span>
+                                  <span className={cn("font-bold text-[11px]", s.d === '↑' ? 'text-rose-400' : 'text-emerald-400')}>{s.d}</span>
                                 </div>
-                                <ChevronRight className="w-3.5 h-3.5 text-[#334155] mt-4" />
-                              </React.Fragment>
-                            ))}
-                            <div className="flex flex-col items-center gap-1">
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] uppercase font-bold mb-1">Impact Event</span>
-                              <span className={cn("px-3 py-1.5 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] whitespace-nowrap font-bold shadow-lg border border-white/5", badgeColor)}>{c.evt}</span>
+                              </div>
+                              <div className="flex flex-col items-center mt-4 px-1 min-w-[32px]">
+                                <span className="text-[9px] font-black text-[#60A5FA] mb-0.5 tabular-nums animate-pulse">{s.lag}</span>
+                                <ChevronRight className="w-4 h-4 text-[#334155] opacity-50" />
+                              </div>
+                            </React.Fragment>
+                          ))}
+                          <div className="flex flex-col gap-1.5 font-['IBM_Plex_Mono',monospace]">
+                            <span className="text-[8px] text-[#475569] uppercase font-black opacity-60">Impact Event</span>
+                            <div className={cn("px-4 py-2 rounded-lg text-[11px] font-black shadow-xl border border-white/5 uppercase tracking-wide", badgeColor)}>
+                              {c.evt}
                             </div>
                           </div>
                         </div>
-
-                        <div className="hidden sm:flex flex-col items-center justify-center p-3 bg-[#0F172A] rounded-xl border border-[#334155] min-w-[100px]">
-                          <div className="relative flex items-center justify-center">
-                            <DonutChart val={conf} size={48} />
-                            <span className="absolute text-[11px] font-black text-[#F8FAFC] font-['IBM_Plex_Mono',monospace]">{(conf * 100).toFixed(0)}</span>
-                          </div>
-                          <span className="text-[9px] text-[#475569] font-black mt-2 uppercase tracking-tighter">Confidence %</span>
-                        </div>
                       </div>
-                    );
-                  })}
-                </div>
+
+                      <div className="hidden md:flex flex-col items-center justify-center p-4 bg-[#0F172A]/60 rounded-2xl border border-[#334155]/50 min-w-[120px] transition-colors group-hover:bg-[#0F172A]/80">
+                        <div className="relative flex items-center justify-center mb-2">
+                          <DonutChart val={confVal} size={52} />
+                          <span className="absolute text-[12px] font-black text-[#F8FAFC] font-['IBM_Plex_Mono',monospace]">{(confVal * 100).toFixed(0)}</span>
+                        </div>
+                        <span className="text-[9px] text-[#64748B] font-black uppercase tracking-widest text-center">Inference<br/>Confidence</span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </section>
+
 
           <section className={cn("mt-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(11) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
@@ -2929,9 +2967,7 @@ export default function TrainingLovelablePage() {
             )}
           </section>
 
-
-
-
+          <div className="h-20" /> {/* Bottom Spacing */}
         </main>
       </div>
 
@@ -2942,7 +2978,3 @@ export default function TrainingLovelablePage() {
     </MainLayout>
   );
 }
-
-
-
-

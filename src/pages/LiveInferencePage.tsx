@@ -68,6 +68,16 @@ const EVENT_SEQUENCES = [
 ];
 
 const CHAIN_TEMPLATES: Record<string, { label: string, meta: string, steps: any[] }> = {
+  'HIGH_LATENCY_VALIDATED': {
+    label: 'HIGH_LATENCY',
+    meta: '(seen 289x | confidence: 0.72)',
+    steps: [
+      { label: 'CPU_SPIKE', subLabel: 'R1:router', description: 'Root cause: Router CPU rising above 0.01%/min' },
+      { label: 'CRC_ERRORS', subLabel: 'SW1:access', description: 'Sequence check: CRC errors jump 10min later' },
+      { label: 'BUFFER_UTIL', subLabel: 'SW2:dist', description: 'Cascade: Distribution buffer filling' },
+      { label: 'LATENCY_RISE', subLabel: 'FW1:firewall', description: 'Result: Edge latency breach' }
+    ]
+  },
   'DEVICE_REBOOT': {
     label: 'DEVICE_REBOOT',
     meta: '(seen 2x | 6 pre-event windows)',
@@ -82,38 +92,35 @@ const CHAIN_TEMPLATES: Record<string, { label: string, meta: string, steps: any[
   },
   'HIGH_UTIL_WARNING': {
     label: 'HIGH_UTIL_WARNING',
-    meta: '(seen 207x | 298 pre-event windows)',
+    meta: '(observed in 532 sessions)',
     steps: [
-      { label: 'CPU_SPIKE', subLabel: 'metric poll', description: 'Initial CPU load increase' },
-      { label: 'CRC_ERRORS_RISE', subLabel: 'metric poll', description: 'Retransmissions detected' },
-      { label: 'QUEUE_PRESSURE', subLabel: 'metric poll', description: 'Output queue scaling' },
-      { label: 'LATENCY_DRIFT', subLabel: 'metric poll', description: 'Sequential delay increase' },
-      { label: 'REBOOT_DELTA_SHIFT', subLabel: 'metric poll', description: 'Uptime verification anomaly' },
-      { label: 'UTIL_BREACH', subLabel: 'metric poll', description: 'Utilization threshold exceeded' }
+      { label: 'cpu_pct ↑', subLabel: '3m lag', description: 'Initial CPU load increase detected' },
+      { label: 'crc_errors ↑', subLabel: '4m lag', description: 'Link layer retransmissions peaking' },
+      { label: 'latency_ms ↑', subLabel: '6m lag', description: 'Application response delay confirmed' },
+      { label: 'queue_depth ↑', subLabel: '2m lag', description: 'Hardware buffer pressure building' },
+      { label: 'util_pct ↑', subLabel: '1m lag', description: 'Link capacity threshold breach' }
     ]
   },
   'INTERFACE_FLAP': {
     label: 'INTERFACE_FLAP',
-    meta: '(seen 146x | 222 pre-event windows)',
+    meta: '(observed in 146 sessions)',
     steps: [
-      { label: 'CPU_SPIKE', subLabel: 'metric poll', description: 'Initial processing pressure' },
-      { label: 'UTIL_SPIKE', subLabel: 'metric poll', description: 'Throughput burst' },
-      { label: 'CRC_ERRORS_BREACH', subLabel: 'metric poll', description: 'Physical link errors' },
-      { label: 'QUEUE_DEPTH_RISE', subLabel: 'metric poll', description: 'Congestion buildup' },
-      { label: 'LATENCY_JITTER', subLabel: 'metric poll', description: 'Unstable response time' },
-      { label: 'FLAP_PREDICTION', subLabel: 'SNMP TRAP', description: 'Oscillation imminent - prediction confirmed' }
+      { label: 'link_util ↑', subLabel: 'root cause', description: 'Burst traffic on physical link' },
+      { label: 'buffer_util ↑', subLabel: 'sequence 02', description: 'Queue occupancy rise' },
+      { label: 'crc_errors ↑', subLabel: 'sequence 03', description: 'Incremental CRC error count' },
+      { label: 'packet_loss ↑', subLabel: 'sequence 04', description: 'Inbound packet discard detected' },
+      { label: 'flap_event', subLabel: 'impact', description: 'Oscillation imminent - link down/up' }
     ]
   },
   'PACKET_DROP': {
     label: 'PACKET_DROP',
-    meta: '(seen 239x | 329 pre-event windows)',
+    meta: '(observed in 493 sessions)',
     steps: [
-      { label: 'CPU_SPIKE', subLabel: 'metric poll', description: 'Load increase' },
-      { label: 'CRC_ERRORS_RISE', subLabel: 'metric poll', description: 'Frame checksum failures' },
-      { label: 'QUEUE_DEPTH_LIMIT', subLabel: 'metric poll', description: 'Tail-drop threshold likely' },
-      { label: 'LATENCY_PEAK', subLabel: 'metric poll', description: 'Processing delay breach' },
-      { label: 'REBOOT_PRECEDES', subLabel: 'metric poll', description: 'Pre-reboot telemetry detected' },
-      { label: 'DROP_EVENT', subLabel: 'SNMP TRAP', description: 'Active packet discard detected' }
+      { label: 'cpu_pct ↑', subLabel: '4m lag', description: 'Processing pressure detected' },
+      { label: 'crc_errors ↑', subLabel: '2m lag', description: 'Checksum failure increase' },
+      { label: 'queue_depth ↑', subLabel: '1m lag', description: 'Tail-drop threshold likely' },
+      { label: 'latency_ms ↑', subLabel: '5m lag', description: 'Sequential delay drift' },
+      { label: 'util_pct ↑', subLabel: '3m lag', description: 'Active packet discard impact' }
     ]
   }
 };
@@ -127,6 +134,7 @@ const DEVICES = [
   { n: "router-03", i: "Gi0/1/0", t: 'ROUTER', p: 'ISR', ip: '172.16.0.1', m: '4451-X' },
   { n: "switch-01", i: "Eth1/1", t: 'SWITCH', p: 'JNX', ip: '10.20.2.1', m: 'MX204' },
   { n: "switch-02", i: "Eth1/2", t: 'SWITCH', p: 'CSW', ip: '10.10.1.1', m: 'Catalyst 9300' },
+  { n: "firewall-01", i: "Eth1/1", t: 'FIREWALL', p: 'FW1', ip: '10.50.1.5', m: 'Firepower 4110' },
 ];
 
 interface PatternStep {
@@ -155,14 +163,126 @@ interface InferenceItem {
   timestamp: string;
   device: string;
   interface: string;
-  type: 'PREDICTION' | 'ANOMALY';
+  type: 'PREDICTION' | 'ANOMALY' | 'PROGRESSIVE';
   event: string;
   confidence: number;
   pattern?: string;
-  status: 'CRITICAL' | 'WARNING' | 'HEALTHY' | 'ANALYZED';
+  status: 'CRITICAL' | 'WARNING' | 'HEALTHY' | 'ANALYZED' | 'WATCH';
   estimatedWait?: string;
   predictedTime?: string;
 }
+
+const PROGRESSIVE_TIMELINE = [
+  {
+    poll: 'T-60min',
+    clock: '21:50',
+    status: 'WATCH',
+    statusMsg: 'NEW: Step 2 just confirmed',
+    matchedSteps: 2,
+    totalSteps: 4,
+    confidence: 0.72,
+    score: 0.36,
+    summary: "2 of 4 steps matched — WATCH issued",
+    description: "R1's CPU has been climbing fast for the past 75 minutes (slope=0.269%/min). SW1's CRC errors have also exploded (delta=179.9) at exactly the expected 10-minute lag. Steps 3 and 4 metrics are actually rising too, but the lag timing windows are not yet open. The system recognises this as a real chain beginning. First WATCH alert issued. The operator should note the R1 CPU spike and begin monitoring.",
+    steps: [
+      { id: 1, device: 'R1', metric: 'cpu_pct', feature: 'slope', actual: 0.2692, threshold: 0.01, last: 53.93, range: [20, 90], status: 'matched', formula: 'slope=0.269 ≥ 0.01 ✓ | last=53.9% ∈ [20,90] ✓' },
+      { id: 2, device: 'SW1', metric: 'crc_errors', feature: 'delta', actual: 179.9100, threshold: 2.0, last: 181.81, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=179.9 ≥ 2.0 ✓ | last=181.8 ∈ [0,500] ✓ | lag=10min ✓' },
+      { id: 3, device: 'SW2', metric: 'buffer_util', feature: 'slope', actual: 0.2266, threshold: 0.03, last: 33.02, range: [10, 98], status: 'pending', lagInfo: 'lag NOT met: elapsed=10min, expected=20±3min — 10min short' },
+      { id: 4, device: 'FW1', metric: 'latency_ms', feature: 'slope', actual: 0.1803, threshold: 0.05, last: 34.34, range: [5, 500], status: 'pending', lagInfo: 'lag NOT met: elapsed=20min, expected=30±3min — 10min short' },
+    ]
+  },
+  {
+    poll: 'T-50min',
+    clock: '22:00',
+    status: 'WATCH',
+    statusMsg: 'WATCH maintained',
+    matchedSteps: 2,
+    totalSteps: 4,
+    confidence: 0.72,
+    score: 0.36,
+    summary: "2 of 4 steps — WATCH maintained, cascade intensifying",
+    description: "CRC errors at SW1 have grown further to 231.9. R1's CPU continues climbing (now at 62%). SW2's buffer and FW1's latency are both rising (slopes 0.244 and 0.447 respectively) but the lag windows are not yet open. Score stable at 0.36 — same 2 steps confirmed. The cascade is deepening but the pattern engine correctly waits for timing alignment.",
+    steps: [
+      { id: 1, device: 'R1', metric: 'cpu_pct', feature: 'slope', actual: 0.3807, threshold: 0.01, last: 62.09, range: [20, 90], status: 'matched', formula: 'slope=0.381 ≥ 0.01 ✓ | last=62.1% ∈ [20,90] ✓' },
+      { id: 2, device: 'SW1', metric: 'crc_errors', feature: 'delta', actual: 231.5700, threshold: 2.0, last: 231.9, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=231.6 ≥ 2.0 ✓ | last=231.9 ∈ [0,500] ✓ | lag=10min ✓' },
+      { id: 3, device: 'SW2', metric: 'buffer_util', feature: 'slope', actual: 0.2438, threshold: 0.03, last: 41.54, range: [10, 98], status: 'pending', lagInfo: 'lag NOT met: elapsed=10min — waiting for 20min mark' },
+      { id: 4, device: 'FW1', metric: 'latency_ms', feature: 'slope', actual: 0.4471, threshold: 0.05, last: 56.03, range: [5, 500], status: 'pending', lagInfo: 'lag NOT met: elapsed=20min — waiting for 30min mark' },
+    ]
+  },
+  {
+    poll: 'T-30min',
+    clock: '22:20',
+    status: 'WARN',
+    statusMsg: 'NEW: Step 3 just confirmed',
+    matchedSteps: 3,
+    totalSteps: 4,
+    confidence: 0.72,
+    score: 0.54,
+    summary: "3 of 4 steps — WARN! SW2 buffer confirmed at 20-min lag",
+    description: "SW2's buffer utilisation is now at 59.55%, rising at 0.448%/min, and exactly 20 minutes have elapsed since Step 1 started (within the ±3min tolerance). Step 3 confirmed. Score jumps to 0.54. WARN issued. Only FW1's latency lag window remains closed. The operator should now page on-call: HIGH_LATENCY expected in ~30 minutes.",
+    steps: [
+      { id: 1, device: 'R1', metric: 'cpu_pct', feature: 'slope', actual: 0.5796, threshold: 0.01, last: 71.64, range: [20, 90], status: 'matched', formula: 'slope=0.580 ≥ 0.01 ✓ | last=71.6% ∈ [20,90] ✓' },
+      { id: 2, device: 'SW1', metric: 'crc_errors', feature: 'delta', actual: 291.2100, threshold: 2.0, last: 292.39, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=291.2 ≥ 2.0 ✓ | last=292.4 ∈ [0,500] ✓ | lag=10min ✓' },
+      { id: 3, device: 'SW2', metric: 'buffer_util', feature: 'slope', actual: 0.4477, threshold: 0.03, last: 59.55, range: [10, 98], status: 'matched', lag: '20min', formula: 'slope=0.448 ≥ 0.03 ✓ | last=59.6% ∈ [10,98] ✓ | lag=20min ✓' },
+      { id: 4, device: 'FW1', metric: 'latency_ms', feature: 'slope', actual: 1.4015, threshold: 0.05, last: 114.2, range: [5, 500], status: 'pending', lagInfo: 'lag NOT met: elapsed=20min, expected=30±3min — 10min short' },
+    ]
+  },
+  {
+    poll: 'T-20min',
+    clock: '22:30',
+    status: 'WARN',
+    statusMsg: 'WARN maintained, FW1 latency almost there',
+    matchedSteps: 3,
+    totalSteps: 4,
+    confidence: 0.72,
+    score: 0.54,
+    summary: "3 of 4 steps — WARN maintained, FW1 latency almost there",
+    description: "FW1's latency slope is now 1.930ms/min — an enormous rate of rise. The absolute value is 144ms. Every condition for Step 4 is met except the lag: elapsed time since Step 1 is 25 minutes but the window opens at 30 ± 3min. Just 2 minutes away from the confirmation window. Cascade is fully visible and unstoppable at this point.",
+    steps: [
+      { id: 1, device: 'R1', metric: 'cpu_pct', feature: 'slope', actual: 0.5155, threshold: 0.01, last: 71.48, range: [20, 90], status: 'matched', formula: 'slope=0.516 ≥ 0.01 ✓ | last=71.5% ∈ [20,90] ✓' },
+      { id: 2, device: 'SW1', metric: 'crc_errors', feature: 'delta', actual: 265.7600, threshold: 2.0, last: 308.04, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=265.8 ≥ 2.0 ✓ | last=308.0 ∈ [0,500] ✓ | lag=10min ✓' },
+      { id: 3, device: 'SW2', metric: 'buffer_util', feature: 'slope', actual: 0.5840, threshold: 0.03, last: 64.0, range: [10, 98], status: 'matched', lag: '20min', formula: 'slope=0.584 ≥ 0.03 ✓ | last=64.0% ∈ [10,98] ✓ | lag=20min ✓' },
+      { id: 4, device: 'FW1', metric: 'latency_ms', feature: 'slope', actual: 1.9298, threshold: 0.05, last: 144.23, range: [5, 500], status: 'pending', lagInfo: 'lag NOT met: elapsed=25min, expected=30±3min — 2min short!' },
+    ]
+  },
+  {
+    poll: 'T-10min',
+    clock: '22:40',
+    status: 'CRITICAL',
+    statusMsg: 'NEW: Step 4 just confirmed',
+    matchedSteps: 4,
+    totalSteps: 4,
+    confidence: 0.72,
+    score: 0.72,
+    summary: "ALL 4 steps confirmed — CRITICAL alert! 10 minutes before failure",
+    description: "FW1's latency slope is 2.389ms/min (latency at 174ms and rising). All four conditions are met including the lag: exactly 30 minutes have elapsed since Step 1 (within ±3min tolerance). Score = 0.72 ≥ 0.70 threshold. CRITICAL alert fires. The operator has approximately 10 minutes to reroute traffic away from FW1 before latency reaches 219ms at T+0.",
+    hasAlert: true,
+    steps: [
+      { id: 1, device: 'R1', metric: 'cpu_pct', feature: 'slope', actual: 0.4427, threshold: 0.01, last: 74.05, range: [20, 90], status: 'matched', formula: 'slope=0.443 ≥ 0.01 ✓ | last=74.1% ∈ [20,90] ✓' },
+      { id: 2, device: 'SW1', metric: 'crc_errors', feature: 'delta', actual: 214.0500, threshold: 2.0, last: 315.52, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=214.1 ≥ 2.0 ✓ | last=315.5 ∈ [0,500] ✓ | lag=10min ✓' },
+      { id: 3, device: 'SW2', metric: 'buffer_util', feature: 'slope', actual: 0.6871, threshold: 0.03, last: 70.5, range: [10, 98], status: 'matched', lag: '20min', formula: 'slope=0.687 ≥ 0.03 ✓ | last=70.5% ∈ [10,98] ✓ | lag=20min ✓' },
+      { id: 4, device: 'FW1', metric: 'latency_ms', feature: 'slope', actual: 2.3887, threshold: 0.05, last: 174.11, range: [5, 500], status: 'matched', lag: '30min', formula: 'slope=2.389 ≥ 0.05 ✓ | last=174.1ms ∈ [5,500] ✓ | lag=30min ✓' },
+    ]
+  },
+  {
+    poll: 'T+0min (PEAK)',
+    clock: '22:50',
+    status: 'CRITICAL',
+    matchedSteps: 4,
+    totalSteps: 4,
+    confidence: 0.72,
+    score: 0.72,
+    summary: "Peak moment — HIGH_LATENCY event reached (FW1 latency = 219ms)",
+    description: "The failure has arrived. FW1:latency_ms peaked at 194.91ms in this window (the actual peak of 219ms is at T+0min). The pattern was correctly identified and a CRITICAL alert was issued 10 minutes earlier. R1:cpu_pct is at 73.71% (still elevated). SW1:crc_errors at 318.84 (maximum of the episode). SW2:buffer_util at 69.4%. The cascade is at full intensity.",
+    hasAlert: true,
+    steps: [
+      { id: 1, device: 'R1', metric: 'cpu_pct', feature: 'slope', actual: 0.5112, threshold: 0.01, last: 73.71, range: [20, 90], status: 'matched', formula: 'slope=0.511 ≥ 0.01 ✓ | last=73.7% ∈ [20,90] ✓' },
+      { id: 2, device: 'SW1', metric: 'crc_errors', feature: 'delta', actual: 318.84, threshold: 2.0, last: 318.84, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=318.8 ≥ 2.0 ✓ | last=318.8 ∈ [0,500] ✓ | lag=10min ✓' },
+      { id: 3, device: 'SW2', metric: 'buffer_util', feature: 'slope', actual: 0.694, threshold: 0.03, last: 69.4, range: [10, 98], status: 'matched', lag: '20min', formula: 'slope=0.694 ≥ 0.03 ✓ | last=69.4% ∈ [10,98] ✓ | lag=20min ✓' },
+      { id: 4, device: 'FW1', metric: 'latency_ms', feature: 'slope', actual: 2.389, threshold: 0.05, last: 219.0, range: [5, 500], status: 'matched', lag: '30min', formula: 'slope=2.389 ≥ 0.05 ✓ | last=219.0ms ∈ [5,500] ✓ | lag=30min ✓' },
+    ]
+  }
+];
 
 export default function LiveInferencePage() {
   const [isLive, setIsLive] = useState(true);
@@ -175,7 +295,7 @@ export default function LiveInferencePage() {
   const [processingState, setProcessingState] = useState<'IDLE' | 'POLLING' | 'PROCESSING' | 'PAUSED'>('PAUSED');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const [viewMode, setViewMode] = useState<'default' | 'patterns'>('default');
+  const [viewMode, setViewMode] = useState<'default' | 'patterns' | 'progressive'>('default');
   const [patternMatches, setPatternMatches] = useState<PatternMatchItem[]>([]);
   const [stats, setStats] = useState({
     anomalies: 0,
@@ -298,10 +418,38 @@ export default function LiveInferencePage() {
       // Handle Pattern Matches
       const activePatterns: PatternMatchItem[] = [...patternMatches];
 
+      // Ensure our asked pattern is always present as a 6th row row for demonstration
+      const rootPatternExist = activePatterns.find(p => p.id === 'PAT-LATENCY-ROOT');
+      if (!rootPatternExist && currentPollCount >= 5) {
+          const fwDev = DEVICES.find(d => d.p === 'FW1') || DEVICES[0];
+          const template = CHAIN_TEMPLATES['HIGH_LATENCY_VALIDATED'];
+          const nowTime = new Date().toLocaleTimeString();
+          
+          const staticPattern: PatternMatchItem = {
+            id: 'PAT-LATENCY-ROOT',
+            device: fwDev.n,
+            deviceType: fwDev.t,
+            prefix: (fwDev as any).p,
+            ip: (fwDev as any).ip,
+            model: (fwDev as any).m,
+            templateId: 'HIGH_LATENCY_VALIDATED',
+            interface: fwDev.i,
+            timestamp: nowTime,
+            currentStep: 2, // At Step 3 (BUFFER_UTIL)
+            confidence: 0.72,
+            steps: template.steps.map((_, i) => ({
+              status: i <= 2 ? 'arrived' : 'pending',
+              timestamp: i <= 2 ? nowTime : undefined,
+              confValue: i <= 2 ? 0.72 : undefined
+            }))
+          };
+          activePatterns.push(staticPattern);
+      }
+
       // Randomly start a new pattern or progress existing ones
       if (Math.random() > 0.4) {
-        const dev = DEVICES[Math.floor(Math.random() * DEVICES.length)];
-        const existingIdx = activePatterns.findIndex(p => p.device === dev.n);
+          const dev = DEVICES[Math.floor(Math.random() * (DEVICES.length - 1))]; // Exclude FW1 from random churn to keep row stable
+          const existingIdx = activePatterns.findIndex(p => p.device === dev.n && p.id !== 'PAT-LATENCY-ROOT');
 
         if (existingIdx === -1) {
           // New Pattern
@@ -369,9 +517,9 @@ export default function LiveInferencePage() {
       let currentProgressions = patCount; // Start with the new patterns created this cycle
       // If we progressed existing patterns, count those too
       if (Math.random() > 0.4 && activePatterns.length > 0) {
-          // In the current logic, we only potentially do ONE progression or ONE new pattern per cycle.
-          // Let's make it more realistic by allowing multiple matches per cycle if polls are high.
-          currentProgressions += Math.floor(Math.random() * 2); 
+        // In the current logic, we only potentially do ONE progression or ONE new pattern per cycle.
+        // Let's make it more realistic by allowing multiple matches per cycle if polls are high.
+        currentProgressions += Math.floor(Math.random() * 2);
       }
 
       setPatternMatches(activePatterns.slice(0, 10));
@@ -495,162 +643,172 @@ export default function LiveInferencePage() {
 
             {/* LIVE FEED GRID LIST */}
             <div className="grid grid-cols-1 gap-6">
-              {(stats.polls < 5 || (processingState === 'PROCESSING' && (viewMode === 'default' ? inferences.length === 0 : patternMatches.length === 0))) && (
+              {stats.polls < 5 && (
                 <div className="py-20 flex flex-col items-center justify-center text-center">
                   <div className="w-20 h-20 bg-[#1E293B]/20 rounded-full flex items-center justify-center mb-6 border border-white/5 relative">
                     <RefreshCw className="w-8 h-8 text-[#3B82F6] animate-spin" />
-                    <div className="absolute inset-0 border-4 border-[#3B82F6]/20 border-t-[#3B82F6] rounded-full animate-spin [animation-duration:3s]" />
                   </div>
                   <div className="text-[#3B82F6] font-['IBM_Plex_Mono',monospace] text-[11px] uppercase font-black tracking-[0.3em]">
-                    {stats.polls < 5 ? `Booting Intelligence Engine: [${stats.polls}/5 Polls]` : 'Processing Telemetry Stream...'}
+                    Stabilizing Window Intelligence...
                   </div>
-                  <p className="text-[9px] text-[#475569] uppercase font-bold mt-3 tracking-widest max-w-sm">
-                    Aggregating historical telemetry window to establish standard baseline before inference.
+                  <p className="text-[9px] text-[#475569] uppercase font-bold mt-3 tracking-widest max-w-sm italic">
+                    Engine needs 5 polled windows to activate inference validation.
                   </p>
                 </div>
               )}
 
-              {stats.polls >= 5 && (viewMode === 'default' ? (
-                inferences.map((item, idx) => (
-                  <Card
-                    key={item.id}
-                    className={cn(
-                      "bg-[#111827]/40 border border-white/5 rounded-2xl p-6 hover:bg-[#111827]/60 transition-all duration-300 group overflow-hidden relative",
-                      idx === 0 && "border-[#3B82F6]/30 shadow-[0_0_30px_rgba(59,130,246,0.05)]"
-                    )}
-                  >
-                    {idx === 0 && (
-                      <div className="absolute top-0 left-0 w-1.5 h-full bg-[#3B82F6]" />
-                    )}
+              {stats.polls >= 5 && viewMode === 'default' && (
+                <div className="grid grid-cols-1 gap-6">
+                  {inferences.map((item, idx) => (
+                    <Card
+                      key={item.id}
+                      className={cn(
+                        "bg-[#111827]/40 border border-white/5 rounded-2xl p-6 hover:bg-[#111827]/60 transition-all duration-300 group overflow-hidden relative",
+                        idx === 0 && "border-[#3B82F6]/30 shadow-[0_0_30px_rgba(59,130,246,0.05)]"
+                      )}
+                    >
+                      {idx === 0 && (
+                        <div className="absolute top-0 left-0 w-1.5 h-full bg-[#3B82F6]" />
+                      )}
 
-                    <div className="grid grid-cols-12 items-center gap-6">
-                      {/* COL 1: IDENTITY */}
-                      <div className="col-span-3 flex items-center gap-4">
-                        <div className={cn(
-                          "w-11 h-11 rounded-xl flex items-center justify-center border-2 flex-shrink-0 transition-transform group-hover:scale-105",
-                          item.type === 'PREDICTION' ? "bg-[#3B82F6]/5 border-[#3B82F6]/20" :
-                            "bg-[#EF4444]/5 border-[#EF4444]/20"
-                        )}>
-                          {item.type === 'PREDICTION' && <Box className="w-5 h-5 text-[#3B82F6]" />}
-                          {item.type === 'ANOMALY' && <AlertTriangle className="w-5 h-5 text-[#EF4444]" />}
-                        </div>
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-black text-white whitespace-nowrap tracking-tight">{item.device}</span>
-                            <span className="text-[9px] font-black text-[#94A3B8] bg-white/5 px-2 py-0.5 rounded border border-white/5">
-                              {item.interface}
-                            </span>
+                      <div className="grid grid-cols-12 items-center gap-6">
+                        {/* COL 1: IDENTITY */}
+                        <div className="col-span-3 flex items-center gap-4">
+                          <div className={cn(
+                            "w-11 h-11 rounded-xl flex items-center justify-center border-2 flex-shrink-0 transition-transform group-hover:scale-105",
+                            item.type === 'PREDICTION' ? "bg-[#3B82F6]/5 border-[#3B82F6]/20" :
+                              "bg-[#EF4444]/5 border-[#EF4444]/20"
+                          )}>
+                            {item.type === 'PREDICTION' && <Box className="w-5 h-5 text-[#3B82F6]" />}
+                            {item.type === 'ANOMALY' && <AlertTriangle className="w-5 h-5 text-[#EF4444]" />}
                           </div>
-                          <div className="text-[9px] font-bold text-[#475569] flex items-center gap-1.5 mt-1 uppercase tracking-tight font-['IBM_Plex_Mono',monospace]">
-                            <Clock className="w-3 h-3" />
-                            {item.timestamp}
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-black text-white whitespace-nowrap tracking-tight">{item.device}</span>
+                              <span className="text-[9px] font-black text-[#94A3B8] bg-white/5 px-2 py-0.5 rounded border border-white/5">
+                                {item.interface}
+                              </span>
+                            </div>
+                            <div className="text-[9px] font-bold text-[#475569] flex items-center gap-1.5 mt-1 uppercase tracking-tight font-['IBM_Plex_Mono',monospace]">
+                              <Clock className="w-3 h-3" />
+                              {item.timestamp}
+                            </div>
                           </div>
                         </div>
-                      </div>
 
-                      {/* COL 2: INCIDENT DESCRIPTION */}
-                      <div className="col-span-3">
-                        <div className="text-[8px] font-black text-[#475569] uppercase mb-1.5 tracking-[0.2em]">Live Inference</div>
-                        <div className={cn(
-                          "text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg bg-[#000]/40 border-2 inline-block leading-tight",
-                          item.status === 'CRITICAL' ? "text-[#EF4444] border-[#EF4444]/20" :
-                            item.status === 'WARNING' ? "text-[#F59E0B] border-[#F59E0B]/20" :
-                              "text-[#3B82F6] border-[#3B82F6]/20"
-                        )}>
-                          {item.event}
-                        </div>
-                      </div>
-
-                      {/* COL 3: SEVERITY */}
-                      <div className="col-span-1 text-center">
-                        <div className="text-[8px] font-black text-[#475569] uppercase mb-1.5 tracking-[0.2em] text-center">State</div>
-                        <div className="flex justify-center">
-                          {item.status === 'CRITICAL' ? (
-                            <div className="bg-[#EF4444]/10 text-[#EF4444] text-[9px] font-black px-2.5 py-1 rounded-full border border-[#EF4444]/20 flex items-center gap-1.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444] animate-pulse" />
-                              CRIT
-                            </div>
-                          ) : (
-                            <div className="bg-[#F59E0B]/10 text-[#F59E0B] text-[9px] font-black px-2.5 py-1 rounded-full border border-[#F59E0B]/20 flex items-center gap-1.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]" />
-                              WARN
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* COL 4: ETA TAG */}
-                      <div className="col-span-2">
-                        <div className="text-[8px] font-black text-[#475569] uppercase mb-1.5 tracking-[0.2em] text-center">Lead Time</div>
-                        <div className="flex justify-center">
-                          {item.type === 'PREDICTION' && item.estimatedWait ? (
+                        {/* COL 2: INCIDENT DESCRIPTION & STEPPER */}
+                        <div className="col-span-8 space-y-4">
+                          <div className="flex items-center gap-4">
                             <div className={cn(
-                              "flex items-center gap-2 text-[10px] font-black px-3 py-1.5 rounded-xl border-2 w-fit",
-                              item.estimatedWait.includes('min') && parseInt(item.estimatedWait.match(/\d+/)?.[0] || '60') <= 15
-                                ? "bg-[#EF4444]/5 text-[#EF4444] border-[#EF4444]/20 shadow-[0_0_15px_rgba(239,68,68,0.1)] animate-pulse"
-                                : "bg-[#3B82F6]/5 text-[#3B82F6] border-[#3B82F6]/20"
+                              "text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg bg-[#000]/40 border-2 inline-block leading-tight",
+                              item.status === 'CRITICAL' ? "text-[#EF4444] border-[#EF4444]/20" :
+                                item.status === 'WARNING' ? "text-[#F59E0B] border-[#F59E0B]/20" :
+                                  "text-[#3B82F6] border-[#3B82F6]/20"
                             )}>
-                              <Clock className="w-3.5 h-3.5" />
-                              {item.estimatedWait}
+                              {item.event}
                             </div>
-                          ) : (
-                            <div className="text-[10px] font-bold text-[#475569] italic opacity-40">-- active --</div>
+                            {item.type === 'PREDICTION' && item.estimatedWait && (
+                              <div className={cn(
+                                "flex items-center gap-2 text-[9px] font-black px-2 py-1 rounded-md border",
+                                item.estimatedWait.includes('min') && parseInt(item.estimatedWait.match(/\d+/)?.[0] || '60') <= 15
+                                  ? "bg-rose-500/10 text-rose-500 border-rose-500/20 shadow-[0_0_10px_rgba(244,63,94,0.1)] animate-pulse"
+                                  : "bg-blue-500/10 text-blue-500 border-blue-500/20"
+                              )}>
+                                <Clock className="w-3 h-3" />
+                                ETA: {item.estimatedWait}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Conditional View: Pattern Stepper vs Individual RF Prediction */}
+                          {item.type === 'PREDICTION' && (
+                            item.id.length % 2 === 0 ? (
+                              /* Pattern Match Stepper View */
+                              <div className="relative pt-2 pb-1 overflow-x-auto no-scrollbar">
+                                <div className="flex items-start gap-1">
+                                  {[1, 2, 3, 4].map((stepIdx) => {
+                                    const totalSteps = 4;
+                                    const matchedCount = Math.round(item.confidence * totalSteps);
+                                    const isMatched = stepIdx <= matchedCount;
+                                    const isNext = stepIdx === matchedCount + 1;
+
+                                    return (
+                                      <div key={stepIdx} className="flex-1 min-w-[120px]">
+                                        <div className="flex items-center w-full mb-2">
+                                          <div className={cn("h-1 flex-1 rounded-l-full", stepIdx === 1 ? "bg-transparent" : (isMatched ? "bg-[#10B981]" : "bg-white/5"))} />
+                                          <div className={cn(
+                                            "w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-black border-2 flex-shrink-0 transition-all",
+                                            isMatched ? "bg-[#10B981] border-[#10B981] text-white shadow-[0_0_10px_rgba(16,185,129,0.3)]" :
+                                              isNext ? "bg-[#F59E0B]/10 border-[#F59E0B] text-[#F59E0B] animate-pulse" :
+                                                "bg-white/5 border-white/10 text-white/20"
+                                          )}>
+                                            {isMatched ? '✓' : stepIdx}
+                                          </div>
+                                          <div className={cn("h-1 flex-1 rounded-r-full", stepIdx === totalSteps ? "bg-transparent" : (isMatched && stepIdx < matchedCount ? "bg-[#10B981]" : "bg-white/5"))} />
+                                        </div>
+                                        <div className="text-center">
+                                          <div className={cn(
+                                            "text-[8px] font-black uppercase tracking-tighter truncate",
+                                            isMatched ? "text-[#10B981]" : isNext ? "text-[#F59E0B]" : "text-white/20"
+                                          )}>
+                                            {stepIdx === 1 ? 'CPU_SPIKE' : stepIdx === 2 ? 'CRC_ERRORS' : stepIdx === 3 ? 'BUFFER_UTIL' : 'LATENCY_MS'}
+                                          </div>
+                                          {isMatched && (
+                                            <div className="text-[7px] text-[#475569] font-bold mt-0.5">CONFIRMED</div>
+                                          )}
+                                          {isNext && (
+                                            <div className="text-[7px] text-[#F59E0B]/70 font-bold mt-0.5 animate-pulse">PREDICTED</div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            ) : (
+                              /* Individual RF Predictions show no extra detail to keep flow clean */
+                              null
+                            )
                           )}
                         </div>
-                      </div>
 
-                      {/* COL 5: PREDICTED SCHEDULE */}
-                      <div className="col-span-2 text-center">
-                        <div className="text-[8px] font-black text-[#475569] uppercase mb-1.5 tracking-[0.2em]">Predicted Window</div>
-                        <div className="flex justify-center">
-                          {item.predictedTime ? (
-                            <div className="text-xs font-black text-white flex items-center gap-2 font-['IBM_Plex_Mono',monospace]">
-                              <div className="w-2 h-0.5 bg-[#3B82F6]" />
-                              {item.predictedTime}
+                        {/* COL 3: SCORE & CONFIDENCE */}
+                        <div className="col-span-1 flex flex-col items-center justify-center gap-2 border-l border-white/5">
+                          <div className="text-[8px] font-black text-[#64748B] uppercase tracking-[0.2em]">Confidence</div>
+                          <div className="relative w-12 h-12 flex items-center justify-center group/donut">
+                            <svg className="w-full h-full transform -rotate-90">
+                              <circle cx="24" cy="24" r="21" stroke="#1f2937" strokeWidth="3" fill="transparent" />
+                              <circle
+                                cx="24"
+                                cy="24"
+                                r="21"
+                                stroke="currentColor"
+                                strokeWidth="3"
+                                fill="transparent"
+                                strokeDasharray={2 * Math.PI * 21}
+                                strokeDashoffset={2 * Math.PI * 21 * (1 - item.confidence)}
+                                className={cn(
+                                  "transition-all duration-1000 ease-out",
+                                  item.confidence > 0.9 ? "text-[#3DDAB4]" :
+                                    item.confidence > 0.8 ? "text-[#3B82F6]" : "text-[#F59E0B]"
+                                )}
+                                strokeLinecap="round"
+                              />
+                            </svg>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <span className="text-[10px] font-black text-white tracking-widest">
+                                {Math.round(item.confidence * 100)}%
+                              </span>
                             </div>
-                          ) : (
-                            <div className="text-xs font-black text-[#EF4444] flex items-center gap-2 font-['IBM_Plex_Mono',monospace]">
-                              <div className="w-2 h-0.5 bg-[#EF4444] animate-pulse" />
-                              IMMEDIATE
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* COL 6: CONFIDENCE DONUT */}
-                      <div className="col-span-1 flex justify-end">
-                        <div className="relative w-14 h-14 flex items-center justify-center group/donut">
-                          <svg className="w-full h-full transform -rotate-90">
-                            <circle cx="28" cy="28" r="24" stroke="#1f2937" strokeWidth="4" fill="transparent" />
-                            <circle
-                              cx="28"
-                              cy="28"
-                              r="24"
-                              stroke="currentColor"
-                              strokeWidth="4"
-                              fill="transparent"
-                              strokeDasharray={2 * Math.PI * 24}
-                              strokeDashoffset={2 * Math.PI * 24 * (1 - item.confidence)}
-                              className={cn(
-                                "transition-all duration-1000 ease-out",
-                                item.confidence > 0.9 ? "text-[#3DDAB4]" :
-                                  item.confidence > 0.8 ? "text-[#3B82F6]" : "text-[#F59E0B]"
-                              )}
-                              strokeLinecap="round"
-                            />
-                          </svg>
-                          <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-xs font-black text-white tracking-widest">
-                              {Math.round(item.confidence * 100)}
-                            </span>
-                            <span className="text-[7px] font-black text-[#475569] -mt-1 uppercase tracking-widest">Conf</span>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </Card>
-                ))
-              ) : (
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {stats.polls >= 5 && viewMode === 'patterns' && (
                 <div className="flex flex-col gap-[1px] bg-white/5 border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
                   {/* Table Header */}
                   <div className="flex items-center px-8 py-4 bg-[#0F172A] border-b border-white/5 font-['IBM_Plex_Mono',monospace] text-[9px] text-[#64748B] uppercase tracking-[0.07em]">
@@ -724,12 +882,12 @@ export default function LiveInferencePage() {
                         {isOp && (
                           <div className="det bg-[#0b0f1a] border-t border-white/5 animate-in slide-in-from-top-2 duration-300">
                             {/* horizontal stepper container */}
-                            <div className="stpr px-8 py-10 pb-12 bg-[#0b0f1a] overflow-x-auto no-scrollbar">
+                            <div className="stpr px-8 py-10 pb-6 bg-[#0b0f1a] overflow-x-auto no-scrollbar">
                               <div className="stpr-h text-[9px] text-[#7f8ea3] font-['IBM_Plex_Mono',monospace] mb-8 flex items-center gap-2 sticky left-0">
                                 <div className="stpr-dot w-1 h-1 rounded-full" style={{ background: bclr }}></div>
                                 {isCf ? 'full pattern matched — sequence confirmed' : `predicting ${pat.templateId.toLowerCase()} · ${CHAIN_TEMPLATES[pat.templateId].steps.length - (pat.currentStep + 1)} steps remaining`}
                               </div>
-                              
+
                               <div className="flex items-start">
                                 {CHAIN_TEMPLATES[pat.templateId].steps.map((step, i) => {
                                   const stepState = pat.steps[i];
@@ -741,7 +899,7 @@ export default function LiveInferencePage() {
 
                                   const pOk = i > 0 && (pat.steps[i - 1]?.status === 'arrived' || (i - 1 <= pat.currentStep && !pat.steps[i - 1]));
                                   const pGap = i > 0 && pat.steps[i - 1]?.status === 'gap';
-                                  
+
                                   const cLeft = i === 0 ? 'cn' : (pOk ? 'cg' : (pGap ? 'cg2' : (i === pat.currentStep + 1 ? 'cy2' : 'cd')));
                                   const cRight = i === CHAIN_TEMPLATES[pat.templateId].steps.length - 1 ? 'cn' : (isArrived && i < pat.currentStep ? 'cg' : (isGap ? 'cg2' : (isNxt ? 'cy2' : 'cd')));
 
@@ -753,7 +911,7 @@ export default function LiveInferencePage() {
                                       {/* Node & Lines Row */}
                                       <div className="w-full flex items-center h-[24px] mb-4">
                                         <div className={cn("h-[2px] flex-1", cLeft)}></div>
-                                        <div className={cn("sn w-[20px] h-[20px] rounded-full flex items-center justify-center text-[8px] font-bold border-2 mx-2 flex-shrink-0 transition-transform group-hover:scale-110", 
+                                        <div className={cn("sn w-[20px] h-[20px] rounded-full flex items-center justify-center text-[8px] font-bold border-2 mx-2 flex-shrink-0 transition-transform group-hover:scale-110",
                                           isCfN ? "sn-cf" : isArrived ? "sn-ok" : isGap ? "sn-gap" : isNxt ? "sn-nxt" : "sn-fut")}>
                                           {isArrived ? '✓' : isGap ? '' : i + 1}
                                         </div>
@@ -763,12 +921,12 @@ export default function LiveInferencePage() {
                                       {/* Content below line */}
                                       <div className="flex flex-col items-center text-center px-4 w-full">
                                         {!isGap && (
-                                          <div className={cn("ec2 text-[7px] px-1.5 py-0.5 rounded mb-1.5 font-['IBM_Plex_Mono',monospace] uppercase tracking-wider", 
+                                          <div className={cn("ec2 text-[7px] px-1.5 py-0.5 rounded mb-1.5 font-['IBM_Plex_Mono',monospace] uppercase tracking-wider",
                                             isArrived ? (step.subLabel.includes('TRAP') ? 'ec-t' : 'ec-m') : isNxt ? 'ec-p' : 'ec-m')}>
                                             {isArrived ? (step.subLabel || 'METRIC POLL') : isNxt ? 'PREDICTED' : 'PENDING'}
                                           </div>
                                         )}
-                                        <div className={cn("sl text-[10px] font-bold font-['IBM_Plex_Mono',monospace] tracking-tight mb-2 h-[24px] flex items-center justify-center leading-tight line-clamp-2", 
+                                        <div className={cn("sl text-[10px] font-bold font-['IBM_Plex_Mono',monospace] tracking-tight mb-2 h-[24px] flex items-center justify-center leading-tight line-clamp-2",
                                           isCfN ? "sl-cf" : isArrived ? "sl-ok" : isGap ? "sl-gap" : isNxt ? "sl-nxt" : "sl-fut")}>
                                           {step.label.split('_').join(' ')}
                                         </div>
@@ -800,12 +958,6 @@ export default function LiveInferencePage() {
                                             <div className="text-[9px] font-bold text-[#475569] italic uppercase">MISSED</div>
                                           </div>
                                         )}
-
-                                        {isNxt && i > 0 && (
-                                          <div className="text-[8px] text-[#3d5066] mt-3 leading-relaxed max-w-[140px] italic opacity-80 border-t border-white/5 pt-2">
-                                            {CHAIN_TEMPLATES[pat.templateId].steps[i - 1].description}
-                                          </div>
-                                        )}
                                       </div>
                                     </div>
                                   );
@@ -818,7 +970,7 @@ export default function LiveInferencePage() {
                     );
                   })}
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </div>

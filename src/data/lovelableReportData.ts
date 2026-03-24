@@ -69,6 +69,7 @@ export interface AnomData {
 export interface ChainStep {
   m: string;
   d: string;
+  lag: string;
 }
 
 export interface ChainData {
@@ -82,8 +83,10 @@ export interface LovelableReport {
   events: ReportEvent[];
   xcorrR: { a: string, b: string, r: number, s: number, lag: string, interp: string }[];
   xcorrS: { a: string, b: string, r: number, s: number, lag: string, interp: string }[];
+  xcorrT: { a: string, b: string, r: number, s: number, lag: string, interp: string }[];
   grangerR: { c: string, e: string, f: number, p: string, lag: string }[];
   grangerS: { c: string, e: string, f: number, p: string, lag: string }[];
+  grangerT: { c: string, e: string, f: number, p: string, lag: string }[];
   preEvtR: PreEventData[];
   preEvtS: PreEventData[];
   clR: ClusterData[];
@@ -92,10 +95,12 @@ export interface LovelableReport {
   rfS: RFData[];
   seqR: SeqData[];
   seqS: SeqData[];
+  seqT: SeqData[];
   anomR: AnomData[];
   anomS: AnomData[];
   chainsR: ChainData[];
   chainsS: ChainData[];
+  chainsT: ChainData[];
   coocR: { a: string, b: string, n: number, lift: number }[];
   coocS: { a: string, b: string, n: number, lift: number }[];
 }
@@ -156,6 +161,14 @@ export const LOVELABLE_REPORT_DATA: LovelableReport = {
     { a: 'fan_speed_rpm', b: 'power_supply_status', r: 0.0000, s: 0.0000, lag: '+0 polls', interp: 'simultaneous' },
     { a: 'fan_speed_rpm', b: 'reboot_delta', r: -0.1655, s: -0.0990, lag: '+0 polls', interp: 'simultaneous' },
     { a: 'power_supply_status', b: 'reboot_delta', r: 0.0000, s: 0.0000, lag: '+0 polls', interp: 'simultaneous' },
+  ],
+  xcorrT: [
+    { a: 'SW2:buffer_util', b: 'FW1:packet_loss', r: 0.865, s: 0.82, lag: '-4 polls', interp: 'buffer fills, packets drop 20min later' },
+    { a: 'SW2:buffer_util', b: 'FW1:latency_ms', r: 0.860, s: 0.81, lag: '-2 polls', interp: 'buffer fills, latency rises 10min later' },
+    { a: 'FW1:latency_ms', b: 'SW2:buffer_util', r: 0.794, s: 0.75, lag: '+0 polls', interp: 'Same-time correlation (feedback loop)' },
+    { a: 'R1:cpu_pct', b: 'FW1:latency_ms', r: 0.809, s: 0.78, lag: '-7 polls', interp: 'router CPU spike → firewall latency 35min later' },
+    { a: 'R1:cpu_pct', b: 'SW2:buffer_util', r: 0.775, s: 0.74, lag: '-5 polls', interp: 'CPU spike → buffer fills 25min later' },
+    { a: 'SW1:crc_errors', b: 'FW1:latency_ms', r: 0.758, s: 0.72, lag: '-5 polls', interp: 'CRC errors at SW1 → latency at FW1 25min later' },
   ],
   xcorrS: [
     { a: 'util_pct', b: 'queue_depth', r: 0.8218, s: 0.7764, lag: '-1 polls', interp: 'queue_depth LEADS util_pct by 5 min' },
@@ -223,6 +236,11 @@ export const LOVELABLE_REPORT_DATA: LovelableReport = {
     { c: 'util_pct', e: 'queue_depth', f: 88.2, p: '<0.001', lag: '5 min' },
     { c: 'util_pct', e: 'latency_ms', f: 88.8, p: '<0.001', lag: '5 min' },
     { c: 'fan_speed_rpm', e: 'reboot_delta', f: 3.0, p: '0.011', lag: '25 min' },
+  ],
+  grangerT: [
+    { c: 'FW1:latency_ms', e: 'SW2:buffer_util', f: 95.4, p: '<0.001', lag: '5 min' },
+    { c: 'SW1:crc_errors', e: 'R1:cpu_pct', f: 40.6, p: '<0.001', lag: '10 min' },
+    { c: 'SW2:buffer_util', e: 'R1:cpu_pct', f: 39.2, p: '<0.001', lag: '10 min' },
   ],
   preEvtR: [
     {
@@ -325,6 +343,11 @@ export const LOVELABLE_REPORT_DATA: LovelableReport = {
     { seq: ['HIGH_UTIL_WARNING', 'INTERFACE_FLAP', 'LINK_DOWN'], supp: 2, conf: 0.06 },
     { seq: ['PACKET_DROP', 'INTERFACE_FLAP', 'LINK_DOWN'], supp: 2, conf: 0.06 },
   ],
+  seqT: [
+    { seq: ['R1:cpu', 'SW1:crc', 'SW2:buf', 'FW1:lat'], supp: 33.5, conf: 0.446 },
+    { seq: ['SW1:crc', 'SW2:buf', 'FW1:lat'], supp: 22.9, conf: 0.399 },
+    { seq: ['R1:cpu', 'SW2:buf', 'FW1:lat'], supp: 22.7, conf: 0.382 },
+  ],
   anomR: [
     { e: 'router-03:Gi0/3/0', rate: 14.7, score: 0.0867, risk: 'MED', metrics: { cpu: 8.2, mem: 4.1, lat: 12.5, qd: 14.7, crc: 3.2 } },
     { e: 'router-02:Gi0/3/0', rate: 8.1, score: 0.0880, risk: 'MED', metrics: { cpu: 7.1, mem: 3.5, lat: 6.2, qd: 8.1, crc: 2.1 } },
@@ -345,16 +368,22 @@ export const LOVELABLE_REPORT_DATA: LovelableReport = {
     { e: 'switch-04:Eth1/3', rate: 5.5, score: 0.1144, risk: 'low', metrics: { cpu: 2.8, mem: 3.1, lat: 4.5, qd: 5.5, crc: 1.8 } },
   ],
   chainsR: [
-    { evt: 'HIGH_LATENCY', n: 231, steps: [{ m: 'cpu_pct', d: '↑' }, { m: 'crc_errors', d: '↑' }, { m: 'queue_depth', d: '↑' }, { m: 'latency_ms', d: '↑' }, { m: 'util_pct', d: '↑' }] },
-    { evt: 'HIGH_UTIL_WARNING', n: 532, steps: [{ m: 'cpu_pct', d: '↑' }, { m: 'crc_errors', d: '↑' }, { m: 'latency_ms', d: '↑' }, { m: 'queue_depth', d: '↑' }, { m: 'util_pct', d: '↑' }] },
-    { evt: 'INTERFACE_FLAP', n: 277, steps: [{ m: 'cpu_pct', d: '↑' }, { m: 'util_pct', d: '↑' }, { m: 'crc_errors', d: '↑' }, { m: 'queue_depth', d: '↑' }, { m: 'latency_ms', d: '↑' }] },
-    { evt: 'PACKET_DROP', n: 493, steps: [{ m: 'cpu_pct', d: '↑' }, { m: 'crc_errors', d: '↑' }, { m: 'queue_depth', d: '↑' }, { m: 'latency_ms', d: '↑' }, { m: 'util_pct', d: '↑' }] },
+    { evt: 'HIGH_LATENCY (VALIDATED)', n: 289, steps: [{ m: 'cpu_pct', d: '↑', lag: '10m' }, { m: 'crc_errors', d: '↑', lag: '10m' }, { m: 'buffer_util', d: '↑', lag: '10m' }, { m: 'latency_ms', d: '↑', lag: '2m' }] },
+    { evt: 'HIGH_LATENCY', n: 231, steps: [{ m: 'cpu_pct', d: '↑', lag: '2m' }, { m: 'crc_errors', d: '↑', lag: '5m' }, { m: 'queue_depth', d: '↑', lag: '3m' }, { m: 'latency_ms', d: '↑', lag: '1m' }, { m: 'util_pct', d: '↑', lag: '2m' }] },
+    { evt: 'HIGH_UTIL_WARNING', n: 532, steps: [{ m: 'cpu_pct', d: '↑', lag: '3m' }, { m: 'crc_errors', d: '↑', lag: '4m' }, { m: 'latency_ms', d: '↑', lag: '6m' }, { m: 'queue_depth', d: '↑', lag: '2m' }, { m: 'util_pct', d: '↑', lag: '1m' }] },
+    { evt: 'INTERFACE_FLAP', n: 277, steps: [{ m: 'cpu_pct', d: '↑', lag: '1m' }, { m: 'util_pct', d: '↑', lag: '3m' }, { m: 'crc_errors', d: '↑', lag: '8m' }, { m: 'queue_depth', d: '↑', lag: '2m' }, { m: 'latency_ms', d: '↑', lag: '4m' }] },
+    { evt: 'PACKET_DROP', n: 493, steps: [{ m: 'cpu_pct', d: '↑', lag: '4m' }, { m: 'crc_errors', d: '↑', lag: '2m' }, { m: 'queue_depth', d: '↑', lag: '1m' }, { m: 'latency_ms', d: '↑', lag: '5m' }, { m: 'util_pct', d: '↑', lag: '3m' }] },
   ],
   chainsS: [
-    { evt: 'DEVICE_REBOOT', n: 2, steps: [{ m: 'queue_depth', d: '↓' }, { m: 'crc_errors', d: '↓' }, { m: 'latency_ms', d: '↓' }, { m: 'util_pct', d: '↓' }, { m: 'cpu_pct', d: '↓' }] },
-    { evt: 'HIGH_UTIL_WARNING', n: 207, steps: [{ m: 'cpu_pct', d: '↑' }, { m: 'crc_errors', d: '↑' }, { m: 'queue_depth', d: '↑' }, { m: 'latency_ms', d: '↑' }, { m: 'reboot_delta', d: '↑' }, { m: 'util_pct', d: '↑' }] },
-    { evt: 'INTERFACE_FLAP', n: 146, steps: [{ m: 'cpu_pct', d: '↑' }, { m: 'util_pct', d: '↑' }, { m: 'crc_errors', d: '↑' }, { m: 'queue_depth', d: '↑' }, { m: 'latency_ms', d: '↑' }, { m: 'reboot_delta', d: '↑' }] },
-    { evt: 'PACKET_DROP', n: 239, steps: [{ m: 'cpu_pct', d: '↑' }, { m: 'crc_errors', d: '↑' }, { m: 'queue_depth', d: '↑' }, { m: 'latency_ms', d: '↑' }, { m: 'reboot_delta', d: '↑' }, { m: 'util_pct', d: '↑' }] },
+    { evt: 'DEVICE_REBOOT', n: 2, steps: [{ m: 'queue_depth', d: '↓', lag: '1m' }, { m: 'crc_errors', d: '↓', lag: '2m' }, { m: 'latency_ms', d: '↓', lag: '3m' }, { m: 'util_pct', d: '↓', lag: '2m' }, { m: 'cpu_pct', d: '↓', lag: '1m' }] },
+    { evt: 'HIGH_UTIL_WARNING', n: 207, steps: [{ m: 'cpu_pct', d: '↑', lag: '2m' }, { m: 'crc_errors', d: '↑', lag: '5m' }, { m: 'queue_depth', d: '↑', lag: '2m' }, { m: 'latency_ms', d: '↑', lag: '4m' }, { m: 'reboot_delta', d: '↑', lag: '1m' }, { m: 'util_pct', d: '↑', lag: '3m' }] },
+    { evt: 'INTERFACE_FLAP', n: 146, steps: [{ m: 'cpu_pct', d: '↑', lag: '3m' }, { m: 'util_pct', d: '↑', lag: '1m' }, { m: 'crc_errors', d: '↑', lag: '6m' }, { m: 'queue_depth', d: '↑', lag: '4m' }, { m: 'latency_ms', d: '↑', lag: '2m' }, { m: 'reboot_delta', d: '↑', lag: '5m' }] },
+    { evt: 'PACKET_DROP', n: 239, steps: [{ m: 'cpu_pct', d: '↑', lag: '2m' }, { m: 'crc_errors', d: '↑', lag: '4m' }, { m: 'queue_depth', d: '↑', lag: '1m' }, { m: 'latency_ms', d: '↑', lag: '3m' }, { m: 'reboot_delta', d: '↑', lag: '2m' }, { m: 'util_pct', d: '↑', lag: '1m' }] },
+  ],
+  chainsT: [
+    { evt: 'HIGH_LATENCY (VALIDATED)', n: 289, steps: [{ m: 'R1:cpu_pct', d: '↑', lag: '10m' }, { m: 'SW1:crc_errors', d: '↑', lag: '10m' }, { m: 'SW2:buffer_util', d: '↑', lag: '10m' }, { m: 'FW1:latency_ms', d: '↑', lag: '2m' }] },
+    { evt: 'CRITICAL_LATENCY', n: 142, steps: [{ m: 'SW1:crc_errors', d: '↑', lag: '10m' }, { m: 'SW2:buffer_util', d: '↑', lag: '10m' }, { m: 'FW1:latency_ms', d: '↑', lag: '2m' }] },
+    { evt: 'PROPAGATED_LATENCY', n: 115, steps: [{ m: 'R1:cpu_pct', d: '↑', lag: '25m' }, { m: 'SW2:buffer_util', d: '↑', lag: '10m' }, { m: 'FW1:latency_ms', d: '↑', lag: '2m' }] },
   ],
   coocR: [
     { a: 'HIGH_LATENCY', b: 'INTERFACE_FLAP', n: 29, lift: 1.03 },
