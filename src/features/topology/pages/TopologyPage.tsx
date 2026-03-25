@@ -207,7 +207,7 @@ const Topology = () => {
                         </div>
                     </div>
 
-                    <Card className="border border-border/50 bg-card/30 backdrop-blur-md shadow-2xl overflow-hidden h-[calc(100vh-180px)]">
+                    <Card className="border border-border/50 bg-card/30 backdrop-blur-md shadow-2xl overflow-hidden min-h-[900px] mb-10">
                         <CardHeader className="pb-2 border-b border-border/10 bg-muted/20">
                             <div className="flex items-center justify-between">
                                 <CardTitle className="text-xs font-bold flex items-center gap-2 text-primary uppercase tracking-widest">

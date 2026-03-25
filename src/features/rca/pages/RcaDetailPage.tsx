@@ -1,19 +1,244 @@
-import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/shared/components/layout/MainLayout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { Badge } from '@/shared/components/ui/badge';
 import { Button } from '@/shared/components/ui/button';
-import {
-    ArrowLeft, CheckCircle2, Activity, GitBranch, Database, Brain, Target, Layers, Network, ArrowRight
-} from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 import { getClusterData } from '@/features/rca/data/clusterData';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { TimelineFlow } from '@/components/rca/TimelineFlow';
+import { Tabs, Tab, Paper, ThemeProvider, createTheme } from '@mui/material';
+import { useTheme as useNextTheme } from 'next-themes';
+import '@/styles/rcaPlayground.css';
 
+// ──────────────────────────────────────────────────────
+// Section renderer: matches "sections" array format
+// ──────────────────────────────────────────────────────
+function SectionItem({ section }: { section: any }) {
+    return (
+        <div style={{ marginBottom: 16 }}>
+            <div style={{
+                fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase',
+                letterSpacing: '0.08em', color: 'var(--rca-text-secondary)', marginBottom: 6
+            }}>
+                {section.title}
+            </div>
+
+            {section.type === 'text' && (
+                <p style={{ fontSize: '0.92rem', color: 'var(--rca-text-primary)', lineHeight: 1.6, margin: 0 }}>
+                    {section.content}
+                </p>
+            )}
+
+            {section.type === 'kv' && (
+                <div className="rca-grid">
+                    {Object.entries(section.content as Record<string, string>).map(([k, v]) => (
+                        <>
+                            <div key={`k-${k}`} className="rca-k">{k}</div>
+                            <div key={`v-${k}`} className="rca-v">{v}</div>
+                        </>
+                    ))}
+                </div>
+            )}
+
+            {section.type === 'list' && (
+                <div style={{ fontSize: '0.88rem', color: 'var(--rca-text-primary)' }}>
+                    {(section.content as string[]).map((item, i) => (
+                        <div key={i} style={{ display: 'flex', gap: 6, padding: '3px 0' }}>
+                            <span style={{ color: 'var(--rca-text-secondary)' }}>•</span>
+                            <span style={{ wordBreak: 'break-word', lineHeight: 1.5 }}>{item}</span>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {section.type === 'scored-list' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    {(section.content as any[]).map((item, i) => (
+                        <div key={i}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                                <span style={{ fontWeight: 700, fontSize: '0.88rem', color: 'var(--rca-text-primary)' }}>{item.label}</span>
+                                <span style={{
+                                    fontSize: '0.75rem', fontFamily: 'monospace', fontWeight: 700,
+                                    background: 'rgba(59,130,246,0.15)', color: '#60a5fa',
+                                    border: '1px solid rgba(59,130,246,0.3)', borderRadius: 4, padding: '1px 7px'
+                                }}>{item.displayScore}</span>
+                            </div>
+                            <div style={{ height: 4, background: 'rgba(0,0,0,0.2)', borderRadius: 4, overflow: 'hidden' }}>
+                                <div style={{
+                                    height: '100%',
+                                    width: `${Math.min(item.score, 100)}%`,
+                                    borderRadius: 4,
+                                    background: item.score >= 80 ? '#10b981' : item.score >= 50 ? '#f59e0b' : '#3b82f6',
+                                    transition: 'width 0.5s ease'
+                                }} />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            {section.type === 'table' && section.columns && (
+                <div style={{ border: '1px solid var(--rca-border-color)', borderRadius: 6, overflow: 'hidden', fontSize: '0.85rem' }}>
+                    <Table>
+                        <TableHeader>
+                            <TableRow style={{ background: 'var(--rca-bg-tertiary)' }}>
+                                {section.columns.map((col: any) => (
+                                    <TableHead key={col.key} className={cn("text-[10px] font-bold h-7 py-1 px-3", col.align === 'right' ? "text-right" : "")}>
+                                        {col.label}
+                                    </TableHead>
+                                ))}
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {(section.content as Record<string, any>[]).map((row, rIdx) => (
+                                <TableRow key={rIdx}>
+                                    {section.columns.map((col: any) => (
+                                        <TableCell key={col.key} className={cn("text-[11px] py-1.5 px-3", col.align === 'right' ? "text-right font-mono" : "")}>
+                                            {col.key === 'match' || col.key === 'score' ? (
+                                                <span style={{
+                                                    fontSize: '0.75rem', fontWeight: 700, padding: '1px 7px', borderRadius: 4,
+                                                    background: parseInt(row[col.key]) > 80 ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)',
+                                                    color: parseInt(row[col.key]) > 80 ? '#10b981' : '#f59e0b'
+                                                }}>{row[col.key]}</span>
+                                            ) : (
+                                                <span style={{ color: 'var(--rca-text-primary)' }}>{row[col.key]}</span>
+                                            )}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ──────────────────────────────────────────────────────
+// Metadata renderer: for generateRCASteps() format
+// ──────────────────────────────────────────────────────
+function MetadataStepContent({ details }: { details: any }) {
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            {/* Input */}
+            {details.input && details.input.length > 0 && (
+                <div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--rca-text-secondary)', marginBottom: 6 }}>Input</div>
+                    <div style={{ fontSize: '0.88rem', color: 'var(--rca-text-primary)' }}>
+                        {details.input.map((item: string, i: number) => (
+                            <div key={i} style={{ display: 'flex', gap: 6, padding: '2px 0' }}>
+                                <span style={{ color: 'var(--rca-text-secondary)' }}>•</span>
+                                <span>{item}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Processing */}
+            {details.processing && (
+                <div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--rca-text-secondary)', marginBottom: 6 }}>Processing</div>
+                    <p style={{ fontSize: '0.92rem', color: 'var(--rca-text-primary)', lineHeight: 1.6, margin: 0 }}>{details.processing}</p>
+                </div>
+            )}
+
+            {/* Bullet Points */}
+            {details.bulletPoints && details.bulletPoints.length > 0 && (
+                <div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--rca-text-secondary)', marginBottom: 6 }}>Steps</div>
+                    <div style={{ fontSize: '0.88rem', color: 'var(--rca-text-primary)' }}>
+                        {details.bulletPoints.map((bp: string, i: number) => (
+                            <div key={i} style={{ display: 'flex', gap: 6, padding: '2px 0' }}>
+                                <span style={{ color: '#3b82f6' }}>•</span>
+                                <span>{bp}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Metadata KV */}
+            {details.metadata && Object.keys(details.metadata).length > 0 && (
+                <div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--rca-text-secondary)', marginBottom: 6 }}>Details</div>
+                    <div className="rca-grid">
+                        {Object.entries(details.metadata as Record<string, any>).map(([k, v]) => (
+                            <>
+                                <div key={`k-${k}`} className="rca-k">{k}</div>
+                                <div key={`v-${k}`} className="rca-v">{Array.isArray(v) ? v.join(', ') : String(v)}</div>
+                            </>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {/* Output */}
+            {details.output && (
+                <div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--rca-text-secondary)', marginBottom: 6 }}>Output</div>
+                    <p style={{ fontSize: '0.92rem', color: 'var(--rca-text-primary)', lineHeight: 1.6, margin: 0 }}>{details.output}</p>
+                </div>
+            )}
+
+            {/* Duration */}
+            {details.duration && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--rca-text-secondary)' }}>Duration:</span>
+                    <span style={{
+                        fontSize: '0.78rem', fontFamily: 'monospace', fontWeight: 700,
+                        background: 'rgba(16,185,129,0.15)', color: '#10b981',
+                        border: '1px solid rgba(16,185,129,0.3)', borderRadius: 4, padding: '1px 8px'
+                    }}>{details.duration}</span>
+                </div>
+            )}
+
+            {/* Raw Output */}
+            {details.rawOutput && (
+                <div>
+                    <div style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--rca-text-secondary)', marginBottom: 6 }}>Raw Output</div>
+                    <pre style={{
+                        margin: 0, padding: '10px 14px',
+                        background: 'var(--rca-bg-tertiary)', color: 'var(--rca-text-primary)',
+                        borderRadius: 6, fontSize: '0.75rem', overflow: 'auto',
+                        whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                        border: '1px solid var(--rca-border-color)'
+                    }}>{details.rawOutput}</pre>
+                </div>
+            )}
+        </div>
+    );
+}
+
+// ──────────────────────────────────────────────────────
+// Main Page
+// ──────────────────────────────────────────────────────
 export default function RCADetailPage() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { theme: appTheme, systemTheme } = useNextTheme();
+    const isDark = appTheme === 'dark' || (appTheme === 'system' && systemTheme === 'dark');
+
+    const muiTheme = useMemo(() => createTheme({
+        palette: {
+            mode: isDark ? 'dark' : 'light',
+            primary: { main: '#3b82f6' },
+            background: { default: 'transparent', paper: isDark ? '#12172b' : '#ffffff' },
+            text: {
+                primary: isDark ? '#e8ecf5' : '#1e293b',
+                secondary: isDark ? '#8b94b0' : '#64748b'
+            },
+            divider: isDark ? '#2a3354' : '#e2e8f0'
+        },
+        typography: { fontFamily: '"Outfit", "Inter", "Roboto", "Helvetica", "Arial", sans-serif' },
+        components: {
+            MuiPaper: { styleOverrides: { root: { backgroundImage: 'none', borderColor: isDark ? '#2a3354' : '#e2e8f0' } } }
+        }
+    }), [isDark]);
+
     const clusterData = getClusterData(id || 'CLU-LC-001');
     const [activeTab, setActiveTab] = useState(0);
 
@@ -30,22 +255,39 @@ export default function RCADetailPage() {
 
     const steps = clusterData.rcaProcessSteps;
     const activeStep = steps[activeTab];
-    const stepIcons = [Activity, GitBranch, Target, Brain, Layers, Database, Network];
+
+    const tlSteps = steps.map((s, i) => ({
+        step: i,
+        title: s.name,
+        tl_title: s.name,
+        tl_desc: s.status === 'complete' ? 'Done' : s.status === 'active' ? 'In Progress...' : 'Pending...',
+    }));
+
+    const currentIdx = steps.reduce(
+        (acc, s, i) => (s.status === 'complete' || s.status === 'active' ? i : acc), -1
+    );
+
+    // Step icon emojis matching RCA steps
+    const stepIcons = ['🚨', '📊', '🎯', '🔍', '📋', '📚', '🔗'];
 
     return (
         <MainLayout>
-            <div className="h-screen flex flex-col overflow-hidden">
-                {/* Fixed Compact Header */}
-                <div className="shrink-0 border-b border-border/50 bg-background/95 backdrop-blur-sm px-4 py-2">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => navigate(`/events?cluster=${id}&openSidebar=rca`)}>
+            <ThemeProvider theme={muiTheme}>
+                <div style={{ padding: '16px 24px' }}>
+
+                    {/* Header */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <Button
+                                variant="ghost" size="icon" className="h-7 w-7"
+                                onClick={() => navigate(`/events?cluster=${id}&openSidebar=rca`)}
+                            >
                                 <ArrowLeft className="h-3.5 w-3.5" />
                             </Button>
                             <div>
-                                <h1 className="text-base font-bold leading-tight">RCA Analysis Flow</h1>
-                                <p className="text-[10px] text-muted-foreground">
-                                    <span className="font-mono">{id}</span> • {clusterData.rootCause?.split(':')[0]}
+                                <h1 style={{ fontSize: '1rem', fontWeight: 700, lineHeight: 1.2, margin: 0 }}>RCA Analysis Flow</h1>
+                                <p style={{ fontSize: '0.7rem', color: 'var(--rca-text-secondary)', margin: 0 }}>
+                                    <span style={{ fontFamily: 'monospace' }}>{id}</span> • {clusterData.rootCause?.split(':')[0]}
                                 </p>
                             </div>
                         </div>
@@ -53,182 +295,73 @@ export default function RCADetailPage() {
                             {((clusterData.confidence || 0) * 100).toFixed(0)}% Conf
                         </Badge>
                     </div>
-                </div>
 
-                {/* Main Content Area */}
-                <div className="flex-1 overflow-hidden flex">
-                    {/* Left Sidebar - Pipeline Steps */}
-                    <div className="w-48 shrink-0 border-r border-border/50 bg-muted/20 overflow-y-auto">
-                        <div className="p-3 space-y-1.5">
-                            {steps.map((step, index) => {
-                                const Icon = stepIcons[index] || Activity;
-                                const isActive = index === activeTab;
-                                const isComplete = index < activeTab || step.status === 'complete';
+                    {/* Horizontal Timeline */}
+                    <TimelineFlow steps={tlSteps} currentIdx={currentIdx} />
 
-                                return (
-                                    <button
-                                        key={step.id}
-                                        onClick={() => setActiveTab(index)}
-                                        className={cn(
-                                            "w-full flex items-center gap-2 p-2 rounded-lg border transition-all text-left",
-                                            isActive
-                                                ? "border-primary bg-primary/10 shadow-sm"
-                                                : isComplete
-                                                    ? "border-emerald-200 bg-emerald-50/50 hover:bg-emerald-50"
-                                                    : "border-border bg-background hover:bg-muted/50"
-                                        )}
-                                    >
-                                        <div className={cn(
-                                            "h-7 w-7 rounded-md flex items-center justify-center shrink-0 transition-all",
-                                            isActive
-                                                ? "bg-primary text-white"
-                                                : isComplete
-                                                    ? "bg-emerald-500 text-white"
-                                                    : "bg-muted text-muted-foreground"
-                                        )}>
-                                            {isComplete && !isActive ? (
-                                                <CheckCircle2 className="h-3.5 w-3.5" />
-                                            ) : (
-                                                <Icon className="h-3.5 w-3.5" />
-                                            )}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className={cn(
-                                                "text-[10px] font-bold leading-tight truncate",
-                                                isActive ? "text-primary" : isComplete ? "text-emerald-700" : "text-foreground/70"
-                                            )}>
-                                                {step.name}
-                                            </p>
-                                            {isActive && (
-                                                <p className="text-[8px] text-muted-foreground truncate">{step.description}</p>
-                                            )}
-                                        </div>
-                                        {isActive && <ArrowRight className="h-3 w-3 text-primary shrink-0" />}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    </div>
+                    {/* MUI Tabs */}
+                    <Paper sx={{ borderBottom: 1, borderColor: 'divider', mb: 2, pt: 1, pb: 0 }}>
+                        <Tabs
+                            value={activeTab}
+                            onChange={(_e, val) => setActiveTab(val)}
+                            variant="scrollable"
+                            scrollButtons="auto"
+                            sx={{
+                                minHeight: '44px',
+                                '& .MuiTab-root': {
+                                    textTransform: 'none', fontWeight: 600, fontSize: '0.85rem',
+                                    color: 'var(--rca-text-secondary)', minHeight: '44px',
+                                },
+                                '& .Mui-selected': { color: '#2563eb !important' },
+                                '& .MuiTabs-indicator': { backgroundColor: '#2563eb', height: '3px', borderRadius: '3px 3px 0 0' }
+                            }}
+                        >
+                            {steps.map((s, i) => (
+                                <Tab key={i} label={s.name} />
+                            ))}
+                        </Tabs>
+                    </Paper>
 
-                    {/* Right Content Area - Step Details */}
-                    <div className="flex-1 overflow-y-auto p-3">
-                        {activeStep?.details.sections ? (
-                            <div className="grid grid-cols-3 gap-2 auto-rows-min">
-                                {activeStep.details.sections.map((section, idx) => {
-                                    const isTable = section.type === 'table';
-                                    const isLongList = section.type === 'list' && (section.content as string[]).length > 5;
-                                    const colSpan = isTable || isLongList ? 'col-span-3' : 'col-span-1';
-
-                                    return (
-                                        <Card key={idx} className={cn("border border-border/40 shadow-sm", colSpan)}>
-                                            <CardHeader className="pb-1.5 px-2.5 pt-2 bg-muted/30 border-b border-border/20">
-                                                <CardTitle className="text-[10px] font-bold text-foreground uppercase tracking-wide">
-                                                    {section.title}
-                                                </CardTitle>
-                                            </CardHeader>
-                                            <CardContent className="p-2.5">
-                                                {/* KV Type */}
-                                                {section.type === 'kv' && (
-                                                    <div className="space-y-2">
-                                                        {Object.entries(section.content as Record<string, string>).map(([k, v]) => (
-                                                            <div key={k} className="space-y-0.5">
-                                                                <p className="text-[8px] text-muted-foreground font-bold uppercase tracking-wide">{k}</p>
-                                                                <p className="text-[11px] font-semibold text-foreground leading-tight">{v}</p>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-
-                                                {/* Scored List */}
-                                                {section.type === 'scored-list' && (
-                                                    <div className="space-y-2">
-                                                        {(section.content as any[]).map((item, i) => (
-                                                            <div key={i} className="space-y-1">
-                                                                <div className="flex justify-between items-center gap-2">
-                                                                    <span className="font-bold text-[10px] text-foreground truncate">{item.label}</span>
-                                                                    <Badge variant="outline" className="text-[8px] h-3.5 font-mono px-1 border-primary/30 bg-primary/10 text-primary font-bold shrink-0">
-                                                                        {item.displayScore}
-                                                                    </Badge>
-                                                                </div>
-                                                                <div className="h-1 w-full bg-secondary/40 rounded-full overflow-hidden">
-                                                                    <div
-                                                                        className={cn("h-full transition-all duration-500",
-                                                                            item.score >= 80 ? "bg-emerald-500" :
-                                                                                item.score >= 50 ? "bg-amber-500" : "bg-primary"
-                                                                        )}
-                                                                        style={{ width: `${Math.min(item.score, 100)}%` }}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-
-                                                {/* List */}
-                                                {section.type === 'list' && (
-                                                    <div className="space-y-0.5 max-h-[140px] overflow-y-auto">
-                                                        {(section.content as string[]).map((item, i) => (
-                                                            <div key={i} className="flex items-start gap-1.5 text-[10px] py-0.5">
-                                                                <div className="h-1 w-1 rounded-full bg-primary mt-1 shrink-0" />
-                                                                <span className="text-foreground/80 leading-snug">{item}</span>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                )}
-
-                                                {/* Text */}
-                                                {section.type === 'text' && (
-                                                    <p className="text-[10px] text-foreground/90 leading-relaxed">
-                                                        {section.content as string}
-                                                    </p>
-                                                )}
-
-                                                {/* Table */}
-                                                {section.type === 'table' && section.columns && (
-                                                    <div className="border border-border/30 rounded overflow-hidden">
-                                                        <Table>
-                                                            <TableHeader>
-                                                                <TableRow className="bg-muted/30 hover:bg-muted/30">
-                                                                    {section.columns.map((col) => (
-                                                                        <TableHead key={col.key} className={cn("text-[9px] font-bold h-6 py-0.5 px-2", col.align === 'right' ? "text-right" : "")}>
-                                                                            {col.label}
-                                                                        </TableHead>
-                                                                    ))}
-                                                                </TableRow>
-                                                            </TableHeader>
-                                                            <TableBody>
-                                                                {(section.content as Record<string, any>[]).map((row, rIdx) => (
-                                                                    <TableRow key={rIdx} className="hover:bg-muted/10">
-                                                                        {section.columns!.map((col) => (
-                                                                            <TableCell key={col.key} className={cn("text-[10px] py-1 px-2", col.align === 'right' ? "text-right font-mono" : "")}>
-                                                                                {col.key === 'match' || col.key === 'score' ? (
-                                                                                    <Badge variant="secondary" className={cn("text-[8px] font-bold px-1 py-0",
-                                                                                        parseInt(row[col.key]) > 80 ? "text-emerald-700 bg-emerald-100" : "text-amber-700 bg-amber-100"
-                                                                                    )}>
-                                                                                        {row[col.key]}
-                                                                                    </Badge>
-                                                                                ) : (
-                                                                                    <span className="text-foreground/90">{row[col.key]}</span>
-                                                                                )}
-                                                                            </TableCell>
-                                                                        ))}
-                                                                    </TableRow>
-                                                                ))}
-                                                            </TableBody>
-                                                        </Table>
-                                                    </div>
-                                                )}
-                                            </CardContent>
-                                        </Card>
-                                    );
-                                })}
+                    {/* Step Content Card — rca-card style */}
+                    {activeStep && (
+                        <div
+                            className={`rca-card ${activeTab === steps.length - 1 && activeStep.status === 'complete' ? 'final' : ''}`}
+                            style={{ maxWidth: 1000, margin: '0 auto' }}
+                        >
+                            {/* Step title */}
+                            <div className="rca-step-title">
+                                {stepIcons[activeTab] || '📍'} {activeStep.name}
                             </div>
-                        ) : (
-                            <div className="text-sm text-muted-foreground text-center py-8">No data available for this step</div>
-                        )}
-                    </div>
+                            {/* Step description */}
+                            {activeStep.description && (
+                                <div className="rca-step-sub">• {activeStep.description}</div>
+                            )}
+
+                            {/* Content: "sections" array format */}
+                            {activeStep.details?.sections && activeStep.details.sections.length > 0 && (
+                                <div>
+                                    {activeStep.details.sections.map((section, idx) => (
+                                        <SectionItem key={idx} section={section} />
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Content: generateRCASteps() metadata format */}
+                            {!activeStep.details?.sections && (
+                                <MetadataStepContent details={activeStep.details} />
+                            )}
+
+                            {/* Mini completion badge */}
+                            {activeStep.status === 'complete' && (
+                                <div className="rca-mini">
+                                    <span>✔</span> {activeStep.name} process completed.
+                                </div>
+                            )}
+                        </div>
+                    )}
+
                 </div>
-            </div>
+            </ThemeProvider>
         </MainLayout>
     );
 }

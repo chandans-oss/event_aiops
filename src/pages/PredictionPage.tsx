@@ -702,7 +702,16 @@ const PREDICTION_DATA = {
 };
 
 export default function PredictionPage() {
-  const [deviceType, setDeviceType] = useState<"routers" | "switches">("routers");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
+
+  const ALL_PREDICTIONS = [...PREDICTION_DATA.routers, ...PREDICTION_DATA.switches];
+  const totalItems = ALL_PREDICTIONS.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = ALL_PREDICTIONS.slice(startIndex, endIndex);
+
   const [activeConfigs, setActiveConfigs] = useState<Record<string, boolean>>(
     CONFIG_FUNCTIONS.reduce((acc, fn) => ({ ...acc, [fn.id]: true }), {})
   );
@@ -738,18 +747,6 @@ export default function PredictionPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Select
-              defaultValue="routers"
-              onValueChange={(val: any) => setDeviceType(val)}
-            >
-              <SelectTrigger className="w-[180px] bg-card/40 border-primary/20">
-                <SelectValue placeholder="Device Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="routers">Routers</SelectItem>
-                <SelectItem value="switches">Switches</SelectItem>
-              </SelectContent>
-            </Select>
 
             <Sheet>
               <SheetTrigger asChild>
@@ -765,7 +762,7 @@ export default function PredictionPage() {
                       <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                         <BarChart3 className="h-4 w-4 text-primary" />
                       </div>
-                      Analysis Workspace — <span className="text-primary capitalize">{deviceType}</span>
+                      Analysis Workspace — <span className="text-primary italic">Global Prediction Engine</span>
                     </SheetTitle>
                   </div>
                 </SheetHeader>
@@ -784,7 +781,7 @@ export default function PredictionPage() {
                           value="configurations"
                           className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-2 text-[11px] font-bold uppercase tracking-widest"
                         >
-                          Configurrations
+                          Configurations
                         </TabsTrigger>
                       </TabsList>
                     </div>
@@ -796,13 +793,17 @@ export default function PredictionPage() {
                             <div className="h-2 w-2 rounded-full bg-rose-500" />
                             <div className="h-2 w-2 rounded-full bg-amber-500" />
                             <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                            <span className="text-[10px] text-muted-foreground ml-2 font-mono">predictive_engine.py — {deviceType}</span>
+                            <span className="text-[10px] text-muted-foreground ml-2 font-mono">predictive_engine.py — global</span>
                           </div>
                           <ScrollArea className="flex-1">
                             <div className="p-6 font-mono text-[11px] leading-relaxed text-[#d4d4d4] whitespace-pre">
                               {TERMINAL_LOGS.header}
                               {"\n\n"}
-                              {deviceType === "routers" ? TERMINAL_LOGS.routers : TERMINAL_LOGS.switches}
+                              <div className="text-primary/60 border-b border-primary/20 pb-2 mb-4 font-black tracking-widest">[ ROUTER ANALYSIS ENGINE ]</div>
+                              {TERMINAL_LOGS.routers}
+                              {"\n\n"}
+                              <div className="text-primary/60 border-b border-primary/20 pb-2 mb-4 font-black tracking-widest">[ SWITCH ANALYSIS ENGINE ]</div>
+                              {TERMINAL_LOGS.switches}
                               {"\n\n"}
                               {TERMINAL_LOGS.footer}
                             </div>
@@ -966,7 +967,7 @@ export default function PredictionPage() {
           <ScrollArea className="h-[500px]">
             <table className="w-full text-left border-collapse">
               <tbody className="divide-y divide-border/50">
-                {PREDICTION_DATA[deviceType].map((item, idx) => (
+                {currentItems.map((item, idx) => (
                   <tr key={idx} className="hover:bg-muted/5 transition-colors group">
                     <td className="px-6 py-5 w-[220px]">
                       <div className="flex flex-col gap-1">
@@ -1028,22 +1029,41 @@ export default function PredictionPage() {
 
           <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-muted/10">
             <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Showing <span className="text-foreground">{PREDICTION_DATA[deviceType].length}</span> Entries
+              Showing <span className="text-foreground">{startIndex + 1}</span> to <span className="text-foreground">{Math.min(endIndex, totalItems)}</span> of <span className="text-foreground">{totalItems}</span> Predictions
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="h-8 w-8 p-0 opacity-50 cursor-not-allowed">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={cn("h-8 w-8 p-0", currentPage === 1 && "opacity-50 cursor-not-allowed")}
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <div className="flex items-center gap-1">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="h-8 w-8 p-0 text-[11px] font-bold bg-primary/10 text-primary"
-                >
-                  1
-                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "secondary" : "outline"}
+                    size="sm"
+                    className={cn(
+                      "h-8 w-8 p-0 text-[11px] font-bold",
+                      currentPage === page ? "bg-primary/10 text-primary" : "text-muted-foreground hover:text-primary transition-colors"
+                    )}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </Button>
+                ))}
               </div>
-              <Button variant="outline" size="sm" className="h-8 w-8 p-0 opacity-50 cursor-not-allowed">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={cn("h-8 w-8 p-0", currentPage === totalPages && "opacity-50 cursor-not-allowed")}
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+              >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

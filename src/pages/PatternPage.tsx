@@ -928,8 +928,17 @@ const PATTERNS_DATA = {
 };
 
 export default function PatternPage() {
-  const [deviceType, setDeviceType] = useState<"routers" | "switches">("routers");
-  const patterns = PATTERNS_DATA[deviceType];
+  const allPatterns = [...PATTERNS_DATA.routers, ...PATTERNS_DATA.switches];
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+  
+  const totalPages = Math.ceil(allPatterns.length / itemsPerPage);
+  const currentPatterns = allPatterns.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+
 
   const renderDetails = (item: any) => {
     if (item.type === "Metrics Pattern") {
@@ -1015,18 +1024,30 @@ export default function PatternPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Select
-              defaultValue="routers"
-              onValueChange={(val: any) => setDeviceType(val)}
-            >
-              <SelectTrigger className="w-[180px] bg-card/40 border-primary/20">
-                <SelectValue placeholder="Device Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="routers">Routers</SelectItem>
-                <SelectItem value="switches">Switches</SelectItem>
-              </SelectContent>
-            </Select>
+            <div className="flex items-center gap-2 bg-card/40 border border-primary/20 rounded-lg px-3 py-1">
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Page {currentPage} of {totalPages}</span>
+              <div className="flex items-center gap-1 ml-2 border-l border-primary/10 pl-2">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6 hover:bg-primary/10"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => prev - 1)}
+                >
+                  <ChevronLeft className="h-3 w-3" />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-6 w-6 hover:bg-primary/10"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(prev => prev + 1)}
+                >
+                  <ChevronRight className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+
 
             <Sheet>
               <SheetTrigger asChild>
@@ -1042,7 +1063,7 @@ export default function PatternPage() {
                       <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                         <BarChart3 className="h-4 w-4 text-primary" />
                       </div>
-                      Analysis Workspace — <span className="text-primary capitalize">{deviceType}</span>
+                      Analysis Workspace — <span className="text-primary capitalize">Global Patterns</span>
                     </SheetTitle>
                   </div>
                 </SheetHeader>
@@ -1073,13 +1094,15 @@ export default function PatternPage() {
                             <div className="h-2 w-2 rounded-full bg-rose-500" />
                             <div className="h-2 w-2 rounded-full bg-amber-500" />
                             <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                            <span className="text-[10px] text-muted-foreground ml-2 font-mono">pattern_engine.py — {deviceType}</span>
+                            <span className="text-[10px] text-muted-foreground ml-2 font-mono">pattern_engine.py — Combined Output</span>
                           </div>
                           <ScrollArea className="flex-1">
                             <div className="p-6 font-mono text-[11px] leading-relaxed text-[#d4d4d4] whitespace-pre">
                               {TERMINAL_LOGS.header}
                               {"\n\n"}
-                              {deviceType === "routers" ? TERMINAL_LOGS.routers : TERMINAL_LOGS.switches}
+                              {TERMINAL_LOGS.routers}
+                              {"\n\n"}
+                              {TERMINAL_LOGS.switches}
                               {"\n\n"}
                               {TERMINAL_LOGS.footer}
                             </div>
@@ -1240,7 +1263,7 @@ export default function PatternPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50">
-                {patterns.map((item: any) => (
+                {currentPatterns.map((item: any) => (
                   <tr key={item.id} className="hover:bg-muted/5 transition-colors group">
                     <td className="px-6 py-5">
                       <div className="flex flex-col gap-1.5">
@@ -1307,22 +1330,43 @@ export default function PatternPage() {
 
           <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-muted/10">
             <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Showing <span className="text-foreground">{patterns.length}</span> Patterns
+              Showing <span className="text-foreground">{currentPatterns.length}</span> of <span className="text-foreground">{allPatterns.length}</span> Patterns
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="h-8 w-8 p-0 opacity-50 cursor-not-allowed">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={cn("h-8 px-3 gap-1.5", currentPage === 1 && "opacity-50 cursor-not-allowed")}
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage(prev => prev - 1)}
+              >
                 <ChevronLeft className="h-4 w-4" />
+                <span className="text-[10px] font-bold uppercase">Prev</span>
               </Button>
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="h-8 w-8 p-0 text-[11px] font-bold bg-primary/10 text-primary"
-                >
-                  1
-                </Button>
+              <div className="flex items-center gap-1 mx-2">
+                {Array.from({ length: totalPages }).map((_, i) => (
+                  <Button
+                    key={i}
+                    variant={currentPage === i + 1 ? "secondary" : "ghost"}
+                    size="sm"
+                    className={cn(
+                      "h-8 w-8 p-0 text-[11px] font-bold",
+                      currentPage === i + 1 ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground opacity-60 hover:opacity-100"
+                    )}
+                    onClick={() => setCurrentPage(i + 1)}
+                  >
+                    {i + 1}
+                  </Button>
+                ))}
               </div>
-              <Button variant="outline" size="sm" className="h-8 w-8 p-0 opacity-50 cursor-not-allowed">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={cn("h-8 px-3 gap-1.5", currentPage === totalPages && "opacity-50 cursor-not-allowed")}
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage(prev => prev + 1)}
+              >
+                <span className="text-[10px] font-bold uppercase">Next</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

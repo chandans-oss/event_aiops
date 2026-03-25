@@ -483,14 +483,25 @@ const RCAPlaygroundPage = () => {
                         )}
                     </Box>
 
+                    <Box mt={1}>
+                        <TimelineFlow
+                            steps={RCA_STEP_CONFIG.map((c, i) => ({
+                                ...c,
+                                step: i,
+                                tl_desc: animatedSteps[i]?.tl_desc || 'Pending...'
+                            }))}
+                            currentIdx={currentStepIdx}
+                        />
+                    </Box>
+
                     {animatedSteps.length === 0 && !isFetching && (
-                        <Box mt={10} display="flex" justifyContent="center">
+                        <Box mt={2} display="flex" justifyContent="center">
                             <FileUpload onFileSelect={handleRunRca} isLoading={isFetching} />
                         </Box>
                     )}
 
                     {isFetching && (
-                        <Box mt={10} display="flex" flexDirection="column" alignItems="center">
+                        <Box mt={2} display="flex" flexDirection="column" alignItems="center">
                             <CircularProgress size={60} thickness={4} sx={{ mb: 4 }} />
                             <Typography variant="h6" color="text.secondary">Running Backend Flow...</Typography>
                         </Box>
@@ -498,14 +509,6 @@ const RCAPlaygroundPage = () => {
 
                     {animatedSteps.length > 0 && (
                         <Box mt={2}>
-                            <TimelineFlow
-                                steps={RCA_STEP_CONFIG.map((c, i) => ({
-                                    ...c,
-                                    step: i,
-                                    tl_desc: animatedSteps[i]?.tl_desc || 'Pending...'
-                                }))}
-                                currentIdx={currentStepIdx}
-                            />
                             <Box mt={4} sx={{ maxWidth: '1000px', mx: 'auto' }}>
                                 <Paper sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, pt: 1, pb: 0 }}>
                                     <Tabs

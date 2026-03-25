@@ -10,6 +10,12 @@ import { Textarea } from '@/shared/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
 import { mockKBCategories, mockKBArticlesEnhanced, mockIntentsFull } from '@/features/admin/data/adminData';
 import { KBArticle } from '@/shared/types';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
+function escapePlaceholders(md: string): string {
+    return md.replace(/<([a-zA-Z][a-zA-Z0-9_-]*)>/g, (_, tag) => `\`<${tag}>\``);
+}
 
 type ViewLevel = 'categories' | 'subcategories' | 'articles';
 
@@ -280,9 +286,23 @@ export function KBSection() {
                 <Star className="h-4 w-4 text-severity-medium" />
                 <span className="text-sm">{viewingArticle.effectiveness}% effectiveness</span>
               </div>
-              <div className="prose prose-sm dark:prose-invert max-w-none">
-                <p>{viewingArticle.content}</p>
-              </div>
+                <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                        h3: ({node, ...props}) => <h3 className="text-primary font-bold uppercase tracking-widest mt-4 mb-2 text-[10px]" {...props} />,
+                        ul: ({node, ...props}) => <ul className="space-y-1 my-2 list-none pl-0 font-sans" {...props} />,
+                        li: ({node, ...props}) => (
+                            <li className="flex items-start gap-2 text-[11px] bg-white/5 p-1.5 rounded-lg border border-white/5" {...props}>
+                                <div className="h-1 w-1 rounded-full bg-primary mt-1.5 shrink-0" />
+                                <span>{props.children}</span>
+                            </li>
+                        ),
+                        p: ({node, ...props}) => <p className="leading-relaxed text-[11px] opacity-80 font-sans" {...props} />,
+                        code: ({node, ...props}) => <code className="bg-black/50 px-1.5 py-0.5 rounded font-mono text-[10px] text-blue-400" {...props} />
+                    }}
+                >
+                    {escapePlaceholders(viewingArticle.content)}
+                </ReactMarkdown>
               <div>
                 <h4 className="text-sm font-semibold mb-2">Tags</h4>
                 <div className="flex flex-wrap gap-1">
@@ -341,7 +361,7 @@ function KBArticleCard({
         </div>
       </div>
       <h3 className="font-semibold text-foreground mb-2 line-clamp-2">{article.title}</h3>
-      <p className="text-sm text-muted-foreground mb-3 line-clamp-2">{article.content}</p>
+      <p className="text-sm text-muted-foreground mb-3 line-clamp-1">{article.problem}</p>
 
       {/* Tags */}
       <div className="flex flex-wrap gap-1 mb-3">
@@ -359,11 +379,7 @@ function KBArticleCard({
       </div>
 
       {/* Footer */}
-      <div className="flex items-center justify-between pt-3 border-t border-border/50">
-        <div className="flex items-center gap-1">
-          <Star className="h-4 w-4 text-severity-medium" />
-          <span className="text-sm">{article.effectiveness}%</span>
-        </div>
+      <div className="flex items-center justify-end pt-3 border-t border-border/50">
         <ExternalLink className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
     </div>

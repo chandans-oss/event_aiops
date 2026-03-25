@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ArrowLeft, Plus, Edit2, Trash2, ChevronRight, Search, X, Lightbulb, Target } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
@@ -12,13 +12,32 @@ import { IntentFull, IntentCategory, IntentSubcategory } from '@/shared/types';
 
 type ViewLevel = 'categories' | 'subcategories' | 'intents';
 
-export function IntentsSection() {
-  const [viewLevel, setViewLevel] = useState<ViewLevel>('categories');
+export function IntentsSection({ highlightIntentId }: { highlightIntentId?: string } = {}) {
+  const [viewLevel, setViewLevel] = useState<ViewLevel>(() => highlightIntentId ? 'intents' : 'categories');
   const [selectedCategory, setSelectedCategory] = useState<IntentCategory | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = useState<IntentSubcategory | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(highlightIntentId || '');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [selectedIntent, setSelectedIntent] = useState<IntentFull | null>(null);
+  const highlightRef = useRef<HTMLDivElement>(null);
+
+  // When highlightIntentId is set, scroll to the highlighted intent
+  useEffect(() => {
+    if (highlightIntentId && highlightRef.current) {
+      setTimeout(() => highlightRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+    }
+  }, [highlightIntentId]);
+
+  // Global search mode: search across all intents when highlightIntentId is set or searchQuery is active at category level
+  const isGlobalSearch = !!(highlightIntentId && viewLevel === 'intents' && !selectedSubcategory);
+
+  const globalFilteredIntents = mockIntentsFull.filter(intent =>
+    searchQuery
+      ? intent.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        intent.description.toLowerCase().includes(searchQuery.toLowerCase())
+      : false
+  );
+
 
   const handleCategoryClick = (category: IntentCategory) => {
     setSelectedCategory(category);
@@ -40,10 +59,12 @@ export function IntentsSection() {
     }
   };
 
-  const filteredIntents = mockIntentsFull.filter((intent) => {
-    if (!selectedCategory || !selectedSubcategory) return false;
-    return intent.intent === selectedSubcategory.id;
-  });
+  const filteredIntents = isGlobalSearch
+    ? globalFilteredIntents
+    : mockIntentsFull.filter((intent) => {
+        if (!selectedCategory || !selectedSubcategory) return false;
+        return intent.intent === selectedSubcategory.id;
+      });
 
   const getBreadcrumb = () => {
     const parts = [];
@@ -176,6 +197,17 @@ export function IntentsSection() {
       {/* Intents List View */}
       {viewLevel === 'intents' && (
         <div className="space-y-4">
+          {isGlobalSearch && (
+            <div className="flex items-center gap-2 mb-2">
+              <div className="p-2 bg-primary/10 border border-primary/20 rounded-lg flex items-center gap-2 text-sm">
+                <span className="text-primary font-mono font-bold">{highlightIntentId}</span>
+                <span className="text-muted-foreground">— linked from KB article</span>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => { setViewLevel('categories'); setSearchQuery(''); }}>
+                Browse All Intents
+              </Button>
+            </div>
+          )}
           {filteredIntents.length === 0 ? (
             <div className="glass-card rounded-xl p-12 text-center">
               <Lightbulb className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
@@ -189,7 +221,7 @@ export function IntentsSection() {
           ) : (
             filteredIntents
               .filter((intent) =>
-                searchQuery
+                !isGlobalSearch && searchQuery
                   ? intent.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
                   intent.id.toLowerCase().includes(searchQuery.toLowerCase())
                   : true
@@ -199,6 +231,8 @@ export function IntentsSection() {
                   key={intent.id}
                   intent={intent}
                   onEdit={() => setSelectedIntent(intent)}
+                  highlighted={intent.id === highlightIntentId}
+                  highlightRef={intent.id === highlightIntentId ? highlightRef : undefined}
                 />
               ))
           )}
@@ -220,11 +254,16 @@ export function IntentsSection() {
   );
 }
 
-function IntentCard({ intent, onEdit }: { intent: IntentFull; onEdit: () => void }) {
-  const [expanded, setExpanded] = useState(false);
+function IntentCard({ intent, onEdit, highlighted, highlightRef }: { intent: IntentFull; onEdit: () => void; highlighted?: boolean; highlightRef?: React.RefObject<HTMLDivElement> }) {
+  const [expanded, setExpanded] = useState(!!highlighted);
 
   return (
-    <div className="glass-card rounded-xl p-5">
+    <div
+      ref={highlightRef}
+      className={`glass-card rounded-xl p-5 transition-all duration-500 ${
+        highlighted ? 'ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg shadow-primary/20' : ''
+      }`}
+    >
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { MainLayout } from '@/shared/components/layout/MainLayout';
 import { AdminSidebar, AdminSection } from '@/components/admin/AdminSidebar';
 import { RulesSection } from '@/components/admin/RulesSection';
@@ -7,7 +8,10 @@ import { KBSection } from '@/components/admin/KBSection';
 import { AutoRemediationSection } from '@/components/admin/AutoRemediationSection';
 
 export default function Admin() {
-  const [activeSection, setActiveSection] = useState<AdminSection>('suppression');
+  const [searchParams] = useSearchParams();
+  const initialSection = (searchParams.get('section') as AdminSection) || 'suppression';
+  const highlightIntent = searchParams.get('highlight') || undefined;
+  const [activeSection, setActiveSection] = useState<AdminSection>(initialSection);
 
   const renderSection = () => {
     switch (activeSection) {
@@ -18,7 +22,7 @@ export default function Admin() {
       case 'correlation-types':
         return <RulesSection section="correlation-types" />;
       case 'intents':
-        return <IntentsSection />;
+        return <IntentsSection highlightIntentId={highlightIntent} />;
       case 'kb':
         return <KBSection />;
       case 'auto-remediation':

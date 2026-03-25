@@ -69,8 +69,6 @@ const navItems: NavItem[] = [
     icon: Settings,
     children: [
       { path: "/admin", label: "Configuration", icon: Settings },
-      { path: "/admin/ai-explainability", label: "ML Explainability", icon: BrainCircuit },
-      { path: "/admin/upload", label: "Upload Data", icon: Upload },
     ]
   },
   { path: "/agents", label: "Agents", icon: Bot },
@@ -83,9 +81,17 @@ const navItems: NavItem[] = [
       { path: "/pattern-prediction/prediction", label: "Prediction", icon: BrainCircuit },
       { path: "/pattern-prediction/anomalies", label: "Anomalies", icon: Activity },
       { path: "/pattern-prediction/training", label: "Training", icon: Target },
-      { path: "/pattern-prediction/training-lovelable", label: "Training Lovelable", icon: Heart },
       { path: "/pattern-prediction/results", label: "Results", icon: FileText },
       { path: "/pattern-prediction/live-inference", label: "Live Inference", icon: PlayCircle },
+    ]
+  },
+  {
+    path: "/playground",
+    label: "Playground",
+    icon: Settings,
+    children: [
+      { path: "/playground/rca", label: "RCA Playground", icon: Workflow },
+      { path: "/playground/event-processing", label: "Event Processing", icon: Activity },
     ]
   },
   {
@@ -109,21 +115,11 @@ const navItems: NavItem[] = [
       { path: "/upload", label: "Event Upload", icon: Upload },
     ]
   },
-  {
-    path: "/playground",
-    label: "Playground",
-    icon: Settings, // or any icon
-    children: [
-      { path: "/playground/rca", label: "RCA Playground", icon: Workflow },
-      { path: "/playground/ml-pred-corr", label: "ML Pred Corr Patterns", icon: BrainCircuit },
-    ]
-  },
-
 ];
 
 export function LeftSidebar() {
   const [collapsed, setCollapsed] = useState(false);
-  const [openMenus, setOpenMenus] = useState<string[]>(['/admin', '/demo']);
+  const [openMenus, setOpenMenus] = useState<string[]>([]);
   const location = useLocation();
 
   // Auto-expand menus based on current path

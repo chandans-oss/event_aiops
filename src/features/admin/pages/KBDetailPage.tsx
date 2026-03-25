@@ -1,12 +1,18 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { MainLayout } from '@/shared/components/layout/MainLayout';
-import { ArrowLeft, BookOpen, Clock, Tag, Target, ArrowRightCircle, CheckCircle2, AlertTriangle, Layers, Link as LinkIcon } from 'lucide-react';
+import { ArrowLeft, BookOpen, Clock, Tag, ArrowRightCircle, CheckCircle2, AlertTriangle, Layers, Link as LinkIcon } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
-import { Separator } from '@/shared/components/ui/separator';
 import { mockKBArticlesEnhanced } from '@/features/admin/data/adminData';
 import { useEffect, useState } from 'react';
 import { KBArticle } from '@/shared/types';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { motion } from 'framer-motion';
+
+function escapePlaceholders(md: string): string {
+    return md.replace(/<([a-zA-Z][a-zA-Z0-9_-]*)>/g, (_, tag) => `\`<${tag}>\``);
+}
 
 export default function KBDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -31,142 +37,176 @@ export default function KBDetailPage() {
         );
     }
 
+    const containerVariants = {
+        hidden: { opacity: 0, y: 10 },
+        visible: { opacity: 1, y: 0, transition: { staggerChildren: 0.07, duration: 0.3 } }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, scale: 0.97 },
+        visible: { opacity: 1, scale: 1 }
+    };
+
     return (
         <MainLayout>
-            <div className="max-w-5xl mx-auto py-8 px-4 animate-in fade-in duration-500">
+            <div className="max-w-7xl mx-auto py-4 px-5">
 
                 {/* Top Nav */}
-                <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="mb-6 gap-2 text-muted-foreground hover:text-foreground">
-                    <ArrowLeft className="h-4 w-4" />
-                    Back to Knowledge Base
-                </Button>
+                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
+                    <Button variant="ghost" size="sm" onClick={() => navigate('/admin?section=kb')} className="mb-3 gap-2 text-slate-500 hover:text-primary transition-colors hover:bg-primary/5 rounded-full px-3">
+                        <ArrowLeft className="h-4 w-4" />
+                        <span className="font-bold uppercase tracking-widest text-[10px]">Back to Knowledge Base</span>
+                    </Button>
+                </motion.div>
 
-                {/* Header Section */}
-                <div className="mb-8 p-6 bg-card border rounded-2xl shadow-sm relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                {/* Header */}
+                <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-4 p-5 bg-card border border-white/5 rounded-2xl shadow relative overflow-hidden group"
+                >
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none group-hover:bg-primary/15 transition-all duration-700" />
 
-                    <div className="flex flex-col gap-4 relative z-10">
-                        <div className="flex items-center gap-3">
-                            <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 px-3 py-1">
+                    <div className="flex flex-col gap-3 relative z-10">
+                        <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/30 px-3 py-1 rounded-full font-bold uppercase tracking-wider text-[10px]">
                                 {article.category}
                             </Badge>
                             {article.subcategory && (
-                                <Badge variant="secondary" className="px-3 py-1 bg-secondary/50">
+                                <Badge variant="secondary" className="px-3 py-1 rounded-full bg-slate-500/10 text-slate-400 border-none font-bold uppercase tracking-wider text-[10px]">
                                     {article.subcategory}
                                 </Badge>
                             )}
                         </div>
 
-                        <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
-                            <BookOpen className="h-8 w-8 text-primary opacity-80" />
+                        <h1 className="text-lg lg:text-xl font-bold tracking-tight text-foreground leading-snug flex items-center gap-2">
+                            <div className="p-1.5 bg-primary/10 rounded-lg w-fit shrink-0">
+                                <BookOpen className="h-5 w-5 text-primary" />
+                            </div>
                             {article.title}
                         </h1>
 
-                        <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mt-2">
-                            <span className="flex items-center gap-1.5"><Tag className="h-4 w-4" /> ID: {article.id}</span>
-                            <span className="flex items-center gap-1.5"><Target className="h-4 w-4" /> Effectiveness: {article.effectiveness}%</span>
-                            <span className="flex items-center gap-1.5"><Clock className="h-4 w-4" /> Last Updated: {new Date(article.lastUpdated).toLocaleDateString()}</span>
+                        <div className="flex flex-wrap items-center gap-3 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-400 bg-slate-500/5 px-3 py-1.5 rounded-lg border border-slate-500/10 w-fit">
+                            <span className="flex items-center gap-1.5"><Tag className="h-3 w-3 text-primary" /> {article.id}</span>
+                            <span className="flex items-center gap-1.5 border-l border-slate-500/20 pl-3"><Clock className="h-3 w-3 text-purple-400" /> Updated: {new Date(article.lastUpdated).toLocaleDateString()}</span>
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
-                {/* Content Structure */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Top Info Row: Root Issue | Impact Domain | Linked Intents */}
+                <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4"
+                >
+                    {/* Root Issue */}
+                    <motion.section variants={itemVariants} className="bg-destructive/5 border border-destructive/20 rounded-2xl p-4 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
+                            <AlertTriangle className="h-16 w-16 text-destructive" />
+                        </div>
+                        <h2 className="text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-2 mb-2 text-destructive/80">
+                            <AlertTriangle className="h-3 w-3" /> Root Issue
+                        </h2>
+                        <p className="text-sm font-semibold text-foreground leading-snug">{article.problem}</p>
+                    </motion.section>
 
-                    {/* Main Body */}
-                    <div className="col-span-1 lg:col-span-2 space-y-8">
+                    {/* Impact Domain */}
+                    <motion.section variants={itemVariants} className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-4 relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
+                            <Layers className="h-16 w-16 text-blue-500" />
+                        </div>
+                        <h2 className="text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-2 mb-2 text-blue-500/80">
+                            <Layers className="h-3 w-3" /> Impact Domain
+                        </h2>
+                        <p className="text-sm font-semibold text-foreground leading-snug">{article.area}</p>
+                    </motion.section>
 
-                        {/* 1. Problem Definition */}
-                        <section className="bg-destructive/5 border border-destructive/10 rounded-xl p-6 shadow-sm">
-                            <h2 className="text-lg font-semibold flex items-center gap-2 mb-3 text-destructive">
-                                <AlertTriangle className="h-5 w-5" />
-                                Problem Definition
+                    {/* Linked Intents */}
+                    <motion.section variants={itemVariants} className="bg-card border border-white/5 rounded-2xl p-4">
+                        <h2 className="text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-2 mb-2 text-slate-400">
+                            <LinkIcon className="h-3 w-3 text-blue-400" /> Linked Intents
+                        </h2>
+                        <div className="flex flex-col gap-1.5">
+                            {article.linkedIntents.length === 0 ? (
+                                <p className="text-[10px] text-muted-foreground italic">No intents linked</p>
+                            ) : article.linkedIntents.map(intent => (
+                                <div
+                                    key={intent}
+                                    onClick={() => navigate(`/admin?section=intents&highlight=${encodeURIComponent(intent)}`)}
+                                    className="bg-primary/5 hover:bg-primary/15 border border-primary/20 hover:border-primary/50 rounded-lg px-3 py-1.5 text-[11px] font-mono flex items-center gap-2 text-primary transition-all cursor-pointer group select-none"
+                                    title={`Go to intent: ${intent}`}
+                                >
+                                    <div className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse group-hover:scale-125 transition-transform shrink-0" />
+                                    <span className="flex-1">{intent}</span>
+                                    <ArrowRightCircle className="ml-auto h-3 w-3 opacity-40 group-hover:opacity-100 group-hover:text-primary transition-all shrink-0" />
+                                </div>
+                            ))}
+                        </div>
+                    </motion.section>
+                </motion.div>
+
+                {/* Main Content: Intel Summary | Tactical Remediation Plan */}
+                <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate="visible"
+                    className="grid grid-cols-1 lg:grid-cols-12 gap-5"
+                >
+                    {/* Intel Summary — now in main body */}
+                    <motion.div variants={itemVariants} className="col-span-1 lg:col-span-8 bg-zinc-950 border border-white/10 rounded-2xl overflow-hidden">
+                        <div className="px-4 py-3 border-b border-white/5 bg-white/[0.02]">
+                            <h3 className="text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-2 text-slate-400">
+                                <BookOpen className="h-3.5 w-3.5 text-primary" /> Intel Summary
+                            </h3>
+                        </div>
+                        <div className="p-4 prose prose-invert prose-sm max-w-none text-slate-300">
+                            <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                components={{
+                                    h3: ({node, ...props}) => <h3 className="text-primary font-black uppercase tracking-widest mt-4 mb-1.5 text-[10px]" {...props} />,
+                                    ul: ({node, ...props}) => <ul className="space-y-1 my-2 list-none pl-0" {...props} />,
+                                    li: ({node, ...props}) => (
+                                        <li className="flex items-start gap-2 text-[11px] bg-white/5 px-2 py-1 rounded-md border border-white/5" {...props}>
+                                            <div className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 shrink-0" />
+                                            <span>{props.children}</span>
+                                        </li>
+                                    ),
+                                    p: ({node, ...props}) => <p className="leading-relaxed text-[12px] opacity-80" {...props} />,
+                                    code: ({node, ...props}) => <code className="bg-black/50 px-1.5 py-0.5 rounded font-mono text-[10px] text-blue-400" {...props} />
+                                }}
+                            >
+                                {escapePlaceholders(article.content)}
+                            </ReactMarkdown>
+                        </div>
+                    </motion.div>
+
+                    {/* Tactical Remediation Plan — now in sidebar */}
+                    <motion.div variants={itemVariants} className="col-span-1 lg:col-span-4">
+                        <div className="bg-card border border-white/5 rounded-2xl p-4 relative overflow-hidden h-full">
+                            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-emerald-500/30 to-transparent" />
+                            <h2 className="text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-2 mb-3 text-emerald-500">
+                                <CheckCircle2 className="h-4 w-4" /> Tactical Remediation Plan
                             </h2>
-                            <p className="text-muted-foreground leading-relaxed">
-                                {article.problem}
-                            </p>
-                        </section>
-
-                        {/* 2. Discovered Area */}
-                        <section className="bg-amber-500/5 border border-amber-500/10 rounded-xl p-6 shadow-sm">
-                            <h2 className="text-lg font-semibold flex items-center gap-2 mb-3 text-amber-600 dark:text-amber-500">
-                                <Layers className="h-5 w-5" />
-                                Impacted Area / Technology
-                            </h2>
-                            <p className="text-muted-foreground leading-relaxed">
-                                {article.area}
-                            </p>
-                        </section>
-
-                        {/* 3. Remedy Execution */}
-                        <section className="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-6 shadow-sm">
-                            <h2 className="text-lg font-semibold flex items-center gap-2 mb-4 text-emerald-600 dark:text-emerald-500">
-                                <CheckCircle2 className="h-5 w-5" />
-                                Remedy / Action Plan
-                            </h2>
-                            <div className="space-y-4">
+                            <div className="flex flex-col gap-2">
                                 {article.remedyItems.map((item, idx) => (
-                                    <div key={idx} className="flex gap-4 items-start bg-background/50 p-4 rounded-lg border border-border/50">
-                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-sm">
+                                    <motion.div
+                                        key={idx}
+                                        whileHover={{ x: 4 }}
+                                        className="flex gap-3 items-center bg-white/[0.02] hover:bg-white/[0.04] px-3 py-2 rounded-xl border border-white/5 transition-all group"
+                                    >
+                                        <div className="flex-shrink-0 w-6 h-6 rounded-md bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-black text-xs group-hover:bg-emerald-500 group-hover:text-white transition-all duration-200">
                                             {idx + 1}
                                         </div>
-                                        <p className="text-foreground leading-relaxed pt-1 text-sm">{item}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </section>
-                    </div>
-
-                    {/* Sidebar */}
-                    <div className="col-span-1 space-y-6">
-
-                        {/* Summary */}
-                        <div className="bg-card border rounded-xl p-5 shadow-sm">
-                            <h3 className="font-semibold mb-3 flex items-center gap-2">
-                                <BookOpen className="h-4 w-4" />
-                                Overview Summary
-                            </h3>
-                            <p className="text-sm text-muted-foreground leading-relaxed">
-                                {article.content}
-                            </p>
-                        </div>
-
-                        <Separator />
-
-                        {/* Linked Intents */}
-                        <div className="bg-card border rounded-xl p-5 shadow-sm">
-                            <h3 className="font-semibold mb-3 flex items-center gap-2">
-                                <LinkIcon className="h-4 w-4" />
-                                Linked System Intents
-                            </h3>
-                            <div className="flex flex-col gap-2">
-                                {article.linkedIntents.map(intent => (
-                                    <div key={intent} className="bg-muted/50 border rounded p-2 text-sm font-mono flex items-center gap-2 text-muted-foreground">
-                                        <ArrowRightCircle className="h-3 w-3 text-primary" />
-                                        {intent}
-                                    </div>
+                                        <p className="text-foreground text-xs leading-snug">{item}</p>
+                                        <ArrowRightCircle className="ml-auto h-3.5 w-3.5 text-slate-700 opacity-0 group-hover:opacity-100 group-hover:text-emerald-500 transition-all shrink-0" />
+                                    </motion.div>
                                 ))}
                             </div>
                         </div>
+                    </motion.div>
 
-                        {/* Tags */}
-                        <div className="bg-card border rounded-xl p-5 shadow-sm">
-                            <h3 className="font-semibold mb-3 flex items-center gap-2">
-                                <Tag className="h-4 w-4" />
-                                Tag Index
-                            </h3>
-                            <div className="flex flex-wrap gap-2">
-                                {article.tags.map(tag => (
-                                    <Badge key={tag} variant="secondary" className="bg-secondary/40 hover:bg-secondary/60 transition-colors">
-                                        {tag}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
+                </motion.div>
             </div>
         </MainLayout>
     );

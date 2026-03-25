@@ -764,7 +764,15 @@ const TERMINAL_LOGS = {
 };
 
 export default function AnomaliesPage() {
-  const [deviceType, setDeviceType] = useState<"router" | "switch">("router");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const totalItems = ANOMALY_DATA.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = ANOMALY_DATA.slice(startIndex, endIndex);
+
   const [activeConfigs, setActiveConfigs] = useState<Record<string, boolean>>(
     CONFIG_FUNCTIONS.reduce((acc, fn) => ({ ...acc, [fn.id]: true }), {})
   );
@@ -788,8 +796,6 @@ export default function AnomaliesPage() {
     setActiveModels(prev => ({ ...prev, [name]: !prev[name] }));
   };
 
-  const filteredAnomalies = ANOMALY_DATA.filter(a => a.device_type === deviceType);
-
   return (
     <MainLayout>
       <div className="p-8 space-y-8 animate-in fade-in duration-500">
@@ -802,18 +808,6 @@ export default function AnomaliesPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Select
-              value={deviceType}
-              onValueChange={(val: any) => setDeviceType(val)}
-            >
-              <SelectTrigger className="w-[180px] bg-card/40 border-primary/20">
-                <SelectValue placeholder="Device Type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="router">Routers</SelectItem>
-                <SelectItem value="switch">Switches</SelectItem>
-              </SelectContent>
-            </Select>
 
             <Sheet>
               <SheetTrigger asChild>
@@ -829,7 +823,7 @@ export default function AnomaliesPage() {
                       <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                         <BarChart3 className="h-4 w-4 text-primary" />
                       </div>
-                      Analysis Workspace — <span className="text-primary capitalize">{deviceType}s</span>
+                      Analysis Workspace — <span className="text-primary italic">Global Anomaly Engine</span>
                     </SheetTitle>
                   </div>
                 </SheetHeader>
@@ -848,7 +842,7 @@ export default function AnomaliesPage() {
                           value="configurations"
                           className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-2 text-[11px] font-bold uppercase tracking-widest"
                         >
-                          Configurrations
+                          Configurations
                         </TabsTrigger>
                       </TabsList>
                     </div>
@@ -860,13 +854,17 @@ export default function AnomaliesPage() {
                             <div className="h-2 w-2 rounded-full bg-rose-500" />
                             <div className="h-2 w-2 rounded-full bg-amber-500" />
                             <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                            <span className="text-[10px] text-muted-foreground ml-2 font-mono">anomaly_engine.py — {deviceType}</span>
+                            <span className="text-[10px] text-muted-foreground ml-2 font-mono">anomaly_engine.py — global</span>
                           </div>
                           <ScrollArea className="flex-1">
                             <div className="p-6 font-mono text-[11px] leading-relaxed text-[#d4d4d4] whitespace-pre">
                               {TERMINAL_LOGS.header}
                               {"\n\n"}
-                              {deviceType === "router" ? TERMINAL_LOGS.routers : TERMINAL_LOGS.switches}
+                              <div className="text-primary/60 border-b border-primary/20 pb-2 mb-4 font-black tracking-widest">[ ROUTER ANALYSIS ]</div>
+                              {TERMINAL_LOGS.routers}
+                              {"\n\n"}
+                              <div className="text-primary/60 border-b border-primary/20 pb-2 mb-4 font-black tracking-widest">[ SWITCH ANALYSIS ]</div>
+                              {TERMINAL_LOGS.switches}
                               {"\n\n"}
                               {TERMINAL_LOGS.footer}
                             </div>
@@ -1031,10 +1029,10 @@ export default function AnomaliesPage() {
           <ScrollArea className="h-[600px]">
             <table className="w-full text-left border-collapse">
               <tbody className="divide-y divide-white/5">
-                {filteredAnomalies.map((anomaly, idx) => (
+                {currentItems.map((anomaly, idx) => (
                   <tr key={idx} className="group hover:bg-white/[0.02] transition-colors">
                     <td className="px-6 py-6 w-[180px]">
-                      <div className="flex flex-col gap-1.5">
+                      <div className="flex flex-col gap-1.5 focus-visible:outline-none">
                         <div className="flex items-center gap-2">
                           <Layers className="h-3 w-3 text-primary" />
                           <span className="text-[11px] font-black uppercase tracking-wider text-foreground group-hover:text-primary transition-colors">
@@ -1136,14 +1134,41 @@ export default function AnomaliesPage() {
 
           <div className="flex items-center justify-between px-6 py-4 border-t border-white/5 bg-white/5">
             <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">
-              Showing <span className="text-foreground">{filteredAnomalies.length}</span> Identified Anomalies
+              Showing <span className="text-foreground">{startIndex + 1}</span> to <span className="text-foreground">{Math.min(endIndex, totalItems)}</span> of <span className="text-foreground">{totalItems}</span> Anomalies
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" className="h-8 w-8 p-0 border-white/10 hover:bg-white/5 text-muted-foreground">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={cn("h-8 w-8 p-0 border-white/10 hover:bg-white/5 text-muted-foreground", currentPage === 1 && "opacity-50 cursor-not-allowed")}
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
-              <div className="px-3 text-[10px] font-black text-primary bg-primary/10 h-8 flex items-center rounded-md border border-primary/20">1</div>
-              <Button variant="outline" size="sm" className="h-8 w-8 p-0 border-white/10 hover:bg-white/5 text-muted-foreground">
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "secondary" : "outline"}
+                    size="sm"
+                    className={cn(
+                      "h-8 w-8 p-0 text-[10px] font-black border-white/10 h-8 flex items-center rounded-md transition-all",
+                      currentPage === page ? "bg-primary/10 text-primary border-primary/20" : "text-muted-foreground hover:bg-white/5"
+                    )}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </Button>
+                ))}
+              </div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className={cn("h-8 w-8 p-0 border-white/10 hover:bg-white/5 text-muted-foreground", currentPage === totalPages && "opacity-50 cursor-not-allowed")}
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+              >
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>

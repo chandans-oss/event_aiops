@@ -123,7 +123,7 @@ export function ServiceTopology({ nodes: propNodes, affectedServices = [], onNod
   }, [nodes]);
 
   return (
-    <div className={cn("relative w-full h-[600px] bg-secondary/5 rounded-2xl border border-border/50 overflow-hidden backdrop-blur-sm shadow-inner", className)}>
+    <div className={cn("relative w-full h-[900px] bg-secondary/5 rounded-2xl border border-border/50 overflow-hidden backdrop-blur-sm shadow-inner", className)}>
       {/* Legend & Controls */}
       <div className="absolute top-6 left-6 z-10 flex flex-col gap-3">
         <div className="flex gap-3 flex-wrap">

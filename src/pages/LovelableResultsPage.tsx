@@ -120,7 +120,7 @@ export default function LovelableResultsPage() {
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <button
-                              onClick={() => navigate('/pattern-prediction/training-lovelable')}
+                              onClick={() => navigate('/pattern-prediction/training')}
                               className="p-2 bg-white/5 hover:bg-[#3B82F6] hover:text-white rounded-lg transition-all text-[#94A3B8]"
                               title="View Detailed Analytics"
                             >

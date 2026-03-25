@@ -32,81 +32,10 @@ export function Navbar() {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
+    <>
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex h-16 items-center justify-between px-6">
         
-        {/* NOTIFICATION SIDEBAR */}
-        {isNotiOpen && (
-          <>
-            <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-[100] transition-all" onClick={() => setIsNotiOpen(false)} />
-            <div className="fixed top-0 right-0 h-full w-[400px] bg-[#0F172A] border-l border-white/5 z-[101] shadow-2xl animate-in slide-in-from-right duration-300">
-              <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
-                <div className="flex items-center gap-3">
-                  <Bell className="w-5 h-5 text-blue-400" />
-                  <h2 className="text-sm font-black uppercase tracking-[0.2em] text-white">Notifications</h2>
-                </div>
-                <Button variant="ghost" size="sm" onClick={() => setIsNotiOpen(false)} className="text-slate-500 hover:text-white">✕</Button>
-              </div>
-
-              <div className="p-4 space-y-4 overflow-y-auto h-[calc(100vh-100px)] custom-scrollbar">
-                <div className="space-y-4">
-                  <h3 className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-2">Unread Strategic Alerts</h3>
-                  {notifications.filter(n => !n.read).map(n => (
-                    <div key={n.id} className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/10 hover:border-blue-500/20 transition-all group">
-                      <div className="flex items-start gap-4">
-                        <div className={cn("p-2 rounded-lg bg-white/5", n.color)}>
-                          <n.icon className="w-4 h-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-[11px] font-black text-white uppercase tracking-wider">{n.title}</span>
-                            <span className="text-[9px] font-bold text-slate-500">{n.time}</span>
-                          </div>
-                          <p className="text-[10px] text-slate-400 font-bold leading-relaxed">{n.desc}</p>
-                          <div className="mt-4">
-                            <Button 
-                              onClick={() => markAsRead(n.id)}
-                              className="h-7 px-4 bg-blue-600 hover:bg-blue-500 text-white text-[9px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-blue-900/40"
-                            >
-                              Mark as Read
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                  {notifications.filter(n => !n.read).length === 0 && (
-                    <div className="py-12 text-center">
-                      <Sparkles className="w-8 h-8 text-slate-700 mx-auto mb-4 opacity-50" />
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">No active system alerts</p>
-                    </div>
-                  )}
-                </div>
-
-                <div className="pt-6 space-y-4">
-                  <h3 className="text-[10px] font-black text-slate-700 uppercase tracking-widest px-2">Processed History</h3>
-                  {notifications.filter(n => n.read).map(n => (
-                    <div key={n.id} className="p-4 rounded-xl bg-white/[0.01] border border-white/5 opacity-60">
-                      <div className="flex items-start gap-4">
-                        <div className="p-2 rounded-lg bg-white/5 text-slate-500">
-                          <n.icon className="w-4 h-4" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="text-[11px] font-black text-slate-500 uppercase tracking-wider">{n.title}</span>
-                            <span className="text-[9px] font-bold text-slate-600">Processed</span>
-                          </div>
-                          <p className="text-[10px] text-slate-500 font-bold leading-relaxed">{n.desc}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </>
-        )}
-
         {/* Logo & Title */}
         <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 p-1">
@@ -174,5 +103,93 @@ export function Navbar() {
         </div>
       </div>
     </header>
+
+    {/* NOTIFICATION SIDEBAR */}
+    {isNotiOpen && (
+      <>
+        <div 
+          className="fixed inset-0 bg-black/90 z-[100]" 
+          onClick={() => setIsNotiOpen(false)} 
+        />
+        <div 
+          className="fixed top-0 right-0 h-full w-[420px] bg-[#090e1a] border-l border-white/20 z-[101] shadow-2xl flex flex-col"
+          style={{ backgroundColor: '#090e1a', opacity: 1, visibility: 'visible' }}
+        >
+          <div className="p-6 border-b border-white/10 flex items-center justify-between bg-black/40">
+            <div className="flex items-center gap-3">
+              <Bell className="w-5 h-5 text-blue-400" />
+              <h2 className="text-sm font-black uppercase tracking-[0.2em] text-white">Notifications</h2>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setIsNotiOpen(false)} 
+              className="text-slate-400 hover:text-white hover:bg-white/10 rounded-full"
+            >
+              ✕
+            </Button>
+          </div>
+
+          <div className="flex-1 p-4 space-y-6 overflow-y-auto custom-scrollbar bg-[#090e1a]" style={{ backgroundColor: '#090e1a' }}>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between px-2">
+                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Unread Strategic Alerts</h3>
+                <span className="text-[9px] font-bold text-blue-400">{notifications.filter(n => !n.read).length} Alerts</span>
+              </div>
+              {notifications.filter(n => !n.read).map(n => (
+                <div key={n.id} className="p-5 rounded-xl bg-[#131c31] border border-white/15 hover:border-blue-500/50 transition-all shadow-xl" style={{ backgroundColor: '#131c31' }}>
+                  <div className="flex items-start gap-4">
+                    <div className={cn("p-2.5 rounded-lg bg-[#090e1a] border border-white/5", n.color)}>
+                      <n.icon className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span className="text-[11px] font-black text-white uppercase tracking-wider">{n.title}</span>
+                        <span className="text-[9px] font-bold text-slate-500">{n.time}</span>
+                      </div>
+                      <p className="text-xs text-white uppercase font-black leading-relaxed">{n.desc}</p>
+                      <div className="mt-5">
+                        <Button 
+                          onClick={() => markAsRead(n.id)}
+                          className="h-8 px-5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg shadow-lg active:scale-95 transition-all"
+                        >
+                          Mark as Read
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+              {notifications.filter(n => !n.read).length === 0 && (
+                <div className="py-20 text-center text-slate-600">
+                  <Sparkles className="w-10 h-10 mx-auto mb-4 opacity-50" />
+                  <p className="text-[10px] font-black uppercase tracking-widest">All caught up</p>
+                </div>
+              )}
+            </div>
+
+            <div className="pt-6 border-t border-white/5 space-y-4">
+              <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest px-2">Processed History</h3>
+              {notifications.filter(n => n.read).map(n => (
+                <div key={n.id} className="p-4 rounded-xl bg-slate-900 border border-white/10 opacity-50">
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 rounded-lg bg-slate-800 text-slate-600">
+                      <n.icon className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] font-black text-slate-500 uppercase tracking-wider">{n.title}</span>
+                      </div>
+                      <p className="text-[10px] text-slate-600 leading-relaxed">{n.desc}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </>
+    )}
+    </>
   );
 }
