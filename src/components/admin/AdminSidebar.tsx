@@ -12,10 +12,10 @@ interface AdminSidebarProps {
 const menuItems = [
   { id: 'Suppression' as AdminSection, label: 'Suppression', icon: ToggleLeft },
   { id: 'Deduplication' as AdminSection, label: 'Deduplication', icon: Copy },
-  { id: 'CorrelationTypes' as AdminSection, label: 'CorrelationTypes', icon: GitBranch },
-  { id: 'Intents' as AdminSection, label: 'IntentsHypothesis', icon: Lightbulb },
-  { id: 'KB' as AdminSection, label: 'KnowledgeBase', icon: BookOpen },
-  { id: 'AutoRemediation' as AdminSection, label: 'AutoRemediation', icon: Zap },
+  { id: 'CorrelationTypes' as AdminSection, label: 'Correlation Types', icon: GitBranch },
+  { id: 'Intents' as AdminSection, label: 'Intents Hypothesis', icon: Lightbulb },
+  { id: 'KB' as AdminSection, label: 'Knowledge Base', icon: BookOpen },
+  { id: 'AutoRemediation' as AdminSection, label: 'Auto Remediation', icon: Zap },
 ];
 
 export function AdminSidebar({ activeSection, onSectionChange }: AdminSidebarProps) {
@@ -33,9 +33,9 @@ export function AdminSidebar({ activeSection, onSectionChange }: AdminSidebarPro
       )}>
         {!isCollapsed && (
           <div className="flex flex-col animate-in fade-in slide-in-from-left-2 duration-500">
-            <h2 className="text-xl font-bold text-foreground">AdminSettings</h2>
+            <h2 className="text-xl font-bold text-foreground">Admin Settings</h2>
             <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight opacity-70">
-              ManageRulesIntentsAndRemediation
+              Manage Rules, Intents and Remediation
             </p>
           </div>
         )}
@@ -104,7 +104,7 @@ export function AdminSidebar({ activeSection, onSectionChange }: AdminSidebarPro
           <div className="flex items-center gap-2 px-1">
             <Shield className="h-3 w-3 text-primary/50" />
             <p className="text-[9px] text-muted-foreground leading-tight uppercase tracking-widest font-semibold opacity-50">
-              SystemSecureMode
+              System Secure Mode
             </p>
           </div>
         </div>

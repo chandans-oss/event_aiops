@@ -4,6 +4,7 @@ import { RAW_TRAINING_REPORTS } from "@/data/trainingReports";
 import { STRUCTURED_REPORTS } from "@/data/structuredTrainingData";
 import { renderCorrelationSession, renderGrangerSession } from "@/shared/lib/analysis-utils";
 import { MainLayout } from "@/shared/components/layout/MainLayout";
+import { SCOPE_TARGETS } from "@/data/lovelableReportData";
 import { Card } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
@@ -22,15 +23,15 @@ const DonutLoader = ({ className }: { className?: string }) => (
 );
 
 const PIPELINE_STEPS = [
-  { id: "cross_correlation", name: "CrossCorrelation", type: "Statistical", desc: "Discovering temporal lags and relationships between metrics" },
-  { id: "granger_causality", name: "GrangerCausality", type: "Statistical", desc: "Determining directional influence and predictive causality" },
-  { id: "pre_event_behavior", name: "PreEventMetricBehaviour", type: "Diagnostic", desc: "Analyzing metric shifts prior to critical events" },
-  { id: "pattern_clustering", name: "PatternClustering", type: "Unsupervised", desc: "Grouping similar device behaviors and signatures" },
-  { id: "random_forest", name: "RandomForestPredictor", type: "Ensemble", desc: "High-accuracy event forecasting and feature weights" },
-  { id: "sequence_mining", name: "EventSequenceMining", type: "Mining", desc: "Extracting sequential dependencies and patterns" },
-  { id: "anomaly_detection", name: "AnomalyDetection", type: "Unsupervised", desc: "Identifying outliers and localized behavior spikes" },
-  { id: "co_occurrence_matrix", name: "EventCoOccurrenceMatrix", type: "Statistical", desc: "Analyzing synergy between concurrent network events" },
-  { id: "failure_chain", name: "FailureChainPatterns", type: "Neural", desc: "Mapping causal chains from metric drift to root failure" },
+  { id: "cross_correlation", name: "Cross Correlation", type: "Statistical", desc: "Discovering temporal lags and relationships between metrics" },
+  { id: "granger_causality", name: "Granger Causality", type: "Statistical", desc: "Determining directional influence and predictive causality" },
+  { id: "pre_event_behavior", name: "Pre Event Metric Behavior", type: "Diagnostic", desc: "Analyzing metric shifts prior to critical events" },
+  { id: "pattern_clustering", name: "Pattern Clustering", type: "Unsupervised", desc: "Grouping similar device behaviors and signatures" },
+  { id: "random_forest", name: "Random Forest Predictor", type: "Ensemble", desc: "High-accuracy event forecasting and feature weights" },
+  { id: "sequence_mining", name: "Event Sequence Mining", type: "Mining", desc: "Extracting sequential dependencies and patterns" },
+  { id: "anomaly_detection", name: "Anomaly Detection", type: "Unsupervised", desc: "Identifying outliers and localized behavior spikes" },
+  { id: "co_occurrence_matrix", name: "Event Co-Occurrence Matrix", type: "Statistical", desc: "Analyzing synergy between concurrent network events" },
+  { id: "failure_chain", name: "Failure Chain Patterns", type: "Neural", desc: "Mapping causal chains from metric drift to root failure" },
 ];
 
 const BATCHES = [
@@ -56,6 +57,9 @@ export default function TrainingAnalysisPage() {
 
   const currentStepId = modelId ?? "cross_correlation";
   const stepIdx = PIPELINE_STEPS.findIndex(s => s.id === currentStepId);
+
+  const deviceFilter = location.state?.deviceFilter || 'device';
+  const selectedTarget = location.state?.selectedTarget || SCOPE_TARGETS['device'][0].label;
 
   useEffect(() => {
     if (location.state?.autoStart) setStarted(true);
@@ -101,14 +105,23 @@ export default function TrainingAnalysisPage() {
         finalLines = [...finalLines, ...renderGrangerSession(session)];
       });
     } else {
-      const raw = (modelId && RAW_TRAINING_REPORTS[modelId]) ? RAW_TRAINING_REPORTS[modelId] : RAW_TRAINING_REPORTS.default;
-      finalLines = raw.split("\n");
-    }
+    const raw = (modelId && RAW_TRAINING_REPORTS[modelId]) ? RAW_TRAINING_REPORTS[modelId] : RAW_TRAINING_REPORTS.default;
+    let baseLines = raw.split("\n");
+
+    // Add scope-aware prefixes to some lines for immersion
+    const prefix = selectedTarget.toUpperCase();
+    finalLines = baseLines.map(line => {
+      if (line.trim().length > 0 && !line.includes("=") && !line.includes("-") && !line.includes("SECTION")) {
+        return `[${prefix}] ${line}`;
+      }
+      return line;
+    });
 
     setLines(finalLines);
     setLinesShown(0);
     setDone(false);
-  }, [modelId]);
+    }
+  }, [modelId, selectedTarget]);
 
   // Line-by-line Streaming (0.2s per line)
   useEffect(() => {
@@ -143,10 +156,10 @@ export default function TrainingAnalysisPage() {
             <div>
               <div className="flex items-center gap-2 text-[10px] uppercase font-black tracking-widest text-[#555] mb-0.5">
                 <BrainCircuit className="h-3 w-3 text-orange-500/60" />
-                TrainingCore
+                Training Core
               </div>
               <h1 className="text-xl font-black uppercase italic tracking-tighter text-white leading-none">
-                {PIPELINE_STEPS[stepIdx]?.name} <span className="text-muted-foreground/30 ml-2">— LiveAnalysis</span>
+                {PIPELINE_STEPS[stepIdx]?.name} <span className="text-muted-foreground/30 ml-2">— {selectedTarget} Diagnostic</span>
               </h1>
             </div>
           </div>
@@ -159,8 +172,23 @@ export default function TrainingAnalysisPage() {
               >
                 <div className="flex items-center">
                   <Play className="mr-2 h-4 w-4 fill-current" />
-                  StartTrainingEngine
+                  Start Training Engine
                 </div>
+              </Button>
+            )}
+            {done && (
+              <Button
+                onClick={() => {
+                  const nextIdx = stepIdx + 1;
+                  if (nextIdx < PIPELINE_STEPS.length) {
+                    navigate(`/pattern-prediction/training/analysis/${PIPELINE_STEPS[nextIdx].id}`, { state: { ...location.state, autoStart: true } });
+                  } else {
+                    navigate("/pattern-prediction/training-lovelable", { state: location.state });
+                  }
+                }}
+                className="bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] font-black uppercase tracking-widest px-8 h-10 rounded-full shadow-[0_0_25px_rgba(16,185,129,0.3)] transition-all transform hover:scale-105"
+              >
+                {stepIdx + 1 < PIPELINE_STEPS.length ? "Next Step" : "Final Report"}
               </Button>
             )}
             <Button variant="outline" className="bg-[#0a0a0a] border-white/10 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-white h-10 px-6 rounded-full">
@@ -181,14 +209,14 @@ export default function TrainingAnalysisPage() {
               <div className="flex items-center justify-between px-1">
                 <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-orange-500/80 flex items-center gap-3">
                   <Monitor className="h-4 w-4" />
-                  TelemetryIngestion
+                  Telemetry Ingestion
                 </h2>
                 {started && <Badge className="bg-orange-500/10 text-orange-500 border-none animate-pulse text-[8px] font-black tracking-widest">Realtime</Badge>}
               </div>
 
               <Card className="p-6 bg-[#0a0a0a]/80 border-white/5 space-y-6 shadow-2xl overflow-hidden relative group">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500/50 via-amber-500/50 to-orange-500/50 opacity-20 group-hover:opacity-100 transition-opacity duration-700" />
-                <h3 className="text-[10px] font-black uppercase opacity-30 italic text-muted-foreground">TemporalWindows75Minute</h3>
+                <h3 className="text-[10px] font-black uppercase opacity-30 italic text-muted-foreground">Temporal Windows 75 Minute</h3>
 
                 <div className="space-y-4">
                   {BATCHES.map((batch, i) => (
@@ -221,7 +249,7 @@ export default function TrainingAnalysisPage() {
             <section className="flex-1 flex flex-col gap-4 min-h-0">
               <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-orange-500/80 flex items-center gap-3 italic">
                 <Workflow className="h-4 w-4" />
-                AlgorithmicEnginePipeline
+                Algorithmic Engine Pipeline
               </h2>
               <ScrollArea className="flex-1 pr-4">
                 <div className="space-y-3 pb-8">
@@ -231,7 +259,7 @@ export default function TrainingAnalysisPage() {
                     return (
                       <Card
                         key={step.id}
-                        onClick={() => navigate(`/pattern-prediction/training/analysis/${step.id}`)}
+                        onClick={() => navigate(`/pattern-prediction/training/analysis/${step.id}`, { state: location.state })}
                         className={cn(
                           "group p-5 border-white/5 bg-white/[0.02] cursor-pointer transition-all active:scale-[0.98]",
                           isActive && "bg-orange-500/[0.05] border-orange-500/20 shadow-lg",
@@ -280,7 +308,7 @@ export default function TrainingAnalysisPage() {
                   <div className="h-4 w-[1px] bg-white/5 mx-2" />
                   <span className="font-mono text-[9px] text-white/20 uppercase tracking-[0.2em] flex items-center gap-2">
                     <Terminal className="h-3 w-3" />
-                    DiagnosticKernel
+                    Diagnostic Kernel
                   </span>
                 </div>
                 {started && windowingDone && !done && (
@@ -303,8 +331,8 @@ export default function TrainingAnalysisPage() {
                         <Play className="h-10 w-10 text-orange-500 fill-orange-500/20 ml-1.5" />
                       </div>
                     </div>
-                    <h3 className="mt-8 text-xs font-black uppercase tracking-[0.4em] text-white/40 italic">SystemReady</h3>
-                    <p className="mt-2 text-[10px] text-white/20 font-bold uppercase tracking-widest">AwaitingAlgorithmicTrigger</p>
+                    <h3 className="mt-8 text-xs font-black uppercase tracking-[0.4em] text-white/40 italic">System Ready</h3>
+                    <p className="mt-2 text-[10px] text-white/20 font-bold uppercase tracking-widest">Awaiting Algorithmic Trigger</p>
                   </div>
                 )}
 

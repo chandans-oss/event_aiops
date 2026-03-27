@@ -49,11 +49,11 @@ const navItems: NavItem[] = [
     icon: LayoutDashboard,
     children: [
       { path: "/", label: "Overview", icon: LayoutDashboard },
-      { path: "/dashboard/prediction", label: "PredictionDashboard", icon: Activity },
-      { path: "/dashboard/kpi", label: "KpiDashboard", icon: BarChart3 },
-      { path: "/dashboard/rca-analysis", label: "RcaAnalysis", icon: Search },
-      { path: "/dashboard/alarm-prediction", label: "AlarmPrediction", icon: TrendingUp },
-      { path: "/dashboard/roi", label: "RoiDashboard", icon: Target },
+      { path: "/dashboard/prediction", label: "Prediction Dashboard", icon: Activity },
+      { path: "/dashboard/kpi", label: "KPI Dashboard", icon: BarChart3 },
+      { path: "/dashboard/rca-analysis", label: "RCA Analysis", icon: Search },
+      { path: "/dashboard/alarm-prediction", label: "Alarm Prediction", icon: TrendingUp },
+      { path: "/dashboard/roi", label: "ROI Dashboard", icon: Target },
     ]
   },
   {
@@ -61,15 +61,15 @@ const navItems: NavItem[] = [
     label: "Events",
     icon: Activity,
     children: [
-      { path: "/events", label: "EventList", icon: List },
+      { path: "/events", label: "Event List", icon: List },
       { path: "/events/predicted", label: "Prediction", icon: TrendingUp },
-      { path: "/clustering", label: "AnomalyDetection", icon: GitBranch },
-      { path: "/correlation", label: "PatternDetection", icon: BrainCircuit },
+      { path: "/clustering", label: "Anomaly Detection", icon: GitBranch },
+      { path: "/correlation", label: "Pattern Detection", icon: BrainCircuit },
     ]
   },
   {
     path: "/event-processing",
-    label: "EventProcessing",
+    label: "Event Processing",
     icon: Activity,
     children: [
       { path: "/event-processing/deduplication", label: "Dedup Lab", icon: FolderArchive },
@@ -86,10 +86,9 @@ const navItems: NavItem[] = [
       { path: "/admin", label: "Configuration", icon: Settings },
     ]
   },
-  { path: "/agents", label: "Agents", icon: Bot },
   {
     path: "/pattern-prediction",
-    label: "PatternPrediction",
+    label: "Pattern Prediction",
     icon: TrendingUp,
     children: [
       { path: "/pattern-prediction/pattern", label: "Pattern", icon: GitBranch },
@@ -97,7 +96,7 @@ const navItems: NavItem[] = [
       { path: "/pattern-prediction/anomalies", label: "Anomalies", icon: Activity },
       { path: "/pattern-prediction/training", label: "Training", icon: Target },
       { path: "/pattern-prediction/results", label: "Results", icon: FileText },
-      { path: "/pattern-prediction/live-inference", label: "LiveInference", icon: PlayCircle },
+      { path: "/pattern-prediction/live-inference", label: "Live Inference", icon: PlayCircle },
     ]
   },
   {
@@ -105,7 +104,7 @@ const navItems: NavItem[] = [
     label: "Playground",
     icon: Settings,
     children: [
-      { path: "/playground/rca", label: "RcaPlayground", icon: Workflow },
+      { path: "/playground/rca", label: "RCA Playground", icon: Workflow },
     ]
   },
   {
@@ -113,9 +112,10 @@ const navItems: NavItem[] = [
     label: "Demo",
     icon: PlayCircle,
     children: [
-      { path: "/demo/rca-flow", label: "RcaFlow", icon: Workflow },
+      { path: "/demo/rca-flow", label: "RCA Flow", icon: Workflow },
       { path: "/demo/playground", label: "Playground", icon: PlayCircle },
-      { path: "/demo/impact", label: "ImpactAnalysis", icon: BarChart3 },
+      { path: "/demo/impact", label: "Impact Analysis", icon: BarChart3 },
+      { path: "/agents", label: "Agents", icon: Bot },
     ]
   },
   {
@@ -123,10 +123,10 @@ const navItems: NavItem[] = [
     label: "Temp",
     icon: FolderArchive,
     children: [
-      { path: "/preprocessing", label: "PreProcessing", icon: FileInput },
-      { path: "/rca-impact", label: "RcaImpact", icon: Search },
+      { path: "/preprocessing", label: "Pre-Processing", icon: FileInput },
+      { path: "/rca-impact", label: "RCA Impact", icon: Search },
       { path: "/remediation", label: "Remediation", icon: Wrench },
-      { path: "/upload", label: "EventUpload", icon: Upload },
+      { path: "/upload", label: "Event Upload", icon: Upload },
     ]
   },
 ];

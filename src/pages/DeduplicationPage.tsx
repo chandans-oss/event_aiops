@@ -320,7 +320,7 @@ export default function DeduplicationPage() {
                               <div className="bg-secondary/20 p-4 rounded-xl space-y-3 border border-border/50">
                                 {Object.entries(selectedResult.logic_details).map(([key, val]: [string, any]) => (
                                   <div key={key} className="flex justify-between items-start text-xs border-b border-border/20 last:border-none pb-2 mb-2 last:pb-0 last:mb-0">
-                                    <span className="text-muted-foreground capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
+                                    <span className="text-muted-foreground capitalize">{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</span>
                                     <span className="font-mono text-foreground text-right">{val.toString()}</span>
                                   </div>
                                 ))}

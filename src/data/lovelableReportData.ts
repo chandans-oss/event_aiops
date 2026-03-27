@@ -9,6 +9,8 @@ export interface MetricDelta {
   m: string;
   dpct: number;
   up: boolean;
+  normal?: number;
+  pre?: number;
 }
 
 export interface PreEventData {
@@ -245,60 +247,70 @@ export const LOVELABLE_REPORT_DATA: LovelableReport = {
   preEvtR: [
     {
       evt: 'HIGH_LATENCY', n: 231, windows: 343, warn: '75 min', metrics: [
-        { m: 'crc_errors', dpct: 3195, up: true }, { m: 'queue_depth', dpct: 2169, up: true },
-        { m: 'latency_ms', dpct: 467, up: true }, { m: 'util_pct', dpct: 70, up: true },
-        { m: 'cpu_pct', dpct: 17, up: true }, { m: 'mem_util_pct', dpct: 2, up: true },
+        { m: 'crc_errors', normal: 0.1, pre: 3.3, dpct: 3195, up: true }, { m: 'queue_depth', normal: 0.2, pre: 4.5, dpct: 2169, up: true },
+        { m: 'latency_ms', normal: 10, pre: 56.7, dpct: 467, up: true }, { m: 'util_pct', normal: 40, pre: 68, dpct: 70, up: true },
+        { m: 'cpu_pct', normal: 25, pre: 29.2, dpct: 17, up: true }, { m: 'mem_util_pct', normal: 55, pre: 56.1, dpct: 2, up: true },
       ]
     },
     {
-      evt: 'HIGH_UTIL_WARNING', n: 532, windows: 719, warn: '75 min', metrics: [
-        { m: 'queue_depth', dpct: 37608, up: true }, { m: 'crc_errors', dpct: 13422, up: true },
-        { m: 'latency_ms', dpct: 454, up: true }, { m: 'util_pct', dpct: 64, up: true },
-        { m: 'cpu_pct', dpct: 13, up: true }, { m: 'mem_util_pct', dpct: 2, up: true },
+      evt: 'HIGH_UTIL_WARNING', n: 178, windows: 343, warn: '75 min', metrics: [
+        { m: 'util_pct', normal: 36.6, pre: 64.5, dpct: 76, up: true },
+        { m: 'queue_depth', normal: 0.4, pre: 18.5, dpct: 4774, up: true },
+        { m: 'crc_errors', normal: 0.1, pre: 4.4, dpct: 4728, up: true },
+        { m: 'latency_ms', normal: 3.5, pre: 17.0, dpct: 384, up: true },
       ]
     },
     {
-      evt: 'INTERFACE_FLAP', n: 277, windows: 408, warn: '75 min', metrics: [
-        { m: 'crc_errors', dpct: 6225, up: true }, { m: 'queue_depth', dpct: 2833, up: true },
-        { m: 'latency_ms', dpct: 520, up: true }, { m: 'util_pct', dpct: 71, up: true },
-        { m: 'cpu_pct', dpct: 18, up: true }, { m: 'mem_util_pct', dpct: 2, up: true },
+      evt: 'INTERFACE_FLAP', n: 143, windows: 222, warn: '75 min', metrics: [
+        { m: 'util_pct', normal: 37.9, pre: 70.5, dpct: 86, up: true },
+        { m: 'queue_depth', normal: 1.3, pre: 26.5, dpct: 1916, up: true },
+        { m: 'crc_errors', normal: 0.3, pre: 7.2, dpct: 2671, up: true },
+        { m: 'latency_ms', normal: 4.2, pre: 23.0, dpct: 442, up: true },
+        { m: 'cpu_pct', normal: 26.5, pre: 32.3, dpct: 22, up: true },
       ]
     },
     {
-      evt: 'PACKET_DROP', n: 493, windows: 657, warn: '75 min', metrics: [
-        { m: 'queue_depth', dpct: 11903, up: true }, { m: 'crc_errors', dpct: 14635, up: true },
-        { m: 'latency_ms', dpct: 494, up: true }, { m: 'util_pct', dpct: 67, up: true },
-        { m: 'cpu_pct', dpct: 15, up: true }, { m: 'mem_util_pct', dpct: 2, up: true },
+      evt: 'PACKET_DROP', n: 246, windows: 329, warn: '75 min', metrics: [
+        { m: 'util_pct', normal: 36.4, pre: 65.1, dpct: 79, up: true },
+        { m: 'queue_depth', normal: 0.2, pre: 19.3, dpct: 9149, up: true },
+        { m: 'crc_errors', normal: 0.1, pre: 4.7, dpct: 8166, up: true },
+        { m: 'latency_ms', normal: 3.4, pre: 17.6, dpct: 418, up: true },
       ]
     },
   ],
   preEvtS: [
     {
-      evt: 'DEVICE_REBOOT', n: 2, windows: 6, warn: '5 min', metrics: [
-        { m: 'queue_depth', dpct: -100, up: false }, { m: 'crc_errors', dpct: -98, up: false },
-        { m: 'latency_ms', dpct: -62, up: false }, { m: 'util_pct', dpct: -22, up: false },
-        { m: 'cpu_pct', dpct: -16, up: false }, { m: 'mem_util_pct', dpct: -1, up: false },
+      evt: 'HIGH_UTIL_WARNING', n: 178, windows: 343, warn: '75 min', metrics: [
+        { m: 'util_pct', normal: 36.6, pre: 64.5, dpct: 76, up: true },
+        { m: 'queue_depth', normal: 0.4, pre: 18.5, dpct: 4774, up: true },
+        { m: 'crc_errors', normal: 0.1, pre: 4.4, dpct: 4728, up: true },
+        { m: 'latency_ms', normal: 3.5, pre: 17.0, dpct: 384, up: true },
       ]
     },
     {
-      evt: 'HIGH_UTIL_WARNING', n: 207, windows: 298, warn: '75 min', metrics: [
-        { m: 'queue_depth', dpct: 5799, up: true }, { m: 'crc_errors', dpct: 5770, up: true },
-        { m: 'latency_ms', dpct: 397, up: true }, { m: 'util_pct', dpct: 77, up: true },
-        { m: 'cpu_pct', dpct: 19, up: true }, { m: 'reboot_delta', dpct: 0, up: false },
+      evt: 'INTERFACE_FLAP', n: 143, windows: 222, warn: '75 min', metrics: [
+        { m: 'util_pct', normal: 37.9, pre: 70.5, dpct: 86, up: true },
+        { m: 'queue_depth', normal: 1.3, pre: 26.5, dpct: 1916, up: true },
+        { m: 'crc_errors', normal: 0.3, pre: 7.2, dpct: 2671, up: true },
+        { m: 'latency_ms', normal: 4.2, pre: 23.0, dpct: 442, up: true },
+        { m: 'cpu_pct', normal: 26.5, pre: 32.3, dpct: 22, up: true },
       ]
     },
     {
-      evt: 'INTERFACE_FLAP', n: 146, windows: 222, warn: '75 min', metrics: [
-        { m: 'crc_errors', dpct: 2879, up: true }, { m: 'queue_depth', dpct: 2058, up: true },
-        { m: 'latency_ms', dpct: 469, up: true }, { m: 'util_pct', dpct: 88, up: true },
-        { m: 'cpu_pct', dpct: 23, up: true }, { m: 'reboot_delta', dpct: 0, up: false },
+      evt: 'LINK_DOWN', n: 2, windows: 5, warn: '15 min', metrics: [
+        { m: 'util_pct', normal: 42.9, pre: 81.0, dpct: 89, up: true },
+        { m: 'queue_depth', normal: 6.1, pre: 46.4, dpct: 657, up: true },
+        { m: 'crc_errors', normal: 2.1, pre: 17.4, dpct: 746, up: true },
+        { m: 'latency_ms', normal: 7.8, pre: 37.3, dpct: 378, up: true },
+        { m: 'cpu_pct', normal: 27.5, pre: 36.3, dpct: 32, up: true },
       ]
     },
     {
-      evt: 'PACKET_DROP', n: 239, windows: 329, warn: '75 min', metrics: [
-        { m: 'queue_depth', dpct: 3157, up: true }, { m: 'crc_errors', dpct: 3317, up: true },
-        { m: 'latency_ms', dpct: 408, up: true }, { m: 'util_pct', dpct: 79, up: true },
-        { m: 'cpu_pct', dpct: 19, up: true }, { m: 'reboot_delta', dpct: 0, up: false },
+      evt: 'PACKET_DROP', n: 246, windows: 329, warn: '75 min', metrics: [
+        { m: 'util_pct', normal: 36.4, pre: 65.1, dpct: 79, up: true },
+        { m: 'queue_depth', normal: 0.2, pre: 19.3, dpct: 9149, up: true },
+        { m: 'crc_errors', normal: 0.1, pre: 4.7, dpct: 8166, up: true },
+        { m: 'latency_ms', normal: 3.4, pre: 17.6, dpct: 418, up: true },
       ]
     },
   ],
@@ -400,5 +412,31 @@ export const LOVELABLE_REPORT_DATA: LovelableReport = {
     { a: 'HIGH_UTIL_WARNING', b: 'INTERFACE_FLAP', n: 35, lift: 1.00 },
     { a: 'HIGH_UTIL_WARNING', b: 'LINK_DOWN', n: 2, lift: 1.00 },
     { a: 'HIGH_UTIL_WARNING', b: 'PACKET_DROP', n: 41, lift: 1.00 },
+  ],
+};
+
+export const SCOPE_TARGETS = {
+  device: [
+    { label: 'Router Core 01', sub: 'Router' },
+    { label: 'Router Core 02', sub: 'Router' },
+    { label: 'Router Edge 01', sub: 'Router' },
+    { label: 'Switch Dist 01', sub: 'Switch' },
+    { label: 'Switch Dist 02', sub: 'Switch' },
+    { label: 'Switch Access 01', sub: 'Switch' },
+    { label: 'Switch Access 02', sub: 'Switch' },
+  ],
+  topology: [
+    { label: 'DC East', sub: 'Data Center' },
+    { label: 'DC West', sub: 'Data Center' },
+    { label: 'Campus HQ', sub: 'Campus' },
+    { label: 'Branch North', sub: 'Branch' },
+    { label: 'WAN Backbone', sub: 'WAN' },
+  ],
+  group: [
+    { label: 'Premium Devices', sub: '3 Routers, 4 Switches' },
+    { label: 'Site 001 [HQ Gen]', sub: '2 Routers, 2 Switches' },
+    { label: 'DC Cluster A', sub: '5 Routers, 12 Switches' },
+    { label: 'Site 002 [Branch]', sub: '1 Router, 4 Switches' },
+    { label: 'Legacy Infrastructure', sub: '2 Routers, 15 Switches' },
   ],
 };

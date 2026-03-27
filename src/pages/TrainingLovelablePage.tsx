@@ -1,9 +1,9 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useNavigate, useLocation, NavLink } from "react-router-dom";
 import { MainLayout } from "@/shared/components/layout/MainLayout";
-import { LOVELABLE_REPORT_DATA as D, RFData } from "@/data/lovelableReportData";
+import { LOVELABLE_REPORT_DATA as D, RFData, SCOPE_TARGETS, PreEventData } from "@/data/lovelableReportData";
 import { cn } from "@/shared/lib/utils";
-import { Play, Loader2, CheckCircle2, RotateCcw, ChevronDown, ChevronRight, FileText, Info } from "lucide-react";
+import { Play, Loader2, CheckCircle2, RotateCcw, ChevronDown, ChevronRight, FileText, Info, ArrowRight, ArrowUpRight, ArrowDownRight, Clock } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const fmt = (v: number) => {
@@ -28,12 +28,12 @@ const Bar = ({ val, max, col }: { val: number, max: number, col: string }) => {
 };
 
 const LoadingState = ({ title }: { title: string }) => (
-  <div className="py-32 flex flex-col items-center justify-center text-center animate-in fade-in duration-500">
+  <div className="py-32 flex flex-col items-center justify-center text-center">
     <div className="w-16 h-16 bg-[#1E293B] rounded-full flex items-center justify-center mb-6 border border-[#334155] shadow-[0_0_20px_rgba(59,130,246,0.1)]">
       <Loader2 className="w-6 h-6 text-[#3B82F6] animate-spin" />
     </div>
-    <div className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.2em] text-[#3B82F6] mb-2 uppercase font-bold pr-2">AnalyticalProcessing...</div>
-    <h2 className="text-[18px] font-semibold mb-1 tracking-tight text-[#F8FAFC]">Calibrating {title} models</h2>
+    <div className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.2em] text-[#3B82F6] mb-2 uppercase font-bold pr-2">Analytical Processing...</div>
+    <h2 className="text-[18px] font-semibold mb-1 tracking-tight text-[#F8FAFC]">Calibrating {title} Models</h2>
     <p className="text-[#94A3B8] max-w-sm font-['IBM_Plex_Mono',monospace] text-[11px] mt-2">
       Waiting for training pipeline to reach this extraction stage. Results will populate automatically.
     </p>
@@ -84,7 +84,7 @@ const AnomalyHeatMap = ({ data }: { data: any[] }) => {
   return (
     <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden shadow-2xl animate-in fade-in duration-700">
       <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#EF4444] font-bold uppercase">ResourceAnomalyHeatMap</span>
+        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#EF4444] font-bold uppercase">Resource Anomaly Heat Map</span>
         <div className="flex gap-4 items-center">
           <div className="flex items-center gap-1.5 font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] font-bold uppercase transition-all hover:scale-105">
             <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444] shadow-[0_0_8px_rgba(239,68,68,0.4)]" /> HIGH
@@ -100,7 +100,7 @@ const AnomalyHeatMap = ({ data }: { data: any[] }) => {
       <div className="p-4 overflow-x-auto no-scrollbar">
         <div className="min-w-[650px]">
           <div className="grid grid-cols-[160px_repeat(5,1fr)] gap-2 mb-3 px-2">
-            <div className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] uppercase font-black pr-2 tracking-widest">EntityIdentifier</div>
+            <div className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] uppercase font-black pr-2 tracking-widest">Entity Identifier</div>
             {metrics.map(m => (
               <div key={m.key} className="text-center font-['IBM_Plex_Mono',monospace] text-[8px] text-[#64748B] font-black uppercase tracking-widest">{m.label}</div>
             ))}
@@ -144,23 +144,102 @@ const AnomalyHeatMap = ({ data }: { data: any[] }) => {
         </div>
       </div>
       <div className="px-3.5 py-2 bg-[#0F172A]/50 border-t border-[#334155] flex justify-between font-['IBM_Plex_Mono',monospace] text-[8px] text-[#475569] uppercase tracking-wider">
-        <span>WindowsSampled</span>
-        <span>IsolationDepth</span>
+        <span>Windows Sampled</span>
+        <span>Isolation Depth</span>
       </div>
     </div>
   );
 };
 
-const CorrelationVennDiagram = ({ a, b, r, dev }: { a: string, b: string, r: number, dev: string }) => {
+const LiftMatrixHeatMap = ({ dataR, dataS }: { dataR: any[], dataS: any[] }) => {
+  const mergedData = useMemo(() => {
+    const map = new Map();
+    [...dataR, ...dataS].forEach(d => {
+      const key = [d.a, d.b].sort().join('|');
+      if (!map.has(key)) map.set(key, { ...d });
+      else {
+        const existing = map.get(key);
+        existing.lift = Math.max(existing.lift, d.lift); // Take strongest correlation found
+        existing.n += d.n;
+      }
+    });
+    return Array.from(map.values());
+  }, [dataR, dataS]);
+
+  const events = Array.from(new Set(mergedData.flatMap(d => [d.a, d.b]))).sort();
+
+  return (
+    <div className="animate-in fade-in duration-700">
+      <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[16px] overflow-hidden shadow-2xl relative">
+        <div className="px-4 py-3 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-2 h-2 rounded-full bg-[#3DDAB4] shadow-[0_0_10px_rgba(61,218,180,0.4)] animate-pulse" />
+            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] tracking-[0.1em] text-[#3DDAB4] font-black uppercase">Event Co-occurrence Heatmap</span>
+          </div>
+          <div className="flex gap-6 items-center">
+            <div className="flex items-center gap-2 font-['IBM_Plex_Mono',monospace] text-[10px] text-[#F8FAFC] font-black uppercase tracking-wider">
+              <div className="w-3.5 h-3.5 rounded-[3px] bg-[#3DDAB4] shadow-[0_0_10px_rgba(61,218,180,0.3)]" /> HI-LIFT ({'>'}1.2)
+            </div>
+            <div className="flex items-center gap-2 font-['IBM_Plex_Mono',monospace] text-[10px] text-[#F8FAFC] font-black uppercase tracking-wider">
+              <div className="w-3.5 h-3.5 rounded-[3px] bg-[#F59E0B] shadow-[0_0_10px_rgba(245,158,11,0.3)]" /> MED (~1.1)
+            </div>
+            <div className="flex items-center gap-2 font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] font-black uppercase tracking-wider">
+              <div className="w-3.5 h-3.5 rounded-[3px] bg-[#1e293b] border border-white/20" /> BASELINE (1.0)
+            </div>
+          </div>
+        </div>
+
+        <div className="p-10 pt-16">
+          <div className="grid grid-cols-[140px_repeat(6,1fr)] gap-1.5 mb-4">
+            <div />
+            {events.map(e => (
+              <div key={e} className="text-[9px] text-[#64748B] font-black uppercase tracking-tighter text-center -rotate-45 h-20 flex items-end justify-center pb-3 leading-none whitespace-nowrap overflow-visible font-['IBM_Plex_Mono',monospace]">
+                {e}
+              </div>
+            ))}
+          </div>
+
+          {events.map(row => (
+            <div key={row} className="grid grid-cols-[140px_repeat(6,1fr)] gap-1.5 mb-1.5 items-stretch">
+              <div className="text-[10px] text-[#94A3B8] font-black uppercase truncate pr-6 text-right flex items-center justify-end font-['IBM_Plex_Mono',monospace] border-r border-white/5">{row}</div>
+              {events.map(col => {
+                const d = mergedData.find(x => (x.a === row && x.b === col) || (x.a === col && x.b === row));
+                const isDiag = row === col;
+                const lift = isDiag ? 0 : (d ? d.lift : 0);
+                const color = lift > 1.15 ? '#3DDAB4' : lift > 1.05 ? '#f59e0b' : lift > 0 ? '#334155' : '#111827';
+                const opacity = lift > 1.15 ? '1' : lift > 1.05 ? '0.75' : '0.4';
+
+                return (
+                  <div key={col} className={cn("h-12 rounded-[4px] border border-white/5 flex items-center justify-center relative group transition-all duration-300", lift > 0 ? "hover:scale-[1.15] hover:z-10 cursor-help hover:border-white/20 shadow-lg" : "opacity-20")} style={{ background: color, opacity }}>
+                    {lift > 0 && <span className="text-[12px] font-black text-[#0F172A] group-hover:text-white transition-colors font-['IBM_Plex_Mono',monospace]">{lift.toFixed(1)}</span>}
+                    {lift > 0 && (
+                      <div className="absolute inset-x-0 -top-12 opacity-0 group-hover:opacity-100 transition-all z-50 pointer-events-none translate-y-2 group-hover:translate-y-0">
+                        <div className="bg-[#0F172A] px-3 py-2 rounded-lg border border-[#3DDAB4]/30 shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex flex-col items-center gap-1">
+                          <span className="text-[8px] text-[#3DDAB4] font-black uppercase tracking-widest">{row} & {col}</span>
+                          <span className="text-[11px] text-white font-black">{lift.toFixed(2)} Lift Score</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CorrelationVennDiagram = ({ a, b, r, dev, lag }: { a: string, b: string, r: number, dev: string, lag: string }) => {
   const r2 = r * r;
-  const overlap = r2 * 60; // Max overlap scale
-  const distance = 80 - (r2 * 60); // Distance between centers
+  const distance = 80 - (Math.abs(r) * 60); // Distance between centers based on R
 
   return (
     <div className="bg-[#0F172A]/40 border border-[#334155] rounded-xl p-4 flex flex-col items-center animate-in zoom-in duration-500 hover:border-[#3B82F6]/50 transition-all group">
       <div className="w-full mb-3">
         <div className="flex flex-col">
-          <span className="text-[10px] text-[#3B82F6] font-bold uppercase tracking-widest leading-none mb-1">NodeInfo</span>
+          <span className="text-[10px] text-[#3B82F6] font-bold uppercase tracking-widest leading-none mb-1">Node Info</span>
           <span className="text-[14px] font-bold text-[#F8FAFC] tracking-tight leading-tight">{a} & {b}</span>
         </div>
       </div>
@@ -188,19 +267,20 @@ const CorrelationVennDiagram = ({ a, b, r, dev }: { a: string, b: string, r: num
             <circle cx={150 - distance / 2} cy="80" r="55" fill="#3B82F6" fillOpacity="0.3" className="animate-pulse" />
           </g>
 
-          <text x={150 - distance / 2 - 20} y="145" textAnchor="middle" className="fill-[#94A3B8] text-[9px] font-bold uppercase">{a}</text>
-          <text x={150 + distance / 2 + 20} y="145" textAnchor="middle" className="fill-[#94A3B8] text-[9px] font-bold uppercase">{b}</text>
+          {/* Side Labels to avoid overlap */}
+          <text x={150 - distance / 2 - 60} y="85" textAnchor="end" className="fill-[#64748B] text-[9px] font-black uppercase font-['IBM_Plex_Mono',monospace]">{a}</text>
+          <text x={150 + distance / 2 + 60} y="85" textAnchor="start" className="fill-[#64748B] text-[9px] font-black uppercase font-['IBM_Plex_Mono',monospace]">{b}</text>
         </svg>
       </div>
 
       <div className="w-full mt-2 pt-2 border-t border-white/5 flex justify-center gap-6">
         <div className="flex flex-col items-center">
-          <span className="text-[12px] text-[#F8FAFC] font-bold">{r.toFixed(3)}</span>
-          <span className="text-[9px] text-[#475569] uppercase font-black">PearsonR</span>
+          <span className="text-[12px] text-[#F8FAFC] font-bold">{(r * 100).toFixed(1)}%</span>
+          <span className="text-[9px] text-[#475569] uppercase font-black">Pearson Value</span>
         </div>
-        <div className="flex flex-col items-center">
-          <span className="text-[12px] text-[#F8FAFC] font-bold">{(r2 * 100).toFixed(1)}%</span>
-          <span className="text-[9px] text-[#475569] uppercase font-black">Overlap</span>
+        <div className="flex flex-col items-center border-l border-white/10 pl-6">
+          <span className="text-[12px] text-[#3B82F6] font-bold">{lag}</span>
+          <span className="text-[9px] text-[#475569] uppercase font-black">Best Lag</span>
         </div>
       </div>
     </div>
@@ -209,63 +289,65 @@ const CorrelationVennDiagram = ({ a, b, r, dev }: { a: string, b: string, r: num
 
 const CausalVennDiagram = ({ cause, effect, fstat, p, lag, dev }: { cause: string, effect: string, fstat: number, p: string, lag: string, dev: string }) => {
   return (
-    <div className="bg-[#0F172A]/40 border border-[#334155] rounded-xl p-4 flex flex-col items-center animate-in zoom-in duration-500 hover:border-[#F59E0B]/30 transition-all group relative overflow-hidden">
-      {/* Directional Flow Background */}
-      <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[#F59E0B]/30 to-transparent" />
-
-      <div className="w-full mb-3">
-        <div className="flex flex-col">
-          <span className="text-[10px] text-[#F59E0B] font-bold uppercase tracking-widest leading-none mb-1">NodeCausality</span>
-          <span className="text-[14px] font-bold text-[#F8FAFC] tracking-tight leading-tight flex items-center gap-2">
-            {cause} <ChevronRight className="w-3.5 h-3.5 text-[#F59E0B] animate-pulse" /> {effect}
-          </span>
-        </div>
+    <div className="bg-[#0F172A]/60 border border-[#334155]/60 rounded-2xl p-4 flex flex-col animate-in zoom-in duration-500 hover:border-[#F59E0B]/40 transition-all group relative overflow-hidden shadow-2xl">
+      <div className="w-full mb-3 pb-2 border-b border-white/5 flex items-center justify-between px-1">
+        <span className="text-[12px] font-black text-[#F8FAFC] flex items-center gap-2 truncate font-['IBM_Plex_Mono',monospace]">
+          {cause} <ArrowRight className="w-3.5 h-3.5 text-[#F59E0B] opacity-60" /> {effect}
+        </span>
+        <span className={cn("px-1.5 py-0.5 rounded-[4px] text-[8px] font-black uppercase tracking-tighter shrink-0", dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'bg-[#3DDAB4]/20 text-[#3DDAB4]')}>{dev}</span>
       </div>
 
-      <div className="relative h-32 w-full flex items-center justify-center">
-        <svg viewBox="0 0 300 160" className="w-full h-full drop-shadow-[0_0_15px_rgba(245,158,11,0.1)]">
+      <div className="relative h-32 w-full flex items-center justify-center bg-[#0F172A]/20 rounded-xl border border-white/5 mb-2">
+        <svg viewBox="0 0 300 160" className="w-full h-full drop-shadow-[0_0_20px_rgba(245,158,11,0.08)]">
           <defs>
             <linearGradient id={`grad-cause-${cause}-${effect}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.4" />
+              <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.5" />
               <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.1" />
             </linearGradient>
             <linearGradient id={`grad-effect-${cause}-${effect}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.4" />
+              <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.5" />
               <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1" />
             </linearGradient>
-          </defs>
-
-          <circle cx="110" cy="80" r="50" fill={`url(#grad-cause-${cause}-${effect})`} stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="4 2" />
-          <circle cx="190" cy="80" r="50" fill={`url(#grad-effect-${cause}-${effect})`} stroke="#3B82F6" strokeWidth="1" strokeDasharray="2 2" className="opacity-50" />
-
-          {/* Causal Impact Vector */}
-          <path
-            d="M 115 80 L 180 80"
-            stroke="#F59E0B"
-            strokeWidth="3"
-            markerEnd="url(#arrowhead)"
-            strokeDasharray={fstat > 100 ? "" : "5 5"}
-            className="animate-in slide-in-from-left duration-1000"
-          />
-          <defs>
-            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orientation="auto">
+            <marker id="arrowhead-causal" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orientation="auto">
               <polygon points="0 0, 10 3.5, 0 7" fill="#F59E0B" />
             </marker>
           </defs>
 
-          <text x="110" y="145" textAnchor="middle" className="fill-[#94A3B8] text-[9px] font-bold uppercase">Cause</text>
-          <text x="190" y="145" textAnchor="middle" className="fill-[#94A3B8] text-[9px] font-bold uppercase">Effect</text>
+          {/* Connectors */}
+          <path d="M 120 80 Q 150 70, 180 80" fill="none" stroke="#F59E0B" strokeWidth="2" strokeDasharray="4 4" className="opacity-20 translate-y-[-10px]" />
+          <path d="M 120 80 Q 150 90, 180 80" fill="none" stroke="#F59E0B" strokeWidth="2" strokeDasharray="4 4" className="opacity-20 translate-y-[10px]" />
+
+          <circle cx="110" cy="80" r="50" fill={`url(#grad-cause-${cause}-${effect})`} stroke="#F59E0B" strokeWidth="2" strokeDasharray="4 2" className="opacity-80" />
+          <circle cx="190" cy="80" r="50" fill={`url(#grad-effect-${cause}-${effect})`} stroke="#3B82F6" strokeWidth="2" strokeDasharray="4 2" className="group-hover:opacity-100 opacity-60 transition-opacity" />
+
+          {/* Causal Vector */}
+          <line
+            x1="110" y1="80" x2="182" y2="80"
+            stroke="#F59E0B"
+            strokeWidth="3"
+            markerEnd="url(#arrowhead-causal)"
+            className="animate-pulse"
+          />
+
+          {/* Side Labels to avoid overlap */}
+          <text x="50" y="85" textAnchor="end" className="fill-[#F59E0B] text-[8px] font-black uppercase font-['IBM_Plex_Mono',monospace]">{cause}</text>
+          <text x="250" y="85" textAnchor="start" className="fill-[#3B82F6] text-[8px] font-black uppercase font-['IBM_Plex_Mono',monospace]">{effect}</text>
         </svg>
       </div>
 
-      <div className="w-full mt-2 pt-2 border-t border-white/5 flex justify-center gap-6">
-        <div className="flex flex-col items-center">
-          <span className="text-[12px] text-[#F8FAFC] font-bold">{fstat.toFixed(1)}</span>
-          <span className="text-[9px] text-[#475569] uppercase font-black">FStatistic</span>
+      <div className="w-full mt-auto pt-3 border-t border-white/5 flex justify-between px-1">
+        <div className="flex flex-col items-start gap-1">
+          <span className="text-[11px] text-[#F8FAFC] font-black font-['IBM_Plex_Mono',monospace]">
+            {Math.min(99.9, 100 * (1 - Math.exp(-fstat / 35))).toFixed(1)}%
+          </span>
+          <span className="text-[8px] text-[#64748B] uppercase font-black tracking-widest">Confidence</span>
         </div>
-        <div className="flex flex-col items-center">
-          <span className="text-[12px] text-[#3DDAB4] font-bold">{lag}</span>
-          <span className="text-[9px] text-[#475569] uppercase font-black">TimeLag</span>
+        <div className="flex flex-col items-end gap-1">
+          <div className="flex items-center gap-1.5">
+            <Clock className="w-3 h-3 text-[#3DDAB4]" />
+            <span className="text-[11px] text-[#3DDAB4] font-black font-['IBM_Plex_Mono',monospace]">{lag}</span>
+          </div>
+          <span className="text-[8px] text-[#64748B] uppercase font-black tracking-widest">Lag</span>
         </div>
       </div>
     </div>
@@ -287,9 +369,9 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
         <div className="flex flex-col">
           <span className="font-['IBM_Plex_Mono',monospace] text-[11px] tracking-[0.15em] text-[#3B82F6] font-black uppercase flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse" />
-            MultivariateAnomalySpikeAnalysis
+            Multivariate Anomaly Spike Analysis
           </span>
-          <span className="text-[9px] text-[#475569] font-bold mt-1 uppercase tracking-tight">QuantitativeDriftVectorization</span>
+          <span className="text-[9px] text-[#475569] font-bold mt-1 uppercase tracking-tight">Quantitative Drift Vectorization</span>
         </div>
         <div className="flex flex-wrap gap-3 items-center">
           {data.slice(0, 5).map((d, i) => (
@@ -304,7 +386,7 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
       <div className="p-10 h-[400px] relative mt-2">
         {/* Y-Axis Label */}
         <div className="absolute left-4 top-1/2 -rotate-90 origin-left -translate-y-1/2 flex items-center gap-2 transition-opacity group-hover:opacity-100 opacity-40">
-           <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] font-black uppercase tracking-widest whitespace-nowrap">SpikeMagnitude</span>
+          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] font-black uppercase tracking-widest whitespace-nowrap">Spike Magnitude</span>
         </div>
 
         <svg className="w-full h-full overflow-visible" viewBox={`0 0 1000 ${chartHeight + paddingY}`}>
@@ -323,10 +405,10 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
                   strokeDasharray="4 4"
                   className="opacity-40"
                 />
-                <text 
-                  x={paddingX - 15} 
-                  y={y} 
-                  textAnchor="end" 
+                <text
+                  x={paddingX - 15}
+                  y={y}
+                  textAnchor="end"
                   alignmentBaseline="middle"
                   className="font-['IBM_Plex_Mono',monospace] text-[10px] fill-[#475569] font-black"
                 >
@@ -372,14 +454,14 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
                   const y = chartHeight - (Math.min(val, 15) / 15 * chartHeight);
                   return (
                     <g key={idx}>
-                      <circle 
-                        cx={x} 
-                        cy={y} 
-                        r="6" 
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r="6"
                         fill="#0F172A"
                         stroke={color}
                         strokeWidth="2.5"
-                        className="transition-all duration-500 group-hover/line:r-8 group-hover/line:opacity-100" 
+                        className="transition-all duration-500 group-hover/line:r-8 group-hover/line:opacity-100"
                       />
                       {/* Data point value labels */}
                       <text
@@ -419,9 +501,9 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
 
         {/* X-Axis Footer Label */}
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-3">
-           <div className="h-[1px] w-8 bg-[#334155]" />
-           <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] font-black uppercase tracking-[0.3em] whitespace-nowrap">NormalizedFeatureSpaceVector</span>
-           <div className="h-[1px] w-8 bg-[#334155]" />
+          <div className="h-[1px] w-8 bg-[#334155]" />
+          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] font-black uppercase tracking-[0.3em] whitespace-nowrap">Normalized Feature Space Vector</span>
+          <div className="h-[1px] w-8 bg-[#334155]" />
         </div>
       </div>
     </div>
@@ -432,7 +514,7 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
 const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) => {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
   // Generate points based on centroids to make it look "legitimate"
-  const [points] = useState(() => {
+  const points = useMemo(() => {
     return clusters.flatMap((c, cIdx) => {
       const cent = c.centroids || { util_pct: 50, queue_depth: 30 };
       const centerX = Math.min(Math.max(cent.util_pct, 10), 90);
@@ -454,7 +536,7 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
         };
       });
     });
-  });
+  }, [clusters]);
 
   const visiblePoints = points.slice(0, Math.min(points.length, limit * 10));
 
@@ -504,6 +586,16 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
                 <div className="h-4 w-[1.5px] absolute" style={{ background: c.c }} />
               </div>
 
+              {/* Permanent Label Above Cluster */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[130%] group-hover/cent:-translate-y-[150%] transition-transform pointer-events-none">
+                <div className="bg-[#0F172A]/80 border border-white/10 px-2 py-0.5 rounded-[4px] backdrop-blur-sm shadow-2xl flex items-center gap-2 whitespace-nowrap">
+                  <div className="w-1.5 h-1.5 rounded-full" style={{ background: c.c }} />
+                  <span className="text-[9px] font-black text-white/90 font-['IBM_Plex_Mono',monospace] uppercase tracking-widest leading-none mt-0.5">{c.n}</span>
+                </div>
+                {/* Arrow pointing down */}
+                <div className="absolute top-full left-1/2 -translate-x-1/2 -translate-y-px w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-white/10" />
+              </div>
+
               {isHovered && (
                 <div className="absolute top-1/2 left-full ml-4 -translate-y-1/2 bg-[#0F172A]/95 border border-[#3B82F6]/40 p-3 rounded-lg shadow-2xl z-[100] min-w-[140px] backdrop-blur-md animate-in fade-in zoom-in duration-200">
                   <div className="text-[10px] font-bold text-white mb-1 whitespace-nowrap uppercase tracking-wider" style={{ color: c.c }}>{c.n}</div>
@@ -549,19 +641,178 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
 
       {/* Axis Labels */}
       <div className="absolute left-1.5 top-1/2 -translate-y-1/2 -rotate-90 text-[8px] text-[#94A3B8] font-['IBM_Plex_Mono',monospace] tracking-[0.25em] uppercase font-bold opacity-80">
-        QueueDepthNorm
+        Queue Depth Norm
       </div>
       <div className="absolute left-1/2 bottom-2 -translate-x-1/2 text-[8px] text-[#94A3B8] font-['IBM_Plex_Mono',monospace] tracking-[0.25em] uppercase font-bold opacity-80">
-        NetworkUtilization
+        Network Utilization
       </div>
 
       {/* Real-time Processing Overlay */}
       {limit < 10 && (
         <div className="absolute top-4 right-4 flex items-center gap-2 px-2 py-1 bg-[#3B82F6]/5 border border-[#3B82F6]/20 rounded backdrop-blur-sm">
           <Loader2 className="w-2.5 h-2.5 text-[#3B82F6] animate-spin" />
-          <span className="text-[7px] font-bold text-[#3B82F6] uppercase tracking-widest">PlottingClusters</span>
+          <span className="text-[7px] font-bold text-[#3B82F6] uppercase tracking-widest">Plotting Clusters</span>
         </div>
       )}
+    </div>
+  );
+};
+
+const ClusterDonutPlot = ({ clusters, deviceFilter }: { clusters: any[], deviceFilter: string }) => {
+  const totalWindows = deviceFilter === 'device' ? 4079 : 8156;
+  const radius = 35;
+  const circumference = 2 * Math.PI * radius;
+
+  let accumulatedPct = 0;
+
+  return (
+    <div className="bg-[#0F172A]/40 border border-white/5 rounded-xl p-5 flex flex-col items-center gap-6 animate-in fade-in duration-700">
+      <div className="relative w-40 h-40">
+        <svg viewBox="0 0 100 100" className="w-full h-full transform -rotate-90">
+          {clusters.map((c, i) => {
+            const switchSize = (deviceFilter !== 'device') ? (D.clS[i]?.size || 0) : 0;
+            const totalSize = c.size + switchSize;
+            const pct = totalSize / totalWindows;
+            const strokeDasharray = `${pct * circumference} ${circumference}`;
+            const strokeDashoffset = -accumulatedPct * circumference;
+
+            // Calculate midpoint for label
+            const midAngle = (accumulatedPct + pct / 2) * 2 * Math.PI;
+            const lx = 50 + radius * Math.cos(midAngle);
+            const ly = 50 + radius * Math.sin(midAngle);
+
+            accumulatedPct += pct;
+
+            return (
+              <g key={i} className="group/segment">
+                <circle
+                  cx="50"
+                  cy="50"
+                  r={radius}
+                  fill="transparent"
+                  stroke={c.c}
+                  strokeWidth="10"
+                  strokeDasharray={strokeDasharray}
+                  strokeDashoffset={strokeDashoffset}
+                  className="transition-all duration-1000 ease-out hover:stroke-white/20"
+                />
+                {pct > 0.1 && (
+                  <text
+                    x={lx}
+                    y={ly}
+                    fill="white"
+                    textAnchor="middle"
+                    className="text-[6px] font-black pointer-events-none drop-shadow-md"
+                    transform={`rotate(90 ${lx} ${ly})`}
+                    style={{ dominantBaseline: 'middle' }}
+                  >
+                    {Math.round(pct * 100)}%
+                  </text>
+                )}
+              </g>
+            );
+          })}
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+          <span className="text-[8px] text-[#475569] font-black uppercase tracking-widest leading-none mb-1">Scale</span>
+          <span className="text-[14px] font-black text-white tabular-nums leading-none">100%</span>
+        </div>
+      </div>
+
+      <div className="w-full space-y-2.5">
+        <div className="text-[9px] text-[#475569] font-black uppercase tracking-[0.2em] mb-2 border-b border-white/5 pb-1">Cluster Share</div>
+        {clusters.map((c, i) => {
+          const switchSize = (deviceFilter !== 'device') ? (D.clS[i]?.size || 0) : 0;
+          const totalSize = c.size + switchSize;
+          const pct = ((totalSize / totalWindows) * 100).toFixed(1);
+          return (
+            <div key={i} className="flex items-center justify-between group transition-colors hover:text-white">
+              <div className="flex items-center gap-2">
+                <div className="w-1.5 h-1.5 rounded-full" style={{ background: c.c }} />
+                <span className="text-[10px] font-bold text-[#94A3B8] group-hover:text-[#F8FAFC] truncate max-w-[100px] uppercase tracking-tighter">{c.n}</span>
+              </div>
+              <span className="text-[10px] font-black text-[#3DDAB4] font-['IBM_Plex_Mono',monospace]">{pct}%</span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+
+const PreEventComparisonPlot = ({ data }: { data: PreEventData[] }) => {
+  // Focus on the top 4 most significant events for the 2x2 grid layout
+  const displayEvents = data.slice(0, 4);
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-visible">
+      {displayEvents.map((pe, idx) => {
+        // Local max for THIS event to ensure full scale visibility for smaller variations
+        const eventMax = Math.max(...pe.metrics.map(m => Math.max(m.normal || 0, m.pre || 0)), 1);
+
+        return (
+          <div key={idx} className="bg-[#1E293B]/40 border border-[#334155]/60 rounded-xl p-6 hover:bg-[#1E293B]/60 transition-all group animate-in slide-in-from-bottom-4 duration-500 shadow-xl" style={{ animationDelay: `${idx * 150}ms` }}>
+            <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-4">
+              <span className="text-[13px] font-black text-white uppercase tracking-tight font-['IBM_Plex_Mono',monospace]">{pe.evt}: Normal vs Pre-Event</span>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-sm bg-[#3B82F6]" />
+                  <span className="text-[10px] font-bold text-[#94A3B8] uppercase">Normal</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded-sm bg-[#F97316]" />
+                  <span className="text-[10px] font-bold text-[#94A3B8] uppercase">Pre-Event</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-end justify-between h-[180px] px-2 gap-8 mb-12 relative">
+              {/* Y-Axis guide lines */}
+              <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-5">
+                {[0, 1, 2, 3, 4].map(line => <div key={line} className="w-full h-px bg-white" />)}
+              </div>
+
+              {pe.metrics.map((m, midx) => {
+                const normalH = (m.normal / eventMax) * 100;
+                const preH = (m.pre / eventMax) * 100;
+                const isSignificant = Math.abs(m.dpct) > 50;
+
+                return (
+                  <div key={midx} className="flex-1 flex flex-col items-center h-full relative group/metric">
+                    <div className="flex-1 w-full flex items-end justify-center gap-1.5 px-1 relative z-10">
+                      {/* Normal Bar */}
+                      <div className="w-full max-w-[12px] bg-[#3B82F6] rounded-t-[2px] transition-all duration-1000 relative group-hover/metric:brightness-125" style={{ height: `${normalH}%` }}>
+                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 opacity-0 group-hover/metric:opacity-100 transition-opacity whitespace-nowrap bg-black p-1 rounded text-[8px] font-mono text-white z-50">{m.normal.toFixed(1)}</div>
+                      </div>
+                      {/* Pre-Event Bar */}
+                      <div className="w-full max-w-[12px] bg-[#F97316] rounded-t-[2px] transition-all duration-1000 relative group-hover/metric:brightness-125" style={{ height: `${preH}%` }}>
+                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 opacity-0 group-hover/metric:opacity-100 transition-opacity whitespace-nowrap bg-black p-1 rounded text-[8px] font-mono text-white z-50">{m.pre.toFixed(1)}</div>
+                      </div>
+                    </div>
+
+                    {/* Label */}
+                    <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap origin-center -rotate-45">
+                      <span className={cn("text-[9px] font-bold tracking-tight py-0.5 px-1 rounded transition-colors uppercase",
+                        isSignificant ? "text-[#CBD5E1] bg-white/5" : "text-[#64748B]")}>
+                        {m.m}
+                      </span>
+                    </div>
+
+                    {/* Significant Indicator */}
+                    {isSignificant && (
+                      <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                        <span className="text-[8px] font-black text-[#F97316] bg-[#F97316]/10 px-1 rounded border border-[#F97316]/20">+{m.dpct}%</span>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )
+      })}
     </div>
   );
 };
@@ -586,7 +837,7 @@ const LollipopChart = ({
     <div className="bg-[#1e293b]/20 border border-white/5 rounded-[10px] p-4 h-full flex flex-col">
       <div className="flex flex-col gap-3 mb-6">
         <div className="flex justify-between items-center px-1">
-          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-[0.2em] uppercase font-bold">StrengthRanking</span>
+          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-[0.2em] uppercase font-bold">Strength Ranking</span>
         </div>
 
         {onFocusChange && metricsList.length > 0 && (
@@ -608,20 +859,20 @@ const LollipopChart = ({
         {data.map((d, i) => {
           const w = Math.min((Math.abs(d.val) / max) * 100, 100);
           return (
-            <div key={i} className="group grid grid-cols-[180px_1fr] gap-4 items-center animate-in fade-in slide-in-from-left-2 duration-500" style={{ animationDelay: `${i * 70}ms` }}>
-              <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] text-right font-medium truncate pr-4 border-r border-white/10 h-10 flex items-center justify-end">
+            <div key={i} className="group grid grid-cols-[210px_1fr] gap-4 items-center animate-in fade-in slide-in-from-left-2 duration-500" style={{ animationDelay: `${i * 70}ms` }}>
+              <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-right font-medium truncate pr-4 border-r border-white/10 h-10 flex items-center justify-end">
                 {d.label}
               </div>
               <div className="relative h-10 w-full flex items-center pr-4">
                 <div
-                  className="h-9 transition-all duration-1000 ease-out rounded-lg flex items-center justify-end px-4 font-['IBM_Plex_Mono',monospace] text-[11px] font-bold text-white shadow-lg"
+                  className="h-8 transition-all duration-1000 ease-out rounded-[4px] flex items-center justify-end px-3 font-['IBM_Plex_Mono',monospace] text-[10px] font-bold text-white shadow-lg"
                   style={{
-                    width: `${w}%`,
-                    background: `linear-gradient(135deg, ${d.color || '#2563EB'} 0%, ${d.color || '#3B82F6'} 100%)`,
-                    boxShadow: `inset 0 1px 1px rgba(255,255,255,0.2), 0 4px 15px ${(d.color || '#3B82F6')}40`
+                    width: `${Math.max(w, 15)}%`,
+                    background: `linear-gradient(90deg, ${d.color || '#2563EB'} 0%, ${d.color || '#3B82F6'} 100%)`,
+                    boxShadow: `0 4px 15px ${(d.color || '#3B82F6')}20`
                   }}
                 >
-                  <span className="drop-shadow-md">{d.val.toFixed(3)}{unit}</span>
+                  <span className="drop-shadow-md whitespace-nowrap">{d.val.toFixed(1)}{unit}</span>
                 </div>
               </div>
             </div>
@@ -647,43 +898,19 @@ const LollipopChart = ({
 };
 
 const STEP_CATEGORIES: Record<string, string> = {
-  'Data': 'DATA PREP',
-  'Cross Correlation': 'TIME-LAG CORRELATION',
-  'Granger Causality': 'CAUSAL CORRELATION',
-  'Pre-event': 'Pre-Event Behavior',
-  'K-means': 'UNSUPERVISED LEARNING',
-  'Random Forest': 'SUPERVISED ML (CLASSIFICATION)',
-  'Sequences': 'SEQUENTIAL PATTERN MINING',
-  'Isolation Forest': 'UNSUPERVISED LEARNING',
-  'Chains': 'FAILURE CHAIN PATTERNS',
-  'Co-occurrence': 'EVENT CO-OCCURRENCE',
+  'Data': 'Data Prep',
+  'Cross Correlation': 'Time-Lag Correlation',
+  'Granger Causality': 'Causal Correlation',
+  'Pre-event': 'Pre Event Behavior',
+  'K-means': 'Unsupervised Learning',
+  'Random Forest': 'Supervised ML (Classification)',
+  'Sequences': 'Sequential Pattern Mining',
+  'Isolation Forest': 'Unsupervised Learning',
+  'Chains': 'Failure Chain Patterns',
+  'Co-occurrence': 'Event Co-Occurrence',
 };
 
-const SCOPE_TARGETS = {
-  'device': [
-    { label: 'Router Core 01', sub: 'Router' },
-    { label: 'Router Core 02', sub: 'Router' },
-    { label: 'Router Edge 01', sub: 'Router' },
-    { label: 'Switch Dist 01', sub: 'Switch' },
-    { label: 'Switch Dist 02', sub: 'Switch' },
-    { label: 'Switch Access 01', sub: 'Switch' },
-    { label: 'Switch Access 02', sub: 'Switch' },
-  ],
-  'topology': [
-    { label: 'DC East', sub: 'Data Center' },
-    { label: 'DC West', sub: 'Data Center' },
-    { label: 'Campus HQ', sub: 'Campus' },
-    { label: 'Branch North', sub: 'Branch' },
-    { label: 'WAN Backbone', sub: 'WAN' },
-  ],
-  'group': [
-    { label: 'Premium Devices', sub: '3 Routers, 4 Switches' },
-    { label: 'Site 001 [HQ Gen]', sub: '2 Routers, 2 Switches' },
-    { label: 'DC Cluster A', sub: '5 Routers, 12 Switches' },
-    { label: 'Site 002 [Branch]', sub: '1 Router, 4 Switches' },
-    { label: 'Legacy Infrastructure', sub: '2 Routers, 15 Switches' },
-  ]
-};
+// SCOPE_TARGETS removed - using shared version
 
 const TERMINAL_LOG = `==============================================================================
  NETWORK PATTERN MINING SYSTEM  v3
@@ -1809,20 +2036,23 @@ const TERMINAL_LOG = `==========================================================
 
   `;
 const CATEGORIES = [
-  { name: 'DATA PREP', steps: [3] },
-  { name: 'SUPERVISED ML (CLASSIFICATION)', steps: [8] },
-  { name: 'UNSUPERVISED LEARNING (CLUSTERING)', steps: [7] },
-  { name: 'UNSUPERVISED LEARNING (ANOMALY DETECTION)', steps: [11] },
-  { name: 'STATISTICAL TIME-SERIES ANALYSIS', steps: [6] },
-  { name: 'TIME-LAG CORRELATION', steps: [4] },
-  { name: 'CAUSAL CORRELATION', steps: [5] },
-  { name: 'SEQUENTIAL PATTERN MINING', steps: [9] },
-  { name: 'EVENT CO-OCCURRENCE', steps: [12] },
-  { name: 'FAILURE CHAIN PATTERNS', steps: [10] }
+  { name: 'Data Prep', steps: [3] },
+  { name: 'Supervised ML', steps: [8] },
+  { name: 'Clustering', steps: [7] },
+  // { name: 'Anomaly Detection', steps: [11] },
+  { name: 'Statistical Time-Series Analysis', steps: [6] },
+  { name: 'Time-Lag Correlation', steps: [4] },
+  { name: 'Causal Correlation', steps: [5] },
+  { name: 'Sequence Mining', steps: [9] },
+  { name: 'Event Co-Occurrence', steps: [12] },
+  { name: 'Failure Chains', steps: [10] }
 ];
 
 
 export default function TrainingLovelablePage() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const [deviceFilter, setDeviceFilter] = useState<'device' | 'topology' | 'group'>('device');
   const [started, setStarted] = useState(false);
   const [currentStep, setCurrentStep] = useState(-1);
@@ -1830,62 +2060,6 @@ export default function TrainingLovelablePage() {
   const navRef = useRef<HTMLDivElement>(null);
   const [showTimeLagVenn, setShowTimeLagVenn] = useState(true);
   const [showCausalVenn, setShowCausalVenn] = useState(true);
-
-  const combinedXcorr = useMemo(() => {
-    if (deviceFilter === 'topology') {
-      return D.xcorrT.map(d => ({ ...d, dev: 'DC EAST TOPOLOGY' }))
-        .sort((a, b) => Math.abs(b.r) - Math.abs(a.r));
-    }
-    return [
-      ...D.xcorrR.map(d => ({ ...d, dev: 'Router' })), 
-      ...D.xcorrS.map(d => ({ ...d, dev: 'Switch' }))
-    ]
-      .filter(d => Math.abs(d.r) > 0.75)
-      .sort((a, b) => Math.abs(b.r) - Math.abs(a.r));
-  }, [deviceFilter]);
-
-  const combinedGranger = useMemo(() => {
-    if (deviceFilter === 'topology') {
-      return D.grangerT.map(d => ({ ...d, dev: 'DC EAST TOPOLOGY' }))
-        .sort((a, b) => b.f - a.f);
-    }
-    return [
-      ...D.grangerR.map(d => ({ ...d, dev: 'Router' })), 
-      ...D.grangerS.map(d => ({ ...d, dev: 'Switch' }))
-    ]
-      .sort((a, b) => b.f - a.f);
-  }, [deviceFilter]);
-
-  const combinedSeq = useMemo(() => {
-    if (deviceFilter === 'topology') {
-      return D.seqT.map(d => ({ ...d, dev: 'DC EAST TOPOLOGY' }))
-        .sort((a, b) => b.conf - a.conf);
-    }
-    return [
-      ...D.seqR.map(d => ({ ...d, dev: 'Router' })), 
-      ...D.seqS.map(d => ({ ...d, dev: 'Switch' }))
-    ]
-      .sort((a, b) => b.conf - a.conf);
-  }, [deviceFilter]);
-
-  const combinedChains = useMemo(() => {
-    if (deviceFilter === 'topology') {
-      return D.chainsT.map(d => ({ ...d, dev: 'DC EAST TOPOLOGY' }))
-        .sort((a, b) => b.n - a.n);
-    }
-    return [
-      ...D.chainsR.map(d => ({ ...d, dev: 'Router' })), 
-      ...D.chainsS.map(d => ({ ...d, dev: 'Switch' }))
-    ]
-      .sort((a, b) => b.n - a.n);
-  }, [deviceFilter]);
-
-  useEffect(() => {
-    const activeEl = document.getElementById(`tab-btn-${activeTab}`);
-    if (activeEl && navRef.current) {
-      activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    }
-  }, [activeTab]);
   const [itemLimit, setItemLimit] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [selectedTarget, setSelectedTarget] = useState(SCOPE_TARGETS['device'][0].label);
@@ -1895,9 +2069,104 @@ export default function TrainingLovelablePage() {
   const [focusGranger, setFocusGranger] = useState('all');
   const [showRFTable, setShowRFTable] = useState(false);
   const [showAnomTable, setShowAnomTable] = useState(false);
+  const [showPreEvtTable, setShowPreEvtTable] = useState(false);
+  const [showCoocHeatMap, setShowCoocHeatMap] = useState(true);
+
+  // Sync state from location
+  useEffect(() => {
+    if (location.state?.deviceFilter) {
+      setDeviceFilter(location.state.deviceFilter);
+    }
+    if (location.state?.selectedTarget) {
+      setSelectedTarget(location.state.selectedTarget);
+    }
+  }, [location.state]);
+
+  const targetType = useMemo(() => {
+    const list = (SCOPE_TARGETS as any)[deviceFilter];
+    const match = list.find((t: any) => t.label === selectedTarget);
+    return match ? match.sub : null;
+  }, [deviceFilter, selectedTarget]);
+
+  const combinedXcorr = useMemo(() => {
+    if (deviceFilter === 'topology') {
+      return D.xcorrT.map(d => ({ ...d, dev: 'DC EAST TOPOLOGY' }))
+        .sort((a, b) => Math.abs(b.r) - Math.abs(a.r));
+    }
+    const routers = D.xcorrR.map(d => ({ ...d, dev: 'Router' }));
+    const switches = D.xcorrS.map(d => ({ ...d, dev: 'Switch' }));
+
+    let base = [...routers, ...switches];
+    if (deviceFilter === 'device') {
+      if (targetType === 'Router') base = routers;
+      if (targetType === 'Switch') base = switches;
+    }
+
+    return base
+      .filter(d => Math.abs(d.r) > 0.75)
+      .sort((a, b) => Math.abs(b.r) - Math.abs(a.r));
+  }, [deviceFilter, targetType]);
+
+  const combinedGranger = useMemo(() => {
+    if (deviceFilter === 'topology') {
+      return D.grangerT.map(d => ({ ...d, dev: 'DC EAST TOPOLOGY' }))
+        .sort((a, b) => b.f - a.f);
+    }
+
+    const routers = D.grangerR.map(d => ({ ...d, dev: 'Router' }));
+    const switches = D.grangerS.map(d => ({ ...d, dev: 'Switch' }));
+
+    let base = [...routers, ...switches];
+    if (deviceFilter === 'device') {
+      if (targetType === 'Router') base = routers;
+      if (targetType === 'Switch') base = switches;
+    }
+
+    return base.sort((a, b) => b.f - a.f);
+  }, [deviceFilter, targetType]);
+
+  const combinedSeq = useMemo(() => {
+    if (deviceFilter === 'topology') {
+      return D.seqT.map(d => ({ ...d, dev: 'DC EAST TOPOLOGY' }))
+        .sort((a, b) => b.conf - a.conf);
+    }
+
+    const routers = D.seqR.map(d => ({ ...d, dev: 'Router' }));
+    const switches = D.seqS.map(d => ({ ...d, dev: 'Switch' }));
+
+    let base = [...routers, ...switches];
+    if (deviceFilter === 'device') {
+      if (targetType === 'Router') base = routers;
+      if (targetType === 'Switch') base = switches;
+    }
+
+    return base.sort((a, b) => b.conf - a.conf);
+  }, [deviceFilter, targetType]);
+
+  const combinedChains = useMemo(() => {
+    if (deviceFilter === 'topology') {
+      return D.chainsT.map(d => ({ ...d, dev: 'DC EAST TOPOLOGY' }))
+        .sort((a, b) => b.n - a.n);
+    }
+    const routers = D.chainsR.map(d => ({ ...d, dev: 'Router' }));
+    const switches = D.chainsS.map(d => ({ ...d, dev: 'Switch' }));
+
+    let base = [...routers, ...switches];
+    if (deviceFilter === 'device') {
+      if (targetType === 'Router') base = routers;
+      if (targetType === 'Switch') base = switches;
+    }
+
+    return base.sort((a, b) => b.n - a.n);
+  }, [deviceFilter, targetType]);
+
+  useEffect(() => {
+    const activeEl = document.getElementById(`tab-btn-${activeTab}`);
+    if (activeEl && navRef.current) {
+      activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }, [activeTab]);
   const terminalRef = useRef<HTMLDivElement>(null);
-  const location = useLocation();
-  const navigate = useNavigate();
 
   const allLogLines = TERMINAL_LOG.split('\n');
 
@@ -1914,10 +2183,16 @@ export default function TrainingLovelablePage() {
   // Unified RF Data
   const unifiedRFData = useMemo(() => {
     const topoLabel = deviceFilter === 'topology' ? 'DC EAST TOPOLOGY' : '';
-    const combined = [
-      ...D.rfR.map(r => ({ ...r, dev: topoLabel || 'Router' })), 
-      ...D.rfS.map(s => ({ ...s, dev: topoLabel || 'Switch' }))
-    ];
+
+    const routers = D.rfR.map(r => ({ ...r, dev: topoLabel || 'Router' }));
+    const switches = D.rfS.map(s => ({ ...s, dev: topoLabel || 'Switch' }));
+
+    let combined = [...routers, ...switches];
+    if (deviceFilter === 'device') {
+      if (targetType === 'Router') combined = routers;
+      if (targetType === 'Switch') combined = switches;
+    }
+
     const unique = new Map<string, RFData & { dev: string }>();
     combined.forEach(item => {
       if (item.skip) return;
@@ -1925,94 +2200,49 @@ export default function TrainingLovelablePage() {
       unique.set(key, item);
     });
     return Array.from(unique.values()).sort((a, b) => (b.acc || 0) - (a.acc || 0));
-  }, [deviceFilter]);
+  }, [deviceFilter, targetType]);
 
-  const AccuracyGauge = ({ value, label, dev, feats }: { value: number, label: string, dev: string, feats?: [string, number][] }) => {
+  const filteredAnoms = useMemo(() => {
+    const routers = D.anomR.map(d => ({ ...d, dev: 'Router' }));
+    const switches = D.anomS.map(d => ({ ...d, dev: 'Switch' }));
+
+    let base = [...routers, ...switches];
+    if (deviceFilter === 'device') {
+      if (targetType === 'Router') base = routers;
+      if (targetType === 'Switch') base = switches;
+    }
+    return base.sort((a, b) => b.rate - a.rate);
+  }, [deviceFilter, targetType]);
+
+  const ConfidenceItem = ({ value, label, dev, feats }: { value: number, label: string, dev: string, feats?: [string, number][] }) => {
     const percentage = value * 100;
-    const needleRotation = (percentage / 100) * 180 - 90; // -90 to 90 degrees
+    const color = percentage > 90 ? '#3DDAB4' : percentage > 80 ? '#3B82F6' : '#F59E0B';
 
     return (
-      <div className="bg-[#1E293B]/60 border border-white/5 rounded-xl p-5 flex flex-col items-center gap-4 hover:shadow-[0_0_25px_rgba(59,130,246,0.15)] transition-all group overflow-hidden relative">
-        <div className="absolute top-0 right-0 p-2 opacity-20 text-[8px] font-bold uppercase tracking-widest">{dev}</div>
-
-        <div className="relative w-48 h-32 flex items-center justify-center">
-          <svg viewBox="0 0 200 130" className="w-full h-full pt-2">
-            {/* Red Segment (0-50%) */}
-            <path
-              d="M 30 100 A 70 70 0 0 1 100 30"
-              fill="none"
-              stroke="#F87171"
-              strokeWidth="24"
-              className="opacity-90"
-            />
-            {/* Yellow Segment (50-75%) */}
-            <path
-              d="M 100 30 A 70 70 0 0 1 149.5 50.5"
-              fill="none"
-              stroke="#FBBF24"
-              strokeWidth="24"
-              className="opacity-90"
-            />
-            {/* Green Segment (75-100%) */}
-            <path
-              d="M 149.5 50.5 A 70 70 0 0 1 170 100"
-              fill="none"
-              stroke="#34D399"
-              strokeWidth="24"
-              className="opacity-90"
-            />
-
-            {/* Ticks & Labels */}
-            <g className="text-[9px] fill-[#94A3B8] font-bold">
-              <text x="12" y="110" textAnchor="middle">0%</text>
-              <text x="35" y="42" textAnchor="middle">25%</text>
-              <text x="100" y="15" textAnchor="middle">50%</text>
-              <text x="165" y="42" textAnchor="middle">75%</text>
-              <text x="188" y="110" textAnchor="middle">100%</text>
-            </g>
-
-            {/* Ticks on the arc */}
-            <line x1="30" y1="100" x2="35" y2="100" stroke="#334155" strokeWidth="2" />
-            <line x1="170" y1="100" x2="165" y2="100" stroke="#334155" strokeWidth="2" />
-            <line x1="100" y1="30" x2="100" y2="35" stroke="#334155" strokeWidth="2" />
-
-            {/* Needle */}
-            <g transform={`rotate(${needleRotation}, 100, 100)`}>
-              <path
-                d="M 97 100 L 100 35 L 103 100 Z"
-                fill="#F8FAFC"
-                className="transition-transform duration-1000 ease-out"
-              />
-              <circle cx="100" cy="100" r="5" fill="#F8FAFC" />
-            </g>
-          </svg>
-
-          {/* Centered Percentage Text */}
-          <div className="absolute top-[105px] left-0 right-0 text-center">
-            <div className="text-xl font-black text-[#F8FAFC] tabular-nums leading-none">{percentage.toFixed(1)}%</div>
-            <div className="text-[8px] font-bold text-[#94A3B8] uppercase tracking-wider mt-0.5 opacity-60">accuracyScore</div>
+      <div className="bg-[#1E293B]/40 border border-white/5 rounded-xl p-4 flex items-center justify-between hover:bg-[#1E293B]/60 transition-colors group">
+        <div className="flex items-center gap-5">
+          <div className="flex flex-col">
+            <div className="flex items-center gap-3 mb-1.5">
+              <span className="text-[15px] font-bold text-[#F8FAFC] tracking-tight font-['IBM_Plex_Mono',monospace] uppercase">{label}</span>
+              <span className={cn("px-2 py-0.5 rounded-[4px] text-[8px] font-black uppercase tracking-[0.1em]", dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'bg-[#3DDAB4]/20 text-[#3DDAB4]')}>{dev}</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-[9px] text-[#475569] font-black uppercase tracking-[0.1em] opacity-40">Top Signals:</div>
+              <div className="flex items-center gap-3">
+                {feats?.slice(0, 3).map(([fn, fi], k) => (
+                  <div key={k} className="flex items-center gap-1.5">
+                    <span className="text-[10px] text-[#94A3B8] font-medium transition-colors group-hover:text-[#3B82F6]">{fn}</span>
+                    <span className="text-[10px] font-bold text-[#3DDAB4]">{(fi * 100).toFixed(0)}%</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
-        <div className="text-center w-full">
-          <div className="text-[12px] font-bold text-[#F8FAFC] mb-1">{label}</div>
-          <div className="flex flex-col gap-1.5 mt-3 w-full px-2">
-            <div className="text-[8px] font-bold text-[#3B82F6] uppercase tracking-[2px] mb-1 text-left opacity-60">topContributors</div>
-            {feats?.slice(0, 3).map(([fn, fi], k) => (
-              <div key={k} className="flex flex-col gap-1">
-                <div className="flex justify-between text-[9px] font-medium">
-                  <span className="text-[#94A3B8] truncate max-w-[120px]">{fn}</span>
-                  <span className="text-[#3DDAB4]">{(fi * 100).toFixed(1)}%</span>
-                </div>
-                <div className="h-1 bg-white/5 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-[#3B82F6] to-[#3DDAB4] rounded-full transition-all duration-700"
-                    style={{ width: `${Math.min(fi * 200, 100)}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
+        <div className="flex flex-col items-end pr-2">
+          <div className="text-[22px] font-black tabular-nums leading-none tracking-tighter" style={{ color }}>{percentage.toFixed(1)}%</div>
+          <div className="text-[8px] font-bold text-[#475569] uppercase tracking-[0.25em] mt-1.5 opacity-60">Model Confidence</div>
         </div>
       </div>
     );
@@ -2029,8 +2259,7 @@ export default function TrainingLovelablePage() {
   };
 
   useEffect(() => {
-    const state = location.state as any;
-    if (state?.autoStart) {
+    if (location.state?.autoStart) {
       handleStart();
     }
   }, [location.state]);
@@ -2051,22 +2280,14 @@ export default function TrainingLovelablePage() {
     }, 600);
 
     // 2. Global Discovery Logic (Affects all tabs)
-    const discoveryInterval = setInterval(() => {
-      setItemLimit(prev => {
-        if (prev >= 20) {
-          clearInterval(discoveryInterval);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 500);
+    // Discovery intervals removed to prevent flickering/phased loading
+    setItemLimit(100);
 
     // 3. Overall Completion Logic removed from here 
     // It is now handled by the terminal log completion to stay in sync.
 
     return () => {
       clearInterval(ingestionInterval);
-      clearInterval(discoveryInterval);
     };
   }, [started, isComplete]);
 
@@ -2093,14 +2314,8 @@ export default function TrainingLovelablePage() {
         return;
       }
 
-      // Variable speed for realism: faster for long lists, 1-3 lines for headers
+      // Constant speed for smoother flow without flicker
       let chunk = 2;
-      if (currentLine > 200 && currentLine < totalLines - 100) {
-        chunk = Math.floor(Math.random() * 10) + 15; // Fast burst for intermediate data
-      } else {
-        chunk = Math.floor(Math.random() * 2) + 1;
-      }
-
       setVisibleLogLines(allLogLines.slice(0, currentLine + chunk));
       currentLine += chunk;
     }, 80); // Increased frequency for smoother flow
@@ -2170,7 +2385,7 @@ export default function TrainingLovelablePage() {
         <header className="bg-[#0F172A] text-[#F8FAFC] px-10 pt-7 pb-6 border-b-[3px] border-[#3B82F6]">
           <div className="flex items-start justify-between gap-5 mb-4">
             <div>
-              <h1 className="text-[22px] font-semibold tracking-[-0.02em] leading-tight">modelTrainingAnalysis</h1>
+              <h1 className="text-[22px] font-semibold tracking-[-0.02em] leading-tight">Model Training Analysis</h1>
             </div>
             <div className="flex flex-col items-end gap-5 flex-shrink-0">
               <div className="flex items-end gap-6">
@@ -2241,7 +2456,7 @@ export default function TrainingLovelablePage() {
                       className="flex items-center gap-2 bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 py-2 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider transition-all shadow-[0_4px_0_0_#1D4ED8] active:translate-y-[2px] active:shadow-none h-9 mt-auto"
                     >
                       <Play className="w-3.5 h-3.5 fill-current" />
-                      startTrainingAnalysis
+                      Start Training Analysis
                     </button>
                   ) : !isComplete ? (
                     <div className="flex items-center gap-3 mt-auto h-9">
@@ -2375,7 +2590,7 @@ export default function TrainingLovelablePage() {
                   {/* Terminal Processing Log */}
                   <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden flex flex-col">
                     <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium uppercase">PIPELINE EXECUTION LOG</span>
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium uppercase">Pipeline Execution Log</span>
                       <div className="flex gap-1">
                         <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444]/40" />
                         <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]/40" />
@@ -2399,8 +2614,8 @@ export default function TrainingLovelablePage() {
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(4) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">06</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Time-Lag Correlation</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">05</span>
+              <span className="text-[14px] font-semibold tracking-[-0.01em]">Cross Correlation (Pearson / Spearman)</span>
               <button
                 onClick={() => setShowTimeLagVenn(!showTimeLagVenn)}
                 className={cn("ml-2 p-1 rounded-full transition-all", showTimeLagVenn ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#94A3B8] hover:text-white")}
@@ -2420,6 +2635,7 @@ export default function TrainingLovelablePage() {
                         b={d.b}
                         r={d.r}
                         dev={d.dev}
+                        lag={d.lag}
                       />
                     ))}
                   </div>
@@ -2428,7 +2644,7 @@ export default function TrainingLovelablePage() {
                     <div className={cn("grid grid-cols-[1fr_400px] gap-4", !shouldShow(4) && "hidden")}>
                       <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
                         <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#3DDAB4] font-bold uppercase italic">Combined Network-Wide Relations [TOP CORRELATIONS]</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#3DDAB4] font-bold uppercase italic">Combined Network-Wide Relations [Top Correlations]</span>
                           <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] tracking-widest">{combinedXcorr.length} significant nodes (&gt;0.75 R) identified</span>
                         </div>
                         <div className="p-0">
@@ -2480,15 +2696,24 @@ export default function TrainingLovelablePage() {
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(5) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">07</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Causal Correlation</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">06</span>
+              <span className="text-[14px] font-semibold tracking-[-0.01em]">Granger Causality</span>
+              <div className="flex items-center gap-4 ml-8 px-3 py-1 bg-[#1e293b]/60 border border-[#334155] rounded-lg">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-[#F59E0B] shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                  <span className="text-[9px] text-[#94A3B8] font-black uppercase tracking-widest">Cause</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-[#3B82F6] shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                  <span className="text-[9px] text-[#94A3B8] font-black uppercase tracking-widest">Effect</span>
+                </div>
+              </div>
               <button
                 onClick={() => setShowCausalVenn(!showCausalVenn)}
                 className={cn("ml-2 p-1 rounded-full transition-all", showCausalVenn ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#94A3B8] hover:text-white")}
               >
                 <Info className="w-3.5 h-3.5" />
               </button>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Granger Causality Analysis</span>
             </div>
             {!isStepReady(5) ? <LoadingState title="Granger Causality" /> : (
               <div className="animate-in fade-in duration-700">
@@ -2511,27 +2736,29 @@ export default function TrainingLovelablePage() {
                     <div className="grid grid-cols-[1fr_400px] gap-4">
                       <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
                         <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium uppercase italic">Combined Network-Wide Causality [TOP F-STATS]</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium uppercase italic">Combined Network-Wide Causality [Top F-Stats]</span>
                           <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] tracking-widest">{combinedGranger.length} nodes analyzed</span>
                         </div>
                         <div className="p-3.5 space-y-1">
-                          <div className="grid grid-cols-[110px_14px_110px_60px_60px_60px_60px] gap-1.5 pb-1.5 items-center bg-[#0F172A]/30 px-2 rounded">
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">CAUSE</span><span />
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EFFECT</span>
+                          <div className="grid grid-cols-[125px_14px_125px_60px_60px_60px_60px] gap-2 pb-1.5 items-center bg-[#0F172A]/30 px-3 rounded">
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase tracking-widest px-1">CAUSE</span><span />
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase tracking-widest">EFFECT</span>
                             <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">F-STAT</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">P</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">LAG</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">NODE</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">P-VALUE</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right px-2">LAG</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">DEVICE</span>
                           </div>
                           {combinedGranger.slice(0, 15).map((d, i) => (
-                            <div key={i} className="grid grid-cols-[110px_14px_110px_60px_60px_60px_60px] gap-1.5 items-center border-b border-[#334155] last:border-none py-1.5 px-2 animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.02] transition-colors">
+                            <div key={i} className="grid grid-cols-[125px_14px_125px_60px_60px_60px_60px] gap-2 items-center border-b border-[#334155] last:border-none py-2 px-3 animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.04] transition-all">
                               <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate font-bold">{d.c}</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center">→</span>
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center opacity-50">→</span>
                               <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate font-bold">{d.e}</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right" style={{ color: d.f > 100 ? '#F59E0B' : '#CBD5E1' }}>{d.f.toFixed(1)}</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">{d.p}</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-right">{d.lag}</span>
-                              <span className={cn("px-1.5 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[8px] text-right uppercase font-bold ml-2", d.dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'bg-[#3DDAB4]/20 text-[#3DDAB4]')}>{d.dev}</span>
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right px-1" style={{ color: d.f > 100 ? '#F59E0B' : '#CBD5E1' }}>{d.f.toFixed(1)}</span>
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right opacity-70">{d.p}</span>
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-right px-2">{d.lag}</span>
+                              <div className="flex justify-end pr-1">
+                                <span className={cn("px-1.5 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[8px] uppercase font-black tracking-tighter", d.dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'bg-[#3DDAB4]/20 text-[#3DDAB4]')}>{d.dev === 'Router' ? 'RO' : 'SW'}</span>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -2559,53 +2786,72 @@ export default function TrainingLovelablePage() {
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(6) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">05</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Statistical Time-Series Analysis</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Pre-Event Behavior Analysis (mean delta vs normal)</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">04</span>
+              <span className="text-[14px] font-semibold tracking-[-0.01em]">Pre-Event Behavior</span>
+              <button
+                onClick={() => setShowPreEvtTable(!showPreEvtTable)}
+                className={cn("ml-2 p-1 rounded-full transition-all", showPreEvtTable ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#94A3B8] hover:text-white")}
+              >
+                <Info className="w-3.5 h-3.5" />
+              </button>
             </div>
             {!isStepReady(6) ? <LoadingState title="Pre-Event Behavior" /> : (
-              <>
-
-                {[
-                  { data: D.preEvtR, device: 'router' as const, label: 'ROUTER' },
-                  { data: D.preEvtS, device: 'switch' as const, label: 'SWITCH' }
-                ].map((group, idx) => (
-                  <div key={idx} className={cn("mb-3", !shouldShow(6) && "hidden")}>
-                    <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] mb-2 tracking-[0.06em]">{group.label}</div>
-                    <div className="space-y-2.5">
-                      {group.data.slice(0, Math.ceil(itemLimit / 2)).map((pe, i) => {
-                        const maxD = Math.max(...pe.metrics.map(m => Math.abs(m.dpct)));
-                        return (
-                          <div key={i} className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden animate-in fade-in slide-in-from-bottom-2 duration-500">
-                            <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center gap-2.5">
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] font-medium text-[#F8FAFC]">{pe.evt}</span>
-                              <span className={cn("px-1.5 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[9px] font-medium tracking-[0.04em]", pe.metrics.some(m => !m.up) ? 'bg-[#1E3A8A]/40 text-[#60A5FA]' : 'bg-[#7F1D1D]/40 text-[#EF4444]')}>
-                                {pe.metrics.some(m => !m.up) ? 'drain pattern' : 'all rising'}
-                              </span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] ml-1">{pe.n} events · {pe.windows} windows</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[#3B82F6] ml-auto uppercase">earliest {pe.warn}</span>
-                            </div>
-                            <div className="grid grid-cols-2">
-                              {pe.metrics.map((m, j) => {
-                                const w = Math.min(Math.log10(Math.abs(m.dpct) + 2) / Math.log10(maxD + 2) * 100, 100).toFixed(0);
-                                return (
-                                  <div key={j} className="flex items-center gap-2 px-3.5 py-1.5 border-b border-[#334155] border-r border-[#334155] odd:border-r even:border-r-0 last:border-b-0 [&:nth-last-child(2)]:border-b-0">
-                                    <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] min-w-[90px]">{m.m}</span>
-                                    <div className="flex-1 h-[5px] bg-[#0F172A] rounded-[3px] overflow-hidden">
-                                      <div className="h-full rounded-[3px]" style={{ width: `${w}%`, background: m.up ? '#EF4444' : '#3B82F6' }} />
-                                    </div>
-                                    <span className={cn("font-['IBM_Plex_Mono',monospace] text-[10px] min-w-[52px] text-right", m.up ? 'text-[#EF4444]' : 'text-[#3B82F6]')}>{fmt(m.dpct)}</span>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })}
+              <div className="animate-in fade-in duration-700">
+                {!showPreEvtTable ? (
+                  <div className="space-y-6">
+                    <PreEventComparisonPlot data={
+                      (deviceFilter === 'device')
+                        ? (targetType === 'Router' ? D.preEvtR : D.preEvtS)
+                        : [...D.preEvtR, ...D.preEvtS]
+                    } />
+                  </div>
+                ) : (
+                  <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden shadow-2xl">
+                    <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium uppercase italic">Event Behavior Matrix [Baseline vs Pre-Event]</span>
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-widest uppercase font-bold">Total windows Analyzed: 14,208</span>
+                    </div>
+                    <div className="p-0 overflow-auto max-h-[500px]">
+                      <table className="w-full text-left border-collapse">
+                        <thead className="bg-[#0F172A] sticky top-0 z-10 border-b border-[#334155]">
+                          <tr>
+                            <th className="px-3.5 py-2 text-[9px] font-black font-mono text-[#94A3B8] uppercase">Event Type</th>
+                            <th className="px-3.5 py-2 text-[9px] font-black font-mono text-[#94A3B8] uppercase">Metric Name</th>
+                            <th className="px-3.5 py-2 text-[9px] font-black font-mono text-[#94A3B8] uppercase text-right">Normal Value</th>
+                            <th className="px-3.5 py-2 text-[9px] font-black font-mono text-[#94A3B8] uppercase text-right">Pre-Event Value</th>
+                            <th className="px-3.5 py-2 text-[9px] font-black font-mono text-[#94A3B8] uppercase text-right">Delta (%)</th>
+                            <th className="px-3.5 py-2 text-[9px] font-black font-mono text-[#94A3B8] uppercase">Detection Window</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#334155]">
+                          {(deviceFilter === 'device' ? (targetType === 'Router' ? D.preEvtR : D.preEvtS) : [...D.preEvtR, ...D.preEvtS]).map((pe, idx) => (
+                            pe.metrics.map((m, midx) => (
+                              <tr key={`${idx}-${midx}`} className="hover:bg-[#1e293b]/60 transition-colors group">
+                                {midx === 0 && (
+                                  <td rowSpan={pe.metrics.length} className="px-3.5 py-2 text-[10px] text-white font-mono bg-[#0F172A]/20 font-bold border-r border-[#334155]">
+                                    {pe.evt}
+                                  </td>
+                                )}
+                                <td className="px-3.5 py-2 text-[10px] text-[#94A3B8] font-mono group-hover:text-white transition-colors uppercase">{m.m}</td>
+                                <td className="px-3.5 py-2 text-[10px] text-[#475569] font-black tabular-nums text-right">{m.normal ?? 'N/A'}</td>
+                                <td className="px-3.5 py-2 text-[10px] text-white font-black tabular-nums text-right">{m.pre ?? 'N/A'}</td>
+                                <td className={cn("px-3.5 py-2 text-[10px] font-black tabular-nums text-right", m.up ? 'text-red-500' : 'text-blue-500')}>
+                                  {m.up ? '+' : ''}{m.dpct}%
+                                </td>
+                                {midx === 0 && (
+                                  <td rowSpan={pe.metrics.length} className="px-3.5 py-2 text-[9px] text-[#3B82F6] font-black uppercase text-center border-l border-[#334155]">
+                                    {pe.warn} Prior
+                                  </td>
+                                )}
+                              </tr>
+                            ))
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
-                ))}
-              </>
+                )}
+              </div>
             )}
           </section>
 
@@ -2613,55 +2859,29 @@ export default function TrainingLovelablePage() {
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
               <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">03</span>
               <span className="text-[14px] font-semibold tracking-[-0.01em]">KMeans Clustering Patterns</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">KMeans Clustering (K=4) · StandardScaled feature vectors</span>
             </div>
             {!isStepReady(7) ? <LoadingState title="K-Means Clustering" /> : (
               <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
                 <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                  <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#3DDAB4] font-bold uppercase">INTEGRATED NETWORK-WIDE PATTERN CLUSTERING</span>
+                  <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#3DDAB4] font-bold uppercase">
+                    {deviceFilter === 'device' ? `${targetType?.toUpperCase()} SPECIFIC PATTERN CLUSTERING` : 'INTEGRATED NETWORK-WIDE PATTERN CLUSTERING'}
+                  </span>
                   <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#3B82F6] uppercase">K=4 / Silhouette: 0.742</div>
                 </div>
 
-                <div className="p-6 grid grid-cols-[1fr_380px] gap-8 items-start">
+                <div className="p-6 grid grid-cols-[1fr_300px] gap-10 items-start">
                   <div className="flex flex-col gap-4">
-                    <ClusterPlot clusters={D.clR} limit={itemLimit} />
-                    <div className="flex items-center justify-between px-2 font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">
-                      <span>AGGREGATED FROM 30 ENTITIES</span>
-                      <span>TOTAL SAMPLES: 8,156 WINDOWS</span>
-                    </div>
+                    <ClusterPlot
+                      clusters={deviceFilter === 'device' ? (targetType === 'Switch' ? D.clS : D.clR) : D.clR}
+                      limit={itemLimit}
+                    />
                   </div>
 
-                  <div className="space-y-3">
-                    <div className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-[0.1em] uppercase mb-1">Cluster Definitions & Statistical Impact</div>
-                    <div className="grid grid-cols-1 gap-2.5">
-                      {D.clR.map((c, i) => {
-                        const switchSize = D.clS[i]?.size || 0;
-                        const totalSize = c.size + switchSize;
-                        return (
-                          <div key={i} className="bg-[#1e293b]/20 border border-white/5 rounded-md p-3.5 flex flex-col gap-1 transition-all duration-500 hover:bg-[#1e293b]/40"
-                            style={{ opacity: itemLimit > i * 4 ? 1 : 0.2 }}>
-                            <div className="flex items-center justify-between">
-                              <span className="text-[12px] font-bold text-[#F8FAFC]">{c.n}</span>
-                              <div className="px-1.5 py-0.5 rounded bg-[#3B82F6]/10 text-[#3B82F6] text-[9px] font-bold border border-[#3B82F6]/20 uppercase">C{i}</div>
-                            </div>
-                            <div className="flex justify-between font-['IBM_Plex_Mono',monospace] text-[10px]">
-                              <span className="text-[#94A3B8] leading-none">{totalSize.toLocaleString()} windows</span>
-                              <span className="text-[#3DDAB4] leading-none">{((totalSize / 8156) * 100).toFixed(1)}% SHARE</span>
-                            </div>
-                            <div className="pt-2 border-t border-white/5 mt-1">
-                              <div className="flex justify-between text-[9px] mb-1">
-                                <span className="text-[#94A3B8] uppercase">Impact:</span>
-                                <span className="text-[#F8FAFC]/80 font-medium">{c.noEvt}</span>
-                              </div>
-                              <div className="text-[9px] text-[#94A3B8] leading-relaxed">
-                                <span className="text-[#3B82F6] font-bold uppercase mr-1">Correlated events:</span>
-                                {c.evt}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
+                  <div>
+                    <ClusterDonutPlot
+                      clusters={deviceFilter === 'device' ? (targetType === 'Switch' ? D.clS : D.clR) : D.clR}
+                      deviceFilter={deviceFilter}
+                    />
                   </div>
                 </div>
               </div>
@@ -2671,7 +2891,7 @@ export default function TrainingLovelablePage() {
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(8) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
               <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">02</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Supervised ML (Classification)</span>
+              <span className="text-[14px] font-semibold tracking-[-0.01em]">Random Forest</span>
               <button
                 onClick={() => setShowRFTable(!showRFTable)}
                 className={cn("ml-2 p-1 rounded-full transition-all", showRFTable ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#94A3B8] hover:text-white")}
@@ -2680,11 +2900,11 @@ export default function TrainingLovelablePage() {
               </button>
             </div>
             {!isStepReady(8) ? <LoadingState title="Random Forest" /> : (
-              <div className="animate-in fade-in duration-700">
+              <div>
                 {!showRFTable ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-2">
-                    {unifiedRFData.slice(0, itemLimit).map((r, i) => (
-                      <AccuracyGauge
+                  <div className="flex flex-col gap-3 px-2">
+                    {unifiedRFData.map((r, i) => (
+                      <ConfidenceItem
                         key={i}
                         value={r.acc || 0}
                         label={r.evt}
@@ -2696,9 +2916,12 @@ export default function TrainingLovelablePage() {
                 ) : (
                   <div className="space-y-4">
                     {[
-                      { data: D.rfR, device: 'router' as const, title: 'ROUTER — 4 TRAINED / 2 SKIPPED' },
-                      { data: D.rfS, device: 'switch' as const, title: 'SWITCH — 3 TRAINED / 3 SKIPPED' }
-                    ].map((group, idx) => (
+                      { data: D.rfR, device: 'router' as const, title: 'Router — 4 Trained / 2 Skipped', type: 'Router' },
+                      { data: D.rfS, device: 'switch' as const, title: 'Switch — 3 Trained / 3 Skipped', type: 'Switch' }
+                    ].filter(group => {
+                      if (deviceFilter === 'device') return group.type === targetType;
+                      return true;
+                    }).map((group, idx) => (
                       <div key={idx} className={cn("bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden mb-2.5 last:mb-0")}>
                         <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
                           <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
@@ -2722,19 +2945,16 @@ export default function TrainingLovelablePage() {
                                 <>
                                   <div className="text-[11px] font-['IBM_Plex_Mono',monospace] text-center" style={{ color: (r.f1 as number) > 0.88 ? '#3B82F6' : (r.f1 as number) > 0.82 ? '#F8FAFC' : '#CBD5E1' }}>
                                     {r.f1}
-                                    <div className="h-[2px] mt-0.5 rounded-[1px] bg-[#0B0F19]">
-                                      <div className="h-full rounded-[1px]" style={{ width: `${((r.f1 as number) * 100).toFixed(0)}%`, background: (r.f1 as number) > 0.88 ? '#3B82F6' : '#2563EB' }} />
-                                    </div>
                                   </div>
                                   <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-center text-[#CBD5E1]">{r.prec}</div>
                                   <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-center text-[#CBD5E1]">{r.rec}</div>
                                   <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-center text-[#CBD5E1]">{r.acc}</div>
-                                  <div className="flex flex-col gap-1">
+                                  <div className="flex flex-col gap-1 max-w-[280px]">
                                     {r.feats?.map(([fn, fi], k) => (
                                       <div key={k} className="flex items-center gap-1.5">
                                         <div className="h-[2px] rounded-[1px] bg-[#3B82F6]" style={{ width: `${Math.min(fi * 150, 48)}px` }} />
                                         <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] whitespace-nowrap">{fn}</span>
-                                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] ml-auto">{(fi * 100).toFixed(1)}%</span>
+                                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#3B82F6] font-bold ml-2">{(fi * 100).toFixed(1)}%</span>
                                       </div>
                                     ))}
                                   </div>
@@ -2752,14 +2972,22 @@ export default function TrainingLovelablePage() {
           </section>
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(9) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">08</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">07</span>
               <span className="text-[14px] font-semibold tracking-[-0.01em]">Sequential Pattern Mining</span>
             </div>
             {!isStepReady(9) ? <LoadingState title="Sequence Mining" /> : (
               <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden shadow-xl">
 
-                <div className="p-4 grid grid-cols-1 gap-4">
-                  {combinedSeq.slice(0, 16).map((s, i) => {
+                <div className="p-3 space-y-2">
+                  {/* Table Header */}
+                  <div className="grid grid-cols-[120px_1fr_110px_110px] gap-4 px-4 py-2 bg-[#0F172A]/40 border-b border-[#334155]">
+                    <span className="text-[9px] font-black text-[#475569] uppercase tracking-[0.15em]">Device Type</span>
+                    <span className="text-[9px] font-black text-[#475569] uppercase tracking-[0.15em]">Sequence Flow</span>
+                    <span className="text-[9px] font-black text-[#475569] uppercase tracking-[0.15em] text-center">Frequency</span>
+                    <span className="text-[9px] font-black text-[#475569] uppercase tracking-[0.15em] text-center">Accuracy</span>
+                  </div>
+
+                  {combinedSeq.slice(0, 4).map((s, i) => {
                     const evtCol: any = {
                       'HIGH_UTIL_WARNING': 'bg-amber-500/10 text-amber-500 border border-amber-500/20',
                       'PACKET_DROP': 'bg-red-500/10 text-red-500 border border-red-500/20',
@@ -2769,32 +2997,31 @@ export default function TrainingLovelablePage() {
                       'DEVICE_REBOOT': 'bg-red-600/10 text-red-600 border border-red-600/20'
                     };
                     return (
-                      <div key={i} className="bg-[#0F172A]/40 border border-[#334155] rounded-xl p-3.5 flex items-center gap-5 group hover:border-[#3B82F6]/40 hover:bg-[#0F172A]/60 transition-all duration-300 animate-in fade-in slide-in-from-bottom-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className={cn("px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-tighter", s.dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'bg-[#3DDAB4]/20 text-[#3DDAB4]')}>{s.dev}</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#64748B]">CONF {s.conf.toFixed(2)}</span>
-                          </div>
-
-                          <div className="flex flex-wrap items-center gap-1.5">
-                            {s.seq.map((e, k) => (
-                              <React.Fragment key={k}>
-                                <span className={cn("px-2.5 py-1 rounded-[4px] font-['IBM_Plex_Mono',monospace] text-[10px] font-bold tracking-tight whitespace-nowrap", evtCol[e] || 'bg-[#334155]/40 text-[#CBD5E1] border border-white/5')}>
-                                  {e}
-                                </span>
-                                {k < s.seq.length - 1 && <ChevronRight className="w-3 h-3 text-[#475569]" />}
-                              </React.Fragment>
-                            ))}
-                          </div>
-
-                          <div className="mt-3 flex items-center gap-4 border-t border-white/5 pt-2">
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] uppercase font-bold">Frequency: <span className="text-[#94A3B8]">{s.supp}</span></span>
-                          </div>
+                      <div key={i} className="grid grid-cols-[120px_1fr_110px_110px] gap-4 items-center px-4 py-3 bg-[#0F172A]/20 border border-[#334155] rounded-lg group hover:border-[#3B82F6]/30 hover:bg-[#0F172A]/40 transition-all duration-300 animate-in fade-in slide-in-from-left-2">
+                        <div className="flex justify-start">
+                          <span className={cn("px-2 py-0.5 rounded-[4px] text-[9px] font-black uppercase tracking-tighter border", s.dev === 'Router' ? 'bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/20' : 'bg-[#3DDAB4]/10 text-[#3DDAB4] border-[#3DDAB4]/20')}>{s.dev}</span>
                         </div>
-
-                        <div className="flex flex-col items-center justify-center p-2 bg-[#0F172A] rounded-lg border border-[#334155]">
-                          <DonutChart val={s.conf} size={42} />
-                          <span className="text-[11px] font-black mt-1 text-[#3B82F6] font-['IBM_Plex_Mono',monospace]">{((s.conf) * 100).toFixed(0)}%</span>
+                        <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                          {s.seq.map((e, k) => (
+                            <React.Fragment key={k}>
+                              <span className={cn("px-2.5 py-1 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[9px] font-bold tracking-tight whitespace-nowrap transition-transform group-hover:scale-[1.02]", evtCol[e] || 'bg-[#334155]/40 text-[#CBD5E1] border border-white/5')}>
+                                {e}
+                              </span>
+                              {k < s.seq.length - 1 && (
+                                <div className="flex flex-col items-center px-0.5 opacity-40">
+                                  <span className="text-[7px] text-[#3B82F6] font-black">~10m</span>
+                                  <ChevronRight className="w-2.5 h-2.5 text-[#475569]" />
+                                </div>
+                              )}
+                            </React.Fragment>
+                          ))}
+                        </div>
+                        <div className="text-center border-l border-white/5 h-full flex items-center justify-center">
+                          <span className="text-[12px] font-black text-[#94A3B8] font-['IBM_Plex_Mono',monospace] tracking-tighter">{s.supp}</span>
+                        </div>
+                        <div className="flex flex-col items-center border-l border-white/5 h-full justify-center pl-2">
+                          <DonutChart val={s.conf} size={26} />
+                          <span className="text-[10px] font-black mt-1 text-[#3B82F6] font-['IBM_Plex_Mono',monospace]">{((s.conf) * 100).toFixed(0)}%</span>
                         </div>
                       </div>
                     );
@@ -2806,39 +3033,55 @@ export default function TrainingLovelablePage() {
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(12) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">09</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">08</span>
               <span className="text-[14px] font-semibold tracking-[-0.01em]">Event Co-occurrence</span>
+              <button
+                onClick={() => setShowCoocHeatMap(!showCoocHeatMap)}
+                className={cn("ml-2 p-1 rounded-full transition-all", showCoocHeatMap ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#94A3B8] hover:text-white")}
+              >
+                <Info className="w-3.5 h-3.5" />
+              </button>
+              <span className="text-[11px] text-[#94A3B8] ml-auto uppercase font-black tracking-widest">{showCoocHeatMap ? 'Heatmap View' : 'Table View'}</span>
             </div>
-            {!isStepReady(11) ? <LoadingState title="Co-occurrence Analysis" /> : (
-              <div className="grid grid-cols-2 gap-3 items-start">
-                {[
-                  { data: D.coocR, title: 'ROUTER — 32 sessions' },
-                  { data: D.coocS, title: 'SWITCH — 42 sessions' }
-                ].map((group, idx) => (
-                  <div key={idx} className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
-                    <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
-                    </div>
-                    <div className="p-3.5 space-y-1.5">
-                      <div className="grid grid-cols-[130px_14px_130px_50px_50px] gap-2 pb-1.5 items-center border-b border-[#334155]">
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EVENT A</span>
-                        <span />
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EVENT B</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">COUNT</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">LIFT</span>
-                      </div>
-                      {group.data.slice(0, itemLimit).map((d, i) => (
-                        <div key={i} className="grid grid-cols-[130px_14px_130px_50px_50px] gap-2 items-center py-2 border-b border-[#334155] last:border-none animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.02]">
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.a}</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center">&amp;</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.b}</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right text-[#94A3B8]">{d.n}</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right font-bold" style={{ color: d.lift > 1.01 ? '#3DDAB4' : '#94A3B8' }}>{d.lift.toFixed(2)}</span>
+            {!isStepReady(12) ? <LoadingState title="Co-occurrence Analysis" /> : (
+              <div className="animate-in fade-in duration-700">
+                {showCoocHeatMap ? (
+                  <LiftMatrixHeatMap dataR={D.coocR} dataS={D.coocS} />
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                    {[
+                      { data: D.coocR, title: 'ROUTER — 32 sessions', type: 'Router' },
+                      { data: D.coocS, title: 'SWITCH — 42 sessions', type: 'Switch' }
+                    ].filter(group => {
+                      if (deviceFilter === 'device') return group.type === targetType;
+                      return true;
+                    }).map((group, idx) => (
+                      <div key={idx} className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
+                        <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
                         </div>
-                      ))}
-                    </div>
+                        <div className="p-3.5 space-y-1.5">
+                          <div className="grid grid-cols-[130px_14px_130px_50px_50px] gap-2 pb-1.5 items-center border-b border-[#334155]">
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EVENT A</span>
+                            <span />
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EVENT B</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">COUNT</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">LIFT</span>
+                          </div>
+                          {group.data.slice(0, 15).map((d, i) => (
+                            <div key={i} className="grid grid-cols-[130px_14px_130px_50px_50px] gap-2 items-center py-2 border-b border-[#334155] last:border-none animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.02]">
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.a}</span>
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center">&amp;</span>
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.b}</span>
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right text-[#94A3B8]">{d.n}</span>
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right font-bold" style={{ color: d.lift > 1.01 ? '#3DDAB4' : '#94A3B8' }}>{d.lift.toFixed(2)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
               </div>
             )}
           </section>
@@ -2846,68 +3089,71 @@ export default function TrainingLovelablePage() {
           {/* SECTION 10: FAILURE CHAINS */}
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12", !shouldShow(10) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-6">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">10</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">09</span>
               <span className="text-[14px] font-semibold tracking-[-0.01em]">Failure Chain Patterns</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto italic">End-to-end causal sequences (90%+ confidence)</span>
             </div>
             {!isStepReady(10) ? <LoadingState title="Failure Chains" /> : (
-              <div className="grid grid-cols-1 gap-5">
-                {combinedChains.slice(0, Math.ceil(itemLimit / 2)).map((c, i) => {
-                  const isCritical = ['PACKET_DROP', 'DEVICE_REBOOT', 'INTERFACE_FLAP'].includes(c.evt);
-                  const severityColor = isCritical ? 'border-l-[#EF4444]' : 'border-l-[#F59E0B]';
-                  const badgeColor = isCritical ? 'bg-[#7F1D1D]/40 text-[#F87171]' : 'bg-[#78350F]/40 text-[#F59E0B]';
-                  const confVal = Math.min(0.72 + (c.n / 1000) * 0.28, 0.99);
+              <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden shadow-xl">
+                <div className="p-3 space-y-2">
+                  {/* Table Header */}
+                  <div className="grid grid-cols-[120px_1fr_120px] gap-4 px-4 py-2 bg-[#0F172A]/40 border-b border-[#334155]">
+                    <span className="text-[9px] font-black text-[#475569] uppercase tracking-[0.15em]">Device Type</span>
+                    <span className="text-[9px] font-black text-[#475569] uppercase tracking-[0.15em]">Causal Chain</span>
+                    <span className="text-[9px] font-black text-[#475569] uppercase tracking-[0.15em] text-center">Confidence</span>
+                  </div>
 
-                  return (
-                    <div key={i} className={cn("bg-[#1e293b]/30 border border-[#334155] rounded-xl p-5 border-l-4 group hover:border-[#3B82F6]/30 transition-all duration-300 flex items-center gap-8 shadow-lg", severityColor)}>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-4">
-                          <span className={cn("px-2 py-0.5 rounded-sm text-[8px] font-black uppercase tracking-[0.1em]", c.dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'bg-[#3DDAB4]/20 text-[#3DDAB4]')}>{c.dev}</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[13px] font-bold text-[#F8FAFC] tracking-tight truncate">{c.evt}</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#64748B] ml-2 uppercase tracking-wide">observed in {c.n} training sessions</span>
+                  {combinedChains.slice(0, Math.ceil(itemLimit / 2)).map((c, i) => {
+                    const isCritical = ['PACKET_DROP', 'DEVICE_REBOOT', 'INTERFACE_FLAP'].includes(c.evt);
+                    const severityColor = isCritical ? 'border-l-[#EF4444]' : 'border-l-[#F59E0B]';
+                    const badgeColor = isCritical ? 'bg-[#7F1D1D]/40 text-[#F87171]' : 'bg-[#78350F]/40 text-[#F59E0B]';
+                    const confVal = Math.min(0.72 + (c.n / 1000) * 0.28, 0.99);
+
+                    return (
+                      <div key={i} className={cn("grid grid-cols-[120px_1fr_120px] gap-4 items-center px-4 py-3 bg-[#0F172A]/20 border border-[#334155] rounded-lg border-l-4 group hover:border-[#3B82F6]/30 hover:bg-[#0F172A]/40 transition-all duration-300 animate-in fade-in slide-in-from-left-2 shadow-lg", severityColor)}>
+                        {/* Device Column */}
+                        <div className="flex justify-start">
+                          <span className={cn("px-2 py-0.5 rounded-[4px] text-[9px] font-black uppercase tracking-tighter border", c.dev === 'Router' ? 'bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/20' : 'bg-[#3DDAB4]/10 text-[#3DDAB4] border-[#3DDAB4]/20')}>{c.dev}</span>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-y-4 gap-x-2">
+                        {/* Causal Chain Column */}
+                        <div className="flex flex-wrap items-center gap-y-3 gap-x-1.5 min-w-0">
                           {c.steps.map((s: any, k: number) => (
                             <React.Fragment key={k}>
-                              <div className="flex flex-col gap-1.5 font-['IBM_Plex_Mono',monospace]">
-                                <span className="text-[8px] text-[#475569] uppercase font-black opacity-60">Step 0{k + 1}</span>
-                                <div className="px-3 py-2 rounded-lg bg-[#0F172A]/80 border border-[#334155] flex items-center gap-2 shadow-inner group-hover:border-[#3B82F6]/20 transition-colors">
-                                  <span className="text-[10px] text-[#CBD5E1] font-medium">{s.m}</span>
-                                  <span className={cn("font-bold text-[11px]", s.d === '↑' ? 'text-rose-400' : 'text-emerald-400')}>{s.d}</span>
+                              <div className="flex flex-col gap-0.5 font-['IBM_Plex_Mono',monospace]">
+                                <span className="text-[7px] text-[#475569] uppercase font-black opacity-60">Step 0{k + 1}</span>
+                                <div className="px-2 py-1 rounded-md bg-[#0F172A]/80 border border-[#334155] flex items-center gap-1.5 shadow-inner group-hover:border-[#3B82F6]/20 transition-colors">
+                                  <span className="text-[9px] text-[#CBD5E1] font-medium">{s.m}</span>
+                                  <span className={cn("font-bold text-[10px]", s.d === '↑' ? 'text-rose-400' : 'text-emerald-400')}>{s.d}</span>
                                 </div>
                               </div>
-                              <div className="flex flex-col items-center mt-4 px-1 min-w-[32px]">
-                                <span className="text-[9px] font-black text-[#60A5FA] mb-0.5 tabular-nums animate-pulse">{s.lag}</span>
-                                <ChevronRight className="w-4 h-4 text-[#334155] opacity-50" />
+                              <div className="flex flex-col items-center px-1 min-w-[24px] opacity-40">
+                                <span className="text-[8px] font-black text-[#60A5FA] mb-0.5">{s.lag}</span>
+                                <ChevronRight className="w-3 h-3 text-[#334155]" />
                               </div>
                             </React.Fragment>
                           ))}
-                          <div className="flex flex-col gap-1.5 font-['IBM_Plex_Mono',monospace]">
-                            <span className="text-[8px] text-[#475569] uppercase font-black opacity-60">Impact Event</span>
-                            <div className={cn("px-4 py-2 rounded-lg text-[11px] font-black shadow-xl border border-white/5 uppercase tracking-wide", badgeColor)}>
+                          <div className="flex flex-col gap-0.5 font-['IBM_Plex_Mono',monospace]">
+                            <span className="text-[7px] text-[#475569] uppercase font-black opacity-60">Impact</span>
+                            <div className={cn("px-2.5 py-1 rounded-md text-[9px] font-black shadow-xl border border-white/5 uppercase tracking-wide", badgeColor)}>
                               {c.evt}
                             </div>
                           </div>
                         </div>
-                      </div>
-
-                      <div className="hidden md:flex flex-col items-center justify-center p-4 bg-[#0F172A]/60 rounded-2xl border border-[#334155]/50 min-w-[120px] transition-colors group-hover:bg-[#0F172A]/80">
-                        <div className="relative flex items-center justify-center mb-2">
-                          <DonutChart val={confVal} size={52} />
-                          <span className="absolute text-[12px] font-black text-[#F8FAFC] font-['IBM_Plex_Mono',monospace]">{(confVal * 100).toFixed(0)}</span>
+                        {/* Confidence Column */}
+                        <div className="flex flex-col items-center border-l border-white/5 h-full justify-center pl-2">
+                          <DonutChart val={confVal} size={28} />
+                          <span className="text-[10px] font-black mt-1 text-[#3B82F6] font-['IBM_Plex_Mono',monospace]">{(confVal * 100).toFixed(0)}%</span>
                         </div>
-                        <span className="text-[9px] text-[#64748B] font-black uppercase tracking-widest text-center">Inference<br/>Confidence</span>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             )}
           </section>
 
 
-          <section className={cn("mt-8 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(11) && "hidden")}>
+          <section className="hidden">
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
               <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">04</span>
               <span className="text-[14px] font-semibold tracking-[-0.01em]">Isolation Forest Anomaly Risks</span>
@@ -2922,13 +3168,13 @@ export default function TrainingLovelablePage() {
               <div className="animate-in fade-in duration-700">
                 {!showAnomTable ? (
                   <div className="flex flex-col gap-6">
-                    <AnomalyHeatMap data={[...D.anomR.map(d => ({ ...d })), ...D.anomS.map(d => ({ ...d }))].sort((a, b) => b.rate - a.rate).slice(0, 50)} />
-                    <MultivariateTrendPlot data={[...D.anomR.map(d => ({ ...d })), ...D.anomS.map(d => ({ ...d }))].sort((a, b) => b.rate - a.rate).slice(0, 5)} />
+                    <AnomalyHeatMap data={filteredAnoms.slice(0, 50)} />
+                    <MultivariateTrendPlot data={filteredAnoms.slice(0, 5)} />
                   </div>
                 ) : (
                   <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden shadow-2xl">
                     <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium uppercase">STATISTICAL ANOMALY DISTRIBUTION (FULL TABLE)</span>
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium uppercase">Statistical Anomaly Distribution</span>
                       <span className="text-[9px] text-[#475569] font-['IBM_Plex_Mono',monospace]">N=128 ENTITIES</span>
                     </div>
                     <div className="p-0 overflow-auto max-h-[500px]">
@@ -2940,7 +3186,7 @@ export default function TrainingLovelablePage() {
                         <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-right">Score</span>
                         <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-center">Risk</span>
                       </div>
-                      {[...D.anomR.map(d => ({ ...d, dev: 'Router' })), ...D.anomS.map(d => ({ ...d, dev: 'Switch' }))].sort((a, b) => b.rate - a.rate).slice(0, 40).map((d, i) => {
+                      {filteredAnoms.slice(0, 40).map((d: any, i) => {
                         const maxRate = 12;
                         return (
                           <div key={i} className="grid grid-cols-[160px_60px_1fr_65px_60px_80px] gap-4 items-center py-2.5 px-4 border-b border-[#334155] last:border-none animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.02] transition-colors">

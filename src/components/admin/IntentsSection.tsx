@@ -86,7 +86,7 @@ export function IntentsSection({ highlightIntentId }: { highlightIntentId?: stri
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold text-foreground">
-                {viewLevel === 'categories' && 'IntentsHypothesis'}
+                {viewLevel === 'categories' && 'Intents Hypothesis'}
                 {viewLevel === 'subcategories' && selectedCategory?.name}
                 {viewLevel === 'intents' && selectedSubcategory?.name}
               </h1>
@@ -108,12 +108,12 @@ export function IntentsSection({ highlightIntentId }: { highlightIntentId?: stri
             <DialogTrigger asChild>
               <Button className="gap-2 gradient-primary">
                 <Plus className="h-4 w-4" />
-                AddIntent
+                Add Intent
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>CreateNewIntent</DialogTitle>
+                <DialogTitle>Create New Intent</DialogTitle>
               </DialogHeader>
               <IntentForm onClose={() => setIsCreateDialogOpen(false)} />
             </DialogContent>
@@ -126,7 +126,7 @@ export function IntentsSection({ highlightIntentId }: { highlightIntentId?: stri
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="SearchIntents"
+            placeholder="Search Intents"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -211,11 +211,11 @@ export function IntentsSection({ highlightIntentId }: { highlightIntentId?: stri
           {filteredIntents.length === 0 ? (
             <div className="glass-card rounded-xl p-12 text-center">
               <Lightbulb className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">NoIntentsFound</h3>
-              <p className="text-muted-foreground mb-4">CreateFirstIntentForCategory</p>
+              <h3 className="text-lg font-semibold text-foreground mb-2">No Intents Found</h3>
+              <p className="text-muted-foreground mb-4">Create first intent for category</p>
               <Button className="gap-2 gradient-primary" onClick={() => setIsCreateDialogOpen(true)}>
                 <Plus className="h-4 w-4" />
-                AddIntent
+                Add Intent
               </Button>
             </div>
           ) : (
@@ -243,7 +243,7 @@ export function IntentsSection({ highlightIntentId }: { highlightIntentId?: stri
       <Dialog open={!!selectedIntent} onOpenChange={(open) => !open && setSelectedIntent(null)}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>EditIntent</DialogTitle>
+            <DialogTitle>Edit Intent</DialogTitle>
           </DialogHeader>
           {selectedIntent && (
             <IntentForm intent={selectedIntent} onClose={() => setSelectedIntent(null)} />
@@ -304,7 +304,7 @@ function IntentCard({ intent, onEdit, highlighted, highlightRef }: { intent: Int
         className="mt-3"
         onClick={() => setExpanded(!expanded)}
       >
-        {expanded ? 'HideDetails' : 'ShowDetails'}
+        {expanded ? 'Hide Details' : 'Show Details'}
         <ChevronRight className={`h-4 w-4 ml-1 transition-transform ${expanded ? 'rotate-90' : ''}`} />
       </Button>
 
@@ -369,7 +369,7 @@ function IntentCard({ intent, onEdit, highlighted, highlightRef }: { intent: Int
           {/* Situation Description */}
           {intent.situationDesc && (
             <div>
-              <h4 className="text-sm font-semibold text-foreground mb-2">SituationTemplate</h4>
+              <h4 className="text-sm font-semibold text-foreground mb-2">Situation Template</h4>
               <div className="bg-secondary/30 rounded-lg p-3 text-sm text-muted-foreground font-mono">
                 {intent.situationDesc}
               </div>
@@ -509,7 +509,7 @@ function IntentForm({ intent, onClose }: { intent?: IntentFull; onClose: () => v
       <div className="flex justify-end gap-3 pt-4 border-t border-border/50">
         <Button variant="outline" onClick={onClose}>Cancel</Button>
         <Button className="gradient-primary" onClick={onClose}>
-          {intent ? 'UpdateIntent' : 'CreateIntent'}
+          {intent ? 'Update Intent' : 'Create Intent'}
         </Button>
       </div>
     </div>

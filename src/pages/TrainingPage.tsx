@@ -48,6 +48,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
+import { SCOPE_TARGETS } from "@/data/lovelableReportData";
 
 const MODELS = [
   { id: "cross_correlation", name: "CrossCorrelation", type: "Statistical", status: "READY", desc: "Discovering temporal lags and relationships between metrics" },
@@ -238,9 +239,17 @@ export default function TrainingPage() {
   const logEndRef = useRef<HTMLDivElement>(null);
 
   const [modelStatuses, setModelStatuses] = useState<Record<string, 'pending' | 'active' | 'done'>>({});
+  const [deviceFilter, setDeviceFilter] = useState<'device' | 'topology' | 'group'>('device');
+  const [selectedTarget, setSelectedTarget] = useState(SCOPE_TARGETS['device'][0].label);
 
   const startTraining = () => {
-    navigate("/pattern-prediction/training/analysis/cross_correlation", { state: { autoStart: true } });
+    navigate("/pattern-prediction/training/analysis/cross_correlation", { 
+      state: { 
+        autoStart: true,
+        deviceFilter,
+        selectedTarget
+      } 
+    });
   };
 
   useEffect(() => {
@@ -280,15 +289,58 @@ export default function TrainingPage() {
                   <SelectValue placeholder="SelectDataRange" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#0a0a0a] border-white/10">
-                  <SelectItem value="1m" className="text-[10px] uppercase font-bold">Last 1 Month</SelectItem>
-                  <SelectItem value="3m" className="text-[10px] uppercase font-bold">Last 3 Months</SelectItem>
-                  <SelectItem value="6m" className="text-[10px] uppercase font-bold">Last 6 Months</SelectItem>
+                  <SelectItem value="1m" className="text-[10px] uppercase font-bold text-white/70">Last 1 Month</SelectItem>
+                  <SelectItem value="3m" className="text-[10px] uppercase font-bold text-white/70">Last 3 Months</SelectItem>
+                  <SelectItem value="6m" className="text-[10px] uppercase font-bold text-white/70">Last 6 Months</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Scope Selection */}
+            <div className="flex flex-col gap-1 items-end ml-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#555] opacity-80">Training Scope</span>
+              <Select value={deviceFilter} onValueChange={(v: any) => {
+                setDeviceFilter(v);
+                setSelectedTarget(SCOPE_TARGETS[v][0].label);
+              }}>
+                <SelectTrigger className="w-[180px] bg-card/50 border-white/10 font-bold h-10 text-[10px] uppercase">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#0a0a0a] border-white/10">
+                  <SelectItem value="device" className="text-[10px] uppercase font-bold text-white/70">Device Specific</SelectItem>
+                  <SelectItem value="topology" className="text-[10px] uppercase font-bold text-white/70">Topology Based</SelectItem>
+                  <SelectItem value="group" className="text-[10px] uppercase font-bold text-white/70">Device Group Based</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Target Selection */}
+            <div className="flex flex-col gap-1 items-end -ml-1">
+              <span className="text-[10px] font-black uppercase tracking-widest text-[#555] opacity-80">
+                {deviceFilter === 'group' ? 'Select Group' : 'Select Target'}
+              </span>
+              <Select value={selectedTarget} onValueChange={setSelectedTarget}>
+                <SelectTrigger className="w-[180px] bg-card/50 border-white/10 font-bold h-10 text-[10px] uppercase">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#0a0a0a] border-white/10">
+                  {(SCOPE_TARGETS as any)[deviceFilter].map((t: any) => (
+                    <SelectItem key={t.label} value={t.label} className="text-[10px] uppercase font-bold text-white/70">
+                      {t.label}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
 
             <Button
-              onClick={() => navigate("/pattern-prediction/training-lovelable", { state: { autoStart: true } })}
+              onClick={() => navigate("/pattern-prediction/training-lovelable", { 
+                state: { 
+                  autoStart: true,
+                  deviceFilter,
+                  selectedTarget
+                } 
+              })}
               className="bg-[#2a9070] hover:bg-[#237a5f] text-white font-black uppercase tracking-widest h-10 px-6 text-[11px] rounded-xl shadow-lg shadow-[#2a9070]/20 mt-5 border-b-4 border-[#1a6a52]"
             >
               <Heart className="mr-2 h-3.5 w-3.5 fill-current" />

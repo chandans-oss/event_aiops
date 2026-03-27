@@ -105,13 +105,13 @@ const ANOMALY_DATA = [
 ];
 
 const CONFIG_FUNCTIONS = [
-  { id: "cross_correlation", name: "CrossCorrelation", version: "v1.0.1", confidence: 92, status: "RUNNING" },
-  { id: "granger_causality", name: "GrangerCausality", version: "v1.0.1", confidence: 88, status: "RUNNING" },
-  { id: "pre_event", name: "PreEventMetricBehaviour", version: "v1.0.2", confidence: 95, status: "RUNNING" },
-  { id: "clustering", name: "PatternClustering", version: "v1.0.1", confidence: 84, status: "RUNNING" },
+  { id: "cross_correlation", name: "Cross Correlation", version: "v1.0.1", confidence: 92, status: "RUNNING" },
+  { id: "granger_causality", name: "Granger Causality", version: "v1.0.1", confidence: 88, status: "RUNNING" },
+  { id: "pre_event", name: "Pre Event Metric Behavior", version: "v1.0.2", confidence: 95, status: "RUNNING" },
+  { id: "clustering", name: "Pattern Clustering", version: "v1.0.1", confidence: 84, status: "RUNNING" },
   {
     id: "random_forest",
-    name: "RandomForestEventPredictor",
+    name: "Random Forest Event Predictor",
     version: "v2.1.0",
     confidence: 97,
     status: "RUNNING",
@@ -125,10 +125,10 @@ const CONFIG_FUNCTIONS = [
       { name: "PACKET_DROP.pkl", version: "v1.0.1", confidence: 96 },
     ]
   },
-  { id: "sequence_mining", name: "EventSequenceMining", version: "v1.0.1", confidence: 81, status: "RUNNING" },
-  { id: "anomaly_detection", name: "AnomalyDetection", version: "v1.2.0", confidence: 90, status: "RUNNING" },
-  { id: "co_occurrence", name: "EventCoOccurrenceMatrix", version: "v1.0.1", confidence: 86, status: "RUNNING" },
-  { id: "failure_chain", name: "FailureChainPatterns", version: "v1.1.0", confidence: 93, status: "RUNNING" },
+  { id: "sequence_mining", name: "Event Sequence Mining", version: "v1.0.1", confidence: 81, status: "RUNNING" },
+  { id: "anomaly_detection", name: "Anomaly Detection", version: "v1.2.0", confidence: 90, status: "RUNNING" },
+  { id: "co_occurrence", name: "Event Co-Occurrence Matrix", version: "v1.0.1", confidence: 86, status: "RUNNING" },
+  { id: "failure_chain", name: "Failure Chain Patterns", version: "v1.1.0", confidence: 93, status: "RUNNING" },
 ];
 
 const getConfidenceColor = (score: number) => {
@@ -801,7 +801,7 @@ export default function AnomaliesPage() {
       <div className="p-8 space-y-8 animate-in fade-in duration-500">
         <div className="flex items-center justify-between border-b pb-6 mb-8">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">AnomalyDetection</h1>
+            <h1 className="text-2xl font-bold tracking-tight">Anomaly Detection</h1>
             <div className="flex items-center gap-2 mt-1">
               <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
             </div>
@@ -823,7 +823,7 @@ export default function AnomaliesPage() {
                       <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                         <BarChart3 className="h-4 w-4 text-primary" />
                       </div>
-                      AnalysisWorkspace — <span className="text-primary italic">GlobalAnomalyEngine</span>
+                      Analysis Workspace — <span className="text-primary italic">Global Anomaly Engine</span>
                     </SheetTitle>
                   </div>
                 </SheetHeader>
@@ -836,7 +836,7 @@ export default function AnomaliesPage() {
                           value="procedures"
                           className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-2 text-[11px] font-bold uppercase tracking-widest"
                         >
-                          ProcessProcedures
+                          Process Procedures
                         </TabsTrigger>
                         <TabsTrigger
                           value="configurations"
@@ -880,7 +880,7 @@ export default function AnomaliesPage() {
                             <div className="relative z-10">
                               <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-2 flex items-center gap-2">
                                 <Settings className="h-3 w-3 animate-[spin_4s_linear_infinite]" />
-                                GlobalModelConfidence
+                                Global Model Confidence
                               </h4>
                               <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest opacity-60">System-wide reliability threshold</p>
                             </div>
@@ -940,7 +940,7 @@ export default function AnomaliesPage() {
                                     <Accordion type="single" collapsible className="w-full">
                                       <AccordionItem value="models" className="border-none">
                                         <AccordionTrigger className="py-0 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors hover:no-underline">
-                                          TogglePklModels
+                                          Toggle Pkl Models
                                         </AccordionTrigger>
                                         <AccordionContent className="pt-4 space-y-2">
                                           {fn.models?.map((model) => (
@@ -995,7 +995,7 @@ export default function AnomaliesPage() {
                                 <Plus className="h-6 w-6 text-primary" />
                               </div>
                               <div className="text-center relative z-10">
-                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary block mb-1">ByoaPortal</span>
+                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary block mb-1">Byoa Portal</span>
                                 <p className="text-[8px] text-muted-foreground uppercase font-black tracking-widest opacity-60">Bring Your Own Algorithm</p>
                               </div>
                             </Card>
@@ -1016,11 +1016,11 @@ export default function AnomaliesPage() {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-white/5 bg-white/5">
-                  <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground w-[180px]">DeviceAndInterface</th>
+                  <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground w-[180px]">Device and Interface</th>
                   <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground w-[120px]">Severity</th>
-                  <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground w-[150px]">AnomalyScore</th>
-                  <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">TopMetricDrivers</th>
-                  <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground w-[150px]">WindowPeriod</th>
+                  <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground w-[150px]">Anomaly Score</th>
+                  <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Top Metric Drivers</th>
+                  <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground w-[150px]">Window Period</th>
                 </tr>
               </thead>
             </table>

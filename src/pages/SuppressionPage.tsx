@@ -299,7 +299,7 @@ export default function SuppressionPage() {
                                <div className="bg-secondary/20 p-4 rounded-xl space-y-3 border border-border/50">
                                   {Object.entries(selectedResult.logic_details).map(([key, val]: [string, any]) => (
                                     <div key={key} className="flex flex-col gap-1 border-b border-border/20 last:border-none pb-2 last:pb-0">
-                                       <span className="text-[9px] uppercase font-bold text-muted-foreground">{key.replace(/([A-Z])/g, ' $1')}</span>
+                                       <span className="text-[9px] uppercase font-bold text-muted-foreground">{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</span>
                                        <span className="text-sm font-semibold text-foreground">{val.toString()}</span>
                                     </div>
                                   ))}

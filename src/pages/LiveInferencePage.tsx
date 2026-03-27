@@ -46,17 +46,17 @@ const MODELS = [
 ];
 
 const ROUTER_CHAINS = [
-  { id: 'R-Chain-1', label: 'HighLatency', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'util_pct'] },
-  { id: 'R-Chain-2', label: 'HighUtilWarning', sequence: ['cpu_pct', 'crc_errors', 'latency_ms', 'queue_depth', 'util_pct'] },
-  { id: 'R-Chain-3', label: 'InterfaceFlap', sequence: ['cpu_pct', 'util_pct', 'crc_errors', 'queue_depth', 'latency_ms'] },
-  { id: 'R-Chain-4', label: 'PacketDrop', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'util_pct'] },
+  { id: 'R-Chain-1', label: 'High Latency', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'util_pct'] },
+  { id: 'R-Chain-2', label: 'High Util Warning', sequence: ['cpu_pct', 'crc_errors', 'latency_ms', 'queue_depth', 'util_pct'] },
+  { id: 'R-Chain-3', label: 'Interface Flap', sequence: ['cpu_pct', 'util_pct', 'crc_errors', 'queue_depth', 'latency_ms'] },
+  { id: 'R-Chain-4', label: 'Packet Drop', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'util_pct'] },
 ];
 
 const SWITCH_CHAINS = [
-  { id: 'S-Chain-1', label: 'DeviceReboot', sequence: ['queue_depth', 'crc_errors', 'latency_ms', 'util_pct', 'cpu_pct'] },
-  { id: 'S-Chain-2', label: 'HighUtilWarning', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'reboot_delta', 'util_pct'] },
-  { id: 'S-Chain-3', label: 'InterfaceFlap', sequence: ['cpu_pct', 'util_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'reboot_delta'] },
-  { id: 'S-Chain-4', label: 'PacketDrop', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'reboot_delta', 'util_pct'] },
+  { id: 'S-Chain-1', label: 'Device Reboot', sequence: ['queue_depth', 'crc_errors', 'latency_ms', 'util_pct', 'cpu_pct'] },
+  { id: 'S-Chain-2', label: 'High Util Warning', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'reboot_delta', 'util_pct'] },
+  { id: 'S-Chain-3', label: 'Interface Flap', sequence: ['cpu_pct', 'util_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'reboot_delta'] },
+  { id: 'S-Chain-4', label: 'Packet Drop', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'reboot_delta', 'util_pct'] },
 ];
 
 const EVENT_SEQUENCES = [
@@ -68,59 +68,59 @@ const EVENT_SEQUENCES = [
 ];
 
 const CHAIN_TEMPLATES: Record<string, { label: string, meta: string, steps: any[] }> = {
-  'HighLatencyValidated': {
-    label: 'HighLatency',
+  'HIGH_LATENCY_VALIDATED': {
+    label: 'High Latency',
     meta: '(seen 289x | confidence: 0.72)',
     steps: [
-      { label: 'CpuSpike', subLabel: 'R1:router', description: 'Root cause: Router CPU rising above 0.01%/min' },
-      { label: 'CrcErrors', subLabel: 'SW1:access', description: 'Sequence check: CRC errors jump 10min later' },
-      { label: 'BufferUtil', subLabel: 'SW2:dist', description: 'Cascade: Distribution buffer filling' },
-      { label: 'LatencyRise', subLabel: 'FW1:firewall', description: 'Result: Edge latency breach' }
+      { label: 'CPU Spike', subLabel: 'R1:router', description: 'Root cause: Router CPU rising above 0.01%/min' },
+      { label: 'CRC Errors', subLabel: 'SW1:access', description: 'Sequence check: CRC errors jump 10min later' },
+      { label: 'Buffer Util', subLabel: 'SW2:dist', description: 'Cascade: Distribution buffer filling' },
+      { label: 'Latency Rise', subLabel: 'FW1:firewall', description: 'Result: Edge latency breach' }
     ]
   },
   'DeviceReboot': {
-    label: 'DeviceReboot',
+    label: 'Device Reboot',
     meta: '(seen 2x | 6 pre-event windows)',
     steps: [
-      { label: 'QueueDepthFall', subLabel: 'metric poll', description: 'Significant reduction in processing queue depth' },
-      { label: 'CrcErrorsCleared', subLabel: 'metric poll', description: 'Zero-state CRC stability reached' },
-      { label: 'LatencyDrop', subLabel: 'metric poll', description: 'Minimum baseline latency reached' },
-      { label: 'UtilBaseline', subLabel: 'metric poll', description: 'Traffic through interface stopped' },
-      { label: 'CpuIdle', subLabel: 'metric poll', description: 'Control plane processing at minimum' },
-      { label: 'RebootTrap', subLabel: 'SNMP TRAP', description: 'Warm reboot signal detected in stream' }
+      { label: 'Queue Depth Fall', subLabel: 'metric poll', description: 'Significant reduction in processing queue depth' },
+      { label: 'CRC Errors Cleared', subLabel: 'metric poll', description: 'Zero-state CRC stability reached' },
+      { label: 'Latency Drop', subLabel: 'metric poll', description: 'Minimum baseline latency reached' },
+      { label: 'Util Baseline', subLabel: 'metric poll', description: 'Traffic through interface stopped' },
+      { label: 'CPU Idle', subLabel: 'metric poll', description: 'Control plane processing at minimum' },
+      { label: 'Reboot Trap', subLabel: 'SNMP TRAP', description: 'Warm reboot signal detected in stream' }
     ]
   },
   'HighUtilWarning': {
-    label: 'HighUtilWarning',
+    label: 'High Util Warning',
     meta: '(observed in 532 sessions)',
     steps: [
-      { label: 'CpuPctRise', subLabel: '3m lag', description: 'Initial CPU load increase detected' },
-      { label: 'CrcErrorsRise', subLabel: '4m lag', description: 'Link layer retransmissions peaking' },
-      { label: 'LatencyMsRise', subLabel: '6m lag', description: 'Application response delay confirmed' },
-      { label: 'QueueDepthRise', subLabel: '2m lag', description: 'Hardware buffer pressure building' },
-      { label: 'UtilPctRise', subLabel: '1m lag', description: 'Link capacity threshold breach' }
+      { label: 'CPU Pct Rise', subLabel: '3m lag', description: 'Initial CPU load increase detected' },
+      { label: 'CRC Errors Rise', subLabel: '4m lag', description: 'Link layer retransmissions peaking' },
+      { label: 'Latency Ms Rise', subLabel: '6m lag', description: 'Application response delay confirmed' },
+      { label: 'Queue Depth Rise', subLabel: '2m lag', description: 'Hardware buffer pressure building' },
+      { label: 'Util Pct Rise', subLabel: '1m lag', description: 'Link capacity threshold breach' }
     ]
   },
   'InterfaceFlap': {
-    label: 'InterfaceFlap',
+    label: 'Interface Flap',
     meta: '(observed in 146 sessions)',
     steps: [
-      { label: 'LinkUtilRise', subLabel: 'root cause', description: 'Burst traffic on physical link' },
-      { label: 'BufferUtilRise', subLabel: 'sequence 02', description: 'Queue occupancy rise' },
-      { label: 'CrcErrorsRise', subLabel: 'sequence 03', description: 'Incremental CRC error count' },
-      { label: 'PacketLossRise', subLabel: 'sequence 04', description: 'Inbound packet discard detected' },
-      { label: 'FlapEvent', subLabel: 'impact', description: 'Oscillation imminent - link down/up' }
+      { label: 'Link Util Rise', subLabel: 'root cause', description: 'Burst traffic on physical link' },
+      { label: 'Buffer Util Rise', subLabel: 'sequence 02', description: 'Queue occupancy rise' },
+      { label: 'CRC Errors Rise', subLabel: 'sequence 03', description: 'Incremental CRC error count' },
+      { label: 'Packet Loss Rise', subLabel: 'sequence 04', description: 'Inbound packet discard detected' },
+      { label: 'Flap Event', subLabel: 'impact', description: 'Oscillation imminent - link down/up' }
     ]
   },
   'PacketDrop': {
-    label: 'PacketDrop',
+    label: 'Packet Drop',
     meta: '(observed in 493 sessions)',
     steps: [
-      { label: 'CpuPctRise', subLabel: '4m lag', description: 'Processing pressure detected' },
-      { label: 'CrcErrorsRise', subLabel: '2m lag', description: 'Checksum failure increase' },
-      { label: 'QueueDepthRise', subLabel: '1m lag', description: 'Tail-drop threshold likely' },
-      { label: 'LatencyMsRise', subLabel: '5m lag', description: 'Sequential delay drift' },
-      { label: 'UtilPctRise', subLabel: '3m lag', description: 'Active packet discard impact' }
+      { label: 'CPU Pct Rise', subLabel: '4m lag', description: 'Processing pressure detected' },
+      { label: 'CRC Errors Rise', subLabel: '2m lag', description: 'Checksum failure increase' },
+      { label: 'Queue Depth Rise', subLabel: '1m lag', description: 'Tail-drop threshold likely' },
+      { label: 'Latency Ms Rise', subLabel: '5m lag', description: 'Sequential delay drift' },
+      { label: 'Util Pct Rise', subLabel: '3m lag', description: 'Active packet discard impact' }
     ]
   }
 };
@@ -155,6 +155,7 @@ interface PatternMatchItem {
   currentStep: number;
   confidence: number;
   templateId: string;
+  topology?: string;
   steps: PatternStep[];
 }
 
@@ -167,6 +168,7 @@ interface InferenceItem {
   event: string;
   confidence: number;
   pattern?: string;
+  topology?: string;
   status: 'CRITICAL' | 'WARNING' | 'HEALTHY' | 'ANALYZED' | 'WATCH';
   estimatedWait?: string;
   predictedTime?: string;
@@ -286,6 +288,7 @@ const PROGRESSIVE_TIMELINE = [
 
 export default function LiveInferencePage() {
   const [isLive, setIsLive] = useState(true);
+  const [pollInterval, setPollInterval] = useState(30000); // Default 30s
   const [inferences, setInferences] = useState<InferenceItem[]>([]);
   const [logs, setLogs] = useState<string[]>([
     `[${new Date().toLocaleTimeString()}] SYSTEM: Inference Engine v3.0 initialized.`,
@@ -326,10 +329,10 @@ export default function LiveInferencePage() {
 
     const interval = setInterval(() => {
       runParallelInference();
-    }, 30000); // 30 second simulation poll
+    }, pollInterval); 
 
     return () => clearInterval(interval);
-  }, [processingState, stats.polls]); // Added stats.polls to dependency array
+  }, [processingState, stats.polls, pollInterval]); 
 
   const runParallelInference = () => {
     setProcessingState('PROCESSING');
@@ -350,9 +353,9 @@ export default function LiveInferencePage() {
     };
     setSlidingWindows(prev => [newWindow, ...prev].slice(0, 5));
 
-    // WARM-UP LOGIC: No predictions/patterns until poll 5
-    if (currentPollCount < 5) {
-      addLog(`ENGINE: Data aggregation in progress [${currentPollCount}/5]`);
+    // WARM-UP LOGIC: No predictions/patterns until poll 15
+    if (currentPollCount < 15) {
+      addLog(`ENGINE: Data aggregation in progress [${currentPollCount}/15]`);
       setProcessingState('IDLE');
       return;
     }
@@ -388,6 +391,7 @@ export default function LiveInferencePage() {
             type: 'PREDICTION',
             event: chain.label,
             confidence: 0.85 + Math.random() * 0.1,
+            topology: dev.t === 'ROUTER' ? 'DC_EAST_TOPOLOGY' : 'DC_WEST_TOPOLOGY',
             status: rand > 0.8 ? 'CRITICAL' : 'WARNING',
             estimatedWait: waitMinutes >= 60 ? `in ~${Math.floor(waitMinutes / 60)} hr${waitMinutes >= 120 ? 's' : ''}` : `in ~${waitMinutes} mins`,
             predictedTime: pTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
@@ -405,6 +409,7 @@ export default function LiveInferencePage() {
             type: 'ANOMALY',
             event: description,
             confidence: 0.9 + Math.random() * 0.08,
+            topology: dev.t === 'ROUTER' ? 'DC_EAST_TOPOLOGY' : 'DC_WEST_TOPOLOGY',
             status: 'CRITICAL'
           };
           aCount++;
@@ -420,7 +425,7 @@ export default function LiveInferencePage() {
 
       // Ensure our asked pattern is always present as a 6th row row for demonstration
       const rootPatternExist = activePatterns.find(p => p.id === 'PAT-LATENCY-ROOT');
-      if (!rootPatternExist && currentPollCount >= 5) {
+      if (!rootPatternExist && currentPollCount >= 15) {
           const fwDev = DEVICES.find(d => d.p === 'FW1') || DEVICES[0];
           const template = CHAIN_TEMPLATES['HIGH_LATENCY_VALIDATED'];
           const nowTime = new Date().toLocaleTimeString();
@@ -433,6 +438,7 @@ export default function LiveInferencePage() {
             ip: (fwDev as any).ip,
             model: (fwDev as any).m,
             templateId: 'HIGH_LATENCY_VALIDATED',
+            topology: 'DC_EAST_TOPOLOGY',
             interface: fwDev.i,
             timestamp: nowTime,
             currentStep: 2, // At Step 3 (BUFFER_UTIL)
@@ -465,6 +471,7 @@ export default function LiveInferencePage() {
             ip: (dev as any).ip,
             model: (dev as any).m,
             templateId: tId,
+            topology: dev.t === 'ROUTER' ? 'DC_EAST_TOPOLOGY' : 'DC_WEST_TOPOLOGY',
             interface: dev.i,
             timestamp: now.toLocaleTimeString(),
             currentStep: 0,
@@ -546,7 +553,7 @@ export default function LiveInferencePage() {
             <div className="flex items-center gap-2">
               <div className={cn("w-2 h-2 rounded-full", processingState === 'PROCESSING' ? "bg-[#3DDAB4] animate-pulse" : "bg-[#64748B]")} />
               <span className="font-['IBM_Plex_Mono',monospace] text-[10px] uppercase font-bold tracking-widest text-[#3DDAB4]">
-                {stats.polls < 5 ? `DATA_AGGREGATION_PHASE: [${stats.polls}/5]` : 'LIVE_INFERENCE_ENGINE_ACTIVE'}
+                {stats.polls < 15 ? `DATA_AGGREGATION_PHASE: [${stats.polls}/15]` : 'LIVE_INFERENCE_ENGINE_ACTIVE'}
               </span>
               <button
                 onClick={() => setIsSidebarOpen(true)}
@@ -566,6 +573,17 @@ export default function LiveInferencePage() {
           </div>
 
           <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 mr-4">
+              <span className="text-[9px] font-black text-[#64748B] uppercase tracking-widest">Poll Speed</span>
+              <button 
+                onClick={() => setPollInterval(30000)}
+                className={cn("px-2 py-1 rounded text-[9px] font-bold transition-all", pollInterval === 30000 ? "bg-[#3B82F6] text-white" : "bg-white/5 text-[#94A3B8] hover:bg-white/10")}
+              >30S</button>
+              <button 
+                onClick={() => setPollInterval(5000)}
+                className={cn("px-2 py-1 rounded text-[9px] font-bold transition-all", pollInterval === 5000 ? "bg-[#3B82F6] text-white" : "bg-white/5 text-[#94A3B8] hover:bg-white/10")}
+              >5S</button>
+            </div>
             <button
               onClick={() => {
                 if (stats.polls === 0 && processingState === 'PAUSED') {
@@ -599,7 +617,7 @@ export default function LiveInferencePage() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-black tracking-tight text-white">
-                    {viewMode === 'default' ? 'LiveInferenceStream' : 'PatternMatchIntelligence'}
+                    {viewMode === 'default' ? 'Live Inference Stream' : 'Pattern Match Intelligence'}
                   </h1>
                   <div className="flex items-center gap-3 mt-1.5">
                     {viewMode === 'patterns' && (
@@ -608,7 +626,7 @@ export default function LiveInferencePage() {
                         className="px-2 py-0.5 rounded bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[9px] text-[#3B82F6] font-bold uppercase tracking-widest hover:bg-[#3B82F6]/20 transition-all flex items-center gap-1"
                       >
                         <ChevronRight className="w-3 h-3 rotate-180" />
-                        BackToStream
+                        Back To Stream
                       </button>
                     )}
                   </div>
@@ -643,21 +661,30 @@ export default function LiveInferencePage() {
 
             {/* LIVE FEED GRID LIST */}
             <div className="grid grid-cols-1 gap-6">
-              {stats.polls < 5 && (
+              {stats.polls < 15 && (
                 <div className="py-20 flex flex-col items-center justify-center text-center">
                   <div className="w-20 h-20 bg-[#1E293B]/20 rounded-full flex items-center justify-center mb-6 border border-white/5 relative">
                     <RefreshCw className="w-8 h-8 text-[#3B82F6] animate-spin" />
                   </div>
                   <div className="text-[#3B82F6] font-['IBM_Plex_Mono',monospace] text-[11px] uppercase font-black tracking-[0.3em]">
-                    StabilizingWindowIntelligence...
+                    Stabilizing Window Intelligence...
                   </div>
                   <p className="text-[9px] text-[#475569] uppercase font-bold mt-3 tracking-widest max-w-sm italic">
-                    Engine needs 5 polled windows to activate inference validation.
+                    Engine needs 15 polled windows to activate inference validation.
                   </p>
+                  <button
+                    onClick={() => {
+                      setStats(prev => ({ ...prev, polls: 15 }));
+                      addLog("ENGINE: Bypassing stabilization phase manually.");
+                    }}
+                    className="mt-6 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-[9px] font-black uppercase tracking-widest text-[#94A3B8] hover:bg-[#3B82F6] hover:text-white hover:border-[#3B82F6] transition-all"
+                  >
+                    Skip Optimization Phase
+                  </button>
                 </div>
               )}
 
-              {stats.polls >= 5 && viewMode === 'default' && (
+              {stats.polls >= 15 && viewMode === 'default' && (
                 <div className="grid grid-cols-1 gap-6">
                   {inferences.map((item, idx) => (
                     <Card
@@ -690,7 +717,8 @@ export default function LiveInferencePage() {
                               </span>
                             </div>
                             <div className="text-[9px] font-bold text-[#475569] flex items-center gap-1.5 mt-1 uppercase tracking-tight font-['IBM_Plex_Mono',monospace]">
-                              <Clock className="w-3 h-3" />
+                              <span className="text-[#3B82F6]/70 border border-[#3B82F6]/20 px-1 rounded-[2px]">{item.topology || 'GLOBAL'}</span>
+                              <Clock className="w-3 h-3 ml-1" />
                               {item.timestamp}
                             </div>
                           </div>
@@ -808,7 +836,7 @@ export default function LiveInferencePage() {
                 </div>
               )}
 
-              {stats.polls >= 5 && viewMode === 'patterns' && (
+              {stats.polls >= 15 && viewMode === 'patterns' && (
                 <div className="flex flex-col gap-[1px] bg-white/5 border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
                   {/* Table Header */}
                   <div className="flex items-center px-8 py-4 bg-[#0F172A] border-b border-white/5 font-['IBM_Plex_Mono',monospace] text-[9px] text-[#64748B] uppercase tracking-[0.07em]">
@@ -832,12 +860,14 @@ export default function LiveInferencePage() {
                           onClick={() => setExpandedId(isOp ? null : pat.id)}
                         >
                           {/* device cell */}
-                          <div className="w-[200px] flex-shrink-0">
-                            <span className={cn("di", `di-${pat.prefix.toLowerCase().charAt(0)}`)}>{pat.prefix.substring(0, 3)}</span>
-                            <span className="dh font-['IBM_Plex_Mono',monospace] text-[10px] font-bold text-white">{pat.device.split('.')[0]}</span>
-                            <div className="dm font-['IBM_Plex_Mono',monospace] text-[8px] color-[#7f8ea3] mt-1 flex items-center gap-[4px] pl-[28px] opacity-60">
+                          <div className="w-[180px] flex-shrink-0">
+                            <div className="flex items-center gap-2">
+                              <div className="w-1 h-1 rounded-full bg-blue-500/40" />
+                              <span className="dh font-['IBM_Plex_Mono',monospace] text-[11px] font-bold text-white tracking-tight">{pat.device.split('.')[0]}</span>
+                            </div>
+                            <div className="dm font-['IBM_Plex_Mono',monospace] text-[9px] color-[#94A3B8] mt-1.5 flex items-center gap-[6px] pl-[12px] opacity-70">
                               <span className="dip">{pat.ip}</span>
-                              <span className="dif text-[#3b82f6] bg-[#3b82f6]/10 border border-[#3b82f6]/10 rounded px-1">{pat.interface}</span>
+                              <span className="dif text-[#3b82f6] bg-[#3b82f6]/10 border border-[#3b82f6]/10 rounded-sm px-1.5 py-0.5">{pat.interface}</span>
                             </div>
                           </div>
 
@@ -885,6 +915,7 @@ export default function LiveInferencePage() {
                             <div className="stpr px-8 py-10 pb-6 bg-[#0b0f1a] overflow-x-auto no-scrollbar">
                               <div className="stpr-h text-[9px] text-[#7f8ea3] font-['IBM_Plex_Mono',monospace] mb-8 flex items-center gap-2 sticky left-0">
                                 <div className="stpr-dot w-1 h-1 rounded-full" style={{ background: bclr }}></div>
+                                <span className="bg-[#3B82F6]/20 text-[#3B82F6] px-1.5 py-0.5 rounded mr-1">TOPOLOGY: {pat.topology || 'GLOBAL'}</span>
                                 {isCf ? 'full pattern matched — sequence confirmed' : `predicting ${pat.templateId.toLowerCase()} · ${CHAIN_TEMPLATES[pat.templateId].steps.length - (pat.currentStep + 1)} steps remaining`}
                               </div>
 
@@ -1134,6 +1165,7 @@ export default function LiveInferencePage() {
         .di-a{background:rgba(245,158,11,.09);color:#f59e0b;border:1px solid rgba(245,158,11,.15);}
         .di-n{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.15);}
         .di-s{background:rgba(6,186,212,.09);color:#06b6d4;border:1px solid rgba(6,186,212,.15);}
+        .di-t{background:rgba(59,130,246,.08);color:#60a5fa;border:1px solid rgba(59,130,246,.2);padding:0 5px;width:auto;min-width:22px;}
         .di-r{background:rgba(239,68,68,.12);color:#ef4444;border:1px solid rgba(239,68,68,.15);}
         .di-i{background:rgba(139,92,246,.12);color:#8b5cf6;border:1px solid rgba(139,92,246,.15);}
 
