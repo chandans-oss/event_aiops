@@ -24,6 +24,11 @@ import {
   BrainCircuit,
   Heart,
   FileText,
+  Layers,
+  RefreshCw,
+  MessageSquare,
+  Sliders,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { Button } from "@/shared/components/ui/button";
@@ -44,11 +49,11 @@ const navItems: NavItem[] = [
     icon: LayoutDashboard,
     children: [
       { path: "/", label: "Overview", icon: LayoutDashboard },
-      { path: "/dashboard/prediction", label: "Prediction Dashboard", icon: Activity },
-      { path: "/dashboard/kpi", label: "KPI Dashboard", icon: BarChart3 },
-      { path: "/dashboard/rca-analysis", label: "RCA Analysis", icon: Search },
-      { path: "/dashboard/alarm-prediction", label: "Alarm Prediction", icon: TrendingUp },
-      { path: "/dashboard/roi", label: "ROI Dashboard", icon: Target },
+      { path: "/dashboard/prediction", label: "PredictionDashboard", icon: Activity },
+      { path: "/dashboard/kpi", label: "KpiDashboard", icon: BarChart3 },
+      { path: "/dashboard/rca-analysis", label: "RcaAnalysis", icon: Search },
+      { path: "/dashboard/alarm-prediction", label: "AlarmPrediction", icon: TrendingUp },
+      { path: "/dashboard/roi", label: "RoiDashboard", icon: Target },
     ]
   },
   {
@@ -56,10 +61,20 @@ const navItems: NavItem[] = [
     label: "Events",
     icon: Activity,
     children: [
-      { path: "/events", label: "Event List", icon: List },
+      { path: "/events", label: "EventList", icon: List },
       { path: "/events/predicted", label: "Prediction", icon: TrendingUp },
-      { path: "/clustering", label: "Anomaly Detection", icon: GitBranch },
-      { path: "/correlation", label: "Pattern Detection", icon: BrainCircuit },
+      { path: "/clustering", label: "AnomalyDetection", icon: GitBranch },
+      { path: "/correlation", label: "PatternDetection", icon: BrainCircuit },
+    ]
+  },
+  {
+    path: "/event-processing",
+    label: "EventProcessing",
+    icon: Activity,
+    children: [
+      { path: "/event-processing/deduplication", label: "Dedup Lab", icon: FolderArchive },
+      { path: "/event-processing/suppression", label: "Suppression Lab", icon: ShieldCheck },
+      { path: "/event-processing/bulk-processing", label: "Bulk Processing Lab", icon: FileText },
     ]
   },
   { path: "/topology", label: "Topology", icon: Network },
@@ -74,7 +89,7 @@ const navItems: NavItem[] = [
   { path: "/agents", label: "Agents", icon: Bot },
   {
     path: "/pattern-prediction",
-    label: "Pattern & Prediction",
+    label: "PatternPrediction",
     icon: TrendingUp,
     children: [
       { path: "/pattern-prediction/pattern", label: "Pattern", icon: GitBranch },
@@ -82,7 +97,7 @@ const navItems: NavItem[] = [
       { path: "/pattern-prediction/anomalies", label: "Anomalies", icon: Activity },
       { path: "/pattern-prediction/training", label: "Training", icon: Target },
       { path: "/pattern-prediction/results", label: "Results", icon: FileText },
-      { path: "/pattern-prediction/live-inference", label: "Live Inference", icon: PlayCircle },
+      { path: "/pattern-prediction/live-inference", label: "LiveInference", icon: PlayCircle },
     ]
   },
   {
@@ -90,8 +105,7 @@ const navItems: NavItem[] = [
     label: "Playground",
     icon: Settings,
     children: [
-      { path: "/playground/rca", label: "RCA Playground", icon: Workflow },
-      { path: "/playground/event-processing", label: "Event Processing", icon: Activity },
+      { path: "/playground/rca", label: "RcaPlayground", icon: Workflow },
     ]
   },
   {
@@ -99,9 +113,9 @@ const navItems: NavItem[] = [
     label: "Demo",
     icon: PlayCircle,
     children: [
-      { path: "/demo/rca-flow", label: "RCA Flow", icon: Workflow },
+      { path: "/demo/rca-flow", label: "RcaFlow", icon: Workflow },
       { path: "/demo/playground", label: "Playground", icon: PlayCircle },
-      { path: "/demo/impact", label: "Impact Analysis", icon: BarChart3 },
+      { path: "/demo/impact", label: "ImpactAnalysis", icon: BarChart3 },
     ]
   },
   {
@@ -109,10 +123,10 @@ const navItems: NavItem[] = [
     label: "Temp",
     icon: FolderArchive,
     children: [
-      { path: "/preprocessing", label: "Pre-Processing", icon: FileInput },
-      { path: "/rca-impact", label: "RCA & Impact", icon: Search },
+      { path: "/preprocessing", label: "PreProcessing", icon: FileInput },
+      { path: "/rca-impact", label: "RcaImpact", icon: Search },
       { path: "/remediation", label: "Remediation", icon: Wrench },
-      { path: "/upload", label: "Event Upload", icon: Upload },
+      { path: "/upload", label: "EventUpload", icon: Upload },
     ]
   },
 ];
@@ -145,14 +159,30 @@ export function LeftSidebar() {
     );
   };
 
-  const renderNavItem = (item: NavItem) => {
-    const isActive = location.pathname === item.path;
+  const NavItemComponent = ({ item, level = 0 }: { item: NavItem; level?: number }) => {
+    const isActive = location.pathname === item.path || (location.pathname + location.search) === item.path;
     const hasChildren = item.children && item.children.length > 0;
     const isOpen = openMenus.includes(item.path);
-    const isChildActive = hasChildren && item.children?.some(child => location.pathname === child.path);
+    const isChildActive = hasChildren && item.children?.some(child => 
+      location.pathname === child.path || (location.pathname + location.search) === child.path
+    );
     const Icon = item.icon;
 
-    if (collapsed) {
+    const content = (
+      <>
+        <div className="flex items-center gap-3 min-w-0">
+          <Icon className={cn(level === 0 ? "h-5 w-5" : "h-4 w-4", "flex-shrink-0")} />
+          <span className={cn(level === 0 ? "text-sm" : "text-[13px]", "font-medium truncate")}>
+            {item.label}
+          </span>
+        </div>
+        {hasChildren && !collapsed && (
+          <ChevronDown className={cn("h-4 w-4 flex-shrink-0 transition-transform", isOpen && "rotate-180")} />
+        )}
+      </>
+    );
+
+    if (collapsed && level === 0) {
       return (
         <Tooltip key={item.path} delayDuration={0}>
           <TooltipTrigger asChild>
@@ -175,7 +205,7 @@ export function LeftSidebar() {
       );
     }
 
-    if (hasChildren) {
+    if (hasChildren && !collapsed) {
       return (
         <Collapsible key={item.path} open={isOpen} onOpenChange={() => toggleMenu(item.path)}>
           <CollapsibleTrigger asChild>
@@ -183,37 +213,19 @@ export function LeftSidebar() {
               className={cn(
                 "flex items-center justify-between w-full min-h-[2.5rem] py-2 px-3 rounded-lg transition-colors",
                 isChildActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                  ? "bg-primary/10 text-primary border border-primary/20"
+                  : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground",
+                level > 0 && "py-1.5"
               )}
+              style={{ paddingLeft: `${(level + 1) * 12}px` }}
             >
-              <div className="flex items-center gap-3 min-w-0">
-                <Icon className="h-5 w-5 flex-shrink-0" />
-                <span className="text-sm font-medium truncate">{item.label}</span>
-              </div>
-              <ChevronDown className={cn("h-4 w-4 flex-shrink-0 transition-transform", isOpen && "rotate-180")} />
+              {content}
             </button>
           </CollapsibleTrigger>
-          <CollapsibleContent className="pl-4 mt-1 space-y-1">
-            {item.children!.map((child) => {
-              const ChildIcon = child.icon;
-              const isChildItemActive = location.pathname === child.path;
-              return (
-                <NavLink
-                  key={child.path}
-                  to={child.path}
-                  className={cn(
-                    "flex items-center gap-3 h-9 px-3 rounded-lg transition-colors text-sm",
-                    isChildItemActive
-                      ? "bg-primary text-primary-foreground"
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground",
-                  )}
-                >
-                  <ChildIcon className="h-4 w-4 flex-shrink-0" />
-                  <span className="truncate">{child.label}</span>
-                </NavLink>
-              );
-            })}
+          <CollapsibleContent className="mt-1 space-y-1">
+            {item.children!.map((child) => (
+              <NavItemComponent key={child.path} item={child} level={level + 1} />
+            ))}
           </CollapsibleContent>
         </Collapsible>
       );
@@ -226,12 +238,13 @@ export function LeftSidebar() {
         className={cn(
           "flex items-center gap-3 h-10 px-3 rounded-lg transition-colors",
           isActive
-            ? "bg-primary text-primary-foreground"
+            ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
             : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+          level > 0 && "h-8"
         )}
+        style={{ paddingLeft: `${(level + 1) * 12}px` }}
       >
-        <Icon className="h-5 w-5 flex-shrink-0" />
-        <span className="text-sm font-medium truncate">{item.label}</span>
+        {content}
       </NavLink>
     );
   };
@@ -250,7 +263,7 @@ export function LeftSidebar() {
         </Button>
       </div>
       <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
-        {navItems.map(renderNavItem)}
+        {navItems.map(item => <NavItemComponent key={item.path} item={item} />)}
       </nav>
       {!collapsed && (
         <div className="p-4 border-t border-border">

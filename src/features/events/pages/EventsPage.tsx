@@ -355,7 +355,7 @@ export default function Events() {
             {hasActiveFilters && (
               <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-2">
                 <X className="h-4 w-4" />
-                Clear All
+                ClearAll
               </Button>
             )}
 
@@ -374,11 +374,11 @@ export default function Events() {
             <div className="min-w-[1000px]">
               {/* Table Header */}
               <div className="grid grid-cols-12 gap-4 px-4 py-2 bg-secondary/50 border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                <div className="col-span-2">Event ID / Device</div>
+                <div className="col-span-2">EventIdAndDevice</div>
                 <div className="col-span-1">Severity</div>
-                <div className="col-span-3">Event Message</div>
-                <div className="col-span-2">Event Code</div>
-                <div className="col-span-2">Label / Correlation</div>
+                <div className="col-span-3">EventMessage</div>
+                <div className="col-span-2">EventCode</div>
+                <div className="col-span-2">LabelAndCorrelation</div>
                 <div className="col-span-1">Timestamp</div>
                 <div className="col-span-1">Actions</div>
               </div>
@@ -469,7 +469,7 @@ export default function Events() {
                             }}
                           >
                             <Eye className="h-3 w-3" />
-                            RCA/Impact
+                            RcaAndImpact
                           </Button>
                         ) : (
                           <Button
@@ -480,7 +480,7 @@ export default function Events() {
                             title="RCA/Impact is only available for Root events"
                           >
                             <Eye className="h-3 w-3" />
-                            RCA/Impact
+                            RcaAndImpact
                           </Button>
                         )}
                       </div>
@@ -551,7 +551,7 @@ export default function Events() {
         {filteredEvents.length === 0 && (
           <div className="glass-card rounded-xl p-12 text-center">
             <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">No events found</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-2">NoEventsFound</h3>
             <p className="text-muted-foreground mb-4">Try adjusting your filters or search query</p>
             <Button variant="outline" onClick={clearFilters}>Clear Filters</Button>
           </div>

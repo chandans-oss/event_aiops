@@ -39,7 +39,7 @@ const LOADING_MESSAGES = [
 
 const RCA_STEP_CONFIG = [
     {
-        "title": "Step 0: Event Pre-processing / Correlation",
+        "title": "Step0: EventPreProcessingAndCorrelation",
         "icon": "🚨",
         "sub": "• Event Deduplication / Suppression / Normalization.  <br>• Event Correlation.",
         "data": {},
@@ -67,7 +67,7 @@ const RCA_STEP_CONFIG = [
         "mini": "Orchestration process completed.",
     },
     {
-        "title": "Step 2: Intent Routing",
+        "title": "Step2: IntentRouting",
         "icon": "🎯",
         "sub": "• Identify Intent.",
         "data": {
@@ -82,7 +82,7 @@ const RCA_STEP_CONFIG = [
         "mini": "Intent Router process completed.",
     },
     {
-        "title": "Step 3: Hypothesis Scoring",
+        "title": "Step3: HypothesisScoring",
         "icon": "🔍",
         "sub": "• Identify possible hypothesis.",
         "data": {
@@ -96,7 +96,7 @@ const RCA_STEP_CONFIG = [
         "mini": "Hypothesis Scorer process completed.",
     },
     {
-        "title": "Step 4: Situation Card Generation",
+        "title": "Step4: SituationCardGeneration",
         "icon": "📋",
         "sub": "• Create Situation Card <br>• Dump to current vector DB.",
         "data": {
@@ -139,7 +139,7 @@ const RCA_STEP_CONFIG = [
         "mini": "Data Correlation Engine process completed.",
     },
     {
-        "title": "Step 6: RCA Correlator LLM",
+        "title": "Step6: RcaCorrelatorLlm",
         "icon": "🔗",
         "sub": "• Final RCA. <br>• Remedy.",
         "data": {
@@ -474,11 +474,11 @@ const RCAPlaygroundPage = () => {
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
                         <Box display="flex" alignItems="center" gap={2}>
                             <LayoutDashboard size={32} color="#3b82f6" />
-                            <Typography variant="h4" fontWeight="800" color="text.primary">RCA Playground</Typography>
+                            <Typography variant="h4" fontWeight="800" color="text.primary">RcaPlayground</Typography>
                         </Box>
                         {(animatedSteps.length > 0) && (
                             <Button variant="outlined" startIcon={<RotateCcw size={18} />} onClick={handleRestart} sx={{ borderRadius: '10px' }}>
-                                Restart Analysis
+                                RestartAnalysis
                             </Button>
                         )}
                     </Box>

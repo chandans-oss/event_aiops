@@ -644,7 +644,7 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                 Terminal
               </TabsTrigger>
               <TabsTrigger value="kb" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-2 py-4 text-sm font-medium transition-all">
-                Knowledge Base
+                KnowledgeBase
               </TabsTrigger>
             </TabsList>
           </div>

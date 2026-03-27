@@ -207,7 +207,7 @@ const Topology = () => {
                         </div>
                     </div>
 
-                    <Card className="border border-border/50 bg-card/30 backdrop-blur-md shadow-2xl overflow-hidden min-h-[900px] mb-10">
+                    <Card className="border border-border/50 bg-card/30 backdrop-blur-md shadow-2xl overflow-hidden mb-10">
                         <CardHeader className="pb-2 border-b border-border/10 bg-muted/20">
                             <div className="flex items-center justify-between">
                                 <CardTitle className="text-xs font-bold flex items-center gap-2 text-primary uppercase tracking-widest">
@@ -224,9 +224,9 @@ const Topology = () => {
                                 </div>
                             </div>
                         </CardHeader>
-                        <CardContent className="h-full p-0 relative">
+                        <CardContent className="p-0 relative">
                             <ServiceTopology
-                                className="border-none rounded-none h-full bg-transparent"
+                                className="border-none rounded-none bg-transparent"
                                 onNodeClick={(id) => setSelectedNodeId(id)}
                                 nodes={correlationDemoNodes}
                             />

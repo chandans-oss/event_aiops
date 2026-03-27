@@ -57,13 +57,13 @@ export default function LovelableResultsPage() {
               <CheckCircle2 className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-[15px] font-bold tracking-tight">Training Report & Model Repository</h1>
+              <h1 className="text-[15px] font-bold tracking-tight">TrainingReportAndModelRepository</h1>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-md">
               <div className="w-2 h-2 rounded-full bg-[#3DDAB4] animate-pulse" />
-              <span className="text-[10px] font-bold tracking-tighter text-[#3DDAB4]">SYSTEM SYNCED</span>
+              <span className="text-[10px] font-bold tracking-tighter text-[#3DDAB4]">SystemSynced</span>
             </div>
           </div>
         </header>
@@ -73,7 +73,7 @@ export default function LovelableResultsPage() {
             {/* Reports Section */}
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-8">
               <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">01</span>
-              <span className="text-[16px] font-bold tracking-tight uppercase tracking-[0.05em]">Analytical Training Reports</span>
+              <span className="text-[16px] font-bold tracking-tight uppercase tracking-[0.05em]">AnalyticalTrainingReports</span>
             </div>
             <div className="bg-[#1E293B]/40 border border-white/10 rounded-xl overflow-hidden backdrop-blur-sm shadow-2xl mb-12">
               <div className="overflow-x-auto">
@@ -151,7 +151,7 @@ export default function LovelableResultsPage() {
             {/* Assets Grid Section */}
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3DDAB4]/50 mb-8">
               <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">02</span>
-              <span className="text-[16px] font-bold tracking-tight">COMPILED PATTERNS & ML BINARIES</span>
+              <span className="text-[16px] font-bold tracking-tight">CompiledPatternsAndMlBinaries</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
               {[

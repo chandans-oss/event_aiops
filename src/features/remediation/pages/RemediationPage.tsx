@@ -647,7 +647,7 @@ export default function Remediation() {
                   <Card className="rounded-[2.5rem] p-10 space-y-8">
                     <div className="flex items-center gap-6 text-primary">
                       <BookOpen className="h-8 w-8" />
-                      <h3 className="text-2xl font-black uppercase tracking-tighter">AI Knowledge Base Reference</h3>
+                      <h3 className="text-2xl font-black uppercase tracking-tighter">AI KnowledgeBase Reference</h3>
                     </div>
                     <div className="space-y-6">
                       {clusterData.remediationKB.map((kb, kbi) => (

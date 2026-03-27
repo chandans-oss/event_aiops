@@ -21,16 +21,13 @@ import Remediation from "@/features/remediation/pages/RemediationPage";
 import Topology from "@/features/topology/pages/TopologyPage";
 import Admin from "@/features/admin/pages/AdminPage";
 import EventUpload from "@/features/events/pages/EventUploadPage";
-import RCAFlow from "./pages/demo/RCAFlow";
-import Playground from "./pages/demo/Playground";
-import ImpactAnalysis from "./pages/demo/ImpactAnalysis";
 import RCADetailPage from "@/features/rca/pages/RcaDetailPage";
 import ImpactDetailPage from "@/features/impact/pages/ImpactDetailPage";
 import CorrelationPage from "@/features/analytics/pages/CorrelationPage";
 import KBDetailPage from "@/features/admin/pages/KBDetailPage";
 import AgentsPage from "@/features/agents/pages/AgentsPage";
-import LiveInferencePage from "./pages/LiveInferencePage";
 import NotFound from "@/shared/components/common/NotFound";
+import LiveInferencePage from "./pages/LiveInferencePage";
 import RCAPlaygroundPage from "./pages/RCAPlaygroundPage";
 import PatternPage from "./pages/PatternPage";
 import PredictionPage from "./pages/PredictionPage";
@@ -39,10 +36,16 @@ import ModelOutputsPage from "./pages/ModelOutputsPage";
 import TrainingAnalysisPage from "./pages/TrainingAnalysisPage";
 import TrainingLovelablePage from "./pages/TrainingLovelablePage";
 import LovelableResultsPage from "./pages/LovelableResultsPage";
+import EventProcessingPage from "./pages/EventProcessingPage";
+import DeduplicationPage from "./pages/DeduplicationPage";
+import SuppressionPage from "./pages/SuppressionPage";
+import BulkEventProcessingPage from "./pages/BulkEventProcessingPage";
+import RCAFlow from "./pages/demo/RCAFlow";
+import Playground from "./pages/demo/Playground";
+import ImpactAnalysis from "./pages/demo/ImpactAnalysis";
 import AlgoConfigPage from "./pages/algo-training/AlgoConfigPage";
 import AlgoTrainingPage from "./pages/algo-training/AlgoTrainingPage";
 import AlgoResultsPage from "./pages/algo-training/AlgoResultsPage";
-import EventProcessingPage from "./pages/EventProcessingPage";
 
 const queryClient = new QueryClient();
 
@@ -96,7 +99,10 @@ const App = () => (
               <Route path="/demo/playground" element={<Playground />} />
               <Route path="/demo/impact" element={<ImpactAnalysis />} />
               <Route path="/playground/rca" element={<RCAPlaygroundPage />} />
-              <Route path="/playground/event-processing" element={<EventProcessingPage />} />
+              <Route path="/event-processing/deduplication" element={<DeduplicationPage />} />
+              <Route path="/event-processing/suppression" element={<SuppressionPage />} />
+              <Route path="/event-processing/bulk-processing" element={<BulkEventProcessingPage />} />
+              <Route path="/event-processing" element={<EventProcessingPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>

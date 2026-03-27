@@ -27,13 +27,13 @@ const generateMinuteData = (device: string) => {
   return Array.from({ length: 75 }, (_, i) => {
     const minute = 75 - i;
     const probability = Math.floor(Math.random() * 40) + (minute < 10 ? 50 : 20);
-    const status = probability > 80 ? "CRITICAL" : probability > 60 ? "WARNING" : "HEALTHY";
+    const status = probability > 80 ? "Critical" : probability > 60 ? "Warning" : "Healthy";
 
     return {
       t: `T-${minute}m`,
       timestamp: new Date(Date.now() - minute * 60000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       polled_value: (Math.random() * 100).toFixed(2),
-      model_output: probability > 50 ? "ANOMALY_DETECTED" : "NOMINAL",
+      model_output: probability > 50 ? "AnomalyDetected" : "Nominal",
       confidence: probability,
       status: status,
       load: (Math.random() * 20 + 40).toFixed(1) + "%"
@@ -95,7 +95,7 @@ export default function ModelOutputsPage() {
               <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-inner">
                 <Settings className="h-6 w-6 text-primary" />
               </div>
-              <h1 className="text-3xl font-black tracking-tighter uppercase italic">Engine Configuration</h1>
+              <h1 className="text-3xl font-black tracking-tighter uppercase italic">EngineConfiguration</h1>
             </div>
             <p className="text-muted-foreground text-sm font-medium pl-24">
               Detailed Model Analysis & 75-Minute Window Diagnostic
@@ -104,7 +104,7 @@ export default function ModelOutputsPage() {
 
           <div className="flex items-center gap-4">
             <div className="flex flex-col gap-1 items-end">
-              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-70">Target Entity</span>
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-70">TargetEntity</span>
               <Select value={selectedDevice} onValueChange={setSelectedDevice}>
                 <SelectTrigger className="w-[180px] bg-card/50 border-primary/20 font-bold h-10">
                   <SelectValue placeholder="Select Device" />
@@ -128,10 +128,10 @@ export default function ModelOutputsPage() {
             <div className="flex items-center justify-between px-2">
               <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
                 <Zap className="h-3 w-3" />
-                Live Window Inference: {selectedDevice}
+                LiveWindowInference: {selectedDevice}
               </h2>
               <Badge variant="outline" className="text-[9px] font-bold border-emerald-500/20 text-emerald-500 animate-pulse uppercase tracking-widest">
-                Real-time Polling Active
+                RealTimePollingActive
               </Badge>
             </div>
             <Card className="p-8 bg-[#0a0a0a] border-white/5 space-y-6 overflow-hidden relative group">
@@ -172,8 +172,8 @@ export default function ModelOutputsPage() {
             {[
               { label: "Window=75m", color: "bg-cyan-500" },
               { label: "Poll=1m", color: "bg-amber-500" },
-              { label: "Direct Device Stream", color: "bg-emerald-500" },
-              { label: "Zero Aggregation", color: "bg-purple-500" },
+              { label: "DirectDeviceStream", color: "bg-emerald-500" },
+              { label: "ZeroAggregation", color: "bg-purple-500" },
             ].map((item, idx) => (
               <div key={idx} className="flex items-center gap-2">
                 <div className={cn("h-2 w-2 rounded-sm", item.color)} />
@@ -187,7 +187,7 @@ export default function ModelOutputsPage() {
       <div className="space-y-4">
         <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2 px-2 pt-1">
           <Filter className="h-3 w-3" />
-          Active Features
+          ActiveFeatures
         </h2>
         <Card className="p-5 bg-gradient-to-b from-white/5 to-transparent border-white/5 space-y-4">
           <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest leading-relaxed border-b border-white/5 pb-3">
@@ -195,10 +195,10 @@ export default function ModelOutputsPage() {
           </p>
           <div className="space-y-4">
             {[
-              { key: 'util_pct', name: 'Interface Utilization', unit: '%', desc: 'Current load vs capacity' },
-              { key: 'queue_depth', name: 'Buffer Queue Depth', unit: 'pkts', desc: 'Congestion indicator' },
-              { key: 'crc_errors', name: 'CRC Error Rate', unit: 'err/s', desc: 'Physical layer integrity' },
-              { key: 'latency_ms', name: 'Internal Latency', unit: 'ms', desc: 'Kernel processing time' },
+              { key: 'util_pct', name: 'InterfaceUtilization', unit: '%', desc: 'Current load vs capacity' },
+              { key: 'queue_depth', name: 'BufferQueueDepth', unit: 'pkts', desc: 'Congestion indicator' },
+              { key: 'crc_errors', name: 'CrcErrorRate', unit: 'err/s', desc: 'Physical layer integrity' },
+              { key: 'latency_ms', name: 'InternalLatency', unit: 'ms', desc: 'Kernel processing time' },
             ].map((metric) => (
               <div key={metric.key} className="space-y-1.5 group">
                 <div className="flex items-center justify-between">
@@ -232,7 +232,7 @@ export default function ModelOutputsPage() {
     <div className="space-y-6">
       <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2 px-2">
         <Monitor className="h-3 w-3" />
-        Model Context
+        ModelContext
       </h2>
 
       <Card className="p-6 bg-gradient-to-br from-card to-card/50 border-primary/10 space-y-6">
@@ -270,7 +270,7 @@ export default function ModelOutputsPage() {
       <div className="rounded-2xl bg-[#0a0a0a] p-4 border border-white/5 space-y-3 shadow-2xl">
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-4 w-4 text-emerald-500" />
-          <span className="text-[10px] font-black uppercase tracking-widest italic text-emerald-500/80">Active Protections</span>
+          <span className="text-[10px] font-black uppercase tracking-widest italic text-emerald-500/80">ActiveProtections</span>
         </div>
         <div className="flex flex-wrap gap-2">
           <Badge variant="outline" className="text-[8px] bg-emerald-500/5 text-emerald-500 border-emerald-500/20">Drift Detect</Badge>
@@ -284,7 +284,7 @@ export default function ModelOutputsPage() {
       <div className="flex items-center justify-between px-2">
         <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
           <History className="h-3 w-3" />
-          75-Minute Observability Window
+          ObservabilityWindow75Min
         </h2>
         <Badge className="bg-primary/10 text-primary border-primary/20 text-[9px] font-black uppercase tracking-widest">
           LAST UPDATED: {new Date().toLocaleTimeString()}
@@ -296,10 +296,10 @@ export default function ModelOutputsPage() {
           <table className="w-full text-left">
             <thead className="sticky top-0 z-10">
               <tr className="border-b border-border/50 bg-[#121212]/90 backdrop-blur-xl">
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">Relative Time</th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">RelativeTime</th>
                 <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">Timestamp</th>
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">Polled Raw Data</th>
-                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">Model Intelligence</th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">PolledRawData</th>
+                <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">ModelIntelligence</th>
                 <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground text-right whitespace-nowrap">Confidence</th>
               </tr>
             </thead>
@@ -323,8 +323,8 @@ export default function ModelOutputsPage() {
                       variant="outline"
                       className={cn(
                         "text-[9px] font-black tracking-widest px-2 py-0 border-none h-6",
-                        item.status === "CRITICAL" ? "bg-rose-500/10 text-rose-500" :
-                          item.status === "WARNING" ? "bg-amber-500/10 text-amber-500" :
+                        item.status === "Critical" ? "bg-rose-500/10 text-rose-500" :
+                          item.status === "Warning" ? "bg-amber-500/10 text-amber-500" :
                             "bg-emerald-500/10 text-emerald-500"
                       )}
                     >

@@ -50,15 +50,15 @@ import {
 } from "@/shared/components/ui/select";
 
 const MODELS = [
-  { id: "cross_correlation", name: "Cross-Correlation", type: "Statistical", status: "READY", desc: "Discovering temporal lags and relationships between metrics" },
-  { id: "granger_causality", name: "Granger Causality", type: "Statistical", status: "READY", desc: "Determining directional influence and predictive causality" },
-  { id: "pre_event_behavior", name: "Pre-Event Metric Behaviour", type: "Diagnostic", status: "READY", desc: "Analyzing metric shifts prior to critical events" },
-  { id: "pattern_clustering", name: "Pattern Clustering", type: "Unsupervised", status: "READY", desc: "Grouping similar device behaviors and signatures" },
-  { id: "random_forest", name: "Random Forest Event Predictor", type: "Ensemble", status: "READY", desc: "High-accuracy event forecasting and feature weights" },
-  { id: "sequence_mining", name: "Event Sequence Mining", type: "Mining", status: "READY", desc: "Extracting sequential dependencies and patterns" },
-  { id: "anomaly_detection", name: "Anomaly Detection (Isolation Forest)", type: "Unsupervised", status: "READY", desc: "Identifying outliers and localized behavior spikes" },
-  { id: "co_occurrence_matrix", name: "Event Co-Occurrence Matrix", type: "Statistical", status: "READY", desc: "Analyzing synergy between concurrent network events" },
-  { id: "failure_chain", name: "Failure Chain Patterns", type: "Neural", status: "LATEST", desc: "Mapping causal chains from metric drift to root failure" },
+  { id: "cross_correlation", name: "CrossCorrelation", type: "Statistical", status: "READY", desc: "Discovering temporal lags and relationships between metrics" },
+  { id: "granger_causality", name: "GrangerCausality", type: "Statistical", status: "READY", desc: "Determining directional influence and predictive causality" },
+  { id: "pre_event_behavior", name: "PreEventMetricBehaviour", type: "Diagnostic", status: "READY", desc: "Analyzing metric shifts prior to critical events" },
+  { id: "pattern_clustering", name: "PatternClustering", type: "Unsupervised", status: "READY", desc: "Grouping similar device behaviors and signatures" },
+  { id: "random_forest", name: "RandomForestEventPredictor", type: "Ensemble", status: "READY", desc: "High-accuracy event forecasting and feature weights" },
+  { id: "sequence_mining", name: "EventSequenceMining", type: "Mining", status: "READY", desc: "Extracting sequential dependencies and patterns" },
+  { id: "anomaly_detection", name: "AnomalyDetection", type: "Unsupervised", status: "READY", desc: "Identifying outliers and localized behavior spikes" },
+  { id: "co_occurrence_matrix", name: "EventCoOccurrenceMatrix", type: "Statistical", status: "READY", desc: "Analyzing synergy between concurrent network events" },
+  { id: "failure_chain", name: "FailureChainPatterns", type: "Neural", status: "LATEST", desc: "Mapping causal chains from metric drift to root failure" },
 ];
 
 const REPORTS = {
@@ -267,7 +267,7 @@ export default function TrainingPage() {
               <div className="h-9 w-9 rounded-xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20 shadow-inner">
                 <BrainCircuit className="h-5 w-5 text-orange-500" />
               </div>
-              <h1 className="text-2xl font-black tracking-tighter uppercase italic">Model Training</h1>
+              <h1 className="text-2xl font-black tracking-tighter uppercase italic">ModelTraining</h1>
             </div>
           </div>
 
@@ -277,7 +277,7 @@ export default function TrainingPage() {
               <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50">Timeline</span>
               <Select value={timeline} onValueChange={setTimeline}>
                 <SelectTrigger className="w-[160px] bg-card/50 border-white/10 font-bold h-10 text-[10px] uppercase">
-                  <SelectValue placeholder="Select Data Range" />
+                  <SelectValue placeholder="SelectDataRange" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#0a0a0a] border-white/10">
                   <SelectItem value="1m" className="text-[10px] uppercase font-bold">Last 1 Month</SelectItem>
@@ -292,7 +292,7 @@ export default function TrainingPage() {
               className="bg-[#2a9070] hover:bg-[#237a5f] text-white font-black uppercase tracking-widest h-10 px-6 text-[11px] rounded-xl shadow-lg shadow-[#2a9070]/20 mt-5 border-b-4 border-[#1a6a52]"
             >
               <Heart className="mr-2 h-3.5 w-3.5 fill-current" />
-              LOVELABLE V3
+              LovelableV3
             </Button>
 
             <Button
@@ -308,7 +308,7 @@ export default function TrainingPage() {
               ) : (
                 <>
                   <Play className="mr-2 h-3.5 w-3.5 fill-current" />
-                  START TRAINING
+                  StartTraining
                 </>
               )}
             </Button>
@@ -329,7 +329,7 @@ export default function TrainingPage() {
                         </div>
                         <div className="text-left">
                           <SheetTitle className="text-lg font-black uppercase italic tracking-tighter text-foreground">
-                            Engine Config
+                            EngineConfig
                           </SheetTitle>
                           <SheetDescription className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/50">
                             v3.4.2 Optimized Runtime
@@ -343,7 +343,7 @@ export default function TrainingPage() {
                     <div className="space-y-8">
                       {[
                         {
-                          title: "Temporal Parameters",
+                          title: "TemporalParameters",
                           icon: Clock,
                           items: [
                             { label: "Poll interval", value: "5 min", desc: "Collection frequency" },
@@ -352,7 +352,7 @@ export default function TrainingPage() {
                           ]
                         },
                         {
-                          title: "Algorithmic Logic",
+                          title: "AlgorithmicLogic",
                           icon: Layers,
                           items: [
                             { label: "Clusters (K)", value: "4", desc: "Pattern count" },
@@ -360,7 +360,7 @@ export default function TrainingPage() {
                           ]
                         },
                         {
-                          title: "Mining Thresholds",
+                          title: "MiningThresholds",
                           icon: Filter,
                           items: [
                             { label: "Min support", value: "2", desc: "Min occurrence" },
@@ -403,15 +403,15 @@ export default function TrainingPage() {
             <div className="flex items-center justify-between px-2">
               <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
                 <Monitor className="h-3.5 w-3.5" />
-                Telemetry Ingestion
+                TelemetryIngestion
               </h2>
               <Badge variant="outline" className="text-[8px] font-bold border-orange-500/20 text-orange-500 animate-pulse uppercase tracking-widest h-5">
-                Polling Active
+                PollingActive
               </Badge>
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 px-2 italic">Sliding Window Batches (75m Context)</h3>
+              <h3 className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 px-2 italic">SlidingWindowBatches75mContext</h3>
               <Card className="p-5 bg-card/30 border-white/5 space-y-4 h-fit overflow-hidden relative">
                 <div className="space-y-3">
                   {BATCHES.map((batch, i) => (
@@ -446,7 +446,7 @@ export default function TrainingPage() {
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 px-2 italic">Monitored Metric Streams</h3>
+              <h3 className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 px-2 italic">MonitoredMetricStreams</h3>
               <div className="grid grid-cols-2 gap-2 px-1">
                 {METRICS_LIST.map((metric, i) => (
                   <div key={i} className="bg-white/5 border border-white/5 p-2 rounded-lg flex items-center justify-between group hover:bg-white/10 transition-colors">
@@ -465,7 +465,7 @@ export default function TrainingPage() {
           <div className="flex flex-col space-y-6">
             <div className="flex items-center gap-2 px-2">
               <Workflow className="h-3.5 w-3.5 text-primary" />
-              <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary italic">Algorithm Pipeline</h2>
+              <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary italic">AlgorithmPipeline</h2>
             </div>
 
             <ScrollArea className="flex-1 h-[calc(100vh-300px)] min-h-[500px] pr-4">
@@ -546,7 +546,7 @@ export default function TrainingPage() {
 
           <Button variant="outline" className="text-[9px] font-black uppercase tracking-widest border-white/10 hover:bg-white/5 h-9 px-5 opacity-50 hover:opacity-100 transition-all">
             <RotateCcw className="mr-2 h-3 w-3" />
-            Reset Engine Cache
+            ResetEngineCache
           </Button>
         </div>
       </div>

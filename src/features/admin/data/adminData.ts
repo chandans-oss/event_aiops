@@ -7,17 +7,17 @@ export const mockIntentCategories: IntentCategory[] = [
     name: "Network",
     domain: "Network",
     subcategories: [
-      { id: "link", name: "Link", function: "Link Layer", intentCount: 12 },
+      { id: "link", name: "Link", function: "LinkLayer", intentCount: 12 },
       { id: "performance", name: "Performance", function: "Performance", intentCount: 8 },
       { id: "routing", name: "Routing", function: "Routing", intentCount: 5 },
-      { id: "wan", name: "WAN", function: "WAN", intentCount: 4 },
+      { id: "wan", name: "Wan", function: "Wan", intentCount: 4 },
       { id: "wireless", name: "Wireless", function: "Wireless", intentCount: 2 },
       { id: "switching", name: "Switching", function: "Switching", intentCount: 2 },
-      { id: "vpn", name: "VPN", function: "VPN", intentCount: 1 },
-      { id: "mpls", name: "MPLS", function: "MPLS", intentCount: 3 },
+      { id: "vpn", name: "Vpn", function: "Vpn", intentCount: 1 },
+      { id: "mpls", name: "Mpls", function: "Mpls", intentCount: 3 },
       { id: "connectivity", name: "Connectivity", function: "Connectivity", intentCount: 3 },
-      { id: "sdwan", name: "SD-WAN", function: "SD-WAN", intentCount: 4 },
-      { id: "lb", name: "Load Balancer", function: "Load Balancer", intentCount: 5 }
+      { id: "sdwan", name: "SdWan", function: "SdWan", intentCount: 4 },
+      { id: "lb", name: "LoadBalancer", function: "LoadBalancer", intentCount: 5 }
     ]
   },
   {
@@ -28,7 +28,7 @@ export const mockIntentCategories: IntentCategory[] = [
       { id: "system", name: "System", function: "System", intentCount: 10 },
       { id: "container", name: "Container", function: "Container", intentCount: 5 },
       { id: "kubernetes", name: "Kubernetes", function: "Kubernetes", intentCount: 6 },
-      { id: "device", name: "Device Health", function: "Device Health", intentCount: 2 },
+      { id: "device", name: "DeviceHealth", function: "DeviceHealth", intentCount: 2 },
       { id: "infra", name: "Infrastructure", function: "Infrastructure", intentCount: 1 },
       { id: "lifecycle", name: "Lifecycle", function: "Lifecycle", intentCount: 1 }
     ]
@@ -38,13 +38,13 @@ export const mockIntentCategories: IntentCategory[] = [
     name: "Application",
     domain: "Application",
     subcategories: [
-      { id: "errors", name: "HTTP Errors", function: "HTTP Errors", intentCount: 5 },
+      { id: "errors", name: "HttpErrors", function: "HttpErrors", intentCount: 5 },
       { id: "latency", name: "Latency", function: "Latency", intentCount: 4 },
-      { id: "resource", name: "Resource Context", function: "Resource Context", intentCount: 4 },
-      { id: "experience", name: "User Experience", function: "User Experience", intentCount: 3 },
+      { id: "resource", name: "ResourceContext", function: "ResourceContext", intentCount: 4 },
+      { id: "experience", name: "UserExperience", function: "UserExperience", intentCount: 3 },
       { id: "throughput", name: "Throughput", function: "Throughput", intentCount: 2 },
       { id: "concurrency", name: "Concurrency", function: "Concurrency", intentCount: 1 },
-      { id: "jobs", name: "Job Processing", function: "Job Processing", intentCount: 1 }
+      { id: "jobs", name: "JobProcessing", function: "JobProcessing", intentCount: 1 }
     ]
   },
   {
@@ -53,9 +53,9 @@ export const mockIntentCategories: IntentCategory[] = [
     domain: "Database",
     subcategories: [
       { id: "availability", name: "Availability", function: "Availability", intentCount: 5 },
-      { id: "query", name: "Query Performance", function: "Query Performance", intentCount: 4 },
+      { id: "query", name: "QueryPerformance", function: "QueryPerformance", intentCount: 4 },
       { id: "replication", name: "Replication", function: "Replication", intentCount: 3 },
-      { id: "pool", name: "Connection Pool", function: "Connection Pool", intentCount: 2 },
+      { id: "pool", name: "ConnectionPool", function: "ConnectionPool", intentCount: 2 },
       { id: "locking", name: "Locking", function: "Locking", intentCount: 1 }
     ]
   },
@@ -66,7 +66,7 @@ export const mockIntentCategories: IntentCategory[] = [
     subcategories: [
       { id: "detection", name: "Detection", function: "Detection", intentCount: 4 },
       { id: "policy", name: "Policy", function: "Policy", intentCount: 2 },
-      { id: "iam", name: "IAM", function: "IAM", intentCount: 2 },
+      { id: "iam", name: "Iam", function: "Iam", intentCount: 2 },
       { id: "auth", name: "Authentication", function: "Authentication", intentCount: 1 }
     ]
   },
@@ -75,9 +75,9 @@ export const mockIntentCategories: IntentCategory[] = [
     name: "Platform",
     domain: "Platform",
     subcategories: [
-      { id: "quality", name: "Intent Quality", function: "Intent Quality", intentCount: 5 },
+      { id: "quality", name: "IntentQuality", function: "IntentQuality", intentCount: 5 },
       { id: "correlation", name: "Correlation", function: "Correlation", intentCount: 3 },
-      { id: "observability", name: "Observability", function: "Observability Status", intentCount: 3 },
+      { id: "observability", name: "Observability", function: "ObservabilityStatus", intentCount: 3 },
       { id: "dashboards", name: "Dashboards", function: "Dashboards", intentCount: 2 },
       { id: "alerting", name: "Alerting", function: "Alerting", intentCount: 2 }
     ]
@@ -87,10 +87,10 @@ export const mockIntentCategories: IntentCategory[] = [
     name: "Storage",
     domain: "Storage",
     subcategories: [
-      { id: "disk", name: "Disk Health", function: "Disk Health", intentCount: 4 },
+      { id: "disk", name: "DiskHealth", function: "DiskHealth", intentCount: 4 },
       { id: "capacity", name: "Capacity", function: "Capacity", intentCount: 2 },
       { id: "snapshots", name: "Snapshots", function: "Snapshots", intentCount: 1 },
-      { id: "io", name: "IO Latency", function: "IO Latency", intentCount: 1 }
+      { id: "io", name: "IoLatency", function: "IoLatency", intentCount: 1 }
     ]
   },
   {
@@ -98,9 +98,9 @@ export const mockIntentCategories: IntentCategory[] = [
     name: "Middleware",
     domain: "Middleware",
     subcategories: [
-      { id: "queue", name: "Queue Health", function: "Queue Health", intentCount: 3 },
-      { id: "broker", name: "Broker Health", function: "Broker Health", intentCount: 2 },
-      { id: "transactions", name: "Transactions", function: "Transaction Health", intentCount: 1 }
+      { id: "queue", name: "QueueHealth", function: "QueueHealth", intentCount: 3 },
+      { id: "broker", name: "BrokerHealth", function: "BrokerHealth", intentCount: 2 },
+      { id: "transactions", name: "Transactions", function: "TransactionHealth", intentCount: 1 }
     ]
   },
   {
@@ -125,7 +125,7 @@ export const mockIntentsFull: IntentFull[] = [
     intent: "link",
     description: "Physical/optical link down",
     domain: "Network",
-    function: "Link Layer",
+    function: "LinkLayer",
     keywords: [
       "interface down",
       "link down",
@@ -210,7 +210,7 @@ export const mockIntentsFull: IntentFull[] = [
     intent: "link",
     description: "Interface flapping frequently",
     domain: "Network",
-    function: "Link Layer",
+    function: "LinkLayer",
     keywords: [
       "flap",
       "bouncing",
@@ -284,7 +284,7 @@ export const mockIntentsFull: IntentFull[] = [
     intent: "link",
     description: "High CRC/Input/Output errors",
     domain: "Network",
-    function: "Link Layer",
+    function: "LinkLayer",
     keywords: [
       "crc",
       "input error",
@@ -619,7 +619,7 @@ export const mockIntentsFull: IntentFull[] = [
     intent: "unknown",
     description: "No confident match",
     domain: "Platform",
-    function: "Intent Quality",
+    function: "IntentQuality",
     keywords: [
       "unknown",
       "investigate"
@@ -662,7 +662,7 @@ export const mockIntentsFull: IntentFull[] = [
     id: "link.unidirectional",
     intent: "link",
     domain: "Network",
-    function: "Link Layer",
+    function: "LinkLayer",
     description: "Unidirectional link issue detected between two devices",
     keywords: [
       "unidirectional",
@@ -724,7 +724,7 @@ export const mockIntentsFull: IntentFull[] = [
     id: "link.duplex_mismatch",
     intent: "link",
     domain: "Network",
-    function: "Link Layer",
+    function: "LinkLayer",
     description: "Possible speed/duplex mismatch detected on interface",
     keywords: [
       "duplex mismatch",
@@ -1178,7 +1178,7 @@ export const mockIntentsFull: IntentFull[] = [
     id: "system.critical_service_down",
     intent: "system",
     domain: "Compute",
-    function: "OS Services",
+    function: "OsServices",
     description: "Critical OS-level service is not running",
     keywords: [
       "service down",
@@ -1497,7 +1497,7 @@ export const mockIntentsFull: IntentFull[] = [
     id: "platform.intent_ambiguous",
     intent: "platform",
     domain: "Platform",
-    function: "Intent Quality",
+    function: "IntentQuality",
     description: "User query maps to multiple low-confidence intents",
     keywords: [
       "ambiguous intent",
@@ -1618,7 +1618,7 @@ export const mockIntentsFull: IntentFull[] = [
     id: "platform.metric_gaps",
     intent: "platform",
     domain: "Platform",
-    function: "Data Quality",
+    function: "DataQuality",
     description: "Significant gaps in metric ingestion for monitored resource",
     keywords: [
       "data gap",
@@ -1716,7 +1716,7 @@ export const mockIntentsFull: IntentFull[] = [
     id: "thermal.chassis_hot",
     intent: "thermal",
     domain: "Facility",
-    function: "Device Thermal",
+    function: "DeviceThermal",
     description: "Device chassis temperature above safe operating range",
     keywords: [
       "chassis hot",
@@ -1765,7 +1765,7 @@ export const mockIntentsFull: IntentFull[] = [
     id: "thermal.room_hot",
     intent: "thermal",
     domain: "Facility",
-    function: "Environmental Heat",
+    function: "EnvironmentalHeat",
     description: "Room or rack inlet temperature above recommended levels",
     keywords: [
       "room hot",
@@ -10098,9 +10098,9 @@ RabbitMQ management, Kafka CLI, AWS SQS, schema registry, consumer logs`,
 export const mockRemediationPermissions: RemediationPermission[] = [
   {
     id: 'perm-001',
-    name: 'Auto-restart Failed Services',
+    name: 'AutoRestartFailedServices',
     description: 'Allow automatic restart of failed services after detection',
-    category: 'Service Management',
+    category: 'ServiceManagement',
     riskLevel: 'low',
     approved: true,
     approvedBy: 'admin@company.com',
@@ -10108,7 +10108,7 @@ export const mockRemediationPermissions: RemediationPermission[] = [
   },
   {
     id: 'perm-002',
-    name: 'Clear Connection Pools',
+    name: 'ClearConnectionPools',
     description: 'Automatically clear and reset database connection pools when exhausted',
     category: 'Database',
     riskLevel: 'medium',
@@ -10118,17 +10118,17 @@ export const mockRemediationPermissions: RemediationPermission[] = [
   },
   {
     id: 'perm-003',
-    name: 'Failover to Secondary',
+    name: 'FailoverToSecondary',
     description: 'Trigger automatic failover to secondary systems during primary outages',
-    category: 'High Availability',
+    category: 'HighAvailability',
     riskLevel: 'high',
     approved: false
   },
   {
     id: 'perm-004',
-    name: 'Scale Up Resources',
+    name: 'ScaleUpResources',
     description: 'Automatically scale compute resources during high load',
-    category: 'Auto Scaling',
+    category: 'AutoScaling',
     riskLevel: 'medium',
     approved: true,
     approvedBy: 'ops@company.com',
@@ -10136,7 +10136,7 @@ export const mockRemediationPermissions: RemediationPermission[] = [
   },
   {
     id: 'perm-005',
-    name: 'Execute Playbooks',
+    name: 'ExecutePlaybooks',
     description: 'Allow execution of pre-defined remediation playbooks',
     category: 'Automation',
     riskLevel: 'medium',
@@ -10144,7 +10144,7 @@ export const mockRemediationPermissions: RemediationPermission[] = [
   },
   {
     id: 'perm-006',
-    name: 'Network Failover',
+    name: 'NetworkFailover',
     description: 'Trigger network path failover during connectivity issues',
     category: 'Network',
     riskLevel: 'high',
@@ -10152,9 +10152,9 @@ export const mockRemediationPermissions: RemediationPermission[] = [
   },
   {
     id: 'perm-007',
-    name: 'Kill Runaway Processes',
+    name: 'KillRunawayProcesses',
     description: 'Automatically terminate processes consuming excessive resources',
-    category: 'Process Management',
+    category: 'ProcessManagement',
     riskLevel: 'medium',
     approved: true,
     approvedBy: 'ops@company.com',
@@ -10162,7 +10162,7 @@ export const mockRemediationPermissions: RemediationPermission[] = [
   },
   {
     id: 'perm-008',
-    name: 'Rollback Deployments',
+    name: 'RollbackDeployments',
     description: 'Automatically rollback to previous deployment on failure detection',
     category: 'Deployment',
     riskLevel: 'high',

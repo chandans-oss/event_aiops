@@ -13,67 +13,40 @@ vi.mock('lucide-react', async (importOriginal) => {
 });
 
 describe('RulesSection Component', () => {
-    it('renders the component and default tab', () => {
-        render(<RulesSection />);
-        expect(screen.getByText('Suppression')).toBeInTheDocument();
-        expect(screen.getByText('Deduplication')).toBeInTheDocument();
-        expect(screen.getByText('Correlation')).toBeInTheDocument();
-
-        // Default tab is Suppression
-        // Check for "Suppression Rules (Clean View)" header
+    it('renders the suppression section', () => {
+        render(<RulesSection section="Suppression" />);
+        // Header specific to suppression
         expect(screen.getByText(/Suppression Rules/i)).toBeInTheDocument();
     });
 
     it('displays mock suppression rules', async () => {
-        render(<RulesSection />);
+        render(<RulesSection section="Suppression" />);
         // Check if the rules from mockData are rendered
         mockSuppressionRules.forEach(rule => {
             expect(screen.getByText(rule.name)).toBeInTheDocument();
-            // Use regex or partial match for description as it might be truncated
-            // expect(screen.getByText(rule.description)).toBeInTheDocument();
         });
     });
 
-    it.skip('switches tabs correctly', async () => {
-        render(<RulesSection />);
-
-        // Find tabs
-        const tabs = screen.getAllByRole('tab');
-        expect(tabs.length).toBeGreaterThanOrEqual(3);
-
-        // Switch to Deduplication (2nd tab)
-        fireEvent.click(tabs[1]);
-
-        await waitFor(() => {
-            // Check for header specific to deduplication
-            const headers = screen.getAllByRole('heading');
-            const dedupHeader = headers.find(h => h.textContent?.includes('Deduplication Rules'));
-            expect(dedupHeader).toBeInTheDocument();
-        });
-
-        // Check usage of mockDeduplicationRules
+    it('renders the deduplication section', () => {
+        render(<RulesSection section="Deduplication" />);
+        expect(screen.getByText(/Deduplication Rules/i)).toBeInTheDocument();
+        
         mockDeduplicationRules.forEach(rule => {
             expect(screen.getByText(rule.name)).toBeInTheDocument();
         });
+    });
 
-        // Switch to Correlation (3rd tab)
-        fireEvent.click(tabs[2]);
-
-        await waitFor(() => {
-            // Check for header specific to correlation
-            const headers = screen.getAllByRole('heading');
-            const correlationHeader = headers.find(h => h.textContent?.includes('Correlation Rules'));
-            expect(correlationHeader).toBeInTheDocument();
-        });
-
-        // Check usage of mockCorrelationRules
+    it('renders the correlation section', () => {
+        render(<RulesSection section="CorrelationTypes" />);
+        expect(screen.getByText(/Correlation/i)).toBeInTheDocument();
+        
         mockCorrelationRules.forEach(rule => {
             expect(screen.getByText(rule.name)).toBeInTheDocument();
         });
     });
 
     it('filters rules by search query', async () => {
-        render(<RulesSection />);
+        render(<RulesSection section="Suppression" />);
         const searchInput = screen.getByPlaceholderText(/search rules/i);
 
         // Type a specific rule name (assuming one exists)
@@ -89,7 +62,7 @@ describe('RulesSection Component', () => {
     });
 
     it('handles empty data gracefully (simulated via empty filter result)', async () => {
-        render(<RulesSection />);
+        render(<RulesSection section="Suppression" />);
         const searchInput = screen.getByPlaceholderText(/search rules/i);
 
         // Search for something that definitely doesn't exist
@@ -100,7 +73,7 @@ describe('RulesSection Component', () => {
     });
 
     it('renders "Add Rule" button', () => {
-        render(<RulesSection />);
+        render(<RulesSection section="Suppression" />);
         const addButtons = screen.getAllByText('Add Rule');
         expect(addButtons.length).toBeGreaterThan(0);
     });

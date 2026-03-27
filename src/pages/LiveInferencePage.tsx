@@ -46,17 +46,17 @@ const MODELS = [
 ];
 
 const ROUTER_CHAINS = [
-  { id: 'R-Chain-1', label: 'HIGH_LATENCY', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'util_pct'] },
-  { id: 'R-Chain-2', label: 'HIGH_UTIL_WARNING', sequence: ['cpu_pct', 'crc_errors', 'latency_ms', 'queue_depth', 'util_pct'] },
-  { id: 'R-Chain-3', label: 'INTERFACE_FLAP', sequence: ['cpu_pct', 'util_pct', 'crc_errors', 'queue_depth', 'latency_ms'] },
-  { id: 'R-Chain-4', label: 'PACKET_DROP', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'util_pct'] },
+  { id: 'R-Chain-1', label: 'HighLatency', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'util_pct'] },
+  { id: 'R-Chain-2', label: 'HighUtilWarning', sequence: ['cpu_pct', 'crc_errors', 'latency_ms', 'queue_depth', 'util_pct'] },
+  { id: 'R-Chain-3', label: 'InterfaceFlap', sequence: ['cpu_pct', 'util_pct', 'crc_errors', 'queue_depth', 'latency_ms'] },
+  { id: 'R-Chain-4', label: 'PacketDrop', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'util_pct'] },
 ];
 
 const SWITCH_CHAINS = [
-  { id: 'S-Chain-1', label: 'DEVICE_REBOOT', sequence: ['queue_depth', 'crc_errors', 'latency_ms', 'util_pct', 'cpu_pct'] },
-  { id: 'S-Chain-2', label: 'HIGH_UTIL_WARNING', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'reboot_delta', 'util_pct'] },
-  { id: 'S-Chain-3', label: 'INTERFACE_FLAP', sequence: ['cpu_pct', 'util_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'reboot_delta'] },
-  { id: 'S-Chain-4', label: 'PACKET_DROP', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'reboot_delta', 'util_pct'] },
+  { id: 'S-Chain-1', label: 'DeviceReboot', sequence: ['queue_depth', 'crc_errors', 'latency_ms', 'util_pct', 'cpu_pct'] },
+  { id: 'S-Chain-2', label: 'HighUtilWarning', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'reboot_delta', 'util_pct'] },
+  { id: 'S-Chain-3', label: 'InterfaceFlap', sequence: ['cpu_pct', 'util_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'reboot_delta'] },
+  { id: 'S-Chain-4', label: 'PacketDrop', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'reboot_delta', 'util_pct'] },
 ];
 
 const EVENT_SEQUENCES = [
@@ -68,59 +68,59 @@ const EVENT_SEQUENCES = [
 ];
 
 const CHAIN_TEMPLATES: Record<string, { label: string, meta: string, steps: any[] }> = {
-  'HIGH_LATENCY_VALIDATED': {
-    label: 'HIGH_LATENCY',
+  'HighLatencyValidated': {
+    label: 'HighLatency',
     meta: '(seen 289x | confidence: 0.72)',
     steps: [
-      { label: 'CPU_SPIKE', subLabel: 'R1:router', description: 'Root cause: Router CPU rising above 0.01%/min' },
-      { label: 'CRC_ERRORS', subLabel: 'SW1:access', description: 'Sequence check: CRC errors jump 10min later' },
-      { label: 'BUFFER_UTIL', subLabel: 'SW2:dist', description: 'Cascade: Distribution buffer filling' },
-      { label: 'LATENCY_RISE', subLabel: 'FW1:firewall', description: 'Result: Edge latency breach' }
+      { label: 'CpuSpike', subLabel: 'R1:router', description: 'Root cause: Router CPU rising above 0.01%/min' },
+      { label: 'CrcErrors', subLabel: 'SW1:access', description: 'Sequence check: CRC errors jump 10min later' },
+      { label: 'BufferUtil', subLabel: 'SW2:dist', description: 'Cascade: Distribution buffer filling' },
+      { label: 'LatencyRise', subLabel: 'FW1:firewall', description: 'Result: Edge latency breach' }
     ]
   },
-  'DEVICE_REBOOT': {
-    label: 'DEVICE_REBOOT',
+  'DeviceReboot': {
+    label: 'DeviceReboot',
     meta: '(seen 2x | 6 pre-event windows)',
     steps: [
-      { label: 'QUEUE_DEPTH_FALL', subLabel: 'metric poll', description: 'Significant reduction in processing queue depth' },
-      { label: 'CRC_ERRORS_CLEARED', subLabel: 'metric poll', description: 'Zero-state CRC stability reached' },
-      { label: 'LATENCY_DROP', subLabel: 'metric poll', description: 'Minimum baseline latency reached' },
-      { label: 'UTIL_BASELINE', subLabel: 'metric poll', description: 'Traffic through interface stopped' },
-      { label: 'CPU_IDLE', subLabel: 'metric poll', description: 'Control plane processing at minimum' },
-      { label: 'REBOOT_TRAP', subLabel: 'SNMP TRAP', description: 'Warm reboot signal detected in stream' }
+      { label: 'QueueDepthFall', subLabel: 'metric poll', description: 'Significant reduction in processing queue depth' },
+      { label: 'CrcErrorsCleared', subLabel: 'metric poll', description: 'Zero-state CRC stability reached' },
+      { label: 'LatencyDrop', subLabel: 'metric poll', description: 'Minimum baseline latency reached' },
+      { label: 'UtilBaseline', subLabel: 'metric poll', description: 'Traffic through interface stopped' },
+      { label: 'CpuIdle', subLabel: 'metric poll', description: 'Control plane processing at minimum' },
+      { label: 'RebootTrap', subLabel: 'SNMP TRAP', description: 'Warm reboot signal detected in stream' }
     ]
   },
-  'HIGH_UTIL_WARNING': {
-    label: 'HIGH_UTIL_WARNING',
+  'HighUtilWarning': {
+    label: 'HighUtilWarning',
     meta: '(observed in 532 sessions)',
     steps: [
-      { label: 'cpu_pct ↑', subLabel: '3m lag', description: 'Initial CPU load increase detected' },
-      { label: 'crc_errors ↑', subLabel: '4m lag', description: 'Link layer retransmissions peaking' },
-      { label: 'latency_ms ↑', subLabel: '6m lag', description: 'Application response delay confirmed' },
-      { label: 'queue_depth ↑', subLabel: '2m lag', description: 'Hardware buffer pressure building' },
-      { label: 'util_pct ↑', subLabel: '1m lag', description: 'Link capacity threshold breach' }
+      { label: 'CpuPctRise', subLabel: '3m lag', description: 'Initial CPU load increase detected' },
+      { label: 'CrcErrorsRise', subLabel: '4m lag', description: 'Link layer retransmissions peaking' },
+      { label: 'LatencyMsRise', subLabel: '6m lag', description: 'Application response delay confirmed' },
+      { label: 'QueueDepthRise', subLabel: '2m lag', description: 'Hardware buffer pressure building' },
+      { label: 'UtilPctRise', subLabel: '1m lag', description: 'Link capacity threshold breach' }
     ]
   },
-  'INTERFACE_FLAP': {
-    label: 'INTERFACE_FLAP',
+  'InterfaceFlap': {
+    label: 'InterfaceFlap',
     meta: '(observed in 146 sessions)',
     steps: [
-      { label: 'link_util ↑', subLabel: 'root cause', description: 'Burst traffic on physical link' },
-      { label: 'buffer_util ↑', subLabel: 'sequence 02', description: 'Queue occupancy rise' },
-      { label: 'crc_errors ↑', subLabel: 'sequence 03', description: 'Incremental CRC error count' },
-      { label: 'packet_loss ↑', subLabel: 'sequence 04', description: 'Inbound packet discard detected' },
-      { label: 'flap_event', subLabel: 'impact', description: 'Oscillation imminent - link down/up' }
+      { label: 'LinkUtilRise', subLabel: 'root cause', description: 'Burst traffic on physical link' },
+      { label: 'BufferUtilRise', subLabel: 'sequence 02', description: 'Queue occupancy rise' },
+      { label: 'CrcErrorsRise', subLabel: 'sequence 03', description: 'Incremental CRC error count' },
+      { label: 'PacketLossRise', subLabel: 'sequence 04', description: 'Inbound packet discard detected' },
+      { label: 'FlapEvent', subLabel: 'impact', description: 'Oscillation imminent - link down/up' }
     ]
   },
-  'PACKET_DROP': {
-    label: 'PACKET_DROP',
+  'PacketDrop': {
+    label: 'PacketDrop',
     meta: '(observed in 493 sessions)',
     steps: [
-      { label: 'cpu_pct ↑', subLabel: '4m lag', description: 'Processing pressure detected' },
-      { label: 'crc_errors ↑', subLabel: '2m lag', description: 'Checksum failure increase' },
-      { label: 'queue_depth ↑', subLabel: '1m lag', description: 'Tail-drop threshold likely' },
-      { label: 'latency_ms ↑', subLabel: '5m lag', description: 'Sequential delay drift' },
-      { label: 'util_pct ↑', subLabel: '3m lag', description: 'Active packet discard impact' }
+      { label: 'CpuPctRise', subLabel: '4m lag', description: 'Processing pressure detected' },
+      { label: 'CrcErrorsRise', subLabel: '2m lag', description: 'Checksum failure increase' },
+      { label: 'QueueDepthRise', subLabel: '1m lag', description: 'Tail-drop threshold likely' },
+      { label: 'LatencyMsRise', subLabel: '5m lag', description: 'Sequential delay drift' },
+      { label: 'UtilPctRise', subLabel: '3m lag', description: 'Active packet discard impact' }
     ]
   }
 };
@@ -599,7 +599,7 @@ export default function LiveInferencePage() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-black tracking-tight text-white">
-                    {viewMode === 'default' ? 'Live Inference Stream' : 'Pattern Match Intelligence'}
+                    {viewMode === 'default' ? 'LiveInferenceStream' : 'PatternMatchIntelligence'}
                   </h1>
                   <div className="flex items-center gap-3 mt-1.5">
                     {viewMode === 'patterns' && (
@@ -608,7 +608,7 @@ export default function LiveInferencePage() {
                         className="px-2 py-0.5 rounded bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[9px] text-[#3B82F6] font-bold uppercase tracking-widest hover:bg-[#3B82F6]/20 transition-all flex items-center gap-1"
                       >
                         <ChevronRight className="w-3 h-3 rotate-180" />
-                        Back to Stream
+                        BackToStream
                       </button>
                     )}
                   </div>
@@ -631,7 +631,7 @@ export default function LiveInferencePage() {
                     viewMode === 'patterns' ? "bg-[#3DDAB4]/10 border-[#3DDAB4]/40" : "bg-[#111827] border-white/5 hover:border-[#3DDAB4]/30"
                   )}
                 >
-                  <div className="text-[8px] text-[#64748B] uppercase font-black mb-1 tracking-widest group-hover:text-[#3DDAB4]/70">Pattern Match</div>
+                  <div className="text-[8px] text-[#64748B] uppercase font-black mb-1 tracking-widest group-hover:text-[#3DDAB4]/70">PatternMatch</div>
                   <div className="text-xl font-black tracking-tighter tabular-nums text-[#3DDAB4]">{stats.patterns}</div>
                 </button>
                 <div className="bg-[#111827] px-5 py-3 rounded-xl border border-white/5 min-w-[90px] text-center">
@@ -649,7 +649,7 @@ export default function LiveInferencePage() {
                     <RefreshCw className="w-8 h-8 text-[#3B82F6] animate-spin" />
                   </div>
                   <div className="text-[#3B82F6] font-['IBM_Plex_Mono',monospace] text-[11px] uppercase font-black tracking-[0.3em]">
-                    Stabilizing Window Intelligence...
+                    StabilizingWindowIntelligence...
                   </div>
                   <p className="text-[9px] text-[#475569] uppercase font-bold mt-3 tracking-widest max-w-sm italic">
                     Engine needs 5 polled windows to activate inference validation.

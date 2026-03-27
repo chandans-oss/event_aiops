@@ -9,26 +9,26 @@ import { AutoRemediationSection } from '@/components/admin/AutoRemediationSectio
 
 export default function Admin() {
   const [searchParams] = useSearchParams();
-  const initialSection = (searchParams.get('section') as AdminSection) || 'suppression';
+  const initialSection = (searchParams.get('section') as AdminSection) || 'Suppression';
   const highlightIntent = searchParams.get('highlight') || undefined;
   const [activeSection, setActiveSection] = useState<AdminSection>(initialSection);
 
   const renderSection = () => {
     switch (activeSection) {
-      case 'suppression':
-        return <RulesSection section="suppression" />;
-      case 'deduplication':
-        return <RulesSection section="deduplication" />;
-      case 'correlation-types':
-        return <RulesSection section="correlation-types" />;
-      case 'intents':
+      case 'Suppression':
+        return <RulesSection section="Suppression" />;
+      case 'Deduplication':
+        return <RulesSection section="Deduplication" />;
+      case 'CorrelationTypes':
+        return <RulesSection section="CorrelationTypes" />;
+      case 'Intents':
         return <IntentsSection highlightIntentId={highlightIntent} />;
-      case 'kb':
+      case 'KB':
         return <KBSection />;
-      case 'auto-remediation':
+      case 'AutoRemediation':
         return <AutoRemediationSection />;
       default:
-        return <RulesSection section="suppression" />;
+        return <RulesSection section="Suppression" />;
     }
   };
 

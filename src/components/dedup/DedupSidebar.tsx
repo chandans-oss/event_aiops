@@ -1,24 +1,40 @@
 import { useState } from 'react';
-import { Shield, Lightbulb, BookOpen, Zap, ChevronRight, ChevronLeft, TrendingUp, ToggleLeft, Copy, GitBranch } from 'lucide-react';
+import { 
+  Target, 
+  Layers, 
+  RefreshCw, 
+  MessageSquare, 
+  Sliders, 
+  BrainCircuit, 
+  ChevronRight, 
+  ChevronLeft,
+  Sparkles
+} from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 
-export type AdminSection = 'Suppression' | 'Deduplication' | 'CorrelationTypes' | 'Intents' | 'KB' | 'AutoRemediation';
+export type Technique = 
+  | 'exact' 
+  | 'structured' 
+  | 'state' 
+  | 'template' 
+  | 'similarity' 
+  | 'semantic';
 
-interface AdminSidebarProps {
-  activeSection: AdminSection;
-  onSectionChange: (section: AdminSection) => void;
+interface DedupSidebarProps {
+  activeTechnique: Technique;
+  onTechniqueChange: (technique: Technique) => void;
 }
 
 const menuItems = [
-  { id: 'Suppression' as AdminSection, label: 'Suppression', icon: ToggleLeft },
-  { id: 'Deduplication' as AdminSection, label: 'Deduplication', icon: Copy },
-  { id: 'CorrelationTypes' as AdminSection, label: 'CorrelationTypes', icon: GitBranch },
-  { id: 'Intents' as AdminSection, label: 'IntentsHypothesis', icon: Lightbulb },
-  { id: 'KB' as AdminSection, label: 'KnowledgeBase', icon: BookOpen },
-  { id: 'AutoRemediation' as AdminSection, label: 'AutoRemediation', icon: Zap },
+  { id: 'exact' as Technique, label: 'Exact Match', icon: Target, desc: "Bit-by-bit comparison" },
+  { id: 'structured' as Technique, label: 'Structured Exact', icon: Layers, desc: "Field-based matching" },
+  { id: 'state' as Technique, label: 'State Transition', icon: RefreshCw, desc: "State change tracking" },
+  { id: 'template' as Technique, label: 'Template-Based', icon: MessageSquare, desc: "Pattern normalization" },
+  { id: 'similarity' as Technique, label: 'Similarity-Based', icon: Sliders, desc: "Fuzzy text matching" },
+  { id: 'semantic' as Technique, label: 'Semantic-Based', icon: BrainCircuit, desc: "LLM contextual clustering" },
 ];
 
-export function AdminSidebar({ activeSection, onSectionChange }: AdminSidebarProps) {
+export function DedupSidebar({ activeTechnique, onTechniqueChange }: DedupSidebarProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
@@ -26,16 +42,15 @@ export function AdminSidebar({ activeSection, onSectionChange }: AdminSidebarPro
       "h-full bg-card/40 backdrop-blur-md border-r border-border/50 flex flex-col transition-all duration-300",
       isCollapsed ? "w-16" : "w-64"
     )}>
-      {/* Header with Collapse Toggle - Matching IEP Style */}
       <div className={cn(
         "p-4 border-b border-border/50 flex items-center justify-between",
         isCollapsed ? "justify-center" : "items-start"
       )}>
         {!isCollapsed && (
           <div className="flex flex-col animate-in fade-in slide-in-from-left-2 duration-500">
-            <h2 className="text-xl font-bold text-foreground">AdminSettings</h2>
+            <h2 className="text-xl font-bold text-foreground">Dedup Lab</h2>
             <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight opacity-70">
-              ManageRulesIntentsAndRemediation
+              Explainable Logic Engine
             </p>
           </div>
         )}
@@ -45,7 +60,6 @@ export function AdminSidebar({ activeSection, onSectionChange }: AdminSidebarPro
             "p-1.5 rounded-lg bg-secondary/50 hover:bg-primary/20 text-muted-foreground hover:text-primary transition-all duration-200 border border-border/50",
             isCollapsed ? "mt-2" : "mt-1"
           )}
-          title={isCollapsed ? "Expand Admin Sidebar" : "Shorten Admin Sidebar"}
         >
           {isCollapsed ? (
             <ChevronRight className="h-4 w-4" />
@@ -55,17 +69,15 @@ export function AdminSidebar({ activeSection, onSectionChange }: AdminSidebarPro
         </button>
       </div>
 
-      {/* Navigation Items */}
       <nav className="flex-1 p-3 space-y-2 mt-2">
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const isActive = activeSection === item.id;
+          const isActive = activeTechnique === item.id;
 
           return (
             <button
               key={item.id}
-              onClick={() => onSectionChange(item.id)}
-              title={isCollapsed ? item.label : undefined}
+              onClick={() => onTechniqueChange(item.id)}
               className={cn(
                 "w-full flex items-center gap-3 px-3 py-3 rounded-xl text-sm font-medium transition-all group relative",
                 isActive
@@ -79,14 +91,13 @@ export function AdminSidebar({ activeSection, onSectionChange }: AdminSidebarPro
                 isActive && "scale-110"
               )} />
               {!isCollapsed && (
-                <span className="flex-1 text-left whitespace-nowrap overflow-hidden text-ellipsis animate-in fade-in slide-in-from-left-2 duration-300">
-                  {item.label}
-                </span>
-              )}
-
-              {!isCollapsed && (
-                <div className="ml-auto opacity-50 group-hover:opacity-100 transition-opacity">
-                  <ChevronRight className={cn("h-4 w-4 transition-transform", isActive && "rotate-90")} />
+                <div className="flex flex-col items-start min-w-0">
+                  <span className="text-sm font-bold whitespace-nowrap overflow-hidden text-ellipsis animate-in fade-in slide-in-from-left-2 duration-300">
+                    {item.label}
+                  </span>
+                  <span className="text-[10px] opacity-50 font-medium truncate w-full text-left">
+                    {item.desc}
+                  </span>
                 </div>
               )}
 
@@ -98,13 +109,12 @@ export function AdminSidebar({ activeSection, onSectionChange }: AdminSidebarPro
         })}
       </nav>
 
-      {/* Footer Info */}
       {!isCollapsed && (
         <div className="p-4 border-t border-border/30 bg-secondary/5">
           <div className="flex items-center gap-2 px-1">
-            <Shield className="h-3 w-3 text-primary/50" />
+            <Sparkles className="h-3 w-3 text-primary/50" />
             <p className="text-[9px] text-muted-foreground leading-tight uppercase tracking-widest font-semibold opacity-50">
-              SystemSecureMode
+              AI Powered RCA
             </p>
           </div>
         </div>

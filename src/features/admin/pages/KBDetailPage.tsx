@@ -55,7 +55,7 @@ export default function KBDetailPage() {
                 <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
                     <Button variant="ghost" size="sm" onClick={() => navigate('/admin?section=kb')} className="mb-3 gap-2 text-slate-500 hover:text-primary transition-colors hover:bg-primary/5 rounded-full px-3">
                         <ArrowLeft className="h-4 w-4" />
-                        <span className="font-bold uppercase tracking-widest text-[10px]">Back to Knowledge Base</span>
+                        <span className="font-bold uppercase tracking-widest text-[10px]">Back to KnowledgeBase</span>
                     </Button>
                 </motion.div>
 

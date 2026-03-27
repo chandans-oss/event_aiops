@@ -32,7 +32,7 @@ export default function AlgoConfigPage() {
           {/* Training Scope Column */}
           <div className="space-y-4">
             <label className="text-[10px] font-black text-[#3DDAB4] uppercase tracking-[0.2em] px-1">
-              Training Scope
+              TrainingScope
             </label>
             <Select value={scope} onValueChange={setScope}>
               <SelectTrigger className="w-full h-12 bg-[#121826] border-white/5 rounded-xl text-slate-200 px-4 focus:ring-1 focus:ring-[#3DDAB4]/50 hover:border-white/10 transition-all font-medium">
@@ -58,7 +58,7 @@ export default function AlgoConfigPage() {
           {/* Device Selection Column (Placeholder as per UI in image 2) */}
           <div className="space-y-4">
             <label className="text-[10px] font-black text-[#3DDAB4] uppercase tracking-[0.2em] px-1">
-              Select Device
+              SelectDevice
             </label>
             <Select disabled>
               <SelectTrigger className="w-full h-12 bg-[#121826]/50 border-white/5 rounded-xl text-slate-500 px-4 font-medium opacity-60">

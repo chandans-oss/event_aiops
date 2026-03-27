@@ -52,10 +52,10 @@ const TrainingReportPage = () => {
         <div>
           <div className="flex items-center gap-2 text-[#3B82F6] mb-1.5 font-['IBM_Plex_Mono',monospace] text-[12px] font-bold tracking-[0.1em] uppercase">
             <FileText className="w-4 h-4" />
-            Analytical Intelligence Registry
+            AnalyticalIntelligenceRegistry
           </div>
           <h1 className="text-[32px] font-black tracking-[-0.03em] bg-gradient-to-r from-white via-white to-white/40 bg-clip-text text-transparent">
-            Lovelable System Report
+            LovelableSystemReport
           </h1>
           <p className="text-[#94A3B8] text-[14px]">Industry-standard audit for serialized model patterns and behavioral shifts.</p>
         </div>
@@ -67,14 +67,14 @@ const TrainingReportPage = () => {
             className="h-10 bg-[#1E293B]/40 border-[#334155] text-white hover:bg-[#334155] gap-2 rounded-xl"
           >
             <RotateCcw className="w-4 h-4" />
-            BACK TO TRAINING
+            BackToTraining
           </Button>
           <Button 
             onClick={handleExportJSON}
             className="h-10 bg-[#3B82F6] hover:bg-[#2563EB] text-white gap-2 px-6 rounded-xl font-bold shadow-[0_0_20px_rgba(59,130,246,0.3)]"
           >
             <Download className="w-4 h-4" />
-            EXPORT REGISTRY
+            ExportRegistry
           </Button>
         </div>
       </div>
@@ -84,10 +84,10 @@ const TrainingReportPage = () => {
         <Tabs defaultValue="summary" className="w-full flex flex-col flex-1">
           <div className="border-b border-[#334155] bg-[#0F172A]/80 backdrop-blur-xl sticky top-0 z-20 px-4 flex items-center justify-between">
             <TabsList className="bg-transparent h-auto p-0 flex justify-start gap-2">
-              <TabsTrigger value="summary" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black uppercase tracking-[0.1em] transition-all">Audit Summary</TabsTrigger>
-              <TabsTrigger value="correlation" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black uppercase tracking-[0.1em] transition-all">Cross Correlation</TabsTrigger>
-              <TabsTrigger value="granger" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black uppercase tracking-[0.1em] transition-all">Granger Causality</TabsTrigger>
-              <TabsTrigger value="json" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black uppercase tracking-[0.1em] transition-all">JSON Schema</TabsTrigger>
+              <TabsTrigger value="summary" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black uppercase tracking-[0.1em] transition-all">AuditSummary</TabsTrigger>
+              <TabsTrigger value="correlation" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black uppercase tracking-[0.1em] transition-all">CrossCorrelation</TabsTrigger>
+              <TabsTrigger value="granger" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black uppercase tracking-[0.1em] transition-all">GrangerCausality</TabsTrigger>
+              <TabsTrigger value="json" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black uppercase tracking-[0.1em] transition-all">JsonSchema</TabsTrigger>
             </TabsList>
 
             <div className="hidden md:flex items-center gap-4 px-4">
@@ -109,7 +109,7 @@ const TrainingReportPage = () => {
                <Table>
                 <TableHeader className="bg-black/40 sticky top-0 z-10">
                   <TableRow className="border-[#334155] hover:bg-transparent">
-                    {['DEVICE','EVENT','METRIC','NORMAL μ','PRE-EVT μ','Δ %','N','PERFORMANCE'].map(h => (
+                    {['Device','Event','Metric','NormalMean','PreEventMean','DeltaPct','Occurrences','Performance'].map(h => (
                       <TableHead key={h} className="text-[10px] font-black text-[#64748B] uppercase tracking-[0.2em] px-6 py-5">{h}</TableHead>
                     ))}
                   </TableRow>

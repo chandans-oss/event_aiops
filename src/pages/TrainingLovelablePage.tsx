@@ -32,8 +32,8 @@ const LoadingState = ({ title }: { title: string }) => (
     <div className="w-16 h-16 bg-[#1E293B] rounded-full flex items-center justify-center mb-6 border border-[#334155] shadow-[0_0_20px_rgba(59,130,246,0.1)]">
       <Loader2 className="w-6 h-6 text-[#3B82F6] animate-spin" />
     </div>
-    <div className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.2em] text-[#3B82F6] mb-2 uppercase font-bold pr-2">Analytical Processing...</div>
-    <h2 className="text-[18px] font-semibold mb-1 tracking-tight text-[#F8FAFC]">Calibrating {title} Models</h2>
+    <div className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.2em] text-[#3B82F6] mb-2 uppercase font-bold pr-2">AnalyticalProcessing...</div>
+    <h2 className="text-[18px] font-semibold mb-1 tracking-tight text-[#F8FAFC]">Calibrating {title} models</h2>
     <p className="text-[#94A3B8] max-w-sm font-['IBM_Plex_Mono',monospace] text-[11px] mt-2">
       Waiting for training pipeline to reach this extraction stage. Results will populate automatically.
     </p>
@@ -84,7 +84,7 @@ const AnomalyHeatMap = ({ data }: { data: any[] }) => {
   return (
     <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden shadow-2xl animate-in fade-in duration-700">
       <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#EF4444] font-bold uppercase">RESOURCE ANOMALY HEAT MAP (ISOLATION FOREST CONTRIBUTIONS)</span>
+        <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#EF4444] font-bold uppercase">ResourceAnomalyHeatMap</span>
         <div className="flex gap-4 items-center">
           <div className="flex items-center gap-1.5 font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] font-bold uppercase transition-all hover:scale-105">
             <div className="w-2.5 h-2.5 rounded-full bg-[#EF4444] shadow-[0_0_8px_rgba(239,68,68,0.4)]" /> HIGH
@@ -100,7 +100,7 @@ const AnomalyHeatMap = ({ data }: { data: any[] }) => {
       <div className="p-4 overflow-x-auto no-scrollbar">
         <div className="min-w-[650px]">
           <div className="grid grid-cols-[160px_repeat(5,1fr)] gap-2 mb-3 px-2">
-            <div className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] uppercase font-black pr-2 tracking-widest">ENTITY IDENTIFIER</div>
+            <div className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] uppercase font-black pr-2 tracking-widest">EntityIdentifier</div>
             {metrics.map(m => (
               <div key={m.key} className="text-center font-['IBM_Plex_Mono',monospace] text-[8px] text-[#64748B] font-black uppercase tracking-widest">{m.label}</div>
             ))}
@@ -144,8 +144,8 @@ const AnomalyHeatMap = ({ data }: { data: any[] }) => {
         </div>
       </div>
       <div className="px-3.5 py-2 bg-[#0F172A]/50 border-t border-[#334155] flex justify-between font-['IBM_Plex_Mono',monospace] text-[8px] text-[#475569] uppercase tracking-wider">
-        <span>8,156 WINDOWS SAMPLED</span>
-        <span>ISOLATION DEPTH: 16-24 LEVELS</span>
+        <span>WindowsSampled</span>
+        <span>IsolationDepth</span>
       </div>
     </div>
   );
@@ -160,7 +160,7 @@ const CorrelationVennDiagram = ({ a, b, r, dev }: { a: string, b: string, r: num
     <div className="bg-[#0F172A]/40 border border-[#334155] rounded-xl p-4 flex flex-col items-center animate-in zoom-in duration-500 hover:border-[#3B82F6]/50 transition-all group">
       <div className="w-full mb-3">
         <div className="flex flex-col">
-          <span className="text-[10px] text-[#3B82F6] font-bold uppercase tracking-widest leading-none mb-1">{dev} NODE</span>
+          <span className="text-[10px] text-[#3B82F6] font-bold uppercase tracking-widest leading-none mb-1">NodeInfo</span>
           <span className="text-[14px] font-bold text-[#F8FAFC] tracking-tight leading-tight">{a} & {b}</span>
         </div>
       </div>
@@ -196,11 +196,11 @@ const CorrelationVennDiagram = ({ a, b, r, dev }: { a: string, b: string, r: num
       <div className="w-full mt-2 pt-2 border-t border-white/5 flex justify-center gap-6">
         <div className="flex flex-col items-center">
           <span className="text-[12px] text-[#F8FAFC] font-bold">{r.toFixed(3)}</span>
-          <span className="text-[9px] text-[#475569] uppercase font-black">PEARSON R</span>
+          <span className="text-[9px] text-[#475569] uppercase font-black">PearsonR</span>
         </div>
         <div className="flex flex-col items-center">
           <span className="text-[12px] text-[#F8FAFC] font-bold">{(r2 * 100).toFixed(1)}%</span>
-          <span className="text-[9px] text-[#475569] uppercase font-black">OVERLAP</span>
+          <span className="text-[9px] text-[#475569] uppercase font-black">Overlap</span>
         </div>
       </div>
     </div>
@@ -215,7 +215,7 @@ const CausalVennDiagram = ({ cause, effect, fstat, p, lag, dev }: { cause: strin
 
       <div className="w-full mb-3">
         <div className="flex flex-col">
-          <span className="text-[10px] text-[#F59E0B] font-bold uppercase tracking-widest leading-none mb-1">{dev} NODE CAUSALITY</span>
+          <span className="text-[10px] text-[#F59E0B] font-bold uppercase tracking-widest leading-none mb-1">NodeCausality</span>
           <span className="text-[14px] font-bold text-[#F8FAFC] tracking-tight leading-tight flex items-center gap-2">
             {cause} <ChevronRight className="w-3.5 h-3.5 text-[#F59E0B] animate-pulse" /> {effect}
           </span>
@@ -253,19 +253,19 @@ const CausalVennDiagram = ({ cause, effect, fstat, p, lag, dev }: { cause: strin
             </marker>
           </defs>
 
-          <text x="110" y="145" textAnchor="middle" className="fill-[#94A3B8] text-[9px] font-bold uppercase">CAUSE</text>
-          <text x="190" y="145" textAnchor="middle" className="fill-[#94A3B8] text-[9px] font-bold uppercase">EFFECT</text>
+          <text x="110" y="145" textAnchor="middle" className="fill-[#94A3B8] text-[9px] font-bold uppercase">Cause</text>
+          <text x="190" y="145" textAnchor="middle" className="fill-[#94A3B8] text-[9px] font-bold uppercase">Effect</text>
         </svg>
       </div>
 
       <div className="w-full mt-2 pt-2 border-t border-white/5 flex justify-center gap-6">
         <div className="flex flex-col items-center">
           <span className="text-[12px] text-[#F8FAFC] font-bold">{fstat.toFixed(1)}</span>
-          <span className="text-[9px] text-[#475569] uppercase font-black">F-STATISTIC</span>
+          <span className="text-[9px] text-[#475569] uppercase font-black">FStatistic</span>
         </div>
         <div className="flex flex-col items-center">
           <span className="text-[12px] text-[#3DDAB4] font-bold">{lag}</span>
-          <span className="text-[9px] text-[#475569] uppercase font-black">TIME LAG</span>
+          <span className="text-[9px] text-[#475569] uppercase font-black">TimeLag</span>
         </div>
       </div>
     </div>
@@ -287,9 +287,9 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
         <div className="flex flex-col">
           <span className="font-['IBM_Plex_Mono',monospace] text-[11px] tracking-[0.15em] text-[#3B82F6] font-black uppercase flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse" />
-            Multivariate Anomaly Spike Analysis
+            MultivariateAnomalySpikeAnalysis
           </span>
-          <span className="text-[9px] text-[#475569] font-bold mt-1 uppercase tracking-tight">Quantitative Drift Vectorization (Scale: 0.0% — 15.0%)</span>
+          <span className="text-[9px] text-[#475569] font-bold mt-1 uppercase tracking-tight">QuantitativeDriftVectorization</span>
         </div>
         <div className="flex flex-wrap gap-3 items-center">
           {data.slice(0, 5).map((d, i) => (
@@ -304,7 +304,7 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
       <div className="p-10 h-[400px] relative mt-2">
         {/* Y-Axis Label */}
         <div className="absolute left-4 top-1/2 -rotate-90 origin-left -translate-y-1/2 flex items-center gap-2 transition-opacity group-hover:opacity-100 opacity-40">
-           <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] font-black uppercase tracking-widest whitespace-nowrap">Spike Magnitude (%)</span>
+           <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] font-black uppercase tracking-widest whitespace-nowrap">SpikeMagnitude</span>
         </div>
 
         <svg className="w-full h-full overflow-visible" viewBox={`0 0 1000 ${chartHeight + paddingY}`}>
@@ -420,7 +420,7 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
         {/* X-Axis Footer Label */}
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-3">
            <div className="h-[1px] w-8 bg-[#334155]" />
-           <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] font-black uppercase tracking-[0.3em] whitespace-nowrap">Normalized Feature Space Vector</span>
+           <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] font-black uppercase tracking-[0.3em] whitespace-nowrap">NormalizedFeatureSpaceVector</span>
            <div className="h-[1px] w-8 bg-[#334155]" />
         </div>
       </div>
@@ -549,17 +549,17 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
 
       {/* Axis Labels */}
       <div className="absolute left-1.5 top-1/2 -translate-y-1/2 -rotate-90 text-[8px] text-[#94A3B8] font-['IBM_Plex_Mono',monospace] tracking-[0.25em] uppercase font-bold opacity-80">
-        QUEUE DEPTH (NORM)
+        QueueDepthNorm
       </div>
       <div className="absolute left-1/2 bottom-2 -translate-x-1/2 text-[8px] text-[#94A3B8] font-['IBM_Plex_Mono',monospace] tracking-[0.25em] uppercase font-bold opacity-80">
-        NETWORK UTILIZATION (%)
+        NetworkUtilization
       </div>
 
       {/* Real-time Processing Overlay */}
       {limit < 10 && (
         <div className="absolute top-4 right-4 flex items-center gap-2 px-2 py-1 bg-[#3B82F6]/5 border border-[#3B82F6]/20 rounded backdrop-blur-sm">
           <Loader2 className="w-2.5 h-2.5 text-[#3B82F6] animate-spin" />
-          <span className="text-[7px] font-bold text-[#3B82F6] uppercase tracking-widest">Plotting Clusters...</span>
+          <span className="text-[7px] font-bold text-[#3B82F6] uppercase tracking-widest">PlottingClusters</span>
         </div>
       )}
     </div>
@@ -586,12 +586,12 @@ const LollipopChart = ({
     <div className="bg-[#1e293b]/20 border border-white/5 rounded-[10px] p-4 h-full flex flex-col">
       <div className="flex flex-col gap-3 mb-6">
         <div className="flex justify-between items-center px-1">
-          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-[0.2em] uppercase font-bold">{labelX} STRENGTH RANKING</span>
+          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-[0.2em] uppercase font-bold">StrengthRanking</span>
         </div>
 
         {onFocusChange && metricsList.length > 0 && (
           <div className="space-y-1.5 px-1">
-            <div className="font-['IBM_Plex_Mono',monospace] text-[8px] text-[#94A3B8] uppercase opacity-40 font-bold tracking-widest">Focus metric:</div>
+            <div className="font-['IBM_Plex_Mono',monospace] text-[8px] text-[#94A3B8] uppercase opacity-40 font-bold tracking-widest">FocusMetric:</div>
             <select
               value={focusMetric}
               onChange={(e) => onFocusChange(e.target.value)}
@@ -1990,14 +1990,14 @@ export default function TrainingLovelablePage() {
           {/* Centered Percentage Text */}
           <div className="absolute top-[105px] left-0 right-0 text-center">
             <div className="text-xl font-black text-[#F8FAFC] tabular-nums leading-none">{percentage.toFixed(1)}%</div>
-            <div className="text-[8px] font-bold text-[#94A3B8] uppercase tracking-wider mt-0.5 opacity-60">Accuracy Score</div>
+            <div className="text-[8px] font-bold text-[#94A3B8] uppercase tracking-wider mt-0.5 opacity-60">accuracyScore</div>
           </div>
         </div>
 
         <div className="text-center w-full">
           <div className="text-[12px] font-bold text-[#F8FAFC] mb-1">{label}</div>
           <div className="flex flex-col gap-1.5 mt-3 w-full px-2">
-            <div className="text-[8px] font-bold text-[#3B82F6] uppercase tracking-[2px] mb-1 text-left opacity-60">Top Contributors</div>
+            <div className="text-[8px] font-bold text-[#3B82F6] uppercase tracking-[2px] mb-1 text-left opacity-60">topContributors</div>
             {feats?.slice(0, 3).map(([fn, fi], k) => (
               <div key={k} className="flex flex-col gap-1">
                 <div className="flex justify-between text-[9px] font-medium">
@@ -2170,7 +2170,7 @@ export default function TrainingLovelablePage() {
         <header className="bg-[#0F172A] text-[#F8FAFC] px-10 pt-7 pb-6 border-b-[3px] border-[#3B82F6]">
           <div className="flex items-start justify-between gap-5 mb-4">
             <div>
-              <h1 className="text-[22px] font-semibold tracking-[-0.02em] leading-tight">Model Training Analysis</h1>
+              <h1 className="text-[22px] font-semibold tracking-[-0.02em] leading-tight">modelTrainingAnalysis</h1>
             </div>
             <div className="flex flex-col items-end gap-5 flex-shrink-0">
               <div className="flex items-end gap-6">
@@ -2241,7 +2241,7 @@ export default function TrainingLovelablePage() {
                       className="flex items-center gap-2 bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 py-2 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider transition-all shadow-[0_4px_0_0_#1D4ED8] active:translate-y-[2px] active:shadow-none h-9 mt-auto"
                     >
                       <Play className="w-3.5 h-3.5 fill-current" />
-                      START TRAINING ANALYSIS
+                      startTrainingAnalysis
                     </button>
                   ) : !isComplete ? (
                     <div className="flex items-center gap-3 mt-auto h-9">

@@ -22,15 +22,15 @@ const DonutLoader = ({ className }: { className?: string }) => (
 );
 
 const PIPELINE_STEPS = [
-  { id: "cross_correlation", name: "Cross-Correlation", type: "Statistical", desc: "Discovering temporal lags and relationships between metrics" },
-  { id: "granger_causality", name: "Granger Causality", type: "Statistical", desc: "Determining directional influence and predictive causality" },
-  { id: "pre_event_behavior", name: "Pre-Event Metric Behaviour", type: "Diagnostic", desc: "Analyzing metric shifts prior to critical events" },
-  { id: "pattern_clustering", name: "Pattern Clustering", type: "Unsupervised", desc: "Grouping similar device behaviors and signatures" },
-  { id: "random_forest", name: "Random Forest Predictor", type: "Ensemble", desc: "High-accuracy event forecasting and feature weights" },
-  { id: "sequence_mining", name: "Event Sequence Mining", type: "Mining", desc: "Extracting sequential dependencies and patterns" },
-  { id: "anomaly_detection", name: "Anomaly Detection", type: "Unsupervised", desc: "Identifying outliers and localized behavior spikes" },
-  { id: "co_occurrence_matrix", name: "Event Co-Occurrence Matrix", type: "Statistical", desc: "Analyzing synergy between concurrent network events" },
-  { id: "failure_chain", name: "Failure Chain Patterns", type: "Neural", desc: "Mapping causal chains from metric drift to root failure" },
+  { id: "cross_correlation", name: "CrossCorrelation", type: "Statistical", desc: "Discovering temporal lags and relationships between metrics" },
+  { id: "granger_causality", name: "GrangerCausality", type: "Statistical", desc: "Determining directional influence and predictive causality" },
+  { id: "pre_event_behavior", name: "PreEventMetricBehaviour", type: "Diagnostic", desc: "Analyzing metric shifts prior to critical events" },
+  { id: "pattern_clustering", name: "PatternClustering", type: "Unsupervised", desc: "Grouping similar device behaviors and signatures" },
+  { id: "random_forest", name: "RandomForestPredictor", type: "Ensemble", desc: "High-accuracy event forecasting and feature weights" },
+  { id: "sequence_mining", name: "EventSequenceMining", type: "Mining", desc: "Extracting sequential dependencies and patterns" },
+  { id: "anomaly_detection", name: "AnomalyDetection", type: "Unsupervised", desc: "Identifying outliers and localized behavior spikes" },
+  { id: "co_occurrence_matrix", name: "EventCoOccurrenceMatrix", type: "Statistical", desc: "Analyzing synergy between concurrent network events" },
+  { id: "failure_chain", name: "FailureChainPatterns", type: "Neural", desc: "Mapping causal chains from metric drift to root failure" },
 ];
 
 const BATCHES = [
@@ -143,10 +143,10 @@ export default function TrainingAnalysisPage() {
             <div>
               <div className="flex items-center gap-2 text-[10px] uppercase font-black tracking-widest text-[#555] mb-0.5">
                 <BrainCircuit className="h-3 w-3 text-orange-500/60" />
-                Training Core / v3.4 Alpha
+                TrainingCore
               </div>
               <h1 className="text-xl font-black uppercase italic tracking-tighter text-white leading-none">
-                {PIPELINE_STEPS[stepIdx]?.name} <span className="text-muted-foreground/30 ml-2">— Live Analysis</span>
+                {PIPELINE_STEPS[stepIdx]?.name} <span className="text-muted-foreground/30 ml-2">— LiveAnalysis</span>
               </h1>
             </div>
           </div>
@@ -159,7 +159,7 @@ export default function TrainingAnalysisPage() {
               >
                 <div className="flex items-center">
                   <Play className="mr-2 h-4 w-4 fill-current" />
-                  Start Training Engine
+                  StartTrainingEngine
                 </div>
               </Button>
             )}
@@ -181,14 +181,14 @@ export default function TrainingAnalysisPage() {
               <div className="flex items-center justify-between px-1">
                 <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-orange-500/80 flex items-center gap-3">
                   <Monitor className="h-4 w-4" />
-                  Telemetry Ingestion
+                  TelemetryIngestion
                 </h2>
-                {started && <Badge className="bg-orange-500/10 text-orange-500 border-none animate-pulse text-[8px] font-black tracking-widest">REALTIME</Badge>}
+                {started && <Badge className="bg-orange-500/10 text-orange-500 border-none animate-pulse text-[8px] font-black tracking-widest">Realtime</Badge>}
               </div>
 
               <Card className="p-6 bg-[#0a0a0a]/80 border-white/5 space-y-6 shadow-2xl overflow-hidden relative group">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500/50 via-amber-500/50 to-orange-500/50 opacity-20 group-hover:opacity-100 transition-opacity duration-700" />
-                <h3 className="text-[10px] font-black uppercase opacity-30 italic text-muted-foreground">75-Minute Temporal Windows</h3>
+                <h3 className="text-[10px] font-black uppercase opacity-30 italic text-muted-foreground">TemporalWindows75Minute</h3>
 
                 <div className="space-y-4">
                   {BATCHES.map((batch, i) => (
@@ -221,7 +221,7 @@ export default function TrainingAnalysisPage() {
             <section className="flex-1 flex flex-col gap-4 min-h-0">
               <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-orange-500/80 flex items-center gap-3 italic">
                 <Workflow className="h-4 w-4" />
-                Algorithmic Engine Pipeline
+                AlgorithmicEnginePipeline
               </h2>
               <ScrollArea className="flex-1 pr-4">
                 <div className="space-y-3 pb-8">
@@ -280,7 +280,7 @@ export default function TrainingAnalysisPage() {
                   <div className="h-4 w-[1px] bg-white/5 mx-2" />
                   <span className="font-mono text-[9px] text-white/20 uppercase tracking-[0.2em] flex items-center gap-2">
                     <Terminal className="h-3 w-3" />
-                    Diagnostic_Kernel.log
+                    DiagnosticKernel
                   </span>
                 </div>
                 {started && windowingDone && !done && (
@@ -303,8 +303,8 @@ export default function TrainingAnalysisPage() {
                         <Play className="h-10 w-10 text-orange-500 fill-orange-500/20 ml-1.5" />
                       </div>
                     </div>
-                    <h3 className="mt-8 text-xs font-black uppercase tracking-[0.4em] text-white/40 italic">System Ready</h3>
-                    <p className="mt-2 text-[10px] text-white/20 font-bold uppercase tracking-widest">Awaiting algorithmic trigger...</p>
+                    <h3 className="mt-8 text-xs font-black uppercase tracking-[0.4em] text-white/40 italic">SystemReady</h3>
+                    <p className="mt-2 text-[10px] text-white/20 font-bold uppercase tracking-widest">AwaitingAlgorithmicTrigger</p>
                   </div>
                 )}
 
@@ -339,7 +339,7 @@ export default function TrainingAnalysisPage() {
                     </span>
                   </div>
                   <div className="h-3 w-[1px] bg-white/5" />
-                  <span className="text-white/20 flex items-center gap-2"><Clock className="h-3 w-3" /> Buffer Status: Optimal</span>
+                  <span className="text-white/20 flex items-center gap-2"><Clock className="h-3 w-3" /> BufferStatusOptimal</span>
                 </div>
                 <div className="text-white/10 hover:text-white/30 transition-colors cursor-help">
                   CHARSET: UTF-8 | POLL: 5M

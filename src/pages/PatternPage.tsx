@@ -27,13 +27,13 @@ import {
 } from "lucide-react";
 
 const CONFIG_FUNCTIONS = [
-  { id: "cross_correlation", name: "CROSS-CORRELATION", version: "v1.0.1", confidence: 92, status: "RUNNING" },
-  { id: "granger_causality", name: "GRANGER CAUSALITY", version: "v1.0.1", confidence: 88, status: "RUNNING" },
-  { id: "pre_event", name: "PRE-EVENT METRIC BEHAVIOUR", version: "v1.0.2", confidence: 95, status: "RUNNING" },
-  { id: "clustering", name: "PATTERN CLUSTERING", version: "v1.0.1", confidence: 84, status: "RUNNING" },
+  { id: "cross_correlation", name: "CrossCorrelation", version: "v1.0.1", confidence: 92, status: "RUNNING" },
+  { id: "granger_causality", name: "GrangerCausality", version: "v1.0.1", confidence: 88, status: "RUNNING" },
+  { id: "pre_event", name: "PreEventMetricBehaviour", version: "v1.0.2", confidence: 95, status: "RUNNING" },
+  { id: "clustering", name: "PatternClustering", version: "v1.0.1", confidence: 84, status: "RUNNING" },
   {
     id: "random_forest",
-    name: "RANDOM FOREST EVENT PREDICTOR",
+    name: "RandomForestEventPredictor",
     version: "v2.1.0",
     confidence: 97,
     status: "RUNNING",
@@ -47,10 +47,10 @@ const CONFIG_FUNCTIONS = [
       { name: "PACKET_DROP.pkl", version: "v1.0.1", confidence: 96 },
     ]
   },
-  { id: "sequence_mining", name: "EVENT SEQUENCE MINING", version: "v1.0.1", confidence: 81, status: "RUNNING" },
-  { id: "anomaly_detection", name: "ANAMALY DETECTION (BY ISOLATION FOREST)", version: "v1.2.0", confidence: 90, status: "RUNNING" },
-  { id: "co_occurrence", name: "EVENT CO-OCCURANCE MATRIX", version: "v1.0.1", confidence: 86, status: "RUNNING" },
-  { id: "failure_chain", name: "FAILURE CHAIN PATTERNS", version: "v1.1.0", confidence: 93, status: "RUNNING" },
+  { id: "sequence_mining", name: "EventSequenceMining", version: "v1.0.1", confidence: 81, status: "RUNNING" },
+  { id: "anomaly_detection", name: "AnomalyDetection", version: "v1.2.0", confidence: 90, status: "RUNNING" },
+  { id: "co_occurrence", name: "EventCoOccurrenceMatrix", version: "v1.0.1", confidence: 86, status: "RUNNING" },
+  { id: "failure_chain", name: "FailureChainPatterns", version: "v1.1.0", confidence: 93, status: "RUNNING" },
 ];
 
 const getConfidenceColor = (score: number) => {
@@ -1017,7 +1017,7 @@ export default function PatternPage() {
       <div className="p-8 space-y-8 animate-in fade-in duration-500">
         <div className="flex items-center justify-between border-b pb-6 mb-8">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">Pattern Workspace</h1>
+            <h1 className="text-2xl font-bold tracking-tight">PatternWorkspace</h1>
             <div className="flex items-center gap-2 mt-1">
               <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
             </div>
@@ -1025,7 +1025,7 @@ export default function PatternPage() {
 
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 bg-card/40 border border-primary/20 rounded-lg px-3 py-1">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Page {currentPage} of {totalPages}</span>
+              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Page {currentPage} Of {totalPages}</span>
               <div className="flex items-center gap-1 ml-2 border-l border-primary/10 pl-2">
                 <Button 
                   variant="ghost" 
@@ -1063,7 +1063,7 @@ export default function PatternPage() {
                       <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                         <BarChart3 className="h-4 w-4 text-primary" />
                       </div>
-                      Analysis Workspace — <span className="text-primary capitalize">Global Patterns</span>
+                      AnalysisWorkspace — <span className="text-primary capitalize">GlobalPatterns</span>
                     </SheetTitle>
                   </div>
                 </SheetHeader>
@@ -1076,7 +1076,7 @@ export default function PatternPage() {
                           value="procedures"
                           className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-2 text-[11px] font-bold uppercase tracking-widest"
                         >
-                          Process procedures
+                          ProcessProcedures
                         </TabsTrigger>
                         <TabsTrigger
                           value="configurations"
@@ -1118,7 +1118,7 @@ export default function PatternPage() {
                             <div className="relative z-10">
                               <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-2 flex items-center gap-2">
                                 <Settings className="h-3 w-3 animate-[spin_4s_linear_infinite]" />
-                                Global Model Confidence
+                                GlobalModelConfidence
                               </h4>
                               <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest opacity-60">System-wide reliability threshold</p>
                             </div>
@@ -1178,7 +1178,7 @@ export default function PatternPage() {
                                     <Accordion type="single" collapsible className="w-full">
                                       <AccordionItem value="models" className="border-none">
                                         <AccordionTrigger className="py-0 text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors hover:no-underline">
-                                          Toggle PKL Models
+                                          TogglePklModels
                                         </AccordionTrigger>
                                         <AccordionContent className="pt-4 space-y-2">
                                           {fn.models?.map((model) => (
@@ -1233,7 +1233,7 @@ export default function PatternPage() {
                                 <Plus className="h-6 w-6 text-primary" />
                               </div>
                               <div className="text-center relative z-10">
-                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary block mb-1">BYOA Portal</span>
+                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary block mb-1">ByoaPortal</span>
                                 <p className="text-[8px] text-muted-foreground uppercase font-black tracking-widest opacity-60">Bring Your Own Algorithm</p>
                               </div>
                             </Card>
@@ -1253,12 +1253,12 @@ export default function PatternPage() {
             <table className="w-full text-left border-collapse min-w-[1200px]">
               <thead>
                 <tr className="border-b border-border bg-muted/20">
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[220px]">Pattern Name</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[220px]">PatternName</th>
                   <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Details</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[180px]">Rule Creation Date</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[180px]">RuleCreationDate</th>
                   <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[120px]">Confidence</th>
                   <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[140px]">Occurrences</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[150px]">Last Seen</th>
+                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[150px]">LastSeen</th>
                   <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[80px]">Active</th>
                 </tr>
               </thead>

@@ -105,7 +105,7 @@ export function KBSection() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold text-foreground">
-                {viewLevel === 'categories' && 'Knowledge Base'}
+                {viewLevel === 'categories' && 'KnowledgeBase'}
                 {viewLevel === 'subcategories' && selectedCategory?.name}
                 {viewLevel === 'articles' && selectedSubcategory}
               </h1>
@@ -127,12 +127,12 @@ export function KBSection() {
             <DialogTrigger asChild>
               <Button className="gap-2 gradient-primary">
                 <Plus className="h-4 w-4" />
-                Add Article
+                AddArticle
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Create KB Article</DialogTitle>
+                <DialogTitle>CreateKbArticle</DialogTitle>
               </DialogHeader>
               <KBArticleForm
                 category={selectedCategory?.name}
@@ -149,7 +149,7 @@ export function KBSection() {
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search articles..."
+            placeholder="SearchArticles"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -231,11 +231,11 @@ export function KBSection() {
           {filteredArticles.length === 0 ? (
             <div className="col-span-full glass-card rounded-xl p-12 text-center">
               <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">No articles found</h3>
-              <p className="text-muted-foreground mb-4">Create your first KB article for this category</p>
+              <h3 className="text-lg font-semibold text-foreground mb-2">NoArticlesFound</h3>
+              <p className="text-muted-foreground mb-4">CreateFirstKbArticleForCategory</p>
               <Button className="gap-2 gradient-primary" onClick={() => setIsCreateDialogOpen(true)}>
                 <Plus className="h-4 w-4" />
-                Add Article
+                AddArticle
               </Button>
             </div>
           ) : (
@@ -262,7 +262,7 @@ export function KBSection() {
       <Dialog open={!!selectedArticle} onOpenChange={(open) => !open && setSelectedArticle(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Edit KB Article</DialogTitle>
+            <DialogTitle>EditKbArticle</DialogTitle>
           </DialogHeader>
           {selectedArticle && (
             <KBArticleForm article={selectedArticle} onClose={() => setSelectedArticle(null)} />
@@ -464,7 +464,7 @@ function KBArticleForm({
       <div className="flex justify-end gap-3 pt-4 border-t border-border/50">
         <Button variant="outline" onClick={onClose}>Cancel</Button>
         <Button className="gradient-primary" onClick={onClose}>
-          {article ? 'Update Article' : 'Create Article'}
+          {article ? 'UpdateArticle' : 'CreateArticle'}
         </Button>
       </div>
     </div>

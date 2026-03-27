@@ -11,7 +11,7 @@ export const linkCongestionIntent: IntentFull = {
   intent: 'performance',
   subIntent: 'congestion',
   domain: 'Network',
-  function: 'Link Layer',
+  function: 'LinkLayer',
   description: 'Interface congestion detected with high utilization and queue drops',
   keywords: ['congestion', 'queue drop', 'buffer full', 'tail drop', 'backup', 'rsync'],
   signals: [
@@ -475,7 +475,7 @@ export const mockDeduplicationRules: DeduplicationRule[] = [
   {
     id: 'dedup-001',
     type: 'exact_match',
-    category: 'Exact Match Deduplication',
+    category: 'ExactMatchDeduplication',
     name: 'Hash-based Deduplication',
     mechanism: 'Hash-based deduplication',
     explanation: 'Removes bit-to-bit identical events',
@@ -488,7 +488,7 @@ export const mockDeduplicationRules: DeduplicationRule[] = [
   {
     id: 'dedup-002',
     type: 'structured_exact',
-    category: 'Structured Exact Deduplication',
+    category: 'StructuredExactDeduplication',
     name: 'Signature-based Deduplication',
     mechanism: 'Signature-based deduplication',
     explanation: 'Same logical event ignoring timestamp/volatile fields',
@@ -501,7 +501,7 @@ export const mockDeduplicationRules: DeduplicationRule[] = [
   {
     id: 'dedup-003',
     type: 'temporal_sliding',
-    category: 'Temporal Deduplication',
+    category: 'TemporalDeduplication',
     name: 'Sliding Window Deduplication',
     mechanism: 'Sliding window deduplication',
     explanation: 'Repeated identical events in short duration collapsed',
@@ -514,7 +514,7 @@ export const mockDeduplicationRules: DeduplicationRule[] = [
   {
     id: 'dedup-004',
     type: 'temporal_bucket',
-    category: 'Temporal Deduplication',
+    category: 'TemporalDeduplication',
     name: 'Time-bucket Deduplication',
     mechanism: 'Time-bucket deduplication',
     explanation: 'Aggregate identical events per fixed interval',
@@ -527,7 +527,7 @@ export const mockDeduplicationRules: DeduplicationRule[] = [
   {
     id: 'dedup-005',
     type: 'state_flap',
-    category: 'State-Based Deduplication',
+    category: 'StateBasedDeduplication',
     name: 'Flap-aware Deduplication',
     mechanism: 'Flap-aware deduplication',
     explanation: 'Oscillating state treated as one instability event',
@@ -540,7 +540,7 @@ export const mockDeduplicationRules: DeduplicationRule[] = [
   {
     id: 'dedup-006',
     type: 'state_transition',
-    category: 'State-Based Deduplication',
+    category: 'StateBasedDeduplication',
     name: 'State Transition Deduplication',
     mechanism: 'State transition deduplication',
     explanation: 'Remove redundant identical state events',
@@ -553,7 +553,7 @@ export const mockDeduplicationRules: DeduplicationRule[] = [
   {
     id: 'dedup-007',
     type: 'template_based',
-    category: 'Template-Based Deduplication',
+    category: 'TemplateBasedDeduplication',
     name: 'Template-based Deduplication',
     mechanism: 'Template-based deduplication',
     explanation: 'Same log structure treated as same event type',
@@ -566,7 +566,7 @@ export const mockDeduplicationRules: DeduplicationRule[] = [
   {
     id: 'dedup-008',
     type: 'similarity_fuzzy',
-    category: 'Similarity-Based Deduplication',
+    category: 'SimilarityBasedDeduplication',
     name: 'Fuzzy Matching (Log Similarity)',
     mechanism: 'Fuzzy matching (log similarity)',
     explanation: 'Near-identical logs deduplicated based on similarity',
@@ -582,7 +582,7 @@ export const mockSuppressionRules: SuppressionRule[] = [
   {
     id: 'sup-001',
     type: 'maintenance',
-    category: 'Policy-Based Suppression',
+    category: 'PolicyBasedSuppression',
     name: 'Maintenace suppression',
     mechanism: 'Maintenance window suppression',
     explanation: 'Events are valid but expected during planned activity',
@@ -595,7 +595,7 @@ export const mockSuppressionRules: SuppressionRule[] = [
   {
     id: 'sup-002',
     type: 'business_hours',
-    category: 'Policy-Based Suppression',
+    category: 'PolicyBasedSuppression',
     name: 'Business-hour suppression',
     mechanism: 'Business-hour suppression',
     explanation: 'Events outside service relevance window are ignored',
@@ -608,7 +608,7 @@ export const mockSuppressionRules: SuppressionRule[] = [
   {
     id: 'sup-003',
     type: 'tag_policy',
-    category: 'Policy-Based Suppression',
+    category: 'PolicyBasedSuppression',
     name: 'Tag / policy-based suppression',
     mechanism: 'Tag / policy-based suppression',
     explanation: 'Events from non-production or tagged systems are ignored',
@@ -621,7 +621,7 @@ export const mockSuppressionRules: SuppressionRule[] = [
   {
     id: 'sup-004',
     type: 'parent_child',
-    category: 'Topology-Based Suppression',
+    category: 'TopologyBasedSuppression',
     name: 'Parent-child suppression',
     mechanism: 'Parent-child suppression',
     explanation: 'Child events are symptoms of a higher-level failure',
@@ -634,7 +634,7 @@ export const mockSuppressionRules: SuppressionRule[] = [
   {
     id: 'sup-005',
     type: 'spatial_site',
-    category: 'Topology-Based Suppression',
+    category: 'TopologyBasedSuppression',
     name: 'Spatial suppression',
     mechanism: 'Spatial suppression (site/rack aggregation)',
     explanation: 'Multiple events in same location collapsed into one',
@@ -647,7 +647,7 @@ export const mockSuppressionRules: SuppressionRule[] = [
   {
     id: 'sup-006',
     type: 'dedup_noise',
-    category: 'Noise Reduction',
+    category: 'NoiseReduction',
     name: 'Dedup-based suppression',
     mechanism: 'Dedup-based suppression',
     explanation: 'Repeated identical events reduced to one',
@@ -660,7 +660,7 @@ export const mockSuppressionRules: SuppressionRule[] = [
   {
     id: 'sup-007',
     type: 'time_window',
-    category: 'Noise Reduction',
+    category: 'NoiseReduction',
     name: 'Time-window suppression',
     mechanism: 'Time-window suppression',
     explanation: 'Repeated events within fixed time window ignored',
@@ -673,7 +673,7 @@ export const mockSuppressionRules: SuppressionRule[] = [
   {
     id: 'sup-008',
     type: 'flap_detection',
-    category: 'Noise Reduction',
+    category: 'NoiseReduction',
     name: 'Flap detection suppression',
     mechanism: 'Flap detection suppression',
     explanation: 'Rapid oscillations suppressed as instability noise',
@@ -686,7 +686,7 @@ export const mockSuppressionRules: SuppressionRule[] = [
   {
     id: 'sup-009',
     type: 'temporal_clustering',
-    category: 'Noise Reduction',
+    category: 'NoiseReduction',
     name: 'Temporal clustering suppression',
     mechanism: 'Temporal clustering suppression',
     explanation: 'Burst of related events grouped, extras suppressed',
@@ -698,7 +698,7 @@ export const mockSuppressionRules: SuppressionRule[] = [
   {
     id: 'sup-010',
     type: 'static_threshold',
-    category: 'Threshold & Baseline Suppression',
+    category: 'ThresholdBaselineSuppression',
     name: 'Static threshold suppression',
     mechanism: 'Static threshold suppression',
     explanation: 'Events below defined threshold are ignored',
@@ -710,7 +710,7 @@ export const mockSuppressionRules: SuppressionRule[] = [
   {
     id: 'sup-011',
     type: 'dynamic_threshold',
-    category: 'Threshold & Baseline Suppression',
+    category: 'ThresholdBaselineSuppression',
     name: 'Dynamic threshold suppression',
     mechanism: 'Dynamic threshold suppression (P95/P99)',
     explanation: 'Events within normal historical range are ignored',
@@ -722,7 +722,7 @@ export const mockSuppressionRules: SuppressionRule[] = [
   {
     id: 'sup-012',
     type: 'event_storm',
-    category: 'Pattern-Based Suppression',
+    category: 'PatternBasedSuppression',
     name: 'Event storm pattern suppression',
     mechanism: 'Event storm pattern suppression',
     explanation: 'Known noisy event patterns are suppressed',

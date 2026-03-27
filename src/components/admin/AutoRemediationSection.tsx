@@ -87,8 +87,8 @@ export function AutoRemediationSection() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Auto Remediation</h1>
-          <p className="text-muted-foreground">Manage permissions for automated remediation actions</p>
+          <h1 className="text-2xl font-bold text-foreground">AutoRemediation</h1>
+          <p className="text-muted-foreground">ManagePermissionsForAutomatedRemediationActions</p>
         </div>
       </div>
 
@@ -112,7 +112,7 @@ export function AutoRemediationSection() {
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">{pendingCount}</p>
-              <p className="text-sm text-muted-foreground">Pending Approval</p>
+              <p className="text-sm text-muted-foreground">PendingApproval</p>
             </div>
           </div>
         </div>
@@ -123,7 +123,7 @@ export function AutoRemediationSection() {
             </div>
             <div>
               <p className="text-2xl font-bold text-foreground">{permissions.length}</p>
-              <p className="text-sm text-muted-foreground">Total Permissions</p>
+              <p className="text-sm text-muted-foreground">TotalPermissions</p>
             </div>
           </div>
         </div>
@@ -133,7 +133,7 @@ export function AutoRemediationSection() {
       <div className="bg-primary/10 border border-primary/20 rounded-xl p-4 flex items-start gap-3">
         <Info className="h-5 w-5 text-primary mt-0.5" />
         <div>
-          <h3 className="font-semibold text-foreground">About Auto Remediation</h3>
+          <h3 className="font-semibold text-foreground">AboutAutoRemediation</h3>
           <p className="text-sm text-muted-foreground mt-1">
             Auto remediation allows the system to automatically execute predefined actions in response to detected issues.
             Each permission requires explicit approval before it can be used. High-risk actions require additional justification.
@@ -197,7 +197,7 @@ export function AutoRemediationSection() {
       <Dialog open={!!approvalDialog} onOpenChange={(open) => !open && setApprovalDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Approve Auto Remediation</DialogTitle>
+            <DialogTitle>ApproveAutoRemediation</DialogTitle>
             <DialogDescription>
               You are about to approve automatic execution of this action.
             </DialogDescription>
@@ -250,7 +250,7 @@ export function AutoRemediationSection() {
               onClick={confirmApproval}
               disabled={approvalDialog?.riskLevel === 'high' && !justification.trim()}
             >
-              Approve Permission
+              ApprovePermission
             </Button>
           </DialogFooter>
         </DialogContent>
