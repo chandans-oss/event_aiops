@@ -140,25 +140,25 @@ export default function TrainingAnalysisPage() {
 
   return (
     <MainLayout>
-      <div className="h-screen flex flex-col p-6 gap-6 overflow-hidden bg-[#02040a] font-sans selection:bg-orange-500/30">
+      <div className="h-screen flex flex-col p-6 gap-6 overflow-hidden bg-background font-sans selection:bg-primary/30">
 
         {/* Header Section */}
-        <div className="flex items-center justify-between border-b border-white/5 pb-4 flex-shrink-0">
+        <div className="flex items-center justify-between border-b border-border/50 pb-4 flex-shrink-0">
           <div className="flex items-center gap-5">
             <Button
               variant="outline"
               size="icon"
               onClick={() => navigate("/pattern-prediction/training")}
-              className="bg-[#0a0a0a] border-white/10 hover:border-orange-500/50 transition-colors"
+              className="bg-secondary border-border hover:border-primary/50 transition-colors"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <div>
-              <div className="flex items-center gap-2 text-[11px] font-black tracking-widest text-[#555] mb-0.5">
-                <BrainCircuit className="h-3 w-3 text-orange-500/60" />
+              <div className="flex items-center gap-2 text-[11px] font-black tracking-widest text-muted-foreground mb-0.5">
+                <BrainCircuit className="h-3 w-3 text-primary/60" />
                 Training Core
               </div>
-              <h1 className="text-[21px] font-black tracking-tighter text-white leading-none">
+              <h1 className="text-[21px] font-black tracking-tighter text-foreground leading-none">
                 {PIPELINE_STEPS[stepIdx]?.name} <span className="text-muted-foreground/30 ml-2">— {selectedTarget} Diagnostic</span>
               </h1>
             </div>
@@ -168,7 +168,7 @@ export default function TrainingAnalysisPage() {
             {!started && (
               <Button
                 onClick={() => setStarted(true)}
-                className="bg-orange-500 hover:bg-orange-600 text-white text-[12px] font-black tracking-widest px-8 h-10 rounded-full shadow-[0_0_25px_rgba(249,115,22,0.3)] transition-all transform hover:scale-105"
+                className="bg-primary hover:bg-primary/80 text-primary-foreground text-[12px] font-black tracking-widest px-8 h-10 rounded-full shadow-[0_0_25px_rgba(249,115,22,0.3)] transition-all transform hover:scale-105"
               >
                 <div className="flex items-center">
                   <Play className="mr-2 h-4 w-4 fill-current" />
@@ -190,7 +190,7 @@ export default function TrainingAnalysisPage() {
                 {stepIdx + 1 < PIPELINE_STEPS.length ? "Next Step" : "Final Report"}
               </Button>
             )}
-            <Button variant="outline" className="bg-[#0a0a0a] border-white/10 text-[12px] font-black tracking-widest text-muted-foreground hover:text-white h-10 px-6 rounded-full">
+            <Button variant="outline" className="bg-secondary border-border text-[12px] font-black tracking-widest text-muted-foreground hover:text-foreground h-10 px-6 rounded-full">
               <Download className="mr-2 h-3.5 w-3.5" />
               Export
             </Button>
@@ -206,33 +206,33 @@ export default function TrainingAnalysisPage() {
             {/* Telemetry Ingestion Visualizer */}
             <section className="space-y-4">
               <div className="flex items-center justify-between px-1">
-                <h2 className="text-[12px] font-black tracking-[0.2em] text-orange-500/80 flex items-center gap-3">
+                <h2 className="text-[12px] font-black tracking-[0.2em] text-primary/80 flex items-center gap-3">
                   <Monitor className="h-4 w-4" />
                   Telemetry Ingestion
                 </h2>
-                {started && <Badge className="bg-orange-500/10 text-orange-500 border-none animate-pulse text-[9px] font-black tracking-widest">Realtime</Badge>}
+                {started && <Badge className="bg-primary/10 text-primary border-none animate-pulse text-[9px] font-black tracking-widest">Realtime</Badge>}
               </div>
 
-              <Card className="p-6 bg-[#0a0a0a]/80 border-white/5 space-y-6 shadow-2xl overflow-hidden relative group">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500/50 via-amber-500/50 to-orange-500/50 opacity-20 group-hover:opacity-100 transition-opacity duration-700" />
+              <Card className="p-6 bg-card border-border/50 space-y-6 shadow-2xl overflow-hidden relative group">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/50 via-amber-500/50 to-primary/50 opacity-20 group-hover:opacity-100 transition-opacity duration-700" />
                 <h3 className="text-[11px] font-black opacity-30 text-muted-foreground">Temporal Windows 75 Minute</h3>
 
                 <div className="space-y-4">
                   {BATCHES.map((batch, i) => (
                     <div key={batch.id} className="space-y-2">
                       <div className="flex justify-between text-[10px] font-mono font-bold tracking-tight">
-                        <span className="text-white/40">Batch {i+1} / Partition-0{i+1}</span>
-                        <span className="text-orange-500/60 ">{batch.start} — {batch.end}</span>
+                        <span className="text-muted-foreground/40">Batch {i+1} / Partition-0{i+1}</span>
+                        <span className="text-primary/60 ">{batch.start} — {batch.end}</span>
                       </div>
-                      <div className="h-[16px] bg-[#111] border border-white/5 rounded-md overflow-hidden relative shadow-inner">
+                      <div className="h-[16px] bg-secondary/50 border border-border/50 rounded-md overflow-hidden relative shadow-inner">
                         <div
                           className={cn(
                             "h-full transition-all duration-300 ease-out bg-gradient-to-r shadow-[0_0_15px_rgba(249,115,22,0.1)]",
-                            batchProgress[i] >= 100 ? "from-emerald-600/30 to-emerald-500/20" : "from-orange-600/40 to-amber-500/30"
+                            batchProgress[i] >= 100 ? "from-emerald-600/30 to-emerald-500/20" : "from-primary/40 to-amber-500/30"
                           )}
                           style={{ width: `${batchProgress[i]}%` }}
                         >
-                          <div className={cn("absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer", batchProgress[i] >= 100 && "hidden")} />
+                          <div className={cn("absolute inset-0 bg-gradient-to-r from-transparent via-background/10 to-transparent animate-shimmer", batchProgress[i] >= 100 && "hidden")} />
                         </div>
                         {batchProgress[i] > 0 && batchProgress[i] < 100 && (
                           <div className="absolute top-0 bottom-0 right-0 w-2 bg-white/20 blur-sm animate-pulse" />
@@ -246,7 +246,7 @@ export default function TrainingAnalysisPage() {
 
             {/* Algorithm Pipeline List */}
             <section className="flex-1 flex flex-col gap-4 min-h-0">
-               <h2 className="text-[12px] font-black tracking-[0.2em] text-orange-500/80 flex items-center gap-3">
+               <h2 className="text-[12px] font-black tracking-[0.2em] text-primary/80 flex items-center gap-3">
                 <Workflow className="h-4 w-4" />
                 Algorithmic Engine Pipeline
               </h2>
@@ -260,8 +260,8 @@ export default function TrainingAnalysisPage() {
                         key={step.id}
                         onClick={() => navigate(`/pattern-prediction/training/analysis/${step.id}`, { state: location.state })}
                         className={cn(
-                          "group p-5 border-white/5 bg-white/[0.02] cursor-pointer transition-all active:scale-[0.98]",
-                          isActive && "bg-orange-500/[0.05] border-orange-500/20 shadow-lg",
+                          "group p-5 border-border/50 bg-secondary/20 cursor-pointer transition-all active:scale-[0.98]",
+                          isActive && "bg-primary/[0.05] border-primary/20 shadow-lg",
                           isDone && "opacity-60 grayscale-[0.5]"
                         )}
                       >
@@ -269,15 +269,15 @@ export default function TrainingAnalysisPage() {
                           <div className="flex items-center gap-4">
                             <div className={cn(
                               "h-7 w-7 rounded-lg flex items-center justify-center border transition-all duration-500",
-                              isActive ? "bg-orange-500/20 border-orange-500/30 rotate-12" : "bg-white/5 border-white/5",
+                              isActive ? "bg-primary/20 border-primary/30 rotate-12" : "bg-border/10 border-border/50",
                               isDone && "bg-emerald-500/10 border-emerald-500/20"
                             )}>
-                              {isDone ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <GitBranch className={cn("h-4 w-4", isActive ? "text-orange-500 animate-pulse" : "opacity-10")} />}
+                              {isDone ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <GitBranch className={cn("h-4 w-4", isActive ? "text-primary animate-pulse" : "opacity-10")} />}
                             </div>
-                            <span className={cn("text-[13px] font-black tracking-tight", isActive ? "text-orange-500" : "text-white/50")}>{step.name}</span>
+                            <span className={cn("text-[13px] font-black tracking-tight", isActive ? "text-primary" : "text-muted-foreground/50")}>{step.name}</span>
                           </div>
                           {isActive && (
-                            <div className="flex items-center gap-3 text-orange-500 text-[12px] font-black bg-orange-500/10 px-2 py-0.5 rounded-full">
+                            <div className="flex items-center gap-3 text-primary text-[12px] font-black bg-primary/10 px-2 py-0.5 rounded-full">
                               <DonutLoader className="h-3 w-3" />
                               <span className="tabular-nums">{progress}%</span>
                             </div>
@@ -294,56 +294,56 @@ export default function TrainingAnalysisPage() {
 
           {/* RIGHT: Terminal Terminal */}
           <div className="flex-1 flex flex-col min-w-0">
-            <Card className="flex-1 bg-[#020202] border border-white/5 flex flex-col overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.8)] rounded-xl">
+            <Card className="flex-1 bg-secondary/20 border border-border/50 flex flex-col overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.8)] rounded-xl">
 
               {/* Terminal Title Bar */}
-              <div className="h-10 bg-white/[0.02] border-b border-white/5 flex items-center justify-between px-6">
+              <div className="h-10 bg-secondary/50 border-b border-border/50 flex items-center justify-between px-6">
                 <div className="flex items-center gap-4">
                   <div className="flex gap-1.5">
                     <div className="h-2.5 w-2.5 rounded-full bg-red-500/20" />
                     <div className="h-2.5 w-2.5 rounded-full bg-yellow-500/20" />
                     <div className="h-2.5 w-2.5 rounded-full bg-green-500/20" />
                   </div>
-                  <div className="h-4 w-[1px] bg-white/5 mx-2" />
-                  <span className="font-mono text-[10px] text-white/20 tracking-[0.2em] flex items-center gap-2">
+                  <div className="h-4 w-[1px] bg-border/50 mx-2" />
+                  <span className="font-mono text-[10px] text-muted-foreground/30 tracking-[0.2em] flex items-center gap-2">
                     <Terminal className="h-3 w-3" />
                     Diagnostic Kernel
                   </span>
                 </div>
-                {started && windowingDone && !done && (
+                 {started && windowingDone && !done && (
                   <div className="flex items-center gap-4">
-                    <div className="h-0.5 w-24 bg-white/5 rounded-full overflow-hidden">
-                      <div className="h-full bg-orange-500/60 transition-all duration-300" style={{ width: `${progress}%` }} />
+                    <div className="h-0.5 w-24 bg-border/50 rounded-full overflow-hidden">
+                      <div className="h-full bg-primary/60 transition-all duration-300" style={{ width: `${progress}%` }} />
                     </div>
-                    <span className="font-mono text-[10px] text-orange-500/50 animate-pulse font-bold tracking-widest">{progress}% Analyzed</span>
+                    <span className="font-mono text-[10px] text-primary/50 animate-pulse font-bold tracking-widest">{progress}% Analyzed</span>
                   </div>
                 )}
               </div>
 
               {/* Log Output Area */}
-              <ScrollArea className="flex-1 relative bg-black/40">
+              <ScrollArea className="flex-1 relative bg-background/40">
                 {!started && (
-                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/60 backdrop-blur-md">
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-background/60 backdrop-blur-md">
                     <div className="relative">
-                      <div className="absolute inset-0 rounded-full bg-orange-500/20 blur-2xl animate-pulse" />
-                      <div className="h-24 w-24 rounded-full border border-white/10 flex items-center justify-center relative bg-black/40 shadow-2xl">
-                        <Play className="h-10 w-10 text-orange-500 fill-orange-500/20 ml-1.5" />
+                      <div className="absolute inset-0 rounded-full bg-primary/20 blur-2xl animate-pulse" />
+                      <div className="h-24 w-24 rounded-full border border-border/50 flex items-center justify-center relative bg-secondary/40 shadow-2xl">
+                        <Play className="h-10 w-10 text-primary fill-primary/20 ml-1.5" />
                       </div>
                     </div>
-                     <h3 className="mt-8 text-sm font-black tracking-[0.4em] text-white/40">System Ready</h3>
-                    <p className="mt-2 text-[11px] text-white/20 font-bold tracking-widest">Awaiting Algorithmic Trigger</p>
+                     <h3 className="mt-8 text-sm font-black tracking-[0.4em] text-muted-foreground/40">System Ready</h3>
+                    <p className="mt-2 text-[11px] text-muted-foreground/20 font-bold tracking-widest">Awaiting Algorithmic Trigger</p>
                   </div>
                 )}
 
-                <div className="p-10 font-mono text-[13px] leading-[1.8] text-white/40 whitespace-pre selection:bg-orange-500/50 min-h-full">
+                <div className="p-10 font-mono text-[13px] leading-[1.8] text-muted-foreground selection:bg-primary/50 min-h-full">
                   {visibleLines.map((line, i) => (
                     <div
                       key={i}
                       className={cn(
                         "animate-in fade-in slide-in-from-left-2 duration-500 min-h-[1.5em]",
-                        line.includes("SECTION") && "text-orange-500 font-black tracking-wider text-[14px] border-b border-orange-500/20 pb-1 mb-4 first:mt-0",
-                        line.includes("[RESULT]") && "text-emerald-400 bg-emerald-400/5 px-2 rounded-sm",
-                        line.includes("*** SIGNIFICANT") && "text-amber-400"
+                        line.includes("SECTION") && "text-primary font-black tracking-wider text-[14px] border-b border-primary/20 pb-1 mb-4 first:mt-0",
+                        line.includes("[RESULT]") && "text-emerald-500 bg-emerald-500/5 px-2 rounded-sm",
+                        line.includes("*** SIGNIFICANT") && "text-amber-500"
                       )}
                     >
                       {line}
@@ -357,18 +357,18 @@ export default function TrainingAnalysisPage() {
               </ScrollArea>
 
               {/* Terminal Footer */}
-              <div className="h-12 border-t border-white/5 bg-white/[0.01] flex items-center justify-between px-8 text-[10px] font-black tracking-widest">
+              <div className="h-12 border-t border-border/50 bg-secondary/50 flex items-center justify-between px-8 text-[10px] font-black tracking-widest">
                 <div className="flex items-center gap-5">
                   <div className="flex items-center gap-3">
-                    {done ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <DonutLoader className="h-4 w-4 text-orange-500" />}
-                    <span className="text-white/60">
+                    {done ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <DonutLoader className="h-4 w-4 text-primary" />}
+                    <span className="text-muted-foreground">
                       {done ? "Engine Sequence Complete" : started ? (windowingDone ? `Processing: ${currentStepId.replace(/_/g, ' ')}` : "Aggregating Telemetry Partitions...") : "Engine Suspended"}
                     </span>
                   </div>
-                  <div className="h-3 w-[1px] bg-white/5" />
-                  <span className="text-white/20 flex items-center gap-2"><Clock className="h-3 w-3" /> Buffer Status Optimal</span>
+                  <div className="h-3 w-[1px] bg-border/50" />
+                  <span className="text-muted-foreground/30 flex items-center gap-2"><Clock className="h-3 w-3" /> Buffer Status Optimal</span>
                 </div>
-                <div className="text-white/10 hover:text-white/30 transition-colors cursor-help">
+                <div className="text-muted-foreground/30 hover:text-foreground transition-colors cursor-help">
                   Charset: UTF-8 | Poll: 5M
                 </div>
               </div>

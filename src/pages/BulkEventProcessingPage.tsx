@@ -22,7 +22,8 @@ import {
   Info,
   ChevronRight,
   Filter,
-  FileText
+  FileText,
+  HelpCircle
 } from "lucide-react";
 import { cn } from "@/shared/lib/utils";
 import { Separator } from "@/shared/components/ui/separator";
@@ -156,7 +157,12 @@ export default function BulkEventProcessingPage() {
                    <Database className="h-6 w-6" />
                 </div>
                 <div>
-                   <h1 className="text-xl font-bold text-foreground">Bulk Processing Lab</h1>
+                   <div className="flex items-center gap-2">
+                     <h1 className="text-xl font-bold text-foreground">Bulk Processing Lab</h1>
+                     <a href="http://10.0.4.211:7070/docs" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors" title="View Documentation">
+                       <HelpCircle className="h-5 w-5" />
+                     </a>
+                   </div>
                    <p className="text-sm text-muted-foreground line-clamp-1 truncate max-w-xs">Intelligent signal extraction from massive event dumps.</p>
                 </div>
               </div>
@@ -255,7 +261,7 @@ export default function BulkEventProcessingPage() {
                         "p-3 rounded-lg border cursor-pointer transition-all flex justify-between items-center group",
                         selectedLogic === null
                           ? "bg-primary/10 border-primary/30 ring-1 ring-primary/20"
-                          : "bg-black/10 border-border/50 hover:bg-secondary/20"
+                          : "bg-secondary/30 border-border/50 hover:bg-secondary/20"
                       )}
                     >
                       <div className="flex flex-col gap-0.5">
@@ -278,7 +284,7 @@ export default function BulkEventProcessingPage() {
                           "p-3 rounded-lg border cursor-pointer transition-all flex justify-between items-center group",
                           selectedLogic === logic.name
                             ? "bg-primary/10 border-primary/30 ring-1 ring-primary/20"
-                            : "bg-black/10 border-border/50 hover:bg-secondary/20"
+                            : "bg-secondary/30 border-border/50 hover:bg-secondary/20"
                         )}
                       >
                         <div className="flex flex-col gap-0.5">
@@ -288,7 +294,7 @@ export default function BulkEventProcessingPage() {
                           )}>{logic.name}</span>
                           <span className="text-[8px] text-muted-foreground opacity-70">Impacted Events</span>
                         </div>
-                        <Badge variant="secondary" className="text-[10px] h-5 px-1.5 font-black bg-black/20">{logic.count}</Badge>
+                        <Badge variant="secondary" className="text-[10px] h-5 px-1.5 font-black bg-secondary/40">{logic.count}</Badge>
                       </div>
                     ))}
                   </div>
@@ -383,7 +389,7 @@ export default function BulkEventProcessingPage() {
                           <span className="text-muted-foreground font-medium">Processing Result</span>
                           <Badge className={cn(
                             "font-bold",
-                            selectedEvent.final_status === 'passed' ? "bg-status-success/20 text-status-success" : "bg-severity-critical/20 text-severity-critical"
+                            selectedEvent.final_status === 'passed' ? "bg-primary/20 text-primary" : "bg-destructive/20 text-destructive"
                           )}>
                              {selectedEvent.final_status === 'passed' ? "Actionable Signal" : "Operational Noise"}
                           </Badge>
@@ -429,7 +435,7 @@ export default function BulkEventProcessingPage() {
 
                         <div className="space-y-2 pt-4">
                           <p className="text-[10px] font-bold text-muted-foreground">Raw Payload</p>
-                          <div className="p-3 bg-black/20 rounded-lg font-mono text-[10px] text-muted-foreground break-all border border-border/50">
+                          <div className="p-3 bg-secondary/40 rounded-lg font-mono text-[10px] text-muted-foreground break-all border border-border/50">
                             {selectedEvent.raw}
                           </div>
                         </div>

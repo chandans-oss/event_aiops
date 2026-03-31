@@ -77,7 +77,7 @@ const DonutProgress = ({ value, size = 32, strokeWidth = 3 }: { value: number, s
           fill="transparent"
           stroke="currentColor"
           strokeWidth={strokeWidth}
-          className="text-white/5"
+          className="text-border/50"
         />
         <circle
           cx={size / 2}
@@ -1056,7 +1056,7 @@ export function PatternPredictionContent({ onSectionChange }: { onSectionChange?
 
                 <div className="flex-1 overflow-hidden">
                   <Tabs defaultValue="procedures" className="h-full flex flex-col">
-                    <div className="px-6 border-b border-border/50 bg-muted/30">
+                    <div className="px-6 border-b border-border/50 bg-secondary/30">
                       <TabsList className="h-14 bg-transparent gap-8 p-0">
                         <TabsTrigger
                           value="procedures"
@@ -1075,8 +1075,8 @@ export function PatternPredictionContent({ onSectionChange }: { onSectionChange?
 
                     <div className="flex-1 overflow-hidden p-8">
                       <TabsContent value="procedures" className="mt-0 h-full">
-                        <div className="h-full bg-[#0c0c0c] border border-white/10 rounded-xl overflow-hidden shadow-2xl flex flex-col">
-                          <div className="px-4 py-2 border-b border-white/5 bg-white/5 flex items-center gap-2">
+                        <div className="h-full bg-card border border-border rounded-xl overflow-hidden shadow-2xl flex flex-col">
+                          <div className="px-4 py-2 border-b border-border/50 bg-secondary/50 flex items-center gap-2">
                             <div className="h-2 w-2 rounded-full bg-rose-500" />
                             <div className="h-2 w-2 rounded-full bg-amber-500" />
                             <div className="h-2 w-2 rounded-full bg-emerald-500" />
@@ -1146,7 +1146,7 @@ export function PatternPredictionContent({ onSectionChange }: { onSectionChange?
                                       <Button
                                         variant="outline"
                                         size="icon"
-                                        className="h-7 w-7 rounded-md border-white/5 bg-white/5 hover:bg-primary/10 hover:text-primary transition-all group/retrain"
+                                        className="h-7 w-7 rounded-md border-border/50 bg-secondary/20 hover:bg-primary/10 hover:text-primary transition-all group/retrain"
                                         title="Retrain Model"
                                       >
                                         <RotateCcw className="h-3 w-3 group-hover/retrain:rotate-[-180deg] transition-transform duration-500" />
@@ -1167,7 +1167,7 @@ export function PatternPredictionContent({ onSectionChange }: { onSectionChange?
                                         </AccordionTrigger>
                                         <AccordionContent className="pt-4 space-y-2">
                                           {fn.models?.map((model) => (
-                                            <div key={model.name} className="flex items-center justify-between p-2 rounded-lg bg-black/20 border border-white/5 group/model">
+                                            <div key={model.name} className="flex items-center justify-between p-2 rounded-lg bg-secondary/30 border border-border/50 group/model">
                                               <div className="space-y-0.5">
                                                 <div className="flex items-center gap-1.5">
                                                   <div className={cn(

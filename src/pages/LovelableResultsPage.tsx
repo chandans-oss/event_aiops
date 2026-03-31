@@ -65,11 +65,11 @@ export default function LovelableResultsPage() {
 
   return (
     <MainLayout>
-      <div className="flex flex-col h-full bg-[#0F172A] text-white font-sans overflow-hidden">
+      <div className="flex flex-col h-full bg-background text-foreground font-sans overflow-hidden">
         {/* Header */}
-        <header className="h-14 border-b border-white/5 flex items-center justify-between px-6 bg-[#0F172A]/80 backdrop-blur-md z-30 shrink-0">
+        <header className="h-14 border-b border-border/50 flex items-center justify-between px-6 bg-card/80 backdrop-blur-md z-30 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#3B82F6] to-[#2DD4BF] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-emerald-500 flex items-center justify-center">
               <CheckCircle2 className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -77,9 +77,9 @@ export default function LovelableResultsPage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-md">
-              <div className="w-2 h-2 rounded-full bg-[#3DDAB4] animate-pulse" />
-              <span className="text-[10px] font-bold tracking-tighter text-[#3DDAB4]">System Synced</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-secondary/50 border border-border/50 rounded-md">
+              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-bold tracking-tighter text-emerald-500">System Synced</span>
             </div>
           </div>
         </header>
@@ -89,8 +89,8 @@ export default function LovelableResultsPage() {
             
             {/* 01 — Compiled Patterns & ML Binaries */}
             <section>
-              <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3DDAB4]/50 mb-8">
-                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">01</span>
+              <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-emerald-500/50 mb-8">
+                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-muted-foreground">01</span>
                 <span className="text-[16px] font-bold tracking-tight">Compiled Patterns & Ml Binaries</span>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
@@ -111,7 +111,7 @@ export default function LovelableResultsPage() {
                 ].map((m, i) => (
                   <div
                     key={i}
-                    className="bg-[#1E293B]/60 border border-white/10 rounded-xl p-4 hover:border-[#3B82F6]/40 hover:bg-[#1E293B]/80 transition-all duration-300 shadow-lg group relative overflow-hidden"
+                    className="bg-card border border-border rounded-xl p-4 hover:border-primary/40 hover:bg-secondary/20 transition-all duration-300 shadow-lg group relative overflow-hidden"
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex flex-col gap-2 min-w-0 pr-4">
@@ -140,7 +140,7 @@ export default function LovelableResultsPage() {
                           />
                         </svg>
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <span className="text-[9px] font-black text-white">{(m.accuracy * 100).toFixed(0)}%</span>
+                          <span className="text-[9px] font-black text-foreground">{(m.accuracy * 100).toFixed(0)}%</span>
                         </div>
                       </div>
                     </div>
@@ -151,32 +151,32 @@ export default function LovelableResultsPage() {
 
             {/* 02 — Generated Reports & Analytical Registries */}
             <section className="animate-in fade-in slide-in-from-bottom-6 duration-1000">
-              <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-8">
-                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">02</span>
+              <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-primary/50 mb-8">
+                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-muted-foreground">02</span>
                 <span className="text-[16px] font-bold tracking-tight">Generated Reports & Analytical Registries</span>
               </div>
 
-              <div className="bg-[#1E293B]/40 border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+              <div className="bg-card border border-border/50 rounded-2xl overflow-hidden shadow-2xl">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-[#0F172A] border-b border-white/5">
-                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#64748B]">Report Metadata</th>
-                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#64748B]">Scope</th>
-                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#64748B]">Windows</th>
-                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#64748B]">Latency</th>
-                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-[#64748B] text-right">Actions</th>
+                    <tr className="bg-secondary/50 border-b border-border">
+                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-muted-foreground">Report Metadata</th>
+                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-muted-foreground">Scope</th>
+                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-muted-foreground">Windows</th>
+                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-muted-foreground">Latency</th>
+                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-muted-foreground text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5 font-['IBM_Plex_Mono',monospace]">
+                  <tbody className="divide-y divide-border font-['IBM_Plex_Mono',monospace]">
                     {reports.map((report) => (
-                      <tr key={report.id} className="hover:bg-white/[0.02] transition-colors group">
+                      <tr key={report.id} className="hover:bg-primary/5 transition-colors group">
                         <td className="px-6 py-5">
                           <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-[#3B82F6]/10 flex items-center justify-center border border-[#3B82F6]/20 text-[#3B82F6]">
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 text-primary">
                               <FileText className="w-5 h-5" />
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-[13px] font-bold text-white group-hover:text-[#3B82F6] transition-colors">{formatLabel(report.name)}</span>
+                              <span className="text-[13px] font-bold text-foreground group-hover:text-primary transition-colors">{formatLabel(report.name)}</span>
                               <div className="flex items-center gap-2 mt-1">
                                 <Calendar className="w-3 h-3 text-[#55848B]" />
                                 <span className="text-[10px] text-[#55848B] font-bold">{report.date}</span>
@@ -186,8 +186,8 @@ export default function LovelableResultsPage() {
                         </td>
                         <td className="px-6 py-5">
                           <div className="flex flex-col gap-1">
-                            <span className="text-[11px] font-black text-[#F8FAFC] tracking-tighter">{formatLabel(report.dataPeriod)}</span>
-                            <span className="text-[9px] text-[#475569] font-black">{report.duration} Period</span>
+                            <span className="text-[11px] font-black text-foreground tracking-tighter">{formatLabel(report.dataPeriod)}</span>
+                            <span className="text-[9px] text-muted-foreground font-black">{report.duration} Period</span>
                           </div>
                         </td>
                         <td className="px-6 py-5">
@@ -206,17 +206,17 @@ export default function LovelableResultsPage() {
                           <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button
                               onClick={() => navigate(`/pattern-prediction/report/${report.id}`)}
-                              className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[#3B82F6] hover:border-[#3B82F6] transition-all"
+                              className="w-9 h-9 rounded-lg bg-secondary/50 border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all"
                               title="Open Report"
                             >
                               <Eye className="w-4 h-4" />
                             </button>
-                            <button className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[#10B981] hover:border-[#10B981] transition-all" title="Download JSON">
+                            <button className="w-9 h-9 rounded-lg bg-secondary/50 border border-border flex items-center justify-center hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all" title="Download JSON">
                               <Download className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(report.id)}
-                              className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-[#EF4444] hover:border-[#EF4444] transition-all"
+                              className="w-9 h-9 rounded-lg bg-secondary/50 border border-border flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground hover:border-destructive transition-all"
                               title="Delete"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -229,10 +229,10 @@ export default function LovelableResultsPage() {
                       <tr>
                         <td colSpan={5} className="px-6 py-20 text-center">
                           <div className="flex flex-col items-center gap-4 opacity-40">
-                            <div className="w-16 h-16 rounded-full border-2 border-dashed border-[#64748B] flex items-center justify-center">
+                            <div className="w-16 h-16 rounded-full border-2 border-dashed border-border flex items-center justify-center text-muted-foreground">
                               <RefreshCcw className="w-6 h-6 animate-spin" />
                             </div>
-                            <span className="text-[12px] font-black tracking-[0.3em] font-['IBM_Plex_Mono',monospace]">Awaiting Analytical Sync...</span>
+                            <span className="text-[12px] font-black tracking-[0.3em] font-['IBM_Plex_Mono',monospace] text-foreground">Awaiting Analytical Sync...</span>
                           </div>
                         </td>
                       </tr>

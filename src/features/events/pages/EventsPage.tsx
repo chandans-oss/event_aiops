@@ -382,7 +382,7 @@ export default function Events() {
             <div className="min-w-[1000px]">
               {/* Table Header */}
               <div className="grid grid-cols-12 gap-4 px-4 py-2 bg-secondary/50 border-b border-border text-xs font-semibold text-muted-foreground tracking-wide">
-                <div className="col-span-2">Event Id And Device</div>
+                <div className="col-span-2">Event Id</div>
                 <div className="col-span-1">Severity</div>
                 <div className="col-span-5">Event Message</div>
                 <div className="col-span-2">Event Code</div>

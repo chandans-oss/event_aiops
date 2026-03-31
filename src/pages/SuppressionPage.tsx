@@ -254,7 +254,7 @@ export default function SuppressionPage() {
                                 {result ? (
                                   <Badge className={cn(
                                     "text-[10px] tracking-tight py-0 w-24 justify-center font-bold",
-                                    result.is_suppressed ? "bg-severity-critical/20 text-severity-critical border-severity-critical/30" : "bg-status-success/20 text-status-success border-status-success/30"
+                                    result.is_suppressed ? "bg-destructive/20 text-destructive border-destructive/30" : "bg-primary/20 text-primary border-primary/30"
                                   )}>
                                     {result.is_suppressed ? "Suppressed" : "Active"}
                                   </Badge>
@@ -292,11 +292,11 @@ export default function SuppressionPage() {
                         <div className="space-y-4">
                           <LabelAndValue label="Status" value={
                             <Badge className={cn(
-                              "font-bold tracking-widest",
-                              selectedResult?.is_suppressed ? "bg-severity-critical/20 text-severity-critical" : "bg-status-success/20 text-status-success"
-                            )}>
-                              {selectedResult?.is_suppressed ? "Suppressed" : "Active"}
-                            </Badge>
+                               "font-bold tracking-widest",
+                               selectedResult?.is_suppressed ? "bg-destructive/20 text-destructive" : "bg-primary/20 text-primary"
+                             )}>
+                               {selectedResult?.is_suppressed ? "Suppressed" : "Active"}
+                             </Badge>
                           } />
 
                           <div className="space-y-2">
@@ -332,7 +332,7 @@ export default function SuppressionPage() {
 
                           <div className="space-y-2 pt-4">
                             <p className="text-[10px] font-bold text-muted-foreground">Raw Log</p>
-                            <div className="p-3 bg-black/20 rounded-lg font-mono text-[10px] text-muted-foreground break-all border border-border/50">
+                            <div className="p-3 bg-secondary/30 rounded-lg font-mono text-[10px] text-muted-foreground break-all border border-border/50">
                               {selectedEvent?.raw}
                             </div>
                           </div>

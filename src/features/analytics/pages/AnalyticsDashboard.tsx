@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import { MainLayout } from '@/shared/components/layout/MainLayout';
 import { Brain, Zap, Search, Activity } from 'lucide-react';
 import {
@@ -16,6 +16,10 @@ import {
 } from 'chart.js';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+
+import { RCASidebar } from '@/features/rca/sidebars/RcaSidebar';
+import { mockClusters } from '@/data/mock/mockData';
+import { Cluster } from '@/shared/types';
 
 ChartJS.register(
   CategoryScale,
@@ -64,6 +68,51 @@ const baseOptions = {
 
 export default function AnalyticsDashboard() {
   const assetGaugeRef = useRef<HTMLCanvasElement>(null);
+  const [selectedCluster, setSelectedCluster] = useState<Cluster | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Map Root Cause Insights directly from mockClusters to display real data
+  const rcaInsightsData = useMemo(() => {
+    return mockClusters
+      .map((cluster) => {
+        const deviceName = cluster.rootEvent?.source || 'Unknown Device';
+        let sev = cluster.rootEvent.severity.toLowerCase();
+        if (sev === 'major') sev = 'high';
+        if (sev === 'minor') sev = 'medium';
+
+        let rawTitle = cluster.rca?.rootCause || cluster.rootEvent.message || '';
+        rawTitle = rawTitle.replace(/^\[Pattern Recognized\]:\s*/i, '');
+        
+        const fullTitle = `${rawTitle} — ${deviceName}`;
+        
+        // Smartly abbreviate to a clean one-liner for the dashboard UI
+        let shortTitle = rawTitle;
+        if (shortTitle.includes(':')) shortTitle = shortTitle.split(':')[0].trim();
+        else if (shortTitle.includes(' - ')) shortTitle = shortTitle.split(' - ')[0].trim();
+        else if (shortTitle.includes(' due to ')) shortTitle = shortTitle.split(' due to ')[0].trim();
+
+        return {
+          id: cluster.id,
+          sev: sev,
+          title: `${shortTitle} — ${deviceName}`,
+          fullTitle: fullTitle,
+          conf: cluster.rca?.confidence ? Math.round(cluster.rca.confidence * 100) : 75 + ((cluster.childEvents?.length || 0) % 20),
+          evidence: cluster.childEvents?.length || 0,
+          services: cluster.affectedServices?.length || 0,
+          originalCluster: cluster
+        };
+      })
+      .sort((a, b) => b.services - a.services || b.conf - a.conf)
+      .slice(0, 4);
+  }, []);
+
+  const handleAnalyze = (item: any) => {
+    const cluster = mockClusters.find(c => c.id === item.id) || item.originalCluster;
+    setSelectedCluster(cluster as any);
+    setIsSidebarOpen(true);
+  };
+
+
 
   useEffect(() => {
     if (assetGaugeRef.current) {
@@ -154,26 +203,23 @@ export default function AnalyticsDashboard() {
           <div className="page-title">Dashboard</div>
 
           <div className="grid-2-1 mb-4">
-            <div className="card col-span-1 bg-[#0f172a] border border-[#1e293b] p-5 rounded-2xl shadow-2xl overflow-hidden">
-              <div className="flex items-center justify-between mb-5">
-                <div className="flex items-center gap-2 text-white font-bold text-[16px]">
-                  Root Cause Insights
-                </div>
+            <div className="card flex flex-col min-w-0">
+              <div className="card-header shrink-0">
+                <div className="card-title">Root Cause Insights</div>
               </div>
 
-              <div className="space-y-4">
-                {[
-                  { sev: 'critical', title: 'WAN Link Congestion — Core Router CR-01', conf: 94, evidence: 23, services: 3 },
-                  { sev: 'high', title: 'DNS Resolution Failure — DC-East', conf: 87, evidence: 15, services: 3 },
-                  { sev: 'medium', title: 'Config Drift — Firewall Cluster FW-03', conf: 72, evidence: 8, services: 2 },
-                ].map((item, i) => (
-                  <div key={i} className="bg-[#1e293b]/40 border border-[#334155]/50 rounded-xl p-4 transition-all hover:border-[#38bdf8]/30 group">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-3">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${item.sev === 'critical' ? 'bg-red-500/10 text-red-500' : item.sev === 'high' ? 'bg-orange-500/10 text-orange-500' : 'bg-yellow-500/10 text-yellow-500'}`}>{item.sev}</span>
-                        <span className="text-white font-bold text-[14px] leading-tight">{item.title}</span>
+              <div className="space-y-3 max-h-[240px] overflow-y-auto pr-1">
+                {rcaInsightsData.map((item, i) => (
+                  <div key={item.id} className="bg-[#1e293b]/40 border border-[#334155]/50 rounded-xl p-3 transition-all hover:border-[#38bdf8]/30 group">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-3 min-w-0 flex-1">
+                        <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded-full ${item.sev === 'critical' ? 'bg-red-500/10 text-red-500' : item.sev === 'high' ? 'bg-orange-500/10 text-orange-500' : 'bg-yellow-500/10 text-yellow-500'}`}>{item.sev}</span>
+                        <span className="text-white font-bold text-[14px] leading-tight truncate" title={item.fullTitle}>{item.title}</span>
                       </div>
-                      <button className="flex items-center gap-2 text-[#38bdf8] text-[12px] font-bold opacity-90 hover:opacity-100 transition-opacity">
+                      <button 
+                        onClick={() => handleAnalyze(item)}
+                        className="flex items-center gap-2 text-[#38bdf8] text-[12px] font-bold opacity-90 hover:opacity-100 transition-opacity"
+                      >
                         <Brain className="h-4 w-4" />
                         Analyze
                       </button>
@@ -191,15 +237,15 @@ export default function AnalyticsDashboard() {
               </div>
             </div>
 
-            <div className="card">
-              <div className="card-header"><div className="card-title">SLA Breach Risk</div><button className="analyze-btn">Analyze & fix</button></div>
-              <div className="flex gap-6 mb-4">
+            <div className="card flex flex-col min-w-0">
+              <div className="card-header shrink-0"><div className="card-title">SLA Breach Risk</div><button className="analyze-btn">Analyze & fix</button></div>
+              <div className="flex gap-6 mb-3 shrink-0">
                 <div className="kpi-block">
                   <div className="kpi-label">Overall Risk</div>
                   <div className="kpi-row"><span className="kpi-value text-lg">15%</span><span className="badge badge-up">+5%</span></div>
                 </div>
               </div>
-              <div style={{ height: '120px' }}>
+              <div className="flex-1 w-full relative min-h-[140px] max-h-[180px]">
                 <Bar
                   data={{
                     labels: ['WiFi', 'Video', 'WAN', 'Internet', 'Voice'],
@@ -600,6 +646,9 @@ export default function AnalyticsDashboard() {
 
         </div>
       </div>
+      {isSidebarOpen && selectedCluster && (
+        <RCASidebar onClose={() => setIsSidebarOpen(false)} cluster={selectedCluster as any} />
+      )}
     </MainLayout>
   );
 }

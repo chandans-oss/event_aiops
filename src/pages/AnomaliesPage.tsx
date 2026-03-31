@@ -162,7 +162,7 @@ const DonutProgress = ({ value, size = 32, strokeWidth = 3 }: { value: number, s
           fill="transparent"
           stroke="currentColor"
           strokeWidth={strokeWidth}
-          className="text-white/5"
+          className="text-border/50"
         />
         <circle
           cx={size / 2}
@@ -835,7 +835,7 @@ export default function AnomaliesPage() {
 
                 <div className="flex-1 overflow-hidden">
                   <Tabs defaultValue="procedures" className="h-full flex flex-col">
-                    <div className="px-6 border-b border-border/50 bg-muted/30">
+                    <div className="px-6 border-b border-border/50 bg-secondary/30">
                       <TabsList className="h-14 bg-transparent gap-8 p-0">
                         <TabsTrigger
                           value="procedures"
@@ -854,8 +854,8 @@ export default function AnomaliesPage() {
 
                     <div className="flex-1 overflow-hidden p-8">
                       <TabsContent value="procedures" className="mt-0 h-full">
-                        <div className="h-full bg-[#0c0c0c] border border-white/10 rounded-xl overflow-hidden shadow-2xl flex flex-col">
-                          <div className="px-4 py-2 border-b border-white/5 bg-white/5 flex items-center gap-2">
+                        <div className="h-full bg-card border border-border rounded-xl overflow-hidden shadow-2xl flex flex-col">
+                          <div className="px-4 py-2 border-b border-border/50 bg-secondary/50 flex items-center gap-2">
                             <div className="h-2 w-2 rounded-full bg-rose-500" />
                             <div className="h-2 w-2 rounded-full bg-amber-500" />
                             <div className="h-2 w-2 rounded-full bg-emerald-500" />
@@ -1020,7 +1020,7 @@ export default function AnomaliesPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-white/5 bg-white/5">
+                <tr className="border-b border-border/50 bg-secondary/30">
                   <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground w-[180px]">Device and Interface</th>
                   <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground w-[120px]">Severity</th>
                   <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground w-[150px]">Anomaly Score</th>
@@ -1033,9 +1033,9 @@ export default function AnomaliesPage() {
 
           <ScrollArea className="h-[600px]">
             <table className="w-full text-left border-collapse">
-              <tbody className="divide-y divide-white/5">
+              <tbody className="divide-y divide-border/50">
                 {currentItems.map((anomaly, idx) => (
-                  <tr key={idx} className="group hover:bg-white/[0.02] transition-colors">
+                  <tr key={idx} className="group hover:bg-secondary/20 transition-colors">
                     <td className="px-6 py-6 w-[180px]">
                       <div className="flex flex-col gap-1.5 focus-visible:outline-none">
                         <div className="flex items-center gap-2">
@@ -1137,7 +1137,7 @@ export default function AnomaliesPage() {
             </table>
           </ScrollArea>
 
-          <div className="flex items-center justify-between px-6 py-4 border-t border-white/5 bg-white/5">
+          <div className="flex items-center justify-between px-6 py-4 border-t border-border/50 bg-secondary/30">
             <div className="text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-40">
               Showing <span className="text-foreground">{startIndex + 1}</span> to <span className="text-foreground">{Math.min(endIndex, totalItems)}</span> of <span className="text-foreground">{totalItems}</span> Anomalies
             </div>
@@ -1145,7 +1145,7 @@ export default function AnomaliesPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className={cn("h-8 w-8 p-0 border-white/10 hover:bg-white/5 text-muted-foreground", currentPage === 1 && "opacity-50 cursor-not-allowed")}
+                className={cn("h-8 w-8 p-0 border-border/50 hover:bg-secondary/40 text-muted-foreground", currentPage === 1 && "opacity-50 cursor-not-allowed")}
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
               >
@@ -1170,7 +1170,7 @@ export default function AnomaliesPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className={cn("h-8 w-8 p-0 border-white/10 hover:bg-white/5 text-muted-foreground", currentPage === totalPages && "opacity-50 cursor-not-allowed")}
+                className={cn("h-8 w-8 p-0 border-border/50 hover:bg-secondary/40 text-muted-foreground", currentPage === totalPages && "opacity-50 cursor-not-allowed")}
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}
               >

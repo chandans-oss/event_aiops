@@ -83,7 +83,7 @@ const DonutProgress = ({ value, size = 32, strokeWidth = 3 }: { value: number, s
           fill="transparent"
           stroke="currentColor"
           strokeWidth={strokeWidth}
-          className="text-white/5"
+          className="text-border/50"
         />
         <circle
           cx={size / 2}
@@ -760,7 +760,7 @@ export default function PredictionPage() {
                   Analysis
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="sm:max-w-[80vw] w-[80vw] bg-card/95 backdrop-blur-xl border-l border-primary/20 p-0 overflow-hidden flex flex-col">
+              <SheetContent side="right" className="sm:max-w-[80vw] w-[80vw] bg-card backdrop-blur-xl border-l border-border/50 p-0 overflow-hidden flex flex-col">
                 <SheetHeader className="p-6 border-b border-border/50">
                   <div className="flex items-center justify-between">
                     <SheetTitle className="text-xl font-bold tracking-tight flex items-center gap-3">
@@ -774,7 +774,7 @@ export default function PredictionPage() {
 
                 <div className="flex-1 overflow-hidden">
                   <Tabs defaultValue="procedures" className="h-full flex flex-col">
-                    <div className="px-6 border-b border-border/50 bg-muted/30">
+                    <div className="px-6 border-b border-border/50 bg-secondary/30">
                       <TabsList className="h-14 bg-transparent gap-8 p-0">
                         <TabsTrigger
                           value="procedures"
@@ -793,15 +793,15 @@ export default function PredictionPage() {
 
                     <div className="flex-1 overflow-hidden p-8">
                       <TabsContent value="procedures" className="mt-0 h-full">
-                        <div className="h-full bg-[#0c0c0c] border border-white/10 rounded-xl overflow-hidden shadow-2xl flex flex-col">
-                          <div className="px-4 py-2 border-b border-white/5 bg-white/5 flex items-center gap-2">
+                        <div className="h-full bg-card border border-border rounded-xl overflow-hidden shadow-2xl flex flex-col">
+                          <div className="px-4 py-2 border-b border-border/50 bg-secondary/50 flex items-center gap-2">
                             <div className="h-2 w-2 rounded-full bg-rose-500" />
                             <div className="h-2 w-2 rounded-full bg-amber-500" />
                             <div className="h-2 w-2 rounded-full bg-emerald-500" />
                             <span className="text-[10px] text-muted-foreground ml-2 font-mono">predictive_engine.py — global</span>
                           </div>
                           <ScrollArea className="flex-1">
-                            <div className="p-6 font-mono text-[11px] leading-relaxed text-[#d4d4d4] whitespace-pre">
+                            <div className="p-6 font-mono text-[11px] leading-relaxed text-foreground whitespace-pre">
                               {TERMINAL_LOGS.header}
                               {"\n\n"}
                               <div className="text-primary/60 border-b border-primary/20 pb-2 mb-4 font-black tracking-widest">[ ROUTER ANALYSIS ENGINE ]</div>
@@ -867,7 +867,7 @@ export default function PredictionPage() {
                                       <Button
                                         variant="outline"
                                         size="icon"
-                                        className="h-7 w-7 rounded-md border-white/5 bg-white/5 hover:bg-primary/10 hover:text-primary transition-all group/retrain"
+                                        className="h-7 w-7 rounded-md border-border/50 bg-secondary/20 hover:bg-primary/10 hover:text-primary transition-all group/retrain"
                                         title="Retrain Model"
                                       >
                                         <RotateCcw className="h-3 w-3 group-hover/retrain:rotate-[-180deg] transition-transform duration-500" />
@@ -888,7 +888,7 @@ export default function PredictionPage() {
                                         </AccordionTrigger>
                                         <AccordionContent className="pt-4 space-y-2">
                                           {fn.models?.map((model) => (
-                                            <div key={model.name} className="flex items-center justify-between p-2 rounded-lg bg-black/20 border border-white/5 group/model">
+                                            <div key={model.name} className="flex items-center justify-between p-2 rounded-lg bg-secondary/30 border border-border/50 group/model">
                                               <div className="space-y-0.5">
                                                 <div className="flex items-center gap-1.5">
                                                   <div className={cn(
@@ -909,7 +909,7 @@ export default function PredictionPage() {
                                                 <Button
                                                   variant="outline"
                                                   size="icon"
-                                                  className="h-5 w-5 rounded border-white/5 bg-white/5 hover:bg-primary/10 hover:text-primary transition-all group/retrain_model"
+                                                  className="h-5 w-5 rounded border-border/50 bg-secondary/20 hover:bg-primary/10 hover:text-primary transition-all group/retrain_model"
                                                   title="Retrain PKL Model"
                                                 >
                                                   <RotateCcw className="h-2.5 w-2.5 group-hover/retrain_model:rotate-[-180deg] transition-transform duration-500" />

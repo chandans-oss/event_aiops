@@ -46,32 +46,32 @@ const TrainingReportPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] text-[#F8FAFC] p-8 font-sans">
+    <div className="min-h-screen bg-background text-foreground p-8 font-sans">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div>
-          <div className="flex items-center gap-2 text-[#3B82F6] mb-1.5 font-['IBM_Plex_Mono',monospace] text-[12px] font-bold tracking-[0.1em]">
+          <div className="flex items-center gap-2 text-primary mb-1.5 font-['IBM_Plex_Mono',monospace] text-[12px] font-bold tracking-[0.1em]">
             <FileText className="w-4 h-4" />
             Analytical Intelligence Registry
           </div>
-          <h1 className="text-[32px] font-black tracking-[-0.03em] bg-gradient-to-r from-white via-white to-white/40 bg-clip-text text-transparent">
+          <h1 className="text-[32px] font-black tracking-[-0.03em] text-foreground">
             Lovelable System Report
           </h1>
-          <p className="text-[#94A3B8] text-[14px]">Industry-standard audit for serialized model patterns and behavioral shifts.</p>
+          <p className="text-muted-foreground text-[14px]">Industry-standard audit for serialized model patterns and behavioral shifts.</p>
         </div>
 
         <div className="flex items-center gap-3">
           <Button 
             variant="outline" 
             onClick={() => navigate('/pattern-prediction/training-lovelable')}
-            className="h-10 bg-[#1E293B]/40 border-[#334155] text-white hover:bg-[#334155] gap-2 rounded-xl"
+            className="h-10 bg-secondary border-border text-foreground hover:bg-secondary/80 gap-2 rounded-xl"
           >
             <RotateCcw className="w-4 h-4" />
             Back To Training
           </Button>
           <Button 
             onClick={handleExportJSON}
-            className="h-10 bg-[#3B82F6] hover:bg-[#2563EB] text-white gap-2 px-6 rounded-xl font-bold shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+            className="h-10 bg-primary hover:bg-primary/90 text-primary-foreground gap-2 px-6 rounded-xl font-bold shadow-[0_0_20px_rgba(59,130,246,0.3)]"
           >
             <Download className="w-4 h-4" />
             Export Registry
@@ -80,25 +80,25 @@ const TrainingReportPage = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="bg-[#0F172A] border border-[#334155] rounded-[24px] overflow-hidden shadow-2xl flex flex-col min-h-[600px]">
+      <div className="bg-card border border-border rounded-[24px] overflow-hidden shadow-2xl flex flex-col min-h-[600px]">
         <Tabs defaultValue="summary" className="w-full flex flex-col flex-1">
-          <div className="border-b border-[#334155] bg-[#0F172A]/80 backdrop-blur-xl sticky top-0 z-20 px-4 flex items-center justify-between">
+          <div className="border-b border-border bg-secondary/80 backdrop-blur-xl sticky top-0 z-20 px-4 flex items-center justify-between">
             <TabsList className="bg-transparent h-auto p-0 flex justify-start gap-2">
-              <TabsTrigger value="summary" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black tracking-[0.1em] transition-all">Audit Summary</TabsTrigger>
-              <TabsTrigger value="correlation" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black tracking-[0.1em] transition-all">Cross Correlation</TabsTrigger>
-              <TabsTrigger value="granger" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black tracking-[0.1em] transition-all">Granger Causality</TabsTrigger>
-              <TabsTrigger value="json" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black tracking-[0.1em] transition-all">JSON Schema</TabsTrigger>
+              <TabsTrigger value="summary" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none border-b-2 border-transparent text-muted-foreground text-[12px] font-black tracking-[0.1em] transition-all">Audit Summary</TabsTrigger>
+              <TabsTrigger value="correlation" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none border-b-2 border-transparent text-muted-foreground text-[12px] font-black tracking-[0.1em] transition-all">Cross Correlation</TabsTrigger>
+              <TabsTrigger value="granger" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none border-b-2 border-transparent text-muted-foreground text-[12px] font-black tracking-[0.1em] transition-all">Granger Causality</TabsTrigger>
+              <TabsTrigger value="json" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary data-[state=active]:text-primary rounded-none border-b-2 border-transparent text-muted-foreground text-[12px] font-black tracking-[0.1em] transition-all">JSON Schema</TabsTrigger>
             </TabsList>
 
             <div className="hidden md:flex items-center gap-4 px-4">
                <div className="relative group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#475569] group-focus-within:text-[#3B82F6] transition-colors" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <input 
                   type="text" 
                   placeholder="Filter analytical logs..." 
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  className="bg-black/20 border border-[#334155] rounded-xl pl-9 pr-4 py-2 text-[11px] w-[240px] focus:outline-none focus:border-[#3B82F6] transition-all"
+                  className="bg-secondary border border-border rounded-xl pl-9 pr-4 py-2 text-[11px] w-[240px] focus:outline-none focus:border-primary transition-all text-foreground"
                 />
               </div>
             </div>
@@ -107,28 +107,28 @@ const TrainingReportPage = () => {
           <div className="flex-1 overflow-auto no-scrollbar">
             <TabsContent value="summary" className="mt-0">
                <Table>
-                <TableHeader className="bg-black/40 sticky top-0 z-10">
-                  <TableRow className="border-[#334155] hover:bg-transparent">
+                <TableHeader className="bg-secondary/40 sticky top-0 z-10">
+                  <TableRow className="border-border hover:bg-transparent">
                     {['Device','Event','Metric','Normal Mean','Pre Event Mean','Delta %','Occurrences','Performance'].map(h => (
-                      <TableHead key={h} className="text-[10px] font-black text-[#64748B] tracking-[0.2em] px-6 py-5">{h}</TableHead>
+                      <TableHead key={h} className="text-[10px] font-black text-muted-foreground tracking-[0.2em] px-6 py-5">{h}</TableHead>
                     ))}
                   </TableRow>
                 </TableHeader>
                 <TableBody className="font-['IBM_Plex_Mono',monospace]">
                   {filteredSummary.map((row, i) => (
-                    <TableRow key={i} className="border-[#334155]/50 hover:bg-white/[0.02] group transition-colors">
+                    <TableRow key={i} className="border-border hover:bg-secondary/20 group transition-colors">
                       <TableCell className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          {row.device_type === 'router' ? <NetworkIcon className="w-3.5 h-3.5 text-[#3B82F6]" /> : <Cpu className="w-3.5 h-3.5 text-[#10B981]" />}
-                          <span className="text-[11px] font-black text-white">{row.device_type === 'router' ? 'Router' : 'Switch'}</span>
+                          {row.device_type === 'router' ? <NetworkIcon className="w-3.5 h-3.5 text-primary" /> : <Cpu className="w-3.5 h-3.5 text-emerald-500" />}
+                          <span className="text-[11px] font-black text-foreground">{row.device_type === 'router' ? 'Router' : 'Switch'}</span>
                         </div>
                       </TableCell>
                       <TableCell className="px-6 py-4">
-                        <span className="text-[11px] font-bold text-[#F8FAFC]">{row.event || row.entity_id}</span>
+                        <span className="text-[11px] font-bold text-foreground">{row.event || row.entity_id}</span>
                       </TableCell>
-                      <TableCell className="px-6 py-4 text-[10px] text-[#94A3B8] font-medium">{row.metric || '—'}</TableCell>
-                      <TableCell className="px-6 py-4 text-[11px] text-[#475569]">{row.normal_avg || '—'}</TableCell>
-                      <TableCell className="px-6 py-4 text-[11px] text-white font-black">{row.pre_event_avg || '—'}</TableCell>
+                      <TableCell className="px-6 py-4 text-[10px] text-muted-foreground font-medium">{row.metric || '—'}</TableCell>
+                      <TableCell className="px-6 py-4 text-[11px] text-muted-foreground">{row.normal_avg || '—'}</TableCell>
+                      <TableCell className="px-6 py-4 text-[11px] text-foreground font-black">{row.pre_event_avg || '—'}</TableCell>
                       <TableCell className="px-6 py-4">
                         <div className="flex items-center gap-1.5">
                           {Number(row.delta_pct) > 0 ? <TrendingUp className="w-3 h-3 text-[#F59E0B]" /> : <TrendingDown className="w-3 h-3 text-[#10B981]" />}
@@ -141,15 +141,15 @@ const TrainingReportPage = () => {
                       <TableCell className="px-6 py-4">
                         {row.section === 'rf' ? (
                           <div className="flex flex-col gap-0.5">
-                            <span className="text-[9px] font-black text-[#10B981]">F1: {row.f1}</span>
-                            <span className="text-[9px] font-bold text-[#3B82F6]">ACC: {row.accuracy}</span>
+                            <span className="text-[9px] font-black text-emerald-500">F1: {row.f1}</span>
+                            <span className="text-[9px] font-bold text-primary">ACC: {row.accuracy}</span>
                           </div>
                         ) : row.section === 'anomaly' ? (
-                          <div className="flex items-center gap-2 bg-[#EF4444]/10 border border-[#EF4444]/20 rounded px-2 py-0.5 w-fit">
-                            <span className="text-[9px] font-black text-[#EF4444]">RISK: {(Number(row.anomaly_rate)*100).toFixed(1)}%</span>
+                          <div className="flex items-center gap-2 bg-destructive/10 border border-destructive/20 rounded px-2 py-0.5 w-fit">
+                            <span className="text-[9px] font-black text-destructive">RISK: {(Number(row.anomaly_rate)*100).toFixed(1)}%</span>
                           </div>
                         ) : (
-                          <span className="text-[10px] text-[#1E293B] group-hover:text-[#3B82F6] transition-colors">—</span>
+                          <span className="text-[10px] text-muted-foreground group-hover:text-primary transition-colors">—</span>
                         )}
                       </TableCell>
                     </TableRow>
@@ -168,24 +168,24 @@ const TrainingReportPage = () => {
                     </div>
                     <div className="space-y-4">
                       {Object.entries(metrics).map(([pair, data]: [string, any]) => (
-                        <div key={pair} className="bg-black/30 border border-[#334155] rounded-[16px] p-5 hover:border-[#3B82F6]/50 transition-all font-['IBM_Plex_Mono',monospace]">
+                        <div key={pair} className="bg-secondary/30 border border-border rounded-[16px] p-5 hover:border-primary/50 transition-all font-['IBM_Plex_Mono',monospace]">
                           <div className="flex items-center justify-between mb-4">
-                            <span className="text-[11px] font-black text-white">{pair.replace('->', ' ➔ ')}</span>
-                            <Badge className="bg-[#3B82F6]/10 text-[#3B82F6] text-[10px] font-black">LAG: {data.lag_min}m</Badge>
+                            <span className="text-[11px] font-black text-foreground">{pair.replace('->', ' ➔ ')}</span>
+                            <Badge className="bg-primary/10 text-primary text-[10px] font-black">LAG: {data.lag_min}m</Badge>
                           </div>
                           <div className="flex items-center gap-6">
                             <div className="flex-1">
-                              <div className="flex justify-between text-[9px] text-[#64748B] font-black tracking-widest mb-1.5">
+                              <div className="flex justify-between text-[9px] text-muted-foreground font-black tracking-widest mb-1.5">
                                 <span>Pearson-R</span>
                                 <span>Strength: {(data.pearson_r * 100).toFixed(0)}%</span>
                               </div>
-                              <div className="h-1.5 w-full bg-[#1E293B] rounded-full overflow-hidden">
-                                <div className="h-full bg-[#3B82F6] rounded-full" style={{ width: `${data.pearson_r * 100}%` }} />
+                              <div className="h-1.5 w-full bg-secondary rounded-full overflow-hidden">
+                                <div className="h-full bg-primary rounded-full" style={{ width: `${data.pearson_r * 100}%` }} />
                               </div>
                             </div>
                             <div className="text-right">
-                              <div className="text-[9px] text-[#64748B] font-black">Spearman</div>
-                              <div className="text-[14px] font-black text-white">{data.spearman_r.toFixed(3)}</div>
+                              <div className="text-[9px] text-muted-foreground font-black">Spearman</div>
+                              <div className="text-[14px] font-black text-foreground">{data.spearman_r.toFixed(3)}</div>
                             </div>
                           </div>
                         </div>

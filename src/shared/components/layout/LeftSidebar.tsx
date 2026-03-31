@@ -50,7 +50,7 @@ const navItems: NavItem[] = [
     children: [
       { path: "/", label: "AIOps Dashboard", icon: LayoutDashboard },
       { path: "/dashboard/prediction", label: "Topology Dashboard", icon: Activity },
-      { path: "/dashboard/kpi", label: "ROI Dashboard", icon: BarChart3 },
+      { path: "/dashboard/kpi", label: "ROI/KPI Dashboard", icon: BarChart3 },
     ]
   },
   {
@@ -100,7 +100,7 @@ const navItems: NavItem[] = [
       { path: "/remediation", label: "Remediation", icon: Wrench },
       { path: "/upload", label: "Event Upload", icon: Upload },
       { path: "/dashboard/alarm-prediction", label: "Alarm Prediction", icon: TrendingUp },
-      { path: "/dashboard/roi", label: "ROI Dashboard", icon: Target },
+      { path: "/dashboard/roi", label: "ROI/KPI Dashboard", icon: Target },
       { path: "/temp/aiops-draft", label: "Aiops dashbord draft", icon: LayoutDashboard },
       { path: "/pattern-prediction/pattern", label: "Pattern", icon: GitBranch },
       { path: "/pattern-prediction/prediction", label: "Prediction", icon: BrainCircuit },
@@ -229,10 +229,10 @@ export function LeftSidebar() {
 
   return (
     <div className={cn("h-full bg-card/50 border-r border-border flex flex-col transition-all duration-300 relative", collapsed ? "w-16" : "w-56")}>
-      <Button 
-        variant="outline" 
-        size="icon" 
-        className="absolute -right-3 top-6 h-6 w-6 rounded-full border border-border bg-background shadow-md z-50 hover:bg-secondary" 
+      <Button
+        variant="outline"
+        size="icon"
+        className="absolute -right-3 top-6 h-6 w-6 rounded-full border border-border bg-background shadow-md z-50 hover:bg-secondary"
         onClick={() => setCollapsed(!collapsed)}
       >
         {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}

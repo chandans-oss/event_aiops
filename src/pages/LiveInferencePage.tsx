@@ -553,28 +553,28 @@ export default function LiveInferencePage() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-[#0B0F19] text-[#E2E8F0] font-['Sora',sans-serif] text-[14px] overflow-x-hidden selection:bg-[#3B82F6]/30">
+      <div className="min-h-screen bg-background text-foreground font-['Sora',sans-serif] text-[14px] overflow-x-hidden selection:bg-primary/30">
 
         {/* TOP STATUS BAR */}
-        <div className="bg-[#0F172A] border-b border-white/5 px-8 h-12 flex items-center justify-between">
+        <div className="bg-secondary border-b border-border/50 px-8 h-12 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
-              <div className={cn("w-2 h-2 rounded-full", processingState === 'PROCESSING' ? "bg-[#3DDAB4] animate-pulse" : "bg-[#64748B]")} />
-              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-widest text-[#3DDAB4]">
+              <div className={cn("w-2 h-2 rounded-full", processingState === 'PROCESSING' ? "bg-primary animate-pulse" : "bg-muted-foreground")} />
+              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-widest text-primary">
                 {stats.polls < 15 ? `Data Aggregation Phase: [${stats.polls}/15]` : 'Live Inference Engine Active'}
               </span>
               <button
                 onClick={() => setIsSidebarOpen(true)}
-                className="p-1 hover:bg-white/5 rounded transition-colors group"
+                className="p-1 hover:bg-primary/10 rounded transition-colors group"
                 title="View Buffer & Kernel"
               >
-                <Info className="w-3.5 h-3.5 text-[#3B82F6] group-hover:text-[#3DDAB4]" />
+                <Info className="w-3.5 h-3.5 text-primary group-hover:text-primary" />
               </button>
             </div>
-            <div className="h-4 w-px bg-white/10" />
+            <div className="h-4 w-px bg-border/20" />
             <div className="flex items-center gap-2">
-              <Clock className="w-3.5 h-3.5 text-[#94A3B8]" />
-              <span className="text-[11px] text-[#94A3B8] font-medium font-['IBM_Plex_Mono',monospace]">
+              <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-[11px] text-muted-foreground font-medium font-['IBM_Plex_Mono',monospace]">
                 Last Poll: {inferences[0]?.timestamp || '--:--:--'}
               </span>
             </div>
@@ -582,14 +582,14 @@ export default function LiveInferencePage() {
 
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 mr-4">
-              <span className="text-[10px] font-black text-[#64748B] tracking-widest">Poll Speed</span>
+              <span className="text-[10px] font-black text-muted-foreground tracking-widest">Poll Speed</span>
               <button 
                 onClick={() => setPollInterval(30000)}
-                className={cn("px-2 py-1 rounded text-[10px] font-bold transition-all", pollInterval === 30000 ? "bg-[#3B82F6] text-white" : "bg-white/5 text-[#94A3B8] hover:bg-white/10")}
+                className={cn("px-2 py-1 rounded text-[10px] font-bold transition-all", pollInterval === 30000 ? "bg-primary text-primary-foreground" : "bg-background/20 text-muted-foreground hover:bg-background/40")}
               >30s</button>
               <button 
                 onClick={() => setPollInterval(5000)}
-                className={cn("px-2 py-1 rounded text-[10px] font-bold transition-all", pollInterval === 5000 ? "bg-[#3B82F6] text-white" : "bg-white/5 text-[#94A3B8] hover:bg-white/10")}
+                className={cn("px-2 py-1 rounded text-[10px] font-bold transition-all", pollInterval === 5000 ? "bg-primary text-primary-foreground" : "bg-background/20 text-muted-foreground hover:bg-background/40")}
               >5s</button>
             </div>
             <button
@@ -603,8 +603,8 @@ export default function LiveInferencePage() {
               className={cn(
                 "px-5 py-2 rounded-lg font-['IBM_Plex_Mono',monospace] text-[11px] font-black tracking-[0.2em] transition-all border shadow-[0_4px_20px_rgba(0,0,0,0.3)]",
                 processingState !== 'PAUSED'
-                  ? "bg-[#3B82F6] text-white border-[#3B82F6]/50 hover:bg-[#2563EB] hover:scale-105"
-                  : "bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30 hover:bg-[#10B981]/20 hover:scale-105"
+                  ? "bg-primary text-primary-foreground border-primary/50 hover:bg-primary/90 hover:scale-105"
+                  : "bg-emerald-500/10 text-emerald-500 border-emerald-500/30 hover:bg-emerald-500/20 hover:scale-105"
               )}
             >
               {stats.polls === 0 && processingState === 'PAUSED' ? 'Start Engine' : (processingState !== 'PAUSED' ? 'Pause Engine' : 'Resume Engine')}
@@ -618,20 +618,20 @@ export default function LiveInferencePage() {
             {/* INFERENCE GRID HEADER */}
 
             {/* INFERENCE GRID HEADER */}
-            <div className="flex items-center justify-between border-b border-white/10 pb-6">
+            <div className="flex items-center justify-between border-b border-border/50 pb-6">
               <div className="flex items-center gap-5">
-                <div className="w-14 h-14 bg-[#3B82F6]/10 rounded-2xl flex items-center justify-center border border-[#3B82F6]/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
-                  <Layers className="w-7 h-7 text-[#3B82F6]" />
+                <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center border border-primary/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
+                  <Layers className="w-7 h-7 text-primary" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-black tracking-tight text-white">
+                  <h1 className="text-2xl font-black tracking-tight text-foreground">
                     {viewMode === 'default' ? 'Live Inference Stream' : 'Pattern Match Intelligence'}
                   </h1>
                   <div className="flex items-center gap-3 mt-1.5">
                     {viewMode === 'patterns' && (
                       <button
                         onClick={() => setViewMode('default')}
-                        className="px-2 py-0.5 rounded bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[11px] text-[#3B82F6] font-bold tracking-widest hover:bg-[#3B82F6]/20 transition-all flex items-center gap-1"
+                        className="px-2 py-0.5 rounded bg-primary/10 border border-primary/20 text-[11px] text-primary font-bold tracking-widest hover:bg-primary/20 transition-all flex items-center gap-1"
                       >
                         <ChevronRight className="w-3 h-3 rotate-180" />
                         Back To Stream
@@ -642,27 +642,27 @@ export default function LiveInferencePage() {
               </div>
 
               <div className="flex gap-2">
-                <div className="bg-[#111827] px-5 py-3 rounded-xl border border-white/5 min-w-[90px] text-center">
-                  <div className="text-[9px] text-[#64748B] font-black mb-1 tracking-widest">Anomalies</div>
-                  <div className="text-xl font-black tracking-tighter tabular-nums text-[#EF4444]">{stats.anomalies}</div>
+                <div className="bg-secondary px-5 py-3 rounded-xl border border-border/50 min-w-[90px] text-center">
+                  <div className="text-[9px] text-muted-foreground font-black mb-1 tracking-widest">Anomalies</div>
+                  <div className="text-xl font-black tracking-tighter tabular-nums text-destructive">{stats.anomalies}</div>
                 </div>
-                <div className="bg-[#111827] px-5 py-3 rounded-xl border border-white/5 min-w-[90px] text-center">
-                  <div className="text-[9px] text-[#64748B] font-black mb-1 tracking-widest">Predictions</div>
-                  <div className="text-xl font-black tracking-tighter tabular-nums text-[#3B82F6]">{stats.predictions}</div>
+                <div className="bg-secondary px-5 py-3 rounded-xl border border-border/50 min-w-[90px] text-center">
+                  <div className="text-[9px] text-muted-foreground font-black mb-1 tracking-widest">Predictions</div>
+                  <div className="text-xl font-black tracking-tighter tabular-nums text-primary">{stats.predictions}</div>
                 </div>
                 <button
                   onClick={() => setViewMode('patterns')}
                   className={cn(
                     "px-5 py-3 rounded-xl border transition-all text-center group",
-                    viewMode === 'patterns' ? "bg-[#3DDAB4]/10 border-[#3DDAB4]/40" : "bg-[#111827] border-white/5 hover:border-[#3DDAB4]/30"
+                    viewMode === 'patterns' ? "bg-emerald-500/10 border-emerald-500/40" : "bg-secondary border-border/50 hover:border-emerald-500/30"
                   )}
                 >
-                  <div className="text-[9px] text-[#64748B] font-black mb-1 tracking-widest group-hover:text-[#3DDAB4]/70">Pattern Match</div>
-                  <div className="text-xl font-black tracking-tighter tabular-nums text-[#3DDAB4]">{stats.patterns}</div>
+                  <div className="text-[9px] text-muted-foreground font-black mb-1 tracking-widest group-hover:text-emerald-500/70">Pattern Match</div>
+                  <div className="text-xl font-black tracking-tighter tabular-nums text-emerald-500">{stats.patterns}</div>
                 </button>
-                <div className="bg-[#111827] px-5 py-3 rounded-xl border border-white/5 min-w-[90px] text-center">
-                  <div className="text-[9px] text-[#64748B] font-black mb-1 tracking-widest">Polls</div>
-                  <div className="text-xl font-black tracking-tighter tabular-nums text-[#3DDAB4]">{stats.polls}</div>
+                <div className="bg-secondary px-5 py-3 rounded-xl border border-border/50 min-w-[90px] text-center">
+                  <div className="text-[9px] text-muted-foreground font-black mb-1 tracking-widest">Polls</div>
+                  <div className="text-xl font-black tracking-tighter tabular-nums text-emerald-500">{stats.polls}</div>
                 </div>
               </div>
             </div>
@@ -671,13 +671,13 @@ export default function LiveInferencePage() {
             <div className="grid grid-cols-1 gap-6">
               {stats.polls < 15 && (
                 <div className="py-20 flex flex-col items-center justify-center text-center">
-                  <div className="w-20 h-20 bg-[#1E293B]/20 rounded-full flex items-center justify-center mb-6 border border-white/5 relative">
-                    <RefreshCw className="w-8 h-8 text-[#3B82F6] animate-spin" />
+                  <div className="w-20 h-20 bg-secondary rounded-full flex items-center justify-center mb-6 border border-border/50 relative">
+                    <RefreshCw className="w-8 h-8 text-primary animate-spin" />
                   </div>
-                  <div className="text-[#3B82F6] font-['IBM_Plex_Mono',monospace] text-[12px] font-black tracking-[0.3em]">
+                  <div className="text-primary font-['IBM_Plex_Mono',monospace] text-[12px] font-black tracking-[0.3em]">
                     Stabilizing Window Intelligence...
                   </div>
-                  <p className="text-[10px] text-[#475569] font-bold mt-3 tracking-widest max-w-sm">
+                  <p className="text-[10px] text-muted-foreground font-bold mt-3 tracking-widest max-w-sm">
                     Engine needs 15 polled windows to activate inference validation.
                   </p>
                   <button
@@ -685,7 +685,7 @@ export default function LiveInferencePage() {
                       setStats(prev => ({ ...prev, polls: 15 }));
                       addLog("ENGINE: Bypassing stabilization phase manually.");
                     }}
-                    className="mt-6 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] font-black tracking-widest text-[#94A3B8] hover:bg-[#3B82F6] hover:text-white hover:border-[#3B82F6] transition-all"
+                    className="mt-6 px-4 py-2 bg-secondary border border-border/50 rounded-lg text-[10px] font-black tracking-widest text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all"
                   >
                     Skip Optimization Phase
                   </button>
@@ -698,12 +698,12 @@ export default function LiveInferencePage() {
                     <Card
                       key={item.id}
                       className={cn(
-                        "bg-[#111827]/40 border border-white/5 rounded-2xl p-6 hover:bg-[#111827]/60 transition-all duration-300 group overflow-hidden relative",
-                        idx === 0 && "border-[#3B82F6]/30 shadow-[0_0_30px_rgba(59,130,246,0.05)]"
+                        "bg-card/40 border border-border/50 rounded-2xl p-6 hover:bg-card/60 transition-all duration-300 group overflow-hidden relative",
+                        idx === 0 && "border-primary/30 shadow-[0_0_30px_rgba(59,130,246,0.05)]"
                       )}
                     >
                       {idx === 0 && (
-                        <div className="absolute top-0 left-0 w-1.5 h-full bg-[#3B82F6]" />
+                        <div className="absolute top-0 left-0 w-1.5 h-full bg-primary" />
                       )}
 
                       <div className="grid grid-cols-12 items-center gap-6">
@@ -711,20 +711,20 @@ export default function LiveInferencePage() {
                         <div className="col-span-3 flex items-center gap-4">
                           <div className={cn(
                             "w-11 h-11 rounded-xl flex items-center justify-center border-2 flex-shrink-0 transition-transform group-hover:scale-105",
-                            item.type === 'PREDICTION' ? "bg-[#3B82F6]/5 border-[#3B82F6]/20" :
-                              "bg-[#EF4444]/5 border-[#EF4444]/20"
+                            item.type === 'PREDICTION' ? "bg-primary/5 border-primary/20" :
+                              "bg-destructive/5 border-destructive/20"
                           )}>
-                            {item.type === 'PREDICTION' ? <Layers className="w-5 h-5 text-[#3B82F6]" /> : <AlertTriangle className="w-5 h-5 text-[#EF4444]" />}
+                            {item.type === 'PREDICTION' ? <Layers className="w-5 h-5 text-primary" /> : <AlertTriangle className="w-5 h-5 text-destructive" />}
                           </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="text-base font-black text-white whitespace-nowrap tracking-tight">{item.device}</span>
-                              <span className="text-[11px] font-black text-[#94A3B8] bg-white/5 px-2 py-0.5 rounded border border-white/5">
+                              <span className="text-base font-black text-foreground whitespace-nowrap tracking-tight">{item.device}</span>
+                              <span className="text-[11px] font-black text-muted-foreground bg-secondary px-2 py-0.5 rounded border border-border/50">
                                 {item.interface}
                               </span>
                             </div>
-                            <div className="text-[11px] font-bold text-[#475569] flex items-center gap-1.5 mt-1 tracking-tight font-['IBM_Plex_Mono',monospace]">
-                              <span className="text-[#3B82F6]/70 border border-[#3B82F6]/20 px-1 rounded-[2px]">{item.topology || 'Global'}</span>
+                            <div className="text-[11px] font-bold text-muted-foreground flex items-center gap-1.5 mt-1 tracking-tight font-['IBM_Plex_Mono',monospace]">
+                              <span className="text-primary/70 border border-primary/20 px-1 rounded-[2px]">{item.topology || 'Global'}</span>
                               <Clock className="w-3 h-3 ml-1" />
                               {item.timestamp}
                             </div>
@@ -735,10 +735,10 @@ export default function LiveInferencePage() {
                         <div className="col-span-8 space-y-4">
                           <div className="flex items-center gap-4">
                             <div className={cn(
-                              "text-[11px] font-black tracking-widest px-3 py-1.5 rounded-lg bg-[#000]/40 border-2 inline-block leading-tight",
-                              item.status === 'CRITICAL' ? "text-[#EF4444] border-[#EF4444]/20" :
-                                item.status === 'WARNING' ? "text-[#F59E0B] border-[#F59E0B]/20" :
-                                  "text-[#3B82F6] border-[#3B82F6]/20"
+                              "text-[11px] font-black tracking-widest px-3 py-1.5 rounded-lg bg-background/40 border-2 inline-block leading-tight",
+                              item.status === 'CRITICAL' ? "text-destructive border-destructive/20" :
+                                item.status === 'WARNING' ? "text-amber-500 border-amber-500/20" :
+                                  "text-primary border-primary/20"
                             )}>
                               {item.event}
                             </div>
@@ -770,29 +770,29 @@ export default function LiveInferencePage() {
                                     return (
                                       <div key={stepIdx} className="flex-1 min-w-[120px]">
                                         <div className="flex items-center w-full mb-2">
-                                          <div className={cn("h-1 flex-1 rounded-l-full", stepIdx === 1 ? "bg-transparent" : (isMatched ? "bg-[#10B981]" : "bg-white/5"))} />
+                                          <div className={cn("h-1 flex-1 rounded-l-full", stepIdx === 1 ? "bg-transparent" : (isMatched ? "bg-emerald-500" : "bg-border/50"))} />
                                           <div className={cn(
                                             "w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black border-2 flex-shrink-0 transition-all",
-                                            isMatched ? "bg-[#10B981] border-[#10B981] text-white shadow-[0_0_10px_rgba(16,185,129,0.3)]" :
-                                              isNext ? "bg-[#F59E0B]/10 border-[#F59E0B] text-[#F59E0B] animate-pulse" :
-                                                "bg-white/5 border-white/10 text-white/20"
+                                            isMatched ? "bg-emerald-500 border-emerald-500 text-white shadow-[0_0_10px_rgba(16,185,129,0.3)]" :
+                                              isNext ? "bg-amber-500/10 border-amber-500 text-amber-500 animate-pulse" :
+                                                "bg-secondary border-border/50 text-muted-foreground"
                                           )}>
                                             {isMatched ? '✓' : stepIdx}
                                           </div>
-                                          <div className={cn("h-1 flex-1 rounded-r-full", stepIdx === totalSteps ? "bg-transparent" : (isMatched && stepIdx < matchedCount ? "bg-[#10B981]" : "bg-white/5"))} />
+                                          <div className={cn("h-1 flex-1 rounded-r-full", stepIdx === totalSteps ? "bg-transparent" : (isMatched && stepIdx < matchedCount ? "bg-emerald-500" : "bg-border/50"))} />
                                         </div>
                                         <div className="text-center">
                                           <div className={cn(
                                             "text-[9px] font-black tracking-tighter truncate",
-                                            isMatched ? "text-[#10B981]" : isNext ? "text-[#F59E0B]" : "text-white/20"
+                                            isMatched ? "text-emerald-500" : isNext ? "text-amber-500" : "text-muted-foreground"
                                           )}>
                                             {stepIdx === 1 ? 'CPU Spike' : stepIdx === 2 ? 'CRC Errors' : stepIdx === 3 ? 'Buffer Util' : 'Latency MS'}
                                           </div>
                                           {isMatched && (
-                                            <div className="text-[8px] text-[#475569] font-bold mt-0.5">CONFIRMED</div>
+                                            <div className="text-[8px] text-muted-foreground font-bold mt-0.5">CONFIRMED</div>
                                           )}
                                           {isNext && (
-                                            <div className="text-[8px] text-[#F59E0B]/70 font-bold mt-0.5 animate-pulse">PREDICTED</div>
+                                            <div className="text-[8px] text-amber-500/70 font-bold mt-0.5 animate-pulse">PREDICTED</div>
                                           )}
                                         </div>
                                       </div>
@@ -808,11 +808,11 @@ export default function LiveInferencePage() {
                         </div>
 
                         {/* COL 3: SCORE & CONFIDENCE */}
-                        <div className="col-span-1 flex flex-col items-center justify-center gap-2 border-l border-white/5">
-                          <div className="text-[8px] font-black text-[#64748B] uppercase tracking-[0.2em]">Confidence</div>
+                        <div className="col-span-1 flex flex-col items-center justify-center gap-2 border-l border-border/50">
+                          <div className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.2em]">Confidence</div>
                           <div className="relative w-12 h-12 flex items-center justify-center group/donut">
                             <svg className="w-full h-full transform -rotate-90">
-                              <circle cx="24" cy="24" r="21" stroke="#1f2937" strokeWidth="3" fill="transparent" />
+                              <circle cx="24" cy="24" r="21" stroke="currentColor" className="text-secondary" strokeWidth="3" fill="transparent" />
                               <circle
                                 cx="24"
                                 cy="24"
@@ -824,14 +824,14 @@ export default function LiveInferencePage() {
                                 strokeDashoffset={2 * Math.PI * 21 * (1 - item.confidence)}
                                 className={cn(
                                   "transition-all duration-1000 ease-out",
-                                  item.confidence > 0.9 ? "text-[#3DDAB4]" :
-                                    item.confidence > 0.8 ? "text-[#3B82F6]" : "text-[#F59E0B]"
+                                  item.confidence > 0.9 ? "text-emerald-500" :
+                                    item.confidence > 0.8 ? "text-primary" : "text-amber-500"
                                 )}
                                 strokeLinecap="round"
                               />
                             </svg>
                             <div className="absolute inset-0 flex items-center justify-center">
-                              <span className="text-[10px] font-black text-white tracking-widest">
+                              <span className="text-[10px] font-black text-foreground tracking-widest">
                                 {Math.round(item.confidence * 100)}%
                               </span>
                             </div>
@@ -844,9 +844,9 @@ export default function LiveInferencePage() {
               )}
 
               {stats.polls >= 15 && viewMode === 'patterns' && (
-                <div className="flex flex-col gap-[1px] bg-white/5 border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
+                <div className="flex flex-col gap-[1px] bg-border border border-border/50 rounded-2xl overflow-hidden shadow-2xl">
                   {/* Table Header */}
-                  <div className="flex items-center px-8 py-4 bg-[#0F172A] border-b border-white/5 font-['IBM_Plex_Mono',monospace] text-[9px] text-[#64748B] uppercase tracking-[0.07em]">
+                  <div className="flex items-center px-8 py-4 bg-secondary border-b border-border/50 font-['IBM_Plex_Mono',monospace] text-[9px] text-muted-foreground uppercase tracking-[0.07em]">
                     <div style={{ width: '200px', flexShrink: 0 }}>device</div>
                     <div style={{ flex: 1 }}>pattern chain</div>
                     <div style={{ width: '88px', textAlign: 'right' }}>confidence</div>
@@ -861,7 +861,7 @@ export default function LiveInferencePage() {
                     const isCf = pat.currentStep >= CHAIN_TEMPLATES[pat.templateId].steps.length - 1;
 
                     return (
-                      <div key={pat.id} className={cn("border-b border-white/5 bg-[#0B0F19]/40 hover:bg-[#111827] transition-all group", isOp && "bg-[#111827]")}>
+                      <div key={pat.id} className={cn("border-b border-border/50 bg-card/40 hover:bg-card/80 transition-all group", isOp && "bg-card")}>
                         <div
                           className="flex items-center gap-[9px] px-8 py-3 cursor-pointer"
                           onClick={() => setExpandedId(isOp ? null : pat.id)}
@@ -869,12 +869,12 @@ export default function LiveInferencePage() {
                           {/* device cell */}
                           <div className="w-[180px] flex-shrink-0">
                             <div className="flex items-center gap-2">
-                              <div className="w-1 h-1 rounded-full bg-blue-500/40" />
-                              <span className="dh font-['IBM_Plex_Mono',monospace] text-[11px] font-bold text-white tracking-tight">{pat.device.split('.')[0]}</span>
+                              <div className="w-1 h-1 rounded-full bg-primary/40" />
+                              <span className="dh font-['IBM_Plex_Mono',monospace] text-[11px] font-bold text-foreground tracking-tight">{pat.device.split('.')[0]}</span>
                             </div>
-                            <div className="dm font-['IBM_Plex_Mono',monospace] text-[9px] color-[#94A3B8] mt-1.5 flex items-center gap-[6px] pl-[12px] opacity-70">
+                            <div className="dm font-['IBM_Plex_Mono',monospace] text-[9px] text-muted-foreground mt-1.5 flex items-center gap-[6px] pl-[12px] opacity-70">
                               <span className="dip">{pat.ip}</span>
-                              <span className="dif text-[#3b82f6] bg-[#3b82f6]/10 border border-[#3b82f6]/10 rounded-sm px-1.5 py-0.5">{pat.interface}</span>
+                              <span className="dif text-primary bg-primary/10 border border-primary/10 rounded-sm px-1.5 py-0.5">{pat.interface}</span>
                             </div>
                           </div>
 
@@ -888,7 +888,7 @@ export default function LiveInferencePage() {
                               return (
                                 <span key={i} className="flex items-center">
                                   <span className={cls}>{lbl}</span>
-                                  {i < CHAIN_TEMPLATES[pat.templateId].steps.length - 1 && <span className="marr text-[#233044] text-[8px] px-0.5">›</span>}
+                                  {i < CHAIN_TEMPLATES[pat.templateId].steps.length - 1 && <span className="marr text-border text-[8px] px-0.5">›</span>}
                                 </span>
                               );
                             })}
@@ -896,10 +896,10 @@ export default function LiveInferencePage() {
 
                           {/* right */}
                           <div className="w-[88px] flex-shrink-0 text-right">
-                            <div className={cn("rn font-['IBM_Plex_Mono',monospace] text-[13px] font-bold", sev === 'r' ? 'text-[#ef4444]' : sev === 'o' ? 'text-[#f59e0b]' : 'text-[#3b82f6]')}>
+                            <div className={cn("rn font-['IBM_Plex_Mono',monospace] text-[13px] font-bold", sev === 'r' ? 'text-destructive' : sev === 'o' ? 'text-amber-500' : 'text-primary')}>
                               {Math.round(pat.confidence * 100)}%
                             </div>
-                            <div className="rb w-[52px] h-[2px] bg-[#1c2b3e] rounded-[1px] overflow-hidden mt-[3px] ml-auto">
+                            <div className="rb w-[52px] h-[2px] bg-border rounded-[1px] overflow-hidden mt-[3px] ml-auto">
                               <div className="rf h-full transition-all duration-700" style={{ width: `${pat.confidence * 100}%`, background: bclr }}></div>
                             </div>
                           </div>
@@ -910,19 +910,19 @@ export default function LiveInferencePage() {
                             </span>
                           </div>
 
-                          <div className={cn("ec w-[14px] flex-shrink-0 text-[#3d5066] transition-transform", isOp && "rotate-90 text-blue-500")}>
+                          <div className={cn("ec w-[14px] flex-shrink-0 text-muted-foreground transition-transform", isOp && "rotate-90 text-primary")}>
                             <ChevronRight className="w-3.5 h-3.5" />
                           </div>
                         </div>
 
                         {/* DETAIL */}
                         {isOp && (
-                          <div className="det bg-[#0b0f1a] border-t border-white/5 animate-in slide-in-from-top-2 duration-300">
+                          <div className="det bg-card border-t border-border/50 animate-in slide-in-from-top-2 duration-300">
                             {/* horizontal stepper container */}
-                            <div className="stpr px-8 py-10 pb-6 bg-[#0b0f1a] overflow-x-auto no-scrollbar">
-                              <div className="stpr-h text-[9px] text-[#7f8ea3] font-['IBM_Plex_Mono',monospace] mb-8 flex items-center gap-2 sticky left-0">
+                            <div className="stpr px-8 py-10 pb-6 bg-card overflow-x-auto no-scrollbar">
+                              <div className="stpr-h text-[9px] text-muted-foreground font-['IBM_Plex_Mono',monospace] mb-8 flex items-center gap-2 sticky left-0">
                                 <div className="stpr-dot w-1 h-1 rounded-full" style={{ background: bclr }}></div>
-                                <span className="bg-[#3B82F6]/20 text-[#3B82F6] px-1.5 py-0.5 rounded mr-1">TOPOLOGY: {pat.topology || 'GLOBAL'}</span>
+                                <span className="bg-primary/20 text-primary px-1.5 py-0.5 rounded mr-1">TOPOLOGY: {pat.topology || 'GLOBAL'}</span>
                                 {isCf ? 'full pattern matched — sequence confirmed' : `predicting ${pat.templateId.toLowerCase()} · ${CHAIN_TEMPLATES[pat.templateId].steps.length - (pat.currentStep + 1)} steps remaining`}
                               </div>
 
@@ -972,30 +972,30 @@ export default function LiveInferencePage() {
                                         {isArrived && (
                                           <div className="flex flex-col items-center gap-1.5 animate-in slide-in-from-top-1 duration-500">
                                             {hasVal && (
-                                              <span className="text-[8px] font-black bg-[#EF4444]/10 text-[#EF4444] border border-[#EF4444]/20 px-1.5 py-0.5 rounded uppercase">
+                                              <span className="text-[8px] font-black bg-destructive/10 text-destructive border border-destructive/20 px-1.5 py-0.5 rounded uppercase">
                                                 {mVal}
                                               </span>
                                             )}
                                             <div className="flex items-center gap-2">
-                                              <span className="text-[8px] text-[#10B981] font-bold uppercase tracking-wider">arrived</span>
-                                              <span className="text-[8px] text-[#475569] font-['IBM_Plex_Mono',monospace]">{stepState?.timestamp?.split(' ')[0] || '--'}</span>
+                                              <span className="text-[8px] text-emerald-500 font-bold uppercase tracking-wider">arrived</span>
+                                              <span className="text-[8px] text-muted-foreground font-['IBM_Plex_Mono',monospace]">{stepState?.timestamp?.split(' ')[0] || '--'}</span>
                                             </div>
-                                            <span className="px-1.5 py-0.5 bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/20 rounded-[2px] text-[7.5px] font-bold uppercase tracking-widest mt-0.5">confirmed</span>
+                                            <span className="px-1.5 py-0.5 bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 rounded-[2px] text-[7.5px] font-bold uppercase tracking-widest mt-0.5">confirmed</span>
                                           </div>
                                         )}
 
                                         {isNxt && (
                                           <div className="flex flex-col items-center gap-1.5 animate-pulse duration-1000 group/model">
-                                            <div className="text-[10px] font-bold text-white/80 group-hover/model:text-[#3B82F6] transition-colors">
+                                            <div className="text-[10px] font-bold text-foreground/80 group-hover/model:text-primary transition-colors">
                                               {formatLabel((pat.deviceType === 'ROUTER' ? MODELS[2] : MODELS[3]).name.replace('.pkl', ''))}
                                             </div>
-                                            <span className="px-1.5 py-0.5 bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/20 rounded-[2px] text-[8px] font-bold uppercase tracking-widest">NEXT EVENT</span>
+                                            <span className="px-1.5 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-[2px] text-[8px] font-bold uppercase tracking-widest">NEXT EVENT</span>
                                           </div>
                                         )}
 
                                         {isGap && (
                                           <div className="flex flex-col items-center opacity-30">
-                                            <div className="text-[9px] font-bold text-[#475569] uppercase">MISSED</div>
+                                            <div className="text-[9px] font-bold text-muted-foreground uppercase">MISSED</div>
                                           </div>
                                         )}
                                       </div>
@@ -1026,25 +1026,25 @@ export default function LiveInferencePage() {
 
           <div
             className={cn(
-              "absolute right-0 inset-y-0 w-[450px] bg-[#0F172A] border-l border-white/10 shadow-2xl transition-transform duration-300 ease-out transform p-6 flex flex-col gap-8",
+              "absolute right-0 inset-y-0 w-[450px] bg-card border-l border-border/50 shadow-2xl transition-transform duration-300 ease-out transform p-6 flex flex-col gap-8",
               isSidebarOpen ? "translate-x-0" : "translate-x-full"
             )}
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-[#3B82F6]/10 rounded-lg">
-                  <Activity className="w-5 h-5 text-[#3B82F6]" />
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <Activity className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <h2 className="text-lg font-bold tracking-tight">Stream Analysis Buffer</h2>
-                  <p className="text-[10px] text-[#94A3B8] font-['IBM_Plex_Mono',monospace] uppercase tracking-widest">Real-time Kernel Status</p>
+                  <p className="text-[10px] text-muted-foreground font-['IBM_Plex_Mono',monospace] uppercase tracking-widest">Real-time Kernel Status</p>
                 </div>
               </div>
               <button
                 onClick={() => setIsSidebarOpen(false)}
-                className="p-2 hover:bg-white/5 rounded-full transition-colors"
+                className="p-2 hover:bg-secondary rounded-full transition-colors"
               >
-                <X className="w-5 h-5 text-[#94A3B8]" />
+                <X className="w-5 h-5 text-muted-foreground" />
               </button>
             </div>
 
@@ -1052,23 +1052,23 @@ export default function LiveInferencePage() {
               {/* SLIDING WINDOW RECTANGLES */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between px-1">
-                  <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#94A3B8] flex items-center gap-2">
+                  <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
                     <Layers className="w-3.5 h-3.5" />
                     Sliding Interpretation Buffer
                   </h2>
-                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white/5 rounded border border-white/5">
-                    <span className="text-[8px] font-bold text-[#94A3B8] uppercase">75m Window</span>
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 bg-secondary rounded border border-border/50">
+                    <span className="text-[8px] font-bold text-muted-foreground uppercase">75m Window</span>
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
                   {slidingWindows.length === 0 ? (
                     Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="h-8 border border-dashed border-white/5 rounded animate-pulse" />
+                      <div key={i} className="h-8 border border-dashed border-border/50 rounded animate-pulse" />
                     ))
                   ) : (
                     [...slidingWindows].reverse().map((win, idx) => (
-                      <div key={win.id} className="relative h-9 rounded-md border border-white/5 bg-[#000]/60 overflow-hidden">
+                      <div key={win.id} className="relative h-9 rounded-md border border-border/50 bg-background/60 overflow-hidden">
                         <div
                           className="absolute inset-y-0.5 rounded flex items-center px-4 transition-all duration-1000 border-l-[4px] shadow-[0_0_15px_rgba(0,0,0,0.5)]"
                           style={{
@@ -1093,19 +1093,19 @@ export default function LiveInferencePage() {
               </div>
 
               {/* PARALLEL MONITOR PANEL */}
-              <Card className="bg-[#0c0c0c] border border-white/5 rounded-2xl overflow-hidden shadow-2xl">
-                <div className="p-4 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+              <Card className="bg-secondary/40 border border-border/50 rounded-2xl overflow-hidden shadow-2xl">
+                <div className="p-4 border-b border-border/50 flex items-center justify-between bg-secondary/50">
                   <div className="flex items-center gap-2">
-                    <Terminal className="w-4 h-4 text-[#3B82F6]" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#F8FAFC]">Parallel Engine Kernel</span>
+                    <Terminal className="w-4 h-4 text-primary" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground">Parallel Engine Kernel</span>
                   </div>
                   <div className="flex gap-1.5">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444]/40" />
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#3DDAB4]/40 animate-pulse" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-destructive/40" />
+                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/40 animate-pulse" />
                   </div>
                 </div>
 
-                <ScrollArea className="h-[400px] bg-[#0c0c0c]/80 backdrop-blur-md">
+                <ScrollArea className="h-[400px] bg-secondary/50 backdrop-blur-md">
                   <div className="p-5 space-y-2.5">
                     {logs.map((log, i) => (
                       <div key={i} className="font-['IBM_Plex_Mono',monospace] text-[10px] leading-relaxed break-all animate-in fade-in slide-in-from-left-2 duration-500">
@@ -1124,8 +1124,8 @@ export default function LiveInferencePage() {
               </Card>
 
               {/* MODEL LOAD MONITOR */}
-              <Card className="bg-[#1E293B]/20 border border-white/5 rounded-2xl p-5 space-y-4 max-h-[300px] overflow-auto no-scrollbar">
-                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#94A3B8] flex items-center gap-2 sticky top-0 bg-[#0F172A] pb-2">
+              <Card className="bg-secondary/40 border border-border/50 rounded-2xl p-5 space-y-4 max-h-[300px] overflow-auto no-scrollbar">
+                <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2 sticky top-0 bg-secondary pb-2">
                   <Binary className="w-4 h-4" />
                   Active Artifact Registry ({MODELS.length})
                 </h3>

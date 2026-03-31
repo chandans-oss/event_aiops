@@ -261,7 +261,7 @@ export default function DeduplicationPage() {
                                 {result ? (
                                   <Badge className={cn(
                                     "text-[10px] tracking-tight py-0 w-20 justify-center font-bold",
-                                    result.is_duplicate ? "bg-severity-critical/20 text-severity-critical border-severity-critical/30" : "bg-status-success/20 text-status-success border-status-success/30"
+                                    result.is_duplicate ? "bg-destructive/20 text-destructive border-destructive/30" : "bg-primary/20 text-primary border-primary/30"
                                   )}>
                                     {result.is_duplicate ? "Duplicate" : "Unique"}
                                   </Badge>
@@ -301,11 +301,11 @@ export default function DeduplicationPage() {
                           <div>
                             <LabelAndValue label="Status" value={
                               <Badge className={cn(
-                                "font-bold uppercase tracking-widest",
-                                selectedResult?.is_duplicate ? "bg-severity-critical/20 text-severity-critical" : "bg-status-success/20 text-status-success"
-                              )}>
-                                {selectedResult?.is_duplicate ? "Duplicate" : "Unique"}
-                              </Badge>
+                                 "font-bold uppercase tracking-widest",
+                                 selectedResult?.is_duplicate ? "bg-destructive/20 text-destructive" : "bg-primary/20 text-primary"
+                               )}>
+                                 {selectedResult?.is_duplicate ? "Duplicate" : "Unique"}
+                               </Badge>
                             } />
                           </div>
                           

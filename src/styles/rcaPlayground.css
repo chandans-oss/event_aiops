@@ -145,7 +145,7 @@
     grid-template-columns: 180px 1fr;
     gap: 8px 16px;
     font-size: 0.9rem;
-    background: rgba(0, 0, 0, 0.20);
+    background: var(--rca-bg-tertiary);
     padding: 12px;
     border-radius: 8px;
     border: 1px solid var(--rca-border-color);
@@ -173,13 +173,13 @@
 }
 
 .rca-mini {
-    background: rgba(22, 101, 52, 0.2);
-    border: 1px solid rgba(34, 197, 94, 0.4);
+    background: var(--rca-bg-tertiary);
+    border: 1px solid var(--rca-border-color);
     border-radius: 8px;
     padding: 8px 12px;
     font-size: 0.85rem;
     font-weight: 500;
-    color: #4ade80;
+    color: var(--rca-text-primary);
     display: flex;
     align-items: center;
     gap: 6px;

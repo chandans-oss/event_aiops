@@ -48,8 +48,8 @@ export default function ModelOutputsPage() {
   const [data] = useState(generateMinuteData(selectedDevice));
 
   const [activeBatches, setActiveBatches] = useState([
-    { id: "Batch 104", start: "10:52 AM", end: "12:07 PM", color: "bg-cyan-500/30", text: "text-cyan-400", offset: "0%" },
-    { id: "Batch 105", start: "10:53 AM", end: "12:08 PM", color: "bg-emerald-500/30", text: "text-emerald-400", offset: "5%" },
+    { id: "Batch 104", start: "10:52 AM", end: "12:07 PM", color: "bg-primary/30", text: "text-primary", offset: "0%" },
+    { id: "Batch 105", start: "10:53 AM", end: "12:08 PM", color: "bg-emerald-500/30", text: "text-emerald-500", offset: "5%" },
     { id: "Batch 106", start: "10:54 AM", end: "12:09 PM", color: "bg-purple-500/30", text: "text-purple-400", offset: "10%" },
     { id: "Batch 107", start: "10:55 AM", end: "12:10 PM", color: "bg-amber-500/30", text: "text-amber-400", offset: "15%" },
     { id: "Batch 108", start: "10:56 AM", end: "12:11 PM", color: "bg-blue-600/30", text: "text-blue-400", offset: "20%" },
@@ -134,11 +134,11 @@ export default function ModelOutputsPage() {
                 RealTimePollingActive
               </Badge>
             </div>
-            <Card className="p-8 bg-[#0a0a0a] border-white/5 space-y-6 overflow-hidden relative group">
+            <Card className="p-8 bg-card border-border/50 space-y-6 overflow-hidden relative group">
             {activeBatches.map((batch, i) => (
               <div key={batch.id} className="flex items-center gap-4 group/batch animate-in slide-in-from-right-4 duration-500">
                 <span className="text-[9px] font-mono text-muted-foreground/50 w-20 leading-none uppercase">{batch.id}</span>
-                <div className="flex-1 h-10 bg-white/5 rounded-lg relative flex items-center border border-white/5 overflow-hidden p-1">
+                <div className="flex-1 h-10 bg-secondary/30 rounded-lg relative flex items-center border border-border/50 overflow-hidden p-1">
                   {/* Loading/Filling Track */}
                   <div className="absolute inset-0 opacity-20 pointer-events-none">
                     <div className="h-full w-full" style={{ background: `linear-gradient(90deg, transparent, ${batch.text.replace('text-', '')}, transparent)`, backgroundSize: '200% 100%', animation: 'shimmer 2s linear infinite' }} />
@@ -157,7 +157,7 @@ export default function ModelOutputsPage() {
                     </div>
 
                     {/* Filling Bar Effect */}
-                    <div className="flex-1 mx-6 h-1 w-full bg-black/20 rounded-full overflow-hidden relative">
+                    <div className="flex-1 mx-6 h-1 w-full bg-secondary/40 rounded-full overflow-hidden relative">
                       <div className={cn("absolute inset-0 opacity-40", batch.color)} style={{ width: '85%', borderRadius: 'inherit' }} />
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
                     </div>
@@ -168,9 +168,9 @@ export default function ModelOutputsPage() {
               </div>
             ))}
 
-          <div className="flex flex-wrap items-center gap-x-8 gap-y-3 pt-6 border-t border-white/5">
+          <div className="flex flex-wrap items-center gap-x-8 gap-y-3 pt-6 border-t border-border/50">
             {[
-              { label: "Window=75m", color: "bg-cyan-500" },
+              { label: "Window=75m", color: "bg-primary" },
               { label: "Poll=1m", color: "bg-amber-500" },
               { label: "DirectDeviceStream", color: "bg-emerald-500" },
               { label: "ZeroAggregation", color: "bg-purple-500" },
@@ -189,8 +189,8 @@ export default function ModelOutputsPage() {
           <Filter className="h-3 w-3" />
           ActiveFeatures
         </h2>
-        <Card className="p-5 bg-gradient-to-b from-white/5 to-transparent border-white/5 space-y-4">
-          <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest leading-relaxed border-b border-white/5 pb-3">
+        <Card className="p-5 bg-gradient-to-b from-secondary/50 to-transparent border-border/50 space-y-4">
+          <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest leading-relaxed border-b border-border/50 pb-3">
             Model is extracting following metrics from {selectedDevice}:
           </p>
           <div className="space-y-4">
@@ -267,7 +267,7 @@ export default function ModelOutputsPage() {
         </div>
       </Card>
 
-      <div className="rounded-2xl bg-[#0a0a0a] p-4 border border-white/5 space-y-3 shadow-2xl">
+      <div className="rounded-2xl bg-card p-4 border border-border/50 space-y-3 shadow-2xl">
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-4 w-4 text-emerald-500" />
           <span className="text-[10px] font-black uppercase tracking-widest  text-emerald-500/80">ActiveProtections</span>
@@ -295,7 +295,7 @@ export default function ModelOutputsPage() {
         <ScrollArea className="h-[600px] w-full">
           <table className="w-full text-left">
             <thead className="sticky top-0 z-10">
-              <tr className="border-b border-border/50 bg-[#121212]/90 backdrop-blur-xl">
+              <tr className="border-b border-border/50 bg-background/90 backdrop-blur-xl">
                 <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">RelativeTime</th>
                 <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">Timestamp</th>
                 <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-muted-foreground whitespace-nowrap">PolledRawData</th>

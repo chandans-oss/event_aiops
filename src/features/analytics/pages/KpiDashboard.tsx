@@ -241,7 +241,7 @@ export default function KpiDashboard() {
                                 <Activity className="h-6 w-6 text-[#3B82F6]" />
                             </div>
                             <div>
-                                <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white ">ROI Dashboard</h1>
+                                <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white ">ROI/KPI Dashboard</h1>
                             </div>
                         </div>
 

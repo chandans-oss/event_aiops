@@ -108,7 +108,7 @@ export interface LovelableReport {
 }
 
 export const LOVELABLE_REPORT_DATA: LovelableReport = {
-  pipeline: ['Data load', 'Resample', 'Dev merge', 'Data Prep', 'Time-Lag Correlation', 'Causal Correlation', 'Statistical Time-Series Analysis', 'Unsupervised Learning (Clustering)', 'Supervised ML (Classification)', 'Sequential Pattern Mining', 'Failure Chain Patterns', 'Unsupervised Learning (Anomaly Detection)', 'Save'],
+  pipeline: ['Data load', 'Resample', 'Dev merge', 'Data Prep', 'Time-Lag Correlation', 'Causal Correlation', 'Time-Series Analysis', 'Unsupervised Learning (Clustering)', 'Supervised ML (Classification)', 'Sequential Pattern Mining', 'Failure Chain Patterns', 'Unsupervised Learning (Anomaly Detection)', 'Save'],
   events: [
     { n: 'DEVICE_REBOOT', pos: 6, rate: 0.1, dev: true },
     { n: 'HIGH_LATENCY', pos: 343, rate: 4.2, dev: false },
@@ -343,20 +343,18 @@ export const LOVELABLE_REPORT_DATA: LovelableReport = {
     { evt: 'PACKET_DROP', pos: '8.1%', acc: 0.980, prec: 0.821, rec: 0.970, f1: 0.889, feats: [['queue_depth_last', 0.154], ['latency_ms_last', 0.152], ['crc_errors_last', 0.115]] },
   ],
   seqR: [
-    { seq: ['R1 (HIGH_UTIL)', 'R1 (QUEUE_BUILDUP)', 'S1 (PACKET_DROP)', 'S1 (LATENCY_HIGH)', 'APP1 (RESPONSE_SLOW)'], supp: 42, conf: 0.98 },
-    { seq: ['R1 (CONFIG_CHANGE)', 'R2 (PEER_DOWN)', 'S1 (LATENCY_HIGH)'], supp: 35, conf: 0.92 },
-    { seq: ['HIGH_UTIL_WARNING', 'PACKET_DROP', 'INTERFACE_FLAP'], supp: 28, conf: 1.00 },
+    { seq: ['R1 (High Util)', 'R1 (Packet Drop)', 'R1 (Interface Flap)'], supp: 28, conf: 1.00 },
+    { seq: ['R1 (High Util)', 'R1 (Queue Buildup)', 'S1 (Packet Drop)', 'S1 (Latency High)', 'App1 (Response Slow)'], supp: 42, conf: 0.98 },
+    { seq: ['R1 (Config Change)', 'R2 (Peer Down)', 'S1 (Latency High)'], supp: 35, conf: 0.92 },
   ],
   seqS: [
-    { seq: ['HIGH_UTIL_WARNING', 'PACKET_DROP', 'INTERFACE_FLAP'], supp: 24, conf: 0.89 },
-    { seq: ['PACKET_DROP', 'HIGH_UTIL_WARNING', 'INTERFACE_FLAP'], supp: 8, conf: 0.80 },
-    { seq: ['HIGH_UTIL_WARNING', 'INTERFACE_FLAP', 'LINK_DOWN'], supp: 2, conf: 0.06 },
-    { seq: ['PACKET_DROP', 'INTERFACE_FLAP', 'LINK_DOWN'], supp: 2, conf: 0.06 },
+    { seq: ['R1 (High Util)', 'R1 (Packet Drop)', 'R1 (Interface Flap)'], supp: 24, conf: 0.89 },
+    { seq: ['R1 (Packet Drop)', 'R1 (High Util)', 'R1 (Interface Flap)'], supp: 8, conf: 0.80 },
   ],
   seqT: [
-    { seq: ['R1:cpu', 'SW1:crc', 'SW2:buf', 'FW1:lat'], supp: 33.5, conf: 0.446 },
-    { seq: ['SW1:crc', 'SW2:buf', 'FW1:lat'], supp: 22.9, conf: 0.399 },
-    { seq: ['R1:cpu', 'SW2:buf', 'FW1:lat'], supp: 22.7, conf: 0.382 },
+    { seq: ['R1 (High Util)', 'R1 (Packet Drop)', 'R1 (Interface Flap)'], supp: 28, conf: 1.00 },
+    { seq: ['R1 (High Util)', 'R1 (Queue Buildup)', 'S1 (Packet Drop)', 'S1 (Latency High)', 'App1 (Response Slow)'], supp: 42, conf: 0.98 },
+    { seq: ['R1 (Config Change)', 'R2 (Peer Down)', 'S1 (Latency High)'], supp: 35, conf: 0.92 },
   ],
   anomR: [
     { e: 'router-03:Gi0/3/0', rate: 14.7, score: 0.0867, risk: 'MED', metrics: { cpu: 8.2, mem: 4.1, lat: 12.5, qd: 14.7, crc: 3.2 } },
@@ -378,20 +376,19 @@ export const LOVELABLE_REPORT_DATA: LovelableReport = {
     { e: 'switch-04:Eth1/3', rate: 5.5, score: 0.1144, risk: 'low', metrics: { cpu: 2.8, mem: 3.1, lat: 4.5, qd: 5.5, crc: 1.8 } },
   ],
   chainsR: [
-    { evt: 'HIGH_LATENCY', n: 420, steps: [{ m: 'R1:cpu_pct', d: '↑', lag: '10m' }, { m: 'SW1:crc_errors', d: '↑', lag: '10m' }, { m: 'SW2:buffer_util', d: '↑', lag: '10m' }, { m: 'FW1:latency_ms', d: '↑', lag: '10m' }] },
-    { evt: 'PACKET_DROP', n: 385, steps: [{ m: 'R1:buffer_util', d: '↑', lag: '5m' }, { m: 'SW1:crc_errors', d: '↑', lag: '10m' }, { m: 'SW2:latency_ms', d: '↑', lag: '5m' }, { m: 'FW1:packet_drop', d: '↑', lag: '5m' }] },
-    { evt: 'HIGH_LATENCY', n: 310, steps: [{ m: 'R2:config_change', d: '↑', lag: '5m' }, { m: 'R2:peer_down', d: '↑', lag: '10m' }, { m: 'SW1:crc_errors', d: '↑', lag: '10m' }, { m: 'FW1:latency_ms', d: '↑', lag: '10m' }] },
+    { evt: 'High Latency', n: 420, steps: [{ m: 'R1:CPU Util', d: '↑', lag: '10m' }, { m: 'Sw1:Crc Errors', d: '↑', lag: '10m' }, { m: 'Sw2:Buffer Util', d: '↑', lag: '10m' }, { m: 'Fw1:Latency Ms', d: '↑', lag: '10m' }] },
+    { evt: 'Packet Drop', n: 385, steps: [{ m: 'R1:Buffer Util', d: '↑', lag: '5m' }, { m: 'Sw1:Crc Errors', d: '↑', lag: '10m' }, { m: 'Sw2:Latency Ms', d: '↑', lag: '5m' }, { m: 'Fw1:Packet Drop', d: '↑', lag: '5m' }] },
+    { evt: 'High Latency', n: 310, steps: [{ m: 'R2:Config Change', d: '↑', lag: '5m' }, { m: 'R2:Peer Down', d: '↑', lag: '10m' }, { m: 'Sw1:Crc Errors', d: '↑', lag: '10m' }, { m: 'Fw1:Latency Ms', d: '↑', lag: '10m' }] },
   ],
   chainsS: [
-    { evt: 'DEVICE_REBOOT', n: 2, steps: [{ m: 'queue_depth', d: '↓', lag: '1m' }, { m: 'crc_errors', d: '↓', lag: '2m' }, { m: 'latency_ms', d: '↓', lag: '3m' }, { m: 'util_pct', d: '↓', lag: '2m' }, { m: 'cpu_pct', d: '↓', lag: '1m' }] },
-    { evt: 'HIGH_UTIL_WARNING', n: 207, steps: [{ m: 'cpu_pct', d: '↑', lag: '2m' }, { m: 'crc_errors', d: '↑', lag: '5m' }, { m: 'queue_depth', d: '↑', lag: '2m' }, { m: 'latency_ms', d: '↑', lag: '4m' }, { m: 'reboot_delta', d: '↑', lag: '1m' }, { m: 'util_pct', d: '↑', lag: '3m' }] },
-    { evt: 'INTERFACE_FLAP', n: 146, steps: [{ m: 'cpu_pct', d: '↑', lag: '3m' }, { m: 'util_pct', d: '↑', lag: '1m' }, { m: 'crc_errors', d: '↑', lag: '6m' }, { m: 'queue_depth', d: '↑', lag: '4m' }, { m: 'latency_ms', d: '↑', lag: '2m' }, { m: 'reboot_delta', d: '↑', lag: '5m' }] },
-    { evt: 'PACKET_DROP', n: 239, steps: [{ m: 'cpu_pct', d: '↑', lag: '2m' }, { m: 'crc_errors', d: '↑', lag: '4m' }, { m: 'queue_depth', d: '↑', lag: '1m' }, { m: 'latency_ms', d: '↑', lag: '3m' }, { m: 'reboot_delta', d: '↑', lag: '2m' }, { m: 'util_pct', d: '↑', lag: '1m' }] },
+    { evt: 'High Latency', n: 420, steps: [{ m: 'R1:CPU Util', d: '↑', lag: '10m' }, { m: 'Sw1:Crc Errors', d: '↑', lag: '10m' }, { m: 'Sw2:Buffer Util', d: '↑', lag: '10m' }, { m: 'Fw1:Latency Ms', d: '↑', lag: '10m' }] },
+    { evt: 'Packet Drop', n: 385, steps: [{ m: 'R1:Buffer Util', d: '↑', lag: '5m' }, { m: 'Sw1:Crc Errors', d: '↑', lag: '10m' }, { m: 'Sw2:Latency Ms', d: '↑', lag: '5m' }, { m: 'Fw1:Packet Drop', d: '↑', lag: '5m' }] },
+    { evt: 'High Latency', n: 310, steps: [{ m: 'R2:Config Change', d: '↑', lag: '5m' }, { m: 'R2:Peer Down', d: '↑', lag: '10m' }, { m: 'Sw1:Crc Errors', d: '↑', lag: '10m' }, { m: 'Fw1:Latency Ms', d: '↑', lag: '10m' }] },
   ],
   chainsT: [
-    { evt: 'HIGH_LATENCY (VALIDATED)', n: 289, steps: [{ m: 'R1:cpu_pct', d: '↑', lag: '10m' }, { m: 'SW1:crc_errors', d: '↑', lag: '10m' }, { m: 'SW2:buffer_util', d: '↑', lag: '10m' }, { m: 'FW1:latency_ms', d: '↑', lag: '2m' }] },
-    { evt: 'CRITICAL_LATENCY', n: 142, steps: [{ m: 'SW1:crc_errors', d: '↑', lag: '10m' }, { m: 'SW2:buffer_util', d: '↑', lag: '10m' }, { m: 'FW1:latency_ms', d: '↑', lag: '2m' }] },
-    { evt: 'PROPAGATED_LATENCY', n: 115, steps: [{ m: 'R1:cpu_pct', d: '↑', lag: '25m' }, { m: 'SW2:buffer_util', d: '↑', lag: '10m' }, { m: 'FW1:latency_ms', d: '↑', lag: '2m' }] },
+    { evt: 'High Latency', n: 420, steps: [{ m: 'R1:CPU Util', d: '↑', lag: '10m' }, { m: 'Sw1:Crc Errors', d: '↑', lag: '10m' }, { m: 'Sw2:Buffer Util', d: '↑', lag: '10m' }, { m: 'Fw1:Latency Ms', d: '↑', lag: '10m' }] },
+    { evt: 'Packet Drop', n: 385, steps: [{ m: 'R1:Buffer Util', d: '↑', lag: '5m' }, { m: 'Sw1:Crc Errors', d: '↑', lag: '10m' }, { m: 'Sw2:Latency Ms', d: '↑', lag: '5m' }, { m: 'Fw1:Packet Drop', d: '↑', lag: '5m' }] },
+    { evt: 'High Latency', n: 310, steps: [{ m: 'R2:Config Change', d: '↑', lag: '5m' }, { m: 'R2:Peer Down', d: '↑', lag: '10m' }, { m: 'Sw1:Crc Errors', d: '↑', lag: '10m' }, { m: 'Fw1:Latency Ms', d: '↑', lag: '10m' }] },
   ],
   coocR: [
     { a: 'HIGH_LATENCY', b: 'INTERFACE_FLAP', n: 29, lift: 1.03 },
