@@ -419,7 +419,7 @@ export default function RoiDashboard() {
                                     <div className="h-full bg-emerald-500" style={{ width: '88%' }} />
                                 </div>
                                 <div className="flex justify-between items-center pt-1">
-                                    <span className="text-[9px] text-muted-foreground italic truncate max-w-[180px]">Based on 142 resolved incidents</span>
+                                    <span className="text-[9px] text-muted-foreground  truncate max-w-[180px]">Based on 142 resolved incidents</span>
                                     <Badge variant="outline" className="text-[9px] h-4 py-0 border-emerald-500/30 text-emerald-400">+5% vs Last Q</Badge>
                                 </div>
                             </div>
@@ -440,7 +440,7 @@ export default function RoiDashboard() {
                                     <div className="h-10 w-10 rounded-full border-4 border-primary/20 border-t-primary flex items-center justify-center font-bold text-lg text-primary">0.82</div>
                                     <div className="flex-1">
                                         <div className="text-[11px] font-bold uppercase tracking-tight">Composite Value Score</div>
-                                        <div className="text-[10px] text-muted-foreground line-clamp-1 italic">Efficiency normalized across 5 KPI dimensions.</div>
+                                        <div className="text-[10px] text-muted-foreground line-clamp-1 ">Efficiency normalized across 5 KPI dimensions.</div>
                                     </div>
                                     <CheckCircle2 className="h-5 w-5 text-emerald-500" />
                                 </div>

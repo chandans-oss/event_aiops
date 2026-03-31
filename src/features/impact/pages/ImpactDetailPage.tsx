@@ -279,7 +279,7 @@ export default function ImpactDetailPage() {
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <p className="text-sm text-muted-foreground italic">
+                                <p className="text-sm text-muted-foreground ">
                                     "{activeData.description}"
                                 </p>
                             </CardContent>

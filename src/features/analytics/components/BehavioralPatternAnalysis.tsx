@@ -329,7 +329,7 @@ export function BehavioralPatternAnalysis() {
                                                         It predicts <span className="text-foreground font-bold">{selectedPattern.prediction?.then}</span> with <span className="text-emerald-500 font-bold">{selectedPattern.prediction?.probability}% probability</span>.
                                                     </p>
                                                 </div>
-                                                <p className="text-xs text-muted-foreground italic mt-2">
+                                                <p className="text-xs text-muted-foreground  mt-2">
                                                     "Based on historical patterns, a {selectedPattern.sequence ? selectedPattern.sequence[selectedPattern.sequence.length - 1] : 'Failure'} event is likely to follow within the next few minutes."
                                                 </p>
                                             </div>
@@ -367,7 +367,7 @@ export function BehavioralPatternAnalysis() {
                                                             </div>
                                                             <div>
                                                                 <div className="text-xs font-bold leading-none mb-1">{step.title}</div>
-                                                                <div className="text-[10px] text-muted-foreground leading-relaxed italic">{step.desc}</div>
+                                                                <div className="text-[10px] text-muted-foreground leading-relaxed ">{step.desc}</div>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -386,20 +386,20 @@ export function BehavioralPatternAnalysis() {
                                             <CardContent className="p-6 space-y-4">
                                                 <div className="p-3 bg-black/20 rounded-lg border border-white/5 space-y-1">
                                                     <div className="text-[10px] font-bold text-primary uppercase tracking-wider">Sync Correlation (Pearson r)</div>
-                                                    <div className="text-xs font-mono text-muted-foreground italic tracking-tight">r = Î£(x-xÌ…)(y-yÌ…) / âˆš[Î£(x-xÌ…)Â² Î£(y-yÌ…)Â²]</div>
-                                                    <div className="text-[9px] text-muted-foreground/60 italic">Measures temporal alignment between telemetry sensors.</div>
+                                                    <div className="text-xs font-mono text-muted-foreground  tracking-tight">r = Î£(x-xÌ…)(y-yÌ…) / âˆš[Î£(x-xÌ…)Â² Î£(y-yÌ…)Â²]</div>
+                                                    <div className="text-[9px] text-muted-foreground/60 ">Measures temporal alignment between telemetry sensors.</div>
                                                 </div>
 
                                                 <div className="p-3 bg-black/20 rounded-lg border border-white/5 space-y-1">
                                                     <div className="text-[10px] font-bold text-purple-400 uppercase tracking-wider">Causal Integrity (Granger F-Stat)</div>
-                                                    <div className="text-xs font-mono text-muted-foreground italic tracking-tight">{"Y_t = Î± + Î£Î²_i Y_{t - i} + Î£Î³_i X_{t - i} + Îµ"}</div>
-                                                    <div className="text-[9px] text-muted-foreground/60 italic">Verifies if Metric X adds significant predictive value for Metric Y.</div>
+                                                    <div className="text-xs font-mono text-muted-foreground  tracking-tight">{"Y_t = Î± + Î£Î²_i Y_{t - i} + Î£Î³_i X_{t - i} + Îµ"}</div>
+                                                    <div className="text-[9px] text-muted-foreground/60 ">Verifies if Metric X adds significant predictive value for Metric Y.</div>
                                                 </div>
 
                                                 <div className="p-3 bg-black/20 rounded-lg border border-white/5 space-y-1">
                                                     <div className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Predictive Lift Coefficient</div>
-                                                    <div className="text-xs font-mono text-muted-foreground italic tracking-tight">Lift(Pâ†’E) = P(Event|Pattern) / P(Event)</div>
-                                                    <div className="text-[9px] text-muted-foreground/60 italic">Ratio of event occurrence likelihood given the presence of this pattern.</div>
+                                                    <div className="text-xs font-mono text-muted-foreground  tracking-tight">Lift(Pâ†’E) = P(Event|Pattern) / P(Event)</div>
+                                                    <div className="text-[9px] text-muted-foreground/60 ">Ratio of event occurrence likelihood given the presence of this pattern.</div>
                                                 </div>
 
                                                 <div className="mt-4 p-4 rounded-xl bg-primary/5 border border-primary/20 flex items-center justify-between">
@@ -470,7 +470,7 @@ export function BehavioralPatternAnalysis() {
                                                 ))}
                                                 <div className="pt-4 mt-2 border-t border-primary/10">
                                                     <div className="text-[10px] text-muted-foreground mb-1 uppercase tracking-tighter">Mining Runtime</div>
-                                                    <div className="text-xs font-mono italic">3.4s (optimized sub-loops)</div>
+                                                    <div className="text-xs font-mono ">3.4s (optimized sub-loops)</div>
                                                 </div>
                                             </CardContent>
                                         </Card>

@@ -53,7 +53,7 @@ export default function KBDetailPage() {
 
                 {/* Top Nav */}
                 <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }}>
-                    <Button variant="ghost" size="sm" onClick={() => navigate('/admin?section=kb')} className="mb-3 gap-2 text-slate-500 hover:text-primary transition-colors hover:bg-primary/5 rounded-full px-3">
+                    <Button variant="ghost" size="sm" onClick={() => navigate('/admin?section=KB')} className="mb-3 gap-2 text-slate-500 hover:text-primary transition-colors hover:bg-primary/5 rounded-full px-3">
                         <ArrowLeft className="h-4 w-4" />
                         <span className="font-bold uppercase tracking-widest text-[10px]">Back to KnowledgeBase</span>
                     </Button>
@@ -93,15 +93,15 @@ export default function KBDetailPage() {
                     </div>
                 </motion.div>
 
-                {/* Top Info Row: Root Issue | Impact Domain | Linked Intents */}
+                {/* Top Info Row: Root Issue | Linked Intents */}
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
                     animate="visible"
-                    className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4"
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4"
                 >
                     {/* Root Issue */}
-                    <motion.section variants={itemVariants} className="bg-destructive/5 border border-destructive/20 rounded-2xl p-4 relative overflow-hidden group">
+                    <motion.section variants={itemVariants} className="md:col-span-1 lg:col-span-2 bg-destructive/5 border border-destructive/20 rounded-2xl p-4 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
                             <AlertTriangle className="h-16 w-16 text-destructive" />
                         </div>
@@ -111,17 +111,6 @@ export default function KBDetailPage() {
                         <p className="text-sm font-semibold text-foreground leading-snug">{article.problem}</p>
                     </motion.section>
 
-                    {/* Impact Domain */}
-                    <motion.section variants={itemVariants} className="bg-blue-500/5 border border-blue-500/20 rounded-2xl p-4 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 p-4 opacity-[0.03] group-hover:opacity-[0.07] transition-opacity">
-                            <Layers className="h-16 w-16 text-blue-500" />
-                        </div>
-                        <h2 className="text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-2 mb-2 text-blue-500/80">
-                            <Layers className="h-3 w-3" /> Impact Domain
-                        </h2>
-                        <p className="text-sm font-semibold text-foreground leading-snug">{article.area}</p>
-                    </motion.section>
-
                     {/* Linked Intents */}
                     <motion.section variants={itemVariants} className="bg-card border border-white/5 rounded-2xl p-4">
                         <h2 className="text-[10px] font-black uppercase tracking-[0.4em] flex items-center gap-2 mb-2 text-slate-400">
@@ -129,11 +118,11 @@ export default function KBDetailPage() {
                         </h2>
                         <div className="flex flex-col gap-1.5">
                             {article.linkedIntents.length === 0 ? (
-                                <p className="text-[10px] text-muted-foreground italic">No intents linked</p>
+                                <p className="text-[10px] text-muted-foreground ">No intents linked</p>
                             ) : article.linkedIntents.map(intent => (
                                 <div
                                     key={intent}
-                                    onClick={() => navigate(`/admin?section=intents&highlight=${encodeURIComponent(intent)}`)}
+                                    onClick={() => navigate(`/admin?section=Intents&highlight=${encodeURIComponent(intent)}`)}
                                     className="bg-primary/5 hover:bg-primary/15 border border-primary/20 hover:border-primary/50 rounded-lg px-3 py-1.5 text-[11px] font-mono flex items-center gap-2 text-primary transition-all cursor-pointer group select-none"
                                     title={`Go to intent: ${intent}`}
                                 >

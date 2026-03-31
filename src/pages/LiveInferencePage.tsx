@@ -27,6 +27,14 @@ import {
 import { cn } from "@/shared/lib/utils";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 
+const formatLabel = (str: string) => {
+  if (!str) return '';
+  return str
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/(^\w|\s\w|\(\w)/g, m => m.toUpperCase());
+};
+
 // --- MOCK DATA & CONSTANTS ---
 
 const MODELS = [
@@ -400,7 +408,7 @@ export default function LiveInferencePage() {
           addLog(`RF_MODEL [${dev.t}]: Predicted ${item.event} on ${item.device} (${item.estimatedWait})`);
         } else { // Anomaly: Isolation Forest Discovery
           const triggerMetric = ['cpu_pct', 'util_pct', 'queue_depth', 'latency_ms', 'crc_errors'][Math.floor(Math.random() * 5)];
-          const description = `${triggerMetric.replace('_', ' ').toUpperCase()} SPIKE DETECTED`;
+          const description = `${formatLabel(triggerMetric)} Spike Detected`;
           item = {
             id: `INF-${Date.now()}-${i}`,
             timestamp: new Date().toLocaleTimeString(),
@@ -545,15 +553,15 @@ export default function LiveInferencePage() {
 
   return (
     <MainLayout>
-      <div className="min-h-screen bg-[#0B0F19] text-[#E2E8F0] font-['Sora',sans-serif] text-[13px] overflow-x-hidden selection:bg-[#3B82F6]/30">
+      <div className="min-h-screen bg-[#0B0F19] text-[#E2E8F0] font-['Sora',sans-serif] text-[14px] overflow-x-hidden selection:bg-[#3B82F6]/30">
 
         {/* TOP STATUS BAR */}
         <div className="bg-[#0F172A] border-b border-white/5 px-8 h-12 flex items-center justify-between">
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
               <div className={cn("w-2 h-2 rounded-full", processingState === 'PROCESSING' ? "bg-[#3DDAB4] animate-pulse" : "bg-[#64748B]")} />
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] uppercase font-bold tracking-widest text-[#3DDAB4]">
-                {stats.polls < 15 ? `DATA_AGGREGATION_PHASE: [${stats.polls}/15]` : 'LIVE_INFERENCE_ENGINE_ACTIVE'}
+              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-widest text-[#3DDAB4]">
+                {stats.polls < 15 ? `Data Aggregation Phase: [${stats.polls}/15]` : 'Live Inference Engine Active'}
               </span>
               <button
                 onClick={() => setIsSidebarOpen(true)}
@@ -566,7 +574,7 @@ export default function LiveInferencePage() {
             <div className="h-4 w-px bg-white/10" />
             <div className="flex items-center gap-2">
               <Clock className="w-3.5 h-3.5 text-[#94A3B8]" />
-              <span className="text-[10px] text-[#94A3B8] font-medium uppercase font-['IBM_Plex_Mono',monospace]">
+              <span className="text-[11px] text-[#94A3B8] font-medium font-['IBM_Plex_Mono',monospace]">
                 Last Poll: {inferences[0]?.timestamp || '--:--:--'}
               </span>
             </div>
@@ -574,15 +582,15 @@ export default function LiveInferencePage() {
 
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 mr-4">
-              <span className="text-[9px] font-black text-[#64748B] uppercase tracking-widest">Poll Speed</span>
+              <span className="text-[10px] font-black text-[#64748B] tracking-widest">Poll Speed</span>
               <button 
                 onClick={() => setPollInterval(30000)}
-                className={cn("px-2 py-1 rounded text-[9px] font-bold transition-all", pollInterval === 30000 ? "bg-[#3B82F6] text-white" : "bg-white/5 text-[#94A3B8] hover:bg-white/10")}
-              >30S</button>
+                className={cn("px-2 py-1 rounded text-[10px] font-bold transition-all", pollInterval === 30000 ? "bg-[#3B82F6] text-white" : "bg-white/5 text-[#94A3B8] hover:bg-white/10")}
+              >30s</button>
               <button 
                 onClick={() => setPollInterval(5000)}
-                className={cn("px-2 py-1 rounded text-[9px] font-bold transition-all", pollInterval === 5000 ? "bg-[#3B82F6] text-white" : "bg-white/5 text-[#94A3B8] hover:bg-white/10")}
-              >5S</button>
+                className={cn("px-2 py-1 rounded text-[10px] font-bold transition-all", pollInterval === 5000 ? "bg-[#3B82F6] text-white" : "bg-white/5 text-[#94A3B8] hover:bg-white/10")}
+              >5s</button>
             </div>
             <button
               onClick={() => {
@@ -593,13 +601,13 @@ export default function LiveInferencePage() {
                 }
               }}
               className={cn(
-                "px-5 py-2 rounded-lg font-['IBM_Plex_Mono',monospace] text-[10px] font-black uppercase tracking-[0.2em] transition-all border shadow-[0_4px_20px_rgba(0,0,0,0.3)]",
+                "px-5 py-2 rounded-lg font-['IBM_Plex_Mono',monospace] text-[11px] font-black tracking-[0.2em] transition-all border shadow-[0_4px_20px_rgba(0,0,0,0.3)]",
                 processingState !== 'PAUSED'
                   ? "bg-[#3B82F6] text-white border-[#3B82F6]/50 hover:bg-[#2563EB] hover:scale-105"
                   : "bg-[#10B981]/10 text-[#10B981] border-[#10B981]/30 hover:bg-[#10B981]/20 hover:scale-105"
               )}
             >
-              {stats.polls === 0 && processingState === 'PAUSED' ? 'START ENGINE' : (processingState !== 'PAUSED' ? 'PAUSE ENGINE' : 'RESUME ENGINE')}
+              {stats.polls === 0 && processingState === 'PAUSED' ? 'Start Engine' : (processingState !== 'PAUSED' ? 'Pause Engine' : 'Resume Engine')}
             </button>
           </div>
         </div>
@@ -623,7 +631,7 @@ export default function LiveInferencePage() {
                     {viewMode === 'patterns' && (
                       <button
                         onClick={() => setViewMode('default')}
-                        className="px-2 py-0.5 rounded bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[9px] text-[#3B82F6] font-bold uppercase tracking-widest hover:bg-[#3B82F6]/20 transition-all flex items-center gap-1"
+                        className="px-2 py-0.5 rounded bg-[#3B82F6]/10 border border-[#3B82F6]/20 text-[11px] text-[#3B82F6] font-bold tracking-widest hover:bg-[#3B82F6]/20 transition-all flex items-center gap-1"
                       >
                         <ChevronRight className="w-3 h-3 rotate-180" />
                         Back To Stream
@@ -635,11 +643,11 @@ export default function LiveInferencePage() {
 
               <div className="flex gap-2">
                 <div className="bg-[#111827] px-5 py-3 rounded-xl border border-white/5 min-w-[90px] text-center">
-                  <div className="text-[8px] text-[#64748B] uppercase font-black mb-1 tracking-widest">Anomalies</div>
+                  <div className="text-[9px] text-[#64748B] font-black mb-1 tracking-widest">Anomalies</div>
                   <div className="text-xl font-black tracking-tighter tabular-nums text-[#EF4444]">{stats.anomalies}</div>
                 </div>
                 <div className="bg-[#111827] px-5 py-3 rounded-xl border border-white/5 min-w-[90px] text-center">
-                  <div className="text-[8px] text-[#64748B] uppercase font-black mb-1 tracking-widest">Predictions</div>
+                  <div className="text-[9px] text-[#64748B] font-black mb-1 tracking-widest">Predictions</div>
                   <div className="text-xl font-black tracking-tighter tabular-nums text-[#3B82F6]">{stats.predictions}</div>
                 </div>
                 <button
@@ -649,11 +657,11 @@ export default function LiveInferencePage() {
                     viewMode === 'patterns' ? "bg-[#3DDAB4]/10 border-[#3DDAB4]/40" : "bg-[#111827] border-white/5 hover:border-[#3DDAB4]/30"
                   )}
                 >
-                  <div className="text-[8px] text-[#64748B] uppercase font-black mb-1 tracking-widest group-hover:text-[#3DDAB4]/70">PatternMatch</div>
+                  <div className="text-[9px] text-[#64748B] font-black mb-1 tracking-widest group-hover:text-[#3DDAB4]/70">Pattern Match</div>
                   <div className="text-xl font-black tracking-tighter tabular-nums text-[#3DDAB4]">{stats.patterns}</div>
                 </button>
                 <div className="bg-[#111827] px-5 py-3 rounded-xl border border-white/5 min-w-[90px] text-center">
-                  <div className="text-[8px] text-[#64748B] uppercase font-black mb-1 tracking-widest">Polls</div>
+                  <div className="text-[9px] text-[#64748B] font-black mb-1 tracking-widest">Polls</div>
                   <div className="text-xl font-black tracking-tighter tabular-nums text-[#3DDAB4]">{stats.polls}</div>
                 </div>
               </div>
@@ -666,10 +674,10 @@ export default function LiveInferencePage() {
                   <div className="w-20 h-20 bg-[#1E293B]/20 rounded-full flex items-center justify-center mb-6 border border-white/5 relative">
                     <RefreshCw className="w-8 h-8 text-[#3B82F6] animate-spin" />
                   </div>
-                  <div className="text-[#3B82F6] font-['IBM_Plex_Mono',monospace] text-[11px] uppercase font-black tracking-[0.3em]">
+                  <div className="text-[#3B82F6] font-['IBM_Plex_Mono',monospace] text-[12px] font-black tracking-[0.3em]">
                     Stabilizing Window Intelligence...
                   </div>
-                  <p className="text-[9px] text-[#475569] uppercase font-bold mt-3 tracking-widest max-w-sm italic">
+                  <p className="text-[10px] text-[#475569] font-bold mt-3 tracking-widest max-w-sm">
                     Engine needs 15 polled windows to activate inference validation.
                   </p>
                   <button
@@ -677,7 +685,7 @@ export default function LiveInferencePage() {
                       setStats(prev => ({ ...prev, polls: 15 }));
                       addLog("ENGINE: Bypassing stabilization phase manually.");
                     }}
-                    className="mt-6 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-[9px] font-black uppercase tracking-widest text-[#94A3B8] hover:bg-[#3B82F6] hover:text-white hover:border-[#3B82F6] transition-all"
+                    className="mt-6 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-[10px] font-black tracking-widest text-[#94A3B8] hover:bg-[#3B82F6] hover:text-white hover:border-[#3B82F6] transition-all"
                   >
                     Skip Optimization Phase
                   </button>
@@ -706,18 +714,17 @@ export default function LiveInferencePage() {
                             item.type === 'PREDICTION' ? "bg-[#3B82F6]/5 border-[#3B82F6]/20" :
                               "bg-[#EF4444]/5 border-[#EF4444]/20"
                           )}>
-                            {item.type === 'PREDICTION' && <Box className="w-5 h-5 text-[#3B82F6]" />}
-                            {item.type === 'ANOMALY' && <AlertTriangle className="w-5 h-5 text-[#EF4444]" />}
+                            {item.type === 'PREDICTION' ? <Layers className="w-5 h-5 text-[#3B82F6]" /> : <AlertTriangle className="w-5 h-5 text-[#EF4444]" />}
                           </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-black text-white whitespace-nowrap tracking-tight">{item.device}</span>
-                              <span className="text-[9px] font-black text-[#94A3B8] bg-white/5 px-2 py-0.5 rounded border border-white/5">
+                              <span className="text-base font-black text-white whitespace-nowrap tracking-tight">{item.device}</span>
+                              <span className="text-[11px] font-black text-[#94A3B8] bg-white/5 px-2 py-0.5 rounded border border-white/5">
                                 {item.interface}
                               </span>
                             </div>
-                            <div className="text-[9px] font-bold text-[#475569] flex items-center gap-1.5 mt-1 uppercase tracking-tight font-['IBM_Plex_Mono',monospace]">
-                              <span className="text-[#3B82F6]/70 border border-[#3B82F6]/20 px-1 rounded-[2px]">{item.topology || 'GLOBAL'}</span>
+                            <div className="text-[11px] font-bold text-[#475569] flex items-center gap-1.5 mt-1 tracking-tight font-['IBM_Plex_Mono',monospace]">
+                              <span className="text-[#3B82F6]/70 border border-[#3B82F6]/20 px-1 rounded-[2px]">{item.topology || 'Global'}</span>
                               <Clock className="w-3 h-3 ml-1" />
                               {item.timestamp}
                             </div>
@@ -728,7 +735,7 @@ export default function LiveInferencePage() {
                         <div className="col-span-8 space-y-4">
                           <div className="flex items-center gap-4">
                             <div className={cn(
-                              "text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg bg-[#000]/40 border-2 inline-block leading-tight",
+                              "text-[11px] font-black tracking-widest px-3 py-1.5 rounded-lg bg-[#000]/40 border-2 inline-block leading-tight",
                               item.status === 'CRITICAL' ? "text-[#EF4444] border-[#EF4444]/20" :
                                 item.status === 'WARNING' ? "text-[#F59E0B] border-[#F59E0B]/20" :
                                   "text-[#3B82F6] border-[#3B82F6]/20"
@@ -737,7 +744,7 @@ export default function LiveInferencePage() {
                             </div>
                             {item.type === 'PREDICTION' && item.estimatedWait && (
                               <div className={cn(
-                                "flex items-center gap-2 text-[9px] font-black px-2 py-1 rounded-md border",
+                                "flex items-center gap-2 text-[10px] font-black px-2 py-1 rounded-md border",
                                 item.estimatedWait.includes('min') && parseInt(item.estimatedWait.match(/\d+/)?.[0] || '60') <= 15
                                   ? "bg-rose-500/10 text-rose-500 border-rose-500/20 shadow-[0_0_10px_rgba(244,63,94,0.1)] animate-pulse"
                                   : "bg-blue-500/10 text-blue-500 border-blue-500/20"
@@ -765,7 +772,7 @@ export default function LiveInferencePage() {
                                         <div className="flex items-center w-full mb-2">
                                           <div className={cn("h-1 flex-1 rounded-l-full", stepIdx === 1 ? "bg-transparent" : (isMatched ? "bg-[#10B981]" : "bg-white/5"))} />
                                           <div className={cn(
-                                            "w-5 h-5 rounded-full flex items-center justify-center text-[8px] font-black border-2 flex-shrink-0 transition-all",
+                                            "w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black border-2 flex-shrink-0 transition-all",
                                             isMatched ? "bg-[#10B981] border-[#10B981] text-white shadow-[0_0_10px_rgba(16,185,129,0.3)]" :
                                               isNext ? "bg-[#F59E0B]/10 border-[#F59E0B] text-[#F59E0B] animate-pulse" :
                                                 "bg-white/5 border-white/10 text-white/20"
@@ -776,16 +783,16 @@ export default function LiveInferencePage() {
                                         </div>
                                         <div className="text-center">
                                           <div className={cn(
-                                            "text-[8px] font-black uppercase tracking-tighter truncate",
+                                            "text-[9px] font-black tracking-tighter truncate",
                                             isMatched ? "text-[#10B981]" : isNext ? "text-[#F59E0B]" : "text-white/20"
                                           )}>
-                                            {stepIdx === 1 ? 'CPU_SPIKE' : stepIdx === 2 ? 'CRC_ERRORS' : stepIdx === 3 ? 'BUFFER_UTIL' : 'LATENCY_MS'}
+                                            {stepIdx === 1 ? 'CPU Spike' : stepIdx === 2 ? 'CRC Errors' : stepIdx === 3 ? 'Buffer Util' : 'Latency MS'}
                                           </div>
                                           {isMatched && (
-                                            <div className="text-[7px] text-[#475569] font-bold mt-0.5">CONFIRMED</div>
+                                            <div className="text-[8px] text-[#475569] font-bold mt-0.5">CONFIRMED</div>
                                           )}
                                           {isNext && (
-                                            <div className="text-[7px] text-[#F59E0B]/70 font-bold mt-0.5 animate-pulse">PREDICTED</div>
+                                            <div className="text-[8px] text-[#F59E0B]/70 font-bold mt-0.5 animate-pulse">PREDICTED</div>
                                           )}
                                         </div>
                                       </div>
@@ -978,15 +985,17 @@ export default function LiveInferencePage() {
                                         )}
 
                                         {isNxt && (
-                                          <div className="flex flex-col items-center gap-1.5 animate-pulse duration-1000">
-                                            <div className="text-[12px] font-black text-[#f59e0b] font-['IBM_Plex_Mono',monospace]">~2s</div>
+                                          <div className="flex flex-col items-center gap-1.5 animate-pulse duration-1000 group/model">
+                                            <div className="text-[10px] font-bold text-white/80 group-hover/model:text-[#3B82F6] transition-colors">
+                                              {formatLabel((pat.deviceType === 'ROUTER' ? MODELS[2] : MODELS[3]).name.replace('.pkl', ''))}
+                                            </div>
                                             <span className="px-1.5 py-0.5 bg-[#f59e0b]/10 text-[#f59e0b] border border-[#f59e0b]/20 rounded-[2px] text-[8px] font-bold uppercase tracking-widest">NEXT EVENT</span>
                                           </div>
                                         )}
 
                                         {isGap && (
                                           <div className="flex flex-col items-center opacity-30">
-                                            <div className="text-[9px] font-bold text-[#475569] italic uppercase">MISSED</div>
+                                            <div className="text-[9px] font-bold text-[#475569] uppercase">MISSED</div>
                                           </div>
                                         )}
                                       </div>
@@ -1131,7 +1140,7 @@ export default function LiveInferencePage() {
                               m.type === 'RF' ? "bg-[#3B82F6]" : "bg-[#94A3B8]"
                         )} />
                         <span className="text-[10px] font-medium text-[#CBD5E1] font-['IBM_Plex_Mono',monospace] group-hover:text-white transition-colors truncate max-w-[180px]" title={m.name}>
-                          {m.name}
+                          {formatLabel(m.name.replace('.pkl', ''))}
                         </span>
                       </div>
                       <span className="text-[8px] font-black uppercase text-[#94A3B8] opacity-50">

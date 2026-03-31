@@ -52,6 +52,15 @@ const SAMPLE_EVENTS: RawEvent[] = [
   { id: 4, raw: "Mar 27 10:01:10 SW-CORE-1 Te1/1/1 flap", device: "SW-CORE-1", interface: "Te1/1/1", event_code: "IF_FLAP", timestamp: "10:01:10" },
   { id: 5, raw: "Mar 27 10:01:12 SW-CORE-1 Te1/1/1 flap detected", device: "SW-CORE-1", interface: "Te1/1/1", event_code: "IF_FLAP", timestamp: "10:01:12" },
   { id: 6, raw: "Mar 27 10:01:15 Router1 Gi0/2 down", device: "Router1", interface: "Gi0/2", event_code: "LINK_DOWN", timestamp: "10:01:15" },
+  { id: 7, raw: "Mar 27 10:02:01 Firewall-01 Eth1 traffic blocked", device: "Firewall-01", interface: "Eth1", event_code: "ACL_DENY", timestamp: "10:02:01" },
+  { id: 8, raw: "Mar 27 10:02:01 Firewall-01 Eth1 traffic blocked", device: "Firewall-01", interface: "Eth1", event_code: "ACL_DENY", timestamp: "10:02:01" },
+  { id: 9, raw: "Mar 27 10:03:00 Core-SW-1 Port 10 error", device: "Core-SW-1", interface: "Port 10", event_code: "PORT_ERR", timestamp: "10:03:00" },
+  { id: 10, raw: "Mar 27 10:03:01 Core-SW-1 Port 10 error", device: "Core-SW-1", interface: "Port 10", event_code: "PORT_ERR", timestamp: "10:03:01" },
+  { id: 11, raw: "Mar 27 10:04:10 Router2 BGP neighbor down", device: "Router2", interface: "Gi0/0", event_code: "BGP_DOWN", timestamp: "10:04:10" },
+  { id: 12, raw: "Mar 27 10:04:15 Router2 BGP neighbor down", device: "Router2", interface: "Gi0/0", event_code: "BGP_DOWN", timestamp: "10:04:15" },
+  { id: 13, raw: "Mar 27 10:05:00 Dist-1 CPU 90%", device: "Dist-1", interface: "System", event_code: "CPU_HIGH", timestamp: "10:05:00" },
+  { id: 14, raw: "Mar 27 10:05:05 Dist-1 CPU 92%", device: "Dist-1", interface: "System", event_code: "CPU_HIGH", timestamp: "10:05:05" },
+  { id: 15, raw: "Mar 27 10:06:00 Router1 Gi0/1 up", device: "Router1", interface: "Gi0/1", event_code: "LINK_UP", timestamp: "10:06:00" },
 ];
 
 const TECHNIQUE_CONFIGS: Record<Technique, { label: string, icon: any, desc: string }> = {
@@ -72,6 +81,7 @@ export default function DeduplicationPage() {
   const [results, setResults] = useState<Record<number, DedupResult>>({});
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleTechniqueChange = (newTechnique: Technique) => {
     const params = new URLSearchParams(searchParams);
@@ -81,15 +91,23 @@ export default function DeduplicationPage() {
 
   // Reset when technique changes
   useEffect(() => {
-    setEvents([]);
+    // Automatically load samples for a better first impression
+    setEvents(SAMPLE_EVENTS);
     setResults({});
     setSelectedEventId(null);
   }, [technique]);
 
   const loadSamples = () => {
-    setEvents(SAMPLE_EVENTS);
+    setIsUpdating(true);
+    setEvents([]);
     setResults({});
     setSelectedEventId(null);
+    
+    // Aesthetic delay to show the "loading" action
+    setTimeout(() => {
+      setEvents(SAMPLE_EVENTS);
+      setIsUpdating(false);
+    }, 600);
   };
 
   const runDedup = () => {
@@ -100,46 +118,43 @@ export default function DeduplicationPage() {
     setTimeout(() => {
       const mockResults: Record<number, DedupResult> = {};
       
+      const seenHashes = new Set<string>();
+      const seenSignatures = new Set<string>();
+      
       events.forEach((evt, idx) => {
-        if (idx === 0) {
-          mockResults[evt.id] = { id: evt.id, is_duplicate: false, group_id: "G-101", reason: "First unique occurrence in window." };
-        } else if (technique === 'exact' && (evt.id === 2 || evt.id === 3)) {
-          mockResults[evt.id] = { id: evt.id, is_duplicate: true, group_id: "G-101", reason: "Same raw log detected", logic_details: { logic: "SHA256 hash matched", matchedWith: 1, confidence: 1.0 } };
-        } else if (technique === 'structured' && evt.device === "Router1" && evt.event_code === "LINK_DOWN") {
-          const isFirst = evt.id === 1;
+        if (technique === 'exact') {
+          const isDup = seenHashes.has(evt.raw);
           mockResults[evt.id] = { 
-            id: evt.id, is_duplicate: !isFirst, group_id: "G-STRUCT", 
-            reason: isFirst ? "Initial state anchor" : "Same logical signature match",
-            logic_details: { signature: `{${evt.device}, ${evt.interface}, ${evt.event_code}}`, matchedWith: 1 }
+            id: evt.id, is_duplicate: isDup, group_id: isDup ? "G-HASH-1" : `G-HASH-${evt.id}`, 
+            reason: isDup ? "Identical SHA256 matches existing event" : "Unique bitstream detected",
+            logic_details: isDup ? { method: "SHA256 Match", matchedWith: events.find(e => e.raw === evt.raw)?.id } : undefined
           };
-        } else if (technique === 'similarity' && evt.id === 5) {
+          seenHashes.add(evt.raw);
+        } else if (technique === 'structured') {
+          const sig = `${evt.device}|${evt.interface}|${evt.event_code}`;
+          const isDup = seenSignatures.has(sig);
           mockResults[evt.id] = { 
-            id: evt.id, is_duplicate: true, group_id: "G-SIM", 
-            reason: "High similarity score",
-            confidence: 0.91, matched_with: 4, 
-            logic_details: { method: "TF-IDF + Cosine Similarity", score: 0.91, matchedContent: events[3].raw }
+            id: evt.id, is_duplicate: isDup, group_id: isDup ? "G-STRUCT-1" : `G-STRUCT-${evt.id}`,
+            reason: isDup ? "Logical fields match existing signature" : "New resource event signature",
+            logic_details: { signature: sig }
           };
-        } else if (technique === 'semantic' && (evt.id === 5 || evt.id === 6)) {
+          seenSignatures.add(sig);
+        } else if (technique === 'similarity') {
+          const isDup = evt.id === 5 || evt.id === 10 || evt.id === 14;
           mockResults[evt.id] = { 
-            id: evt.id, is_duplicate: true, group_id: "G-SEM", 
-            reason: "Contextual semantic meaning",
-            confidence: 0.94, matched_with: idx > 0 ? events[0].id : undefined,
-            logic_details: { embedding: "Ada-002 Vector Cluster", cluster: "Cluster-12", insight: "Port failure domain." }
+            id: evt.id, is_duplicate: isDup, group_id: isDup ? "G-SIM-1" : "G-SIM-NEW",
+            reason: isDup ? "Fuzzy similarity score exceeds 0.90 threshold" : "Low similarity to existing clusters",
+            confidence: isDup ? 0.91 + (Math.random() * 0.05) : 0.45
           };
-        } else if (technique === 'state' && (evt.id === 2 || evt.id === 3)) {
+        } else if (technique === 'state') {
+          const isDup = evt.id === 2 || evt.id === 3 || evt.id === 12;
           mockResults[evt.id] = { 
-            id: evt.id, is_duplicate: true, group_id: "G-STATE", 
-            reason: "No state transition",
-            logic_details: { prevState: "DOWN", currentState: "DOWN", action: "Ignored heartbeat" }
-          };
-        } else if (technique === 'template' && evt.id === 6) {
-          mockResults[evt.id] = { 
-            id: evt.id, is_duplicate: true, group_id: "G-TPL", 
-            reason: "Template variation match",
-            logic_details: { template: "Interface {X} down", matchedResource: "Gi0/2", matchedWith: 1 }
+            id: evt.id, is_duplicate: isDup, group_id: "G-STATE",
+            reason: isDup ? "Suppressed: State remains unchanged" : "New operational state transition",
+            logic_details: { lastState: "DOWN", currentState: "DOWN" }
           };
         } else {
-          mockResults[evt.id] = { id: evt.id, is_duplicate: false, group_id: `G-${evt.id}`, reason: "Unique event context." };
+          mockResults[evt.id] = { id: evt.id, is_duplicate: false, group_id: `G-${evt.id}`, reason: "Unique occurrence processed." };
         }
       });
       
@@ -176,16 +191,17 @@ export default function DeduplicationPage() {
                 <div className="flex items-center gap-3">
                   <Button 
                     onClick={loadSamples}
+                    disabled={isUpdating}
                     variant="outline"
-                    className="gap-2 bg-secondary/50 border-border/50"
+                    className="gap-2 bg-secondary/50 border-border/50 transition-all hover:bg-secondary/80"
                   >
-                    <RefreshCw className={cn("h-4 w-4", events.length > 0 && "text-status-success")} />
+                    <RefreshCw className={cn("h-4 w-4", isUpdating ? "animate-spin" : (events.length > 0 ? "text-status-success" : ""))} />
                     Load Sample Events
                   </Button>
                   <Button 
                     onClick={runDedup}
                     disabled={events.length === 0 || isRunning}
-                    className="gap-2"
+                    className="gap-2 font-bold"
                   >
                     {isRunning ? (
                       <RefreshCw className="h-4 w-4 animate-spin" />
@@ -206,9 +222,9 @@ export default function DeduplicationPage() {
               )}>
                 <div className="glass-card rounded-xl overflow-hidden border border-border/50 h-[calc(100vh-220px)] flex flex-col">
                   {/* Table Header */}
-                  <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-secondary/50 border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                  <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-secondary/50 border-b border-border text-xs font-bold text-muted-foreground tracking-wide">
                     <div className="col-span-1">ID</div>
-                    <div className="col-span-2">Device/Interface</div>
+                    <div className="col-span-2">Device / Interface</div>
                     <div className="col-span-4">Original Message</div>
                     <div className="col-span-2 text-center">Status</div>
                     <div className="col-span-3">Reasoning</div>
@@ -217,7 +233,7 @@ export default function DeduplicationPage() {
                   <ScrollArea className="flex-1">
                     <div className="divide-y divide-border">
                       {events.length === 0 ? (
-                        <div className="h-64 flex flex-col items-center justify-center text-muted-foreground opacity-50 italic">
+                        <div className="h-64 flex flex-col items-center justify-center text-muted-foreground opacity-50 ">
                           <Database className="h-10 w-10 mb-2" />
                           <p>No events loaded for this logic.</p>
                         </div>
@@ -236,7 +252,7 @@ export default function DeduplicationPage() {
                               <div className="col-span-1 font-mono text-xs">{evt.id}</div>
                               <div className="col-span-2">
                                 <p className="text-sm font-semibold">{evt.device}</p>
-                                <p className="text-[10px] text-muted-foreground uppercase">{evt.interface}</p>
+                                <p className="text-[10px] text-muted-foreground">{evt.interface}</p>
                               </div>
                               <div className="col-span-4 text-xs font-mono text-muted-foreground break-all line-clamp-2">
                                 {evt.raw}
@@ -244,16 +260,16 @@ export default function DeduplicationPage() {
                               <div className="col-span-2 text-center">
                                 {result ? (
                                   <Badge className={cn(
-                                    "text-[10px] tracking-tight py-0 w-20 justify-center",
+                                    "text-[10px] tracking-tight py-0 w-20 justify-center font-bold",
                                     result.is_duplicate ? "bg-severity-critical/20 text-severity-critical border-severity-critical/30" : "bg-status-success/20 text-status-success border-status-success/30"
                                   )}>
-                                    {result.is_duplicate ? "DUPLICATE" : "UNIQUE"}
+                                    {result.is_duplicate ? "Duplicate" : "Unique"}
                                   </Badge>
                                 ) : (
-                                  <Badge variant="outline" className="text-[10px]">PENDING</Badge>
+                                  <Badge variant="outline" className="text-[10px] font-bold">Pending</Badge>
                                 )}
                               </div>
-                              <div className="col-span-3 text-xs text-muted-foreground line-clamp-1 italic">
+                              <div className="col-span-3 text-xs text-muted-foreground line-clamp-1 ">
                                 {result?.reason || "Awaiting processing..."}
                               </div>
                             </div>
@@ -300,14 +316,14 @@ export default function DeduplicationPage() {
                           <Separator className="bg-border/30" />
 
                           <div className="space-y-2">
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase">Reasoning</p>
-                            <p className="text-sm font-semibold leading-relaxed text-foreground bg-primary/5 p-3 rounded-lg border border-primary/20 italic">
+                            <p className="text-[10px] font-bold text-muted-foreground">Reasoning</p>
+                            <p className="text-sm font-semibold leading-relaxed text-foreground bg-primary/5 p-3 rounded-lg border border-primary/20 ">
                               "{selectedResult?.reason}"
                             </p>
                           </div>
 
                           <div className="space-y-2">
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase">RAW PAYLOAD</p>
+                            <p className="text-[10px] font-bold text-muted-foreground">Raw Payload</p>
                             <div className="p-4 bg-secondary/30 rounded-lg font-mono text-[11px] text-muted-foreground break-all border border-border/50 leading-relaxed">
                               {selectedEvent?.raw}
                             </div>
@@ -316,7 +332,7 @@ export default function DeduplicationPage() {
                           {/* Logic Specific details */}
                           {selectedResult?.logic_details && (
                             <div className="space-y-4 mt-6">
-                              <p className="text-[10px] font-bold text-muted-foreground uppercase">Internal Trace</p>
+                              <p className="text-[10px] font-bold text-muted-foreground">Internal Trace</p>
                               <div className="bg-secondary/20 p-4 rounded-xl space-y-3 border border-border/50">
                                 {Object.entries(selectedResult.logic_details).map(([key, val]: [string, any]) => (
                                   <div key={key} className="flex justify-between items-start text-xs border-b border-border/20 last:border-none pb-2 mb-2 last:pb-0 last:mb-0">

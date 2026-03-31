@@ -145,27 +145,27 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                     <div>
                       <CardTitle className="text-base flex items-center gap-2">
                         STEP {index + 1}: {step.action}
-                        {isCompleted && <Badge className="bg-status-success text-xs h-5 font-medium">Worked</Badge>}
-                        {isFailed && <Badge variant="destructive" className="text-xs h-5 font-medium">Failed</Badge>}
+                        {isCompleted && <Badge className="bg-status-success text-[13px] h-5 font-medium">Worked</Badge>}
+                        {isFailed && <Badge variant="destructive" className="text-[13px] h-5 font-medium">Failed</Badge>}
                       </CardTitle>
                       <CardDescription className="text-sm line-clamp-1">{step.description}</CardDescription>
                     </div>
                   </div>
-                  <Badge variant="outline" className="font-mono text-[10px]">~{step.duration}</Badge>
+                  <Badge variant="outline" className="font-mono text-[11px]">~{step.duration}</Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Command Block */}
-                <div className="bg-secondary/30 rounded-lg p-3 border border-border/50 font-mono text-xs">
+                <div className="bg-secondary/30 rounded-lg p-3 border border-border/50 font-mono text-[13px]">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-muted-foreground text-xs font-medium">Execution Command</span>
-                    <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">Copy</Button>
+                    <span className="text-muted-foreground text-[13px] font-medium">Execution Command</span>
+                    <Button variant="ghost" size="sm" className="h-6 px-2 text-[13px]">Copy</Button>
                   </div>
                   <pre className="text-foreground whitespace-pre-wrap">{step.command || `# Manual Action Required`}</pre>
                 </div>
 
                 {/* Expected Result */}
-                <div className="flex items-start gap-2 text-xs text-muted-foreground italic">
+                <div className="flex items-start gap-2 text-[13px] text-muted-foreground ">
                   <Info className="h-4 w-4 shrink-0 mt-0.5" />
                   <p>Expected Result: {step.verification?.join(', ') || 'Successful execution confirmation'}</p>
                 </div>
@@ -190,7 +190,7 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                         <CheckCircle2 className="h-4 w-4 text-primary" />
                         Execution Completed
                       </div>
-                      <p className="text-xs text-muted-foreground">The command has been executed on the device. Please verify if the issue is resolved.</p>
+                      <p className="text-[13px] text-muted-foreground">The command has been executed on the device. Please verify if the issue is resolved.</p>
                     </div>
                     <div className="flex items-center gap-4">
                       <Button
@@ -225,17 +225,17 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                       <AlertTriangle className="h-5 w-5" />
                       Remediation Failure Detected
                     </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
+                    <p className="text-[13px] text-muted-foreground leading-relaxed">
                       This step failed to produce the expected health improvements. anomaly detected in the execution path.
                     </p>
                     <div className="flex flex-wrap gap-2 pt-2">
-                      <Button variant="outline" size="sm" className="h-8 gap-2 text-[10px] font-black border-destructive/30 hover:bg-destructive/10 uppercase" onClick={() => handleStepAction(step.id, 'pending')}>
+                      <Button variant="outline" size="sm" className="h-8 gap-2 text-[11px] font-black border-destructive/30 hover:bg-destructive/10 uppercase" onClick={() => handleStepAction(step.id, 'pending')}>
                         <RotateCcw className="h-3.5 w-3.5" /> Retry
                       </Button>
-                      <Button variant="outline" size="sm" className="h-8 gap-2 text-[10px] font-black text-destructive border-destructive/30 hover:bg-destructive/20 uppercase">
+                      <Button variant="outline" size="sm" className="h-8 gap-2 text-[11px] font-black text-destructive border-destructive/30 hover:bg-destructive/20 uppercase">
                         <XCircle className="h-3.5 w-3.5" /> Rollback
                       </Button>
-                      <Button variant="ghost" size="sm" className="h-8 gap-2 text-[10px] font-black hover:bg-destructive/10 uppercase">
+                      <Button variant="ghost" size="sm" className="h-8 gap-2 text-[11px] font-black hover:bg-destructive/10 uppercase">
                         <Users className="h-3.5 w-3.5" /> Support
                       </Button>
                     </div>
@@ -273,11 +273,11 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
             <div className="p-4 rounded-xl bg-orange-500/5 border border-orange-500/20 shadow-inner">
               <div className="flex items-center gap-2 mb-3">
                 <Activity className="h-4 w-4 text-orange-500 animate-pulse" />
-                <span className="text-[10px] font-black text-orange-500 uppercase tracking-widest">Real-time Telemetry</span>
+                <span className="text-[11px] font-black text-orange-500 uppercase tracking-widest">Real-time Telemetry</span>
               </div>
 
               <div className="overflow-hidden rounded-lg border border-orange-500/20">
-                <table className="w-full text-[10px]">
+                <table className="w-full text-[11px]">
                   <thead className="bg-orange-500/10 border-b border-orange-500/20">
                     <tr>
                       <th className="px-2 py-2 text-left font-bold text-orange-500 uppercase">Metric</th>
@@ -343,7 +343,7 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
               </div>
             </div>
 
-            <Button variant="outline" className="w-full gap-2 text-[10px] font-black uppercase h-10 tracking-widest bg-secondary/30" onClick={() => setCurrentTab('kb')}>
+            <Button variant="outline" className="w-full gap-2 text-[11px] font-black uppercase h-10 tracking-widest bg-secondary/30" onClick={() => setCurrentTab('kb')}>
               <BookOpen className="h-4 w-4" />
               Runbook Docs
             </Button>
@@ -364,9 +364,9 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
           <div>
             <h2 className="text-3xl font-black flex items-center gap-4">
               Verification Dashboard
-              <Badge className="bg-status-success animate-pulse h-6 px-3 text-[10px] font-black uppercase tracking-widest border-2 border-emerald-500 shadow-lg shadow-emerald-500/20">Checks Passing</Badge>
+              <Badge className="bg-status-success animate-pulse h-6 px-3 text-[11px] font-black uppercase tracking-widest border-2 border-emerald-500 shadow-lg shadow-emerald-500/20">Checks Passing</Badge>
             </h2>
-            <p className="text-muted-foreground text-lg italic mt-1 font-medium opacity-80">System Health Stabilized • Verification phase complete</p>
+            <p className="text-muted-foreground text-lg  mt-1 font-medium opacity-80">System Health Stabilized • Verification phase complete</p>
           </div>
         </div>
         <div className="flex gap-4">
@@ -446,7 +446,7 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                       content={({ active, payload }) => {
                         if (active && payload && payload.length) {
                           return (
-                            <div className="bg-background/90 backdrop-blur border-2 border-border p-3 rounded-xl shadow-2xl text-[10px] font-black uppercase tracking-widest">
+                            <div className="bg-background/90 backdrop-blur border-2 border-border p-3 rounded-xl shadow-2xl text-[11px] font-black uppercase tracking-widest">
                               <p className="mb-2 text-primary">{payload[0].payload.name}</p>
                               <p className="text-destructive mb-1">Pre: {payload[0].value}{payload[0].payload.unit}</p>
                               <p className="text-status-success">Post: {payload[1].value}{payload[1].payload.unit}</p>
@@ -488,9 +488,9 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                     <div>
                       <div className="flex justify-between items-start">
                         <p className="text-base font-black text-foreground tracking-tight group-hover:text-primary transition-colors">{item.event}</p>
-                        <span className="text-[10px] text-muted-foreground font-black font-mono bg-secondary px-2 py-1 rounded-lg border-2 border-border/10 shadow-inner">{item.time}</span>
+                        <span className="text-[11px] text-muted-foreground font-black font-mono bg-secondary px-2 py-1 rounded-lg border-2 border-border/10 shadow-inner">{item.time}</span>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 font-medium opacity-80 leading-relaxed">{item.details}</p>
+                      <p className="text-[13px] text-muted-foreground mt-1 font-medium opacity-80 leading-relaxed">{item.details}</p>
                     </div>
                   </div>
                 );
@@ -504,7 +504,7 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                 <p className="text-5xl font-black text-primary tracking-tighter">15m 00s</p>
                 <Badge className="absolute -right-12 -top-2 bg-emerald-500 text-[9px] font-black uppercase px-2 py-0.5 shadow-lg shadow-emerald-500/30">-75%</Badge>
               </div>
-              <p className="text-[10px] text-muted-foreground mt-3 font-bold uppercase tracking-widest opacity-60 italic">AI-Accelerated Remediation</p>
+              <p className="text-[11px] text-muted-foreground mt-3 font-bold uppercase tracking-widest opacity-60 ">AI-Accelerated Remediation</p>
             </div>
           </CardContent>
         </Card>
@@ -520,7 +520,7 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
           <CheckCircle2 className="h-16 w-16 text-status-success animate-in zoom-in-50 duration-500" />
         </div>
         <h2 className="text-5xl font-black text-foreground tracking-tighter uppercase mb-2">Ticket Resolved</h2>
-        <p className="text-muted-foreground text-xl font-medium italic opacity-70">
+        <p className="text-muted-foreground text-xl font-medium  opacity-70">
           Closed-Loop AIOps lifecycle complete
         </p>
       </div>
@@ -627,7 +627,7 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                     <div className="h-full bg-primary rounded-full transition-all duration-1000 ease-out" style={{ width: `${progress}%` }} />
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground translate-x-1">Execution Payload Activity</p>
+                <p className="text-[13px] text-muted-foreground translate-x-1">Execution Payload Activity</p>
               </div>
             )}
 
@@ -644,7 +644,7 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                 Terminal
               </TabsTrigger>
               <TabsTrigger value="kb" className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-2 py-4 text-sm font-medium transition-all">
-                KnowledgeBase
+                Knowledge Base
               </TabsTrigger>
             </TabsList>
           </div>
@@ -669,7 +669,7 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                         </div>
                         <span className="text-[11px] uppercase font-black tracking-[0.3em] text-zinc-500 ml-4 group-hover:text-zinc-400 transition-colors">AIOps-Agent:~/remediation-session-v4</span>
                       </div>
-                      <Button variant="ghost" size="sm" className="h-8 text-[10px] font-black uppercase hover:bg-zinc-800 hover:text-white border-zinc-800/50" onClick={() => setTerminalHistory([])}>
+                      <Button variant="ghost" size="sm" className="h-8 text-[11px] font-black uppercase hover:bg-zinc-800 hover:text-white border-zinc-800/50" onClick={() => setTerminalHistory([])}>
                         <RotateCcw className="h-3.5 w-3.5 mr-2" /> Clear Buffer
                       </Button>
                     </CardHeader>
@@ -679,7 +679,7 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                         <div className="space-y-2">
                           <div className="text-zinc-500 mb-6 flex items-center gap-4">
                             <div className="h-px bg-zinc-800 flex-1" />
-                            <span className="text-[10px] font-black uppercase">Session Initialized: {new Date().toISOString()}</span>
+                            <span className="text-[11px] font-black uppercase">Session Initialized: {new Date().toISOString()}</span>
                             <div className="h-px bg-zinc-800 flex-1" />
                           </div>
                           {terminalHistory.length > 0 ? terminalHistory.map((line, index) => (
@@ -692,7 +692,7 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                               <span className="whitespace-pre-wrap">{line.text}</span>
                             </div>
                           )) : (
-                            <div className="text-zinc-700 italic flex items-center gap-3 py-10 justify-center">
+                            <div className="text-zinc-700  flex items-center gap-3 py-10 justify-center">
                               <Terminal className="h-10 w-10 opacity-20" />
                               <span className="font-black uppercase tracking-widest text-lg">Waiting for instruction payload...</span>
                             </div>
@@ -715,13 +715,13 @@ export function RemediationSidebar({ cluster, onClose, onBack }: RemediationSide
                         <CardHeader className="pb-4 bg-secondary/10 border-b-2">
                           <div className="flex justify-between items-start mb-4">
                             <Badge className="bg-foreground text-background text-[9px] font-black uppercase tracking-widest px-2.5 py-1">Doc: #{i + 1}</Badge>
-                            <Badge className="bg-primary/20 text-primary border-primary/20 text-[10px] font-black uppercase tracking-widest px-2.5 py-1 transition-all group-hover:bg-primary group-hover:text-white">{article.relevance}% MATCH</Badge>
+                            <Badge className="bg-primary/20 text-primary border-primary/20 text-[11px] font-black uppercase tracking-widest px-2.5 py-1 transition-all group-hover:bg-primary group-hover:text-white">{article.relevance}% MATCH</Badge>
                           </div>
                           <CardTitle className="text-lg font-black tracking-tight leading-tight group-hover:text-primary transition-colors">{article.title}</CardTitle>
                         </CardHeader>
                         <CardContent className="p-6">
-                          <p className="text-xs text-muted-foreground font-medium italic opacity-80 leading-relaxed mb-6">Cross-referenced solution from central AIOps repository based on current link_congestion fingerprint.</p>
-                          <Button variant="secondary" size="sm" className="w-full text-[10px] font-black uppercase tracking-[0.2em] h-10 gap-2 border-2 rounded-xl group-hover:bg-primary group-hover:text-white transition-all shadow-inner" asChild>
+                          <p className="text-[13px] text-muted-foreground font-medium  opacity-80 leading-relaxed mb-6">Cross-referenced solution from central AIOps repository based on current link_congestion fingerprint.</p>
+                          <Button variant="secondary" size="sm" className="w-full text-[11px] font-black uppercase tracking-[0.2em] h-10 gap-2 border-2 rounded-xl group-hover:bg-primary group-hover:text-white transition-all shadow-inner" asChild>
                             <a href={article.url} target="_blank" rel="noopener noreferrer">
                               <BookOpen className="h-4 w-4" /> Open Full Briefing
                             </a>

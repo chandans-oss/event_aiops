@@ -148,7 +148,7 @@ export function MLExplainabilityPanel({ mode, data, onClose }: MLExplainabilityP
                                     <span className="text-xs font-mono font-bold text-foreground">{feat.value}</span>
                                 </div>
                             ))}
-                            <div className="text-[10px] text-center text-muted-foreground mt-2 italic">
+                            <div className="text-[10px] text-center text-muted-foreground mt-2 ">
                                 + {data.features.length - 6} more encoded features in vector
                             </div>
                         </div>
@@ -226,7 +226,7 @@ export function MLExplainabilityPanel({ mode, data, onClose }: MLExplainabilityP
                                     </div>
                                     <div className="border-l border-border/40 pl-4">
                                         <span className="text-muted-foreground">Logarithmic Odds:</span>
-                                        <p className="mt-1 leading-tight italic text-muted-foreground">
+                                        <p className="mt-1 leading-tight  text-muted-foreground">
                                             Cumulative residuals across trees optimized for minimized objective loss function.
                                         </p>
                                     </div>
@@ -248,7 +248,7 @@ export function MLExplainabilityPanel({ mode, data, onClose }: MLExplainabilityP
                                     </div>
                                     <div className="border-l border-border/40 pl-4">
                                         <span className="text-muted-foreground">Score Interpretation:</span>
-                                        <p className="mt-1 leading-tight italic text-muted-foreground">
+                                        <p className="mt-1 leading-tight  text-muted-foreground">
                                             Short path length ({data.modelDecision.details.pathLength} &lt; {data.modelDecision.details.expectedPath}) indicates high sample isolation, confirming anomalous behavior.
                                         </p>
                                     </div>
@@ -292,7 +292,7 @@ export function MLExplainabilityPanel({ mode, data, onClose }: MLExplainabilityP
                                     </div>
                                     <div className="border-l border-border/40 pl-4">
                                         <span className="text-muted-foreground">Graph Attention:</span>
-                                        <p className="mt-1 leading-tight italic text-[10px] text-muted-foreground">
+                                        <p className="mt-1 leading-tight  text-[10px] text-muted-foreground">
                                             Message-passing verified across {data.modelDecision.details.hops} topological hops.
                                         </p>
                                     </div>

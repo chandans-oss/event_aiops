@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Shield, Lightbulb, BookOpen, Zap, ChevronRight, ChevronLeft, TrendingUp, ToggleLeft, Copy, GitBranch } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 
-export type AdminSection = 'Suppression' | 'Deduplication' | 'CorrelationTypes' | 'Intents' | 'KB' | 'AutoRemediation';
+export type AdminSection = 'Suppression' | 'Deduplication' | 'CorrelationTypes' | 'CorrelationPatterns' | 'Intents' | 'KB' | 'AutoRemediation';
 
 interface AdminSidebarProps {
   activeSection: AdminSection;
@@ -33,10 +33,7 @@ export function AdminSidebar({ activeSection, onSectionChange }: AdminSidebarPro
       )}>
         {!isCollapsed && (
           <div className="flex flex-col animate-in fade-in slide-in-from-left-2 duration-500">
-            <h2 className="text-xl font-bold text-foreground">Admin Settings</h2>
-            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight opacity-70">
-              Manage Rules, Intents and Remediation
-            </p>
+            <h2 className="text-xl font-bold text-foreground">Configuration</h2>
           </div>
         )}
         <button
@@ -103,7 +100,7 @@ export function AdminSidebar({ activeSection, onSectionChange }: AdminSidebarPro
         <div className="p-4 border-t border-border/30 bg-secondary/5">
           <div className="flex items-center gap-2 px-1">
             <Shield className="h-3 w-3 text-primary/50" />
-            <p className="text-[9px] text-muted-foreground leading-tight uppercase tracking-widest font-semibold opacity-50">
+            <p className="text-[9px] text-muted-foreground leading-tight font-semibold opacity-50">
               System Secure Mode
             </p>
           </div>

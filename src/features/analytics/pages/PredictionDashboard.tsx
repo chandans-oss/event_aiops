@@ -1,680 +1,629 @@
-import React, { useState, MouseEvent } from 'react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { MainLayout } from '@/shared/components/layout/MainLayout';
-import { Card, CardHeader, CardTitle, CardContent } from '@/shared/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/components/ui/select';
-import { Button } from '@/shared/components/ui/button';
-import { Badge } from '@/shared/components/ui/badge';
-import { 
-    Activity, 
-    Maximize, 
-    AlertCircle, 
-    TrendingUp, 
-    AlertTriangle, 
-    MonitorPlay, 
-    Zap, 
-    ArrowRight, 
-    X, 
-    Info, 
-    BrainCircuit, 
-    ActivitySquare, 
-    ChevronDown,
-    Cpu,
-    Network,
-    Gauge,
-    Timer,
-    History,
+import {
+    Activity,
+    Layers,
+    Zap,
     Router,
     Shield,
     Server,
     Database,
-    Cloud,
-    Wifi,
+    Cpu,
+    HardDrive,
+    Globe,
+    AlertCircle,
+    XCircle,
+    BarChart3,
     CheckCircle2,
-    Clock,
-    Search,
-    ListTree,
     Workflow,
-    Terminal,
-    Settings,
-    ShieldCheck,
+    History,
     ChevronRight,
-    Play,
-    TimerReset,
-    ShieldAlert
+    Play
 } from 'lucide-react';
-import { toast } from 'sonner';
+
+const cn = (...classes: (string | boolean | undefined)[]) => classes.filter(Boolean).join(' ');
 
 // --- DATA DEFINITIONS ---
 const topologies: Record<string, any> = {
     enterprise: {
         nodes: [
-            { id: 'CORE-RTR-01', x: 400, y: 150, type: 'router', status: 'critical', predicted: false, anomalies: [{ metric: 'CPU_LOAD', value: '98%', spike: '+42%', legend: 'Sustained peak detected' }, { metric: 'MEMORY_USAGE', value: '92%', spike: '+15%', legend: 'Buffer pressure rising' }] },
-            { id: 'CORE-RTR-02', x: 500, y: 150, type: 'router', status: 'normal', predicted: false },
-            { id: 'FW-01', x: 300, y: 250, type: 'firewall', status: 'warning', predicted: false },
-            { id: 'FW-02', x: 600, y: 250, type: 'firewall', status: 'normal', predicted: false },
-            { id: 'LB-PRIMARY', x: 450, y: 320, type: 'loadbalancer', status: 'warning', predicted: true, reason: 'Traffic spike indicative of imminent congestion threshold breach', anomalies: [{ metric: 'LINK_UTIL', value: '88%', spike: '+28%', legend: 'Traffic surge on primary' }] },
-            { id: 'EDGE-SW-05', x: 250, y: 400, type: 'switch', status: 'critical', predicted: true, reason: 'Buffer utilization predicted to exceed 95% within 10 minutes' },
-            { id: 'DIST-SW-03', x: 450, y: 400, type: 'switch', status: 'warning', predicted: false },
-            { id: 'DIST-SW-04', x: 650, y: 400, type: 'switch', status: 'normal', predicted: false },
-            { id: 'ACCESS-SW-12', x: 200, y: 500, type: 'switch', status: 'normal', predicted: false },
-            { id: 'ACCESS-SW-13', x: 350, y: 500, type: 'switch', status: 'normal', predicted: false },
-            { id: 'ACCESS-SW-14', x: 550, y: 500, type: 'switch', status: 'normal', predicted: false },
-            { id: 'ACCESS-SW-15', x: 700, y: 500, type: 'switch', status: 'normal', predicted: false }
+            { id: 'Edge Router R4', x: 120, y: 150, type: 'edge', status: 'warning', predicted: true },
+            { id: 'Edge Router R3', x: 120, y: 450, type: 'edge', status: 'warning' },
+            { id: 'Agg Switch SW1', x: 380, y: 300, type: 'switch', status: 'critical', anomaly: true },
+            { id: 'Core Router R1', x: 600, y: 300, type: 'router', status: 'normal' },
+            { id: 'App Gateway 1', x: 820, y: 150, type: 'gateway', status: 'warning', predicted: true },
+            { id: 'Auth Cluster', x: 1040, y: 150, type: 'auth', status: 'normal' },
+            { id: 'Compute Cluster A', x: 820, y: 400, type: 'compute', status: 'normal' },
+            { id: 'DB Cluster Main', x: 1040, y: 500, type: 'database', status: 'critical', anomaly: true },
+            { id: 'Storage Cluster', x: 820, y: 600, type: 'storage', status: 'normal' }
         ],
         links: [
-            { source: 'CORE-RTR-01', target: 'CORE-RTR-02', status: 'normal', predicted: false },
-            { source: 'CORE-RTR-01', target: 'FW-01', status: 'normal', predicted: false },
-            { source: 'CORE-RTR-02', target: 'FW-02', status: 'normal', predicted: false },
-            { source: 'FW-01', target: 'LB-PRIMARY', status: 'warning', predicted: false },
-            { source: 'FW-02', target: 'LB-PRIMARY', status: 'normal', predicted: false },
-            { source: 'LB-PRIMARY', target: 'EDGE-SW-05', status: 'critical', predicted: false },
-            { source: 'LB-PRIMARY', target: 'DIST-SW-03', status: 'warning', predicted: false },
-            { source: 'LB-PRIMARY', target: 'DIST-SW-04', status: 'normal', predicted: false },
-            { source: 'EDGE-SW-05', target: 'DIST-SW-03', status: 'critical', predicted: true, reason: 'Historical correlation: 88% chance of cascade failure propagation along this link' },
-            { source: 'EDGE-SW-05', target: 'ACCESS-SW-12', status: 'warning', predicted: false },
-            { source: 'EDGE-SW-05', target: 'ACCESS-SW-13', status: 'normal', predicted: false },
-            { source: 'DIST-SW-03', target: 'ACCESS-SW-13', status: 'normal', predicted: false },
-            { source: 'DIST-SW-03', target: 'ACCESS-SW-14', status: 'normal', predicted: true, reason: 'Predicted BGP route flap instability pushing excess traffic' },
-            { source: 'DIST-SW-04', target: 'ACCESS-SW-14', status: 'normal', predicted: false },
-            { source: 'DIST-SW-04', target: 'ACCESS-SW-15', status: 'normal', predicted: false }
+            { source: 'Edge Router R4', target: 'Agg Switch SW1', status: 'critical', curve: 'down', label: '10ms' },
+            { source: 'Edge Router R3', target: 'Agg Switch SW1', status: 'critical', curve: 'up', label: '12ms' },
+            { source: 'Agg Switch SW1', target: 'Core Router R1', status: 'normal', curve: 'up', label: '2ms' },
+            { source: 'Core Router R1', target: 'App Gateway 1', status: 'normal', curve: 'up', label: '5ms' },
+            { source: 'Core Router R1', target: 'Compute Cluster A', status: 'normal', curve: 'down', label: '8ms' },
+            { source: 'Core Router R1', target: 'Storage Cluster', status: 'normal', curve: 'down', label: '15ms' },
+            { source: 'App Gateway 1', target: 'Auth Cluster', status: 'normal', curve: 'up', label: '45ms' },
+            { source: 'Compute Cluster A', target: 'DB Cluster Main', status: 'normal', curve: 'up', label: '120ms' }
         ]
     },
+    hop_distance: {
+        nodes: [
+            { id: 'R1 (Router)', x: 150, y: 400, type: 'router', status: 'warning', predicted: true },
+            { id: 'SW1 (Access)', x: 415, y: 400, type: 'switch', status: 'normal' },
+            { id: 'SW2 (Dist)', x: 680, y: 400, type: 'switch', status: 'normal' },
+            { id: 'FW1 (Firewall)', x: 945, y: 400, type: 'auth', status: 'critical', anomaly: true },
+            { id: 'Edge1 (Edge)', x: 1210, y: 400, type: 'edge', status: 'normal' }
+        ],
+        links: [
+            { source: 'R1 (Router)', target: 'SW1 (Access)', label: '', status: 'normal', curve: 'up' },
+            { source: 'SW1 (Access)', target: 'SW2 (Dist)', label: '', status: 'normal', curve: 'down' },
+            { source: 'SW2 (Dist)', target: 'FW1 (Firewall)', label: '', status: 'normal', curve: 'up' },
+            { source: 'FW1 (Firewall)', target: 'Edge1 (Edge)', label: '', status: 'normal', curve: 'down' }
+        ]
+    }
 };
 
 const STATUS_COLORS: Record<string, string> = {
-    normal: '#10b981', 
-    warning: '#f59e0b', 
-    critical: '#ef4444', 
+    normal: '#10b981',
+    warning: '#f59e0b',
+    critical: '#ef4444',
     info: '#3b82f6'
 };
 
 const NODE_TYPES: Record<string, { size: number, icon: any }> = {
-    router: { size: 24, icon: Router },
-    switch: { size: 22, icon: Network },
-    firewall: { size: 24, icon: Shield },
-    loadbalancer: { size: 23, icon: Cpu },
-    server: { size: 21, icon: Server },
-    database: { size: 22, icon: Database },
-    datacenter: { size: 26, icon: Cloud },
-    gateway: { size: 22, icon: Zap },
-    accesspoint: { size: 20, icon: Wifi }
+    edge: { size: 30, icon: Globe },
+    router: { size: 30, icon: Server },
+    switch: { size: 30, icon: Server },
+    gateway: { size: 30, icon: Server },
+    auth: { size: 30, icon: Shield },
+    compute: { size: 30, icon: Cpu },
+    database: { size: 30, icon: Database },
+    storage: { size: 30, icon: HardDrive },
+    firewall: { size: 30, icon: Shield }
 };
 
-// --- INVESTIGATION TIMELINE DATA ---
-const INVESTIGATION_TIMELINE = [
-    { 
-        id: 1, 
-        status: 'MISSED', 
-        type: 'MISSED · METRIC', 
-        label: 'LINK_UTIL_BREACH', 
-        time: '12:53:47 PM', 
-        desc: 'Expected window passed — event not observed', 
-        detail: 'Link saturation drives buffer pressure', 
-        penalty: '-8% confidence penalty', 
-        color: '#F97316',
-        meta_status: 'GAP DETECTED'
-    },
-    { 
-        id: 2, 
-        status: 'ARRIVED', 
-        type: 'TRAP · SYSLOG', 
-        label: 'HIGH_CPU_TRAP', 
-        time: '12:53:45 PM', 
-        detail: 'arrived at 12:53:45 PM', 
-        color: '#10B981', 
-        confirmed: true,
-        meta_status: 'CONFIRMED'
-    },
-    { 
-        id: 3, 
-        status: 'ARRIVED', 
-        type: 'METRIC · POLL', 
-        label: 'BUFFER_UTIL_BREACH', 
-        time: '12:53:48 PM', 
-        detail: '72% arrived at 12:53:48 PM', 
-        color: '#10B981', 
-        confirmed: true,
-        meta_status: 'CONFIRMED'
-    },
-    { 
-        id: 4, 
-        status: 'ARRIVED', 
-        type: 'METRIC · POLL', 
-        label: 'CRC_ERRORS_BREACH', 
-        time: '12:53:56 PM', 
-        detail: 'arrived at 12:53:56 PM', 
-        color: '#10B981', 
-        confirmed: true,
-        meta_status: 'CONFIRMED'
-    },
-    { 
-        id: 5, 
-        status: 'ARRIVED', 
-        type: 'TRAP · SYSLOG', 
-        label: 'PACKET_DROP_EVENT', 
-        time: '12:53:59 PM', 
-        detail: 'arrived at 12:53:59 PM', 
-        color: '#10B981', 
-        confirmed: true,
-        meta_status: 'CONFIRMED'
-    },
-    { 
-        id: 6, 
-        status: 'PREDICTED', 
-        type: 'PREDICTED · TRAP', 
-        label: 'INTERFACE_FLAP', 
-        time: '01:02:40 PM', 
-        desc: 'All precursors active — flap is imminent', 
-        horizon: '1s', 
-        sub: '~60s / 1 poll', 
-        color: '#F97316', 
-        next: true,
-        meta_status: 'NEXT EVENT'
-    },
+const SERVICES_MAP: Record<string, any> = {
+    'Edge Router': { name: 'BGP Routing', protocol: 'BGP', latency: '12ms', throughput: '10 Gbps', impact: 'critical' },
+    'Agg Switch': { name: 'VLAN Trunking', protocol: '802.1Q', latency: '3ms', throughput: '40 Gbps', impact: 'high' },
+    'Core Router': { name: 'MPLS Backbone', protocol: 'MPLS', latency: '8ms', throughput: '100 Gbps', impact: 'critical' },
+    'App Gateway': { name: 'HTTP/HTTPS Proxy', protocol: 'HTTPS', latency: '22ms', throughput: '5 Gbps', impact: 'high' },
+    'Auth Cluster': { name: 'OAuth2 / Identity', protocol: 'TLS 1.3', latency: '45ms', throughput: '1 Gbps', impact: 'critical' },
+    'Compute Cluster': { name: 'Microservices Mesh', protocol: 'gRPC', latency: '5ms', throughput: '20 Gbps', impact: 'medium' },
+    'DB Cluster': { name: 'SQL Query Engine', protocol: 'TDS/Postgres', latency: '150ms', throughput: '2 Gbps', impact: 'critical' },
+    'Storage Cluster': { name: 'Object Storage', protocol: 'S3/iSCSI', latency: '40ms', throughput: '50 Gbps', impact: 'high' }
+};
+
+const SLA_DATA = [
+    { type: 'critical', name: 'Tier 1 Service Availability', target: '99.99%', mttr: '15m', penalty: '$5,000/hr' },
+    { type: 'high', name: 'Database Durability', target: '99.95%', mttr: '30m', penalty: '$2,500/hr' },
+    { type: 'medium', name: 'Internal API Latency', target: '99.90%', mttr: '1h', penalty: 'Service Credit' }
 ];
 
-const REMEDIATION_STEPS = [
-    { id: 'rem-1', title: 'Isolate Neighbor AS-65102', description: 'Shut down peering on interface Gi0/0/1 to stop routing loop propagation.', complexity: 'High', automated: false, icon: Router },
-    { id: 'rem-2', title: 'Rollback BGP Policy', description: 'Revert to version 2 (stable) of EXT-ROUTE-MAP policies.', complexity: 'Medium', automated: true, icon: History },
-    { id: 'rem-3', title: 'Execute Soft-Reset', description: 'Initiate soft-reset of IBGP peering sessions to refresh adjacency table.', complexity: 'Low', automated: true, icon: Zap },
-    { id: 'rem-4', title: 'Shift Traffic via redundant paths', description: 'Adjust OSPF weights to push traffic through backup DIST-SW-04 link.', complexity: 'Medium', automated: false, icon: Network }
-];
+const calculateNodeImpact = (node: any, topology: any) => {
+    // Generate dynamic mock data based on the selected node and its neighbors
+    const otherNodes = topology.nodes.filter((n: any) => n.id !== node.id);
+    const affectedCount = node.status === 'critical' ? 6 : 4;
+    const pickedNodes = otherNodes.slice(0, affectedCount);
+
+    const timeline = pickedNodes.map((n: any, idx: number) => {
+        const typeInfo = NODE_TYPES[n.type] || NODE_TYPES.router;
+        const timeOffset = (idx + 1) * 45;
+        const eventTime = new Date();
+        eventTime.setSeconds(eventTime.getSeconds() + timeOffset);
+
+        return {
+            time: `T+${timeOffset}s`,
+            timestamp: eventTime.toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' }),
+            device: n.id,
+            status: n.status === 'normal' ? 'DEGRADED' : 'FAILED',
+            layer: `Level ${idx + 1}`,
+            type: n.type.charAt(0).toUpperCase() + n.type.slice(1),
+            health: n.status === 'normal' ? '88%' : '62%',
+            impact: n.status === 'critical' ? '95%' : (n.status === 'warning' ? '70%' : '45%'),
+            icon: typeInfo.icon,
+            color: STATUS_COLORS[n.status] || '#3b82f6'
+        };
+    });
+
+    const affectedDevices = pickedNodes.map((n: any, idx: number) => ({
+        id: n.id,
+        criticality: n.status === 'critical' ? 'CRITICAL' : 'ORCHESTRATED',
+        health: n.status === 'normal' ? '92%' : '48%',
+        status: n.status === 'normal' ? 'DEGRADED' : 'FAILED',
+        cascade: `Level ${Math.floor(idx / 2)}`,
+        impact: n.status === 'critical' ? '100%' : '65%',
+        type: n.type
+    }));
+
+    const affectedServices = pickedNodes.slice(0, 3).map((n: any) => {
+        const serviceKey = Object.keys(SERVICES_MAP).find(k => n.id.includes(k)) || 'Edge Router';
+        const svc = SERVICES_MAP[serviceKey];
+        return {
+            ...svc,
+            impact: svc.impact.toUpperCase(),
+            icon: (NODE_TYPES[n.type] || NODE_TYPES.router).icon
+        };
+    });
+
+    const slaSummary = {
+        total: pickedNodes.length * 2,
+        critical: Math.floor(pickedNodes.length / 2),
+        high: pickedNodes.length,
+        medium: Math.ceil(pickedNodes.length / 3),
+        low: 2
+    };
+
+    return { timeline, affectedDevices, affectedServices, slaSummary };
+};
 
 export default function PredictionDashboard() {
     const [currentTopology, setCurrentTopology] = useState('enterprise');
-    const [contextMenu, setContextMenu] = useState<{ visible: boolean, x: number, y: number, type: string, node?: string | null }>({ visible: false, x: 0, y: 0, type: 'topology', node: null });
-    const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [sidebarView, setSidebarView] = useState<'timeline' | 'remediation'>('timeline');
+    const [isSidebarOpen, setSidebarOpen] = useState(false);
+    const [activeTab, setActiveTab] = useState<'timeline' | 'devices' | 'services' | 'sla'>('timeline');
     const [selectedNode, setSelectedNode] = useState<any>(null);
+    const [impactData, setImpactData] = useState<any>(null);
+    const [contextMenu, setContextMenu] = useState<{ x: number, y: number, node: any } | null>(null);
 
     const activeTopo = topologies[currentTopology] || topologies.enterprise;
 
     const handleNodeClick = (node: any) => {
-        if (node.predicted || node.anomalies) {
-            setSelectedNode(node);
-            setSidebarView('timeline');
-            setSidebarOpen(true);
-        } else {
-            toast(`Node: ${node.id} | Status: ${node.status}`);
-        }
+        // Left click no longer opens sidebar directly as per user request
+    };
+
+    const onContextMenuNode = (e: React.MouseEvent, node: any) => {
+        e.preventDefault();
+        if (!node.predicted && !node.anomaly) return;
+        setContextMenu({ x: e.clientX, y: e.clientY, node });
+    };
+
+    const handleImpactAnalysis = (node: any) => {
+        setSelectedNode(node);
+        setImpactData(calculateNodeImpact(node, activeTopo));
+        setSidebarOpen(true);
+        setContextMenu(null);
     };
 
     return (
         <MainLayout>
             <style dangerouslySetInnerHTML={{
                 __html: `
-                .pulse-ring { 
-                    animation: pulse-ring 2s cubic-bezier(0.24, 0, 0.38, 1) infinite; 
+                .predictive-ring { 
+                    stroke-dasharray: 12, 4; 
+                    animation: rotate-ring 40s linear infinite; 
+                    transform-origin: center; 
+                    stroke-opacity: 0.4;
                 }
-                @keyframes pulse-ring {
-                    0% { transform: scale(0.8); opacity: 0.8; }
-                    80%, 100% { transform: scale(2.5); opacity: 0; }
+                @keyframes rotate-ring { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                
+                .predictive-pulse { 
+                    animation: professional-pulse 8s ease-in-out infinite; 
                 }
-                .anomaly-glow { 
-                    filter: drop-shadow(0 0 8px currentcolor);
-                    animation: glow-breathe 2.5s ease-in-out infinite; 
+                @keyframes professional-pulse { 
+                    0%, 100% { opacity: 0.1; transform: scale(1.0); } 
+                    50% { opacity: 0.25; transform: scale(1.2); } 
                 }
-                @keyframes glow-breathe {
-                    0%, 100% { filter: drop-shadow(0 0 5px currentcolor); opacity: 0.9; }
-                    50% { filter: drop-shadow(0 0 20px currentcolor); opacity: 1; }
+                
+                .anomaly-blink { 
+                    animation: professional-breath 3s ease-in-out infinite; 
                 }
-                .link-pulse {
-                    stroke-dasharray: 8, 4;
-                    animation: dash-flow 30s linear infinite;
+                @keyframes professional-breath { 
+                    0%, 100% { opacity: 1; filter: brightness(1); } 
+                    50% { opacity: 0.7; filter: brightness(1.5) drop-shadow(0 0 5px currentColor); } 
                 }
-                @keyframes dash-flow {
-                    to { stroke-dashoffset: -1000; }
-                }
-                .critical-blink {
-                    animation: flash-red 1s steps(2, start) infinite;
-                }
-                @keyframes flash-red {
-                    to { visibility: hidden; }
-                }
+                
+                .link-beads { stroke-dasharray: 0.1, 20; stroke-linecap: round; animation: bead-flow 30s linear infinite; }
+                @keyframes bead-flow { to { stroke-dashoffset: -1000; } }
+                
+                .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
             `}} />
 
-            <div className="p-6 space-y-6 max-w-[1920px] mx-auto animate-in fade-in duration-500 min-h-screen">
-
-                {/* HEADER */}
-                <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-4">
-                    <div>
-                        <div className="flex items-center gap-3 mb-1">
-                            <div className="p-2 bg-primary/10 rounded-lg">
-                                <Activity className="h-5 w-5 text-primary" />
-                            </div>
-                            <h1 className="text-2xl font-black tracking-tight text-foreground italic uppercase">
-                                NetOps Intelligence
-                            </h1>
-                            <Badge variant="outline" className="ml-2 text-[10px] h-5 px-2 bg-emerald-500/10 text-emerald-500 border-emerald-500/30 flex gap-1.5 items-center font-black italic">
-                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-circle"></div>
-                                AI ENGINE ACTIVE
-                            </Badge>
-                        </div>
-                        <p className="text-muted-foreground text-[11px] font-bold uppercase tracking-widest">
-                            Real-time structural topology and predictive analytics pipeline
-                        </p>
-                    </div>
-
-                    <div className="flex flex-col">
+            <div className="flex h-[calc(100vh-80px)] overflow-hidden bg-[#0B0F19] relative">
+                {/* TOPOLOGY SECTION */}
+                <div className="flex-1 flex flex-col relative overflow-hidden">
+                    <div className="absolute top-6 left-6 z-10 flex items-center gap-4">
                         <Select value={currentTopology} onValueChange={setCurrentTopology}>
-                            <SelectTrigger className="w-[300px] bg-card/60 border-border/40 font-black text-[11px] uppercase tracking-wider h-10 italic">
-                                <SelectValue placeholder="Select topology" />
+                            <SelectTrigger className="w-[280px] bg-black/60 border-white/10 text-white rounded-xl h-11">
+                                <Layers className="w-4 h-4 mr-2 text-blue-400" />
+                                <SelectValue placeholder="Select Topology" />
                             </SelectTrigger>
-                            <SelectContent className="bg-[#0F172A] border-white/10">
-                                <SelectItem value="enterprise">Enterprise Data Center [E-12]</SelectItem>
-                                <SelectItem value="cloud">Cloud Infrastructure [C-15]</SelectItem>
-                                <SelectItem value="edge">Edge Compute Network [X-10]</SelectItem>
-                                <SelectItem value="hybrid">Hybrid WAN Mesh [H-14]</SelectItem>
+                            <SelectContent className="bg-[#0B0F19] border-white/10 text-white">
+                                <SelectItem value="enterprise">Enterprise Data Center</SelectItem>
+                                <SelectItem value="hop_distance">Hop-Distance Topology</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
-                </div>
 
-                {/* TOPOLOGY CANVAS */}
-                <div className="grid grid-cols-1 gap-6">
-                    <Card className="border-border/50 bg-[#111827]/40 relative overflow-hidden group rounded-xl">
-                        <CardHeader className="flex flex-row items-center justify-between border-b border-border/30 bg-white/[0.02] py-3">
-                            <CardTitle className="text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-2 text-foreground">
-                                <MonitorPlay className="h-4 w-4 text-blue-500" /> structural Topology graph
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-0 relative">
-                            <div className="h-[520px] w-full bg-black/20 relative overflow-auto custom-scrollbar">
-                                <svg className="min-w-[900px] min-h-[600px] w-full h-full">
-                                    {/* Links */}
-                                    {activeTopo.links.map((link: any, i: number) => {
-                                        const src = activeTopo.nodes.find((n: any) => n.id === link.source);
-                                        const tgt = activeTopo.nodes.find((n: any) => n.id === link.target);
-                                        return (
-                                            <line
-                                                key={`link-${i}`} x1={src.x} y1={src.y} x2={tgt.x} y2={tgt.y}
-                                                stroke={STATUS_COLORS[link.status]}
-                                                className={cn(
-                                                    "stroke-2 transition-all duration-300",
-                                                    link.predicted && "link-pulse",
-                                                    link.status === 'critical' && "stroke-[3px]"
-                                                )}
-                                                strokeOpacity={link.status === 'normal' ? 0.3 : 0.8}
-                                            />
-                                        );
-                                    })}
-                                    {/* Nodes */}
-                                    {activeTopo.nodes.map((node: any, i: number) => {
-                                        const IconComp = NODE_TYPES[node.type].icon;
-                                        const size = NODE_TYPES[node.type].size;
-                                        const isHighPriority = node.predicted || node.status === 'critical';
-                                        
-                                        return (
-                                            <g
-                                                key={`node-${i}`}
-                                                className="cursor-pointer group"
-                                                transform={`translate(${node.x}, ${node.y})`}
-                                                onClick={() => handleNodeClick(node)}
-                                            >
-                                                {/* Pulse Ring for predicted nodes */}
-                                                {node.predicted && (
-                                                    <circle 
-                                                        r={size * 1.5} 
-                                                        fill="none" 
-                                                        stroke={STATUS_COLORS[node.status]} 
-                                                        strokeWidth="2" 
-                                                        className="pulse-ring" 
-                                                    />
-                                                )}
-                                                
-                                                {/* Node main body */}
-                                                <circle 
-                                                    r={size} 
-                                                    fill={STATUS_COLORS[node.status]} 
-                                                    stroke="#0B0F19" 
-                                                    strokeWidth="2" 
-                                                    className={cn(
-                                                        "transition-all hover:scale-110",
-                                                        isHighPriority && "anomaly-glow"
-                                                    )}
-                                                    style={{ color: STATUS_COLORS[node.status] }}
-                                                />
-
-                                                {/* Icon */}
-                                                <foreignObject x={-size/2} y={-size/2} width={size} height={size} style={{ pointerEvents: 'none' }}>
-                                                    <div className={cn(
-                                                        "flex items-center justify-center w-full h-full",
-                                                        node.status === 'critical' && "critical-blink"
-                                                    )}>
-                                                        <IconComp className="text-white w-[70%] h-[70%]" strokeWidth={2.5} />
-                                                    </div>
-                                                </foreignObject>
-                                                
-                                                <text 
-                                                    y={size + 18} 
-                                                    textAnchor="middle" 
-                                                    className={cn(
-                                                        "text-[9px] font-black uppercase tracking-widest pointer-events-none transition-colors",
-                                                        isHighPriority ? "fill-white" : "fill-slate-500"
-                                                    )}
-                                                >
-                                                    {node.id}
-                                                </text>
-                                            </g>
-                                        );
-                                    })}
-                                </svg>
-
-                                {/* FLOATING LEGEND */}
-                                <div className="absolute bottom-4 right-4 flex flex-col gap-4 p-4 rounded-xl bg-[#0F172A]/90 border border-white/10 backdrop-blur-md shadow-2xl animate-in slide-in-from-bottom-2 duration-700 pointer-events-none overflow-hidden max-w-[280px]">
-                                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
-                                    
-                                    <div className="space-y-3">
-                                        <h4 className="text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] mb-3">Diagnostic Legend</h4>
-                                        
-                                        {/* Row 1: Status */}
-                                        <div className="flex flex-wrap gap-x-4 gap-y-2 pb-3 border-b border-white/5">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-2 h-2 rounded-full bg-[#10b981]" />
-                                                <span className="text-[8px] font-bold text-slate-300 uppercase tracking-wider">Normal</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-2 h-2 rounded-full bg-[#f59e0b]" />
-                                                <span className="text-[8px] font-bold text-slate-300 uppercase tracking-wider">Warning</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-2 h-2 rounded-full bg-[#ef4444]" />
-                                                <span className="text-[8px] font-bold text-slate-300 uppercase tracking-wider">Critical</span>
-                                            </div>
-                                        </div>
-
-                                        {/* Row 2: Prediction Visuals */}
-                                        <div className="space-y-2.5 pb-3 border-b border-white/5">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-3.5 h-3.5 rounded-full border border-orange-500 relative flex items-center justify-center">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-ping opacity-75" />
-                                                </div>
-                                                <span className="text-[8px] font-bold text-white uppercase tracking-wider">Predicted Anomaly <span className="text-orange-500 ml-1">· ML-Target</span></span>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex items-center gap-0.5">
-                                                    <div className="w-1 h-0.5 bg-blue-500" />
-                                                    <div className="w-1 h-0.5 bg-blue-500/20" />
-                                                    <div className="w-1 h-0.5 bg-blue-500" />
-                                                </div>
-                                                <span className="text-[8px] font-bold text-white uppercase tracking-wider">Predictive Link <span className="text-blue-500 ml-1">· Path Risk</span></span>
-                                            </div>
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-3.5 h-3.5 rounded-full bg-red-500/20 border border-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
-                                                <span className="text-[8px] font-bold text-white uppercase tracking-wider">Real-time Anomaly <span className="text-red-500 ml-1">· Active</span></span>
-                                            </div>
-                                        </div>
-
-                                        {/* Row 3: Node Icons */}
-                                        <div className="grid grid-cols-2 gap-2 pt-1 opacity-70">
-                                            <div className="flex items-center gap-2">
-                                                <Router className="w-3 h-3 text-slate-400" />
-                                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Router</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Network className="w-3 h-3 text-slate-400" />
-                                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Switch</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Shield className="w-3 h-3 text-slate-400" />
-                                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Firewall</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Cpu className="w-3 h-3 text-slate-400" />
-                                                <span className="text-[8px] font-bold text-slate-400 uppercase tracking-tighter">Balancer</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                    <div className="absolute top-6 right-6 z-10 bg-black/80 backdrop-blur-xl px-6 py-2.5 rounded-full border border-white/10 flex items-center gap-8 shadow-2xl">
+                        <div className="flex items-center gap-4 border-r border-white/10 pr-6">
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                                <span className="text-[10px] font-bold text-slate-400 tracking-widest">Healthy</span>
                             </div>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
-
-            {/* PREDICTION INVESTIGATION SIDEBAR */}
-            {sidebarOpen && (
-                <>
-                    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] animate-in fade-in" onClick={() => setSidebarOpen(false)} />
-                    <div className="fixed right-0 top-0 h-full w-[800px] bg-[#0F172A] border-l border-white/5 shadow-2xl z-[101] animate-in slide-in-from-right flex flex-col overflow-hidden font-['Sora']">
-                        
-                        {/* Sidebar Header */}
-                        <div className="flex items-center justify-between p-6 border-b border-white/5 bg-[#111827]/80 backdrop-blur-md">
-                            <div className="flex items-center gap-4">
-                                <div className={cn("p-2.5 rounded-xl border", sidebarView === 'timeline' ? "bg-amber-500/10 border-amber-500/20" : "bg-blue-500/10 border-blue-500/20")}>
-                                    {sidebarView === 'timeline' ? <Activity className="w-5 h-5 text-amber-500" /> : <ShieldAlert className="w-5 h-5 text-blue-500" />}
-                                </div>
-                                <div>
-                                    <h2 className="text-sm font-black text-white uppercase tracking-widest italic leading-none mb-1">
-                                        {selectedNode?.id} {sidebarView === 'timeline' ? 'Prediction flow' : 'Remediation Engine'}
-                                    </h2>
-                                    <p className="text-[10px] text-slate-500 font-black uppercase tracking-[0.2em]">
-                                        {sidebarView === 'timeline' ? 'Structural Trace Analysis' : 'Automated Recovery Protocol'}
-                                    </p>
-                                </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-amber-500" />
+                                <span className="text-[10px] font-bold text-slate-400 tracking-widest">Major</span>
                             </div>
-                            <div className="flex items-center gap-3">
-                                {sidebarView === 'remediation' && (
-                                    <Button variant="ghost" size="sm" onClick={() => setSidebarView('timeline')} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-white hover:bg-white/5">
-                                        <History className="w-3.5 h-3.5 mr-2" /> View Trace
-                                    </Button>
-                                )}
-                                <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(false)} className="text-slate-400 hover:text-white hover:bg-white/5 h-10 w-10 rounded-xl">
-                                    <X className="h-5 w-5" />
-                                </Button>
+                            <div className="flex items-center gap-2">
+                                <div className="w-2 h-2 rounded-full bg-red-500" />
+                                <span className="text-[10px] font-bold text-slate-400 tracking-widest">Critical</span>
                             </div>
                         </div>
-
-                        {/* Sidebar Content */}
-                        <div className="flex-1 overflow-y-auto bg-[#0B0F19] custom-scrollbar">
-                            {sidebarView === 'timeline' ? (
-                                <div className="p-0">
-                                    {/* Anomaly Metrics Highlight (Vivid) */}
-                                    {selectedNode?.anomalies && (
-                                        <div className="px-8 py-8 bg-gradient-to-b from-red-500/10 to-transparent border-b border-white/5">
-                                            <div className="flex items-center gap-2 mb-6">
-                                                <Badge className="bg-red-500 text-white border-none text-[10px] font-black italic tracking-widest px-3 py-1">REAL-TIME ANOMALIES DETECTED</Badge>
-                                            </div>
-                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                {selectedNode.anomalies.map((anom: any, idx: number) => (
-                                                    <div key={idx} className="p-4 rounded-xl bg-white/[0.03] border border-white/5 backdrop-blur-md relative overflow-hidden group">
-                                                        <div className="absolute top-0 right-0 p-2 opacity-10">
-                                                            <ActivitySquare className="w-8 h-8 text-red-500" />
-                                                        </div>
-                                                        <div className="flex justify-between items-start mb-2">
-                                                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{anom.metric}</span>
-                                                            <span className="text-sm font-black text-red-500 animate-pulse">{anom.spike} spike</span>
-                                                        </div>
-                                                        <div className="text-2xl font-black text-white italic tracking-tighter mb-1">{anom.value}</div>
-                                                        <p className="text-[10px] text-slate-400 font-bold uppercase italic">{anom.legend}</p>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    <div className="relative">
-                                        <div className="px-8 pt-8 pb-4">
-                                            <h4 className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] mb-4 italic">Sequential Trace Analysis</h4>
-                                        </div>
-                                        {/* Left Connecting Line */}
-                                        <div className="absolute left-[40px] top-[100px] bottom-0 w-[2px] bg-gradient-to-b from-orange-500/40 via-emerald-500/40 to-orange-500/40" />
-                                        
-                                        <div className="flex flex-col">
-                                        {INVESTIGATION_TIMELINE.map((event, idx) => (
-                                            <div key={event.id} className="relative flex min-h-[140px] border-b border-white/[0.03] hover:bg-white/[0.01] transition-colors group">
-                                                
-                                                {/* Left Column (Icons) */}
-                                                <div className="w-[80px] flex-shrink-0 flex items-center justify-center relative">
-                                                    <div className={cn(
-                                                        "w-10 h-10 rounded-full border-2 bg-[#0B0F19] z-10 flex items-center justify-center transition-all group-hover:scale-110",
-                                                        event.status === 'MISSED' ? "border-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.2)]" : 
-                                                        event.status === 'ARRIVED' ? "border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.2)]" : 
-                                                        "border-orange-500 shadow-[0_0_20px_rgba(249,115,22,0.4)]"
-                                                    )}>
-                                                        {event.status === 'MISSED' && <span className="text-lg font-black text-orange-500/70">?</span>}
-                                                        {event.status === 'ARRIVED' && <CheckCircle2 className="w-5 h-5 text-emerald-500" />}
-                                                        {event.status === 'PREDICTED' && <span className="text-lg font-black text-orange-500">6</span>}
-                                                    </div>
-                                                </div>
-
-                                                {/* Center Column (Content) */}
-                                                <div className="flex-1 py-6 px-4">
-                                                    <div className="flex items-center gap-3 mb-2">
-                                                        <Badge variant="outline" className={cn(
-                                                           "bg-white/[0.03] border-white/5 text-[9px] font-black px-2 py-0.5 uppercase tracking-widest",
-                                                           event.status === 'MISSED' ? "text-orange-400" : "text-slate-400"
-                                                        )}>
-                                                            {event.type}
-                                                        </Badge>
-                                                    </div>
-                                                    <h3 className={cn(
-                                                        "text-lg font-black tracking-tight mb-1",
-                                                        event.status === 'MISSED' || event.status === 'PREDICTED' ? "text-orange-500/90" : "text-emerald-500/90"
-                                                    )}>
-                                                        {event.label}
-                                                    </h3>
-                                                    <p className="text-[12px] text-slate-400 font-bold leading-tight mb-1">{event.desc || (event.status === 'ARRIVED' ? 'Confirmed by neighbor router traps' : '')}</p>
-                                                    
-                                                    {event.detail && (
-                                                        <div className="flex items-center gap-2 mt-2">
-                                                            {event.status === 'ARRIVED' && <div className="w-3 h-[2px] bg-emerald-500/30" />}
-                                                            <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest">{event.detail}</p>
-                                                        </div>
-                                                    )}
-
-                                                    {event.penalty && (
-                                                        <div className="mt-3 inline-flex items-center px-3 py-1 rounded-md bg-orange-500/10 border border-orange-500/20 text-[10px] font-black text-orange-500 uppercase tracking-widest italic">
-                                                            {event.penalty}
-                                                        </div>
-                                                    )}
-                                                </div>
-
-                                                {/* Right Column (Status & Time) */}
-                                                <div className="w-[200px] flex-shrink-0 py-6 px-8 flex flex-col items-end justify-start">
-                                                    <h4 className={cn(
-                                                        "text-xl font-black italic tracking-tighter leading-none mb-1",
-                                                        event.status === 'MISSED' ? "text-orange-500" : event.status === 'ARRIVED' ? "text-emerald-500" : "text-orange-500 text-3xl"
-                                                    )}>
-                                                        {event.status === 'PREDICTED' ? event.horizon : event.status}
-                                                    </h4>
-                                                    <div className="flex flex-col items-end">
-                                                        <span className="text-[10px] text-slate-500 font-mono font-bold">{event.status === 'MISSED' ? `window: ${event.time}` : `@ ${event.time}`}</span>
-                                                        <Badge className={cn(
-                                                            "mt-2 text-[10px] font-black border-none px-2 py-0.5",
-                                                            event.status === 'MISSED' ? "bg-orange-500/20 text-orange-500" : 
-                                                            event.status === 'ARRIVED' ? "bg-emerald-500/20 text-emerald-500" : "bg-orange-500 text-black shadow-[0_0_15px_rgba(249,115,22,0.4)]"
-                                                        )}>
-                                                            {event.meta_status}
-                                                        </Badge>
-                                                        {event.status === 'PREDICTED' && (
-                                                            <span className="text-[9px] text-slate-600 font-black uppercase tracking-widest mt-2">{event.sub}</span>
-                                                        )}
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                        ))}
-                                        </div>
-                                    </div>
+                        <div className="flex items-center gap-6">
+                            <div className="flex items-center gap-2 group">
+                                <div className="relative w-3 h-3">
+                                    <div className="absolute inset-0 rounded-full border border-blue-500/50" />
+                                    <div className="absolute inset-[2px] rounded-full bg-blue-500 predictive-pulse" />
                                 </div>
-                            ) : (
-                                <div className="p-8 space-y-8">
-                                    {/* Predicted RCA Summary */}
-                                    <div className="relative p-8 rounded-2xl bg-[#111827]/40 border border-white/5 overflow-hidden group">
-                                        <div className="absolute top-0 right-0 p-4">
-                                            <ShieldCheck className="w-12 h-12 text-blue-500/10 group-hover:text-blue-500/20 transition-colors" />
-                                        </div>
-                                        <div className="flex items-center gap-2 mb-4">
-                                            <Badge className="bg-blue-500/10 text-blue-400 border-none text-[10px] font-black tracking-[0.2em] px-3 py-1 uppercase">Predicted Root Cause</Badge>
-                                        </div>
-                                        <h3 className="text-2xl font-black text-white italic tracking-tight mb-6">BGP Neighbor Adjacency Instability (Loop)</h3>
-                                        <div className="grid grid-cols-2 gap-8">
-                                            <div className="space-y-1">
-                                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Confidence Level</span>
-                                                <div className="flex items-center gap-3">
-                                                    <div className="text-3xl font-black text-emerald-500 italic">94.2%</div>
-                                                    <div className="flex-1 h-2 bg-white/5 rounded-full overflow-hidden">
-                                                        <div className="h-full bg-emerald-500 w-[94.2%]" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Incident Risk</span>
-                                                <div className="text-3xl font-black text-amber-500 italic uppercase">Critical</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Remediation Steps */}
-                                    <div className="space-y-4">
-                                        <div className="flex items-center gap-3 px-2 mb-6">
-                                            <div className="h-px flex-1 bg-white/5" />
-                                            <span className="text-[11px] font-black text-slate-500 uppercase tracking-[0.3em] italic">Automated Remediation path</span>
-                                            <div className="h-px flex-1 bg-white/5" />
-                                        </div>
-                                        
-                                        {REMEDIATION_STEPS.map((step, idx) => (
-                                            <div key={step.id} className="relative flex gap-6 p-6 rounded-xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all group">
-                                                <div className="flex flex-col items-center">
-                                                    <div className="w-12 h-12 rounded-xl bg-[#0B0F19] border border-white/10 flex items-center justify-center group-hover:border-blue-500/30 transition-colors">
-                                                        <step.icon className="w-6 h-6 text-blue-400/80" />
-                                                    </div>
-                                                    {idx < REMEDIATION_STEPS.length - 1 && <div className="w-px flex-1 bg-white/10 mt-4" />}
-                                                </div>
-                                                <div className="flex-1">
-                                                    <div className="flex items-center justify-between mb-2">
-                                                        <h5 className="text-[15px] font-black text-white italic tracking-wide">{step.title}</h5>
-                                                        {step.automated && (
-                                                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-emerald-500/10 border border-emerald-500/20 text-[9px] font-black text-emerald-500 uppercase italic">
-                                                                < Zap className="w-2.5 h-2.5 fill-current" /> Auto-Sync
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                    <p className="text-[13px] text-slate-400 font-medium leading-relaxed mb-4">{step.description}</p>
-                                                    <div className="flex items-center gap-6">
-                                                        <div className="flex items-center gap-2">
-                                                            <div className={cn(
-                                                                "w-2 h-2 rounded-full",
-                                                                step.complexity === 'High' ? 'bg-red-500' : step.complexity === 'Medium' ? 'bg-amber-500' : 'bg-emerald-500'
-                                                            )} />
-                                                            <span className="text-[11px] font-black text-slate-500 uppercase">{step.complexity} COMPLEXITY</span>
-                                                        </div>
-                                                        <div className="text-[11px] font-black text-slate-600 uppercase">Est. Time: ~45s</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Sidebar Footer */}
-                        <div className="p-8 border-t border-white/5 bg-[#111827]/80 backdrop-blur-md">
-                            {sidebarView === 'timeline' ? (
-                                <Button 
-                                    onClick={() => setSidebarView('remediation')}
-                                    className="w-full bg-[#F97316] hover:bg-[#EA580C] text-black font-black text-[13px] uppercase tracking-[0.2em] italic py-8 transition-all hover:scale-[1.01] hover:shadow-[0_0_30px_rgba(249,115,22,0.3)] group"
-                                >
-                                    <ShieldAlert className="w-5 h-5 mr-3" /> remediate <ChevronRight className="w-5 h-5 ml-2 transition-transform group-hover:translate-x-1" />
-                                </Button>
-                            ) : (
-                                <div className="w-full">
-                                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-[13px] uppercase tracking-[0.2em] italic h-14 shadow-[0_0_30px_rgba(37,99,235,0.4)] group">
-                                        Execute Recovery <Play className="w-4 h-4 ml-3 fill-current transition-transform group-hover:scale-110" />
-                                    </Button>
-                                </div>
-                            )}
+                                <span className="text-[10px] font-bold text-blue-400 tracking-widest">Prediction</span>
+                            </div>
+                            <div className="flex items-center gap-2 group">
+                                <div className="w-3 h-3 rounded-sm bg-red-500 anomaly-blink shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                                <span className="text-[10px] font-bold text-red-500 tracking-widest">Anomaly</span>
+                            </div>
                         </div>
                     </div>
-                </>
-            )}
+
+                    <div className="flex-1 overflow-auto custom-scrollbar relative bg-[radial-gradient(circle_at_center,_rgba(37,99,235,0.05),transparent)]">
+                        <svg className="w-full min-h-[800px]" viewBox="0 0 1300 800" preserveAspectRatio="xMidYMid meet">
+                            {activeTopo.links.map((link: any, i: number) => {
+                                const src = activeTopo.nodes.find((n: any) => n.id === link.source);
+                                const tgt = activeTopo.nodes.find((n: any) => n.id === link.target);
+                                if (!src || !tgt) return null;
+                                const midX = (src.x + tgt.x) / 2;
+                                const midY = (src.y + tgt.y) / 2;
+                                const offset = link.curve === 'straight' ? 0 : (link.curve === 'up' ? -40 : 40);
+                                const pathData = `M ${src.x} ${src.y} Q ${midX} ${midY + offset} ${tgt.x} ${tgt.y}`;
+                                return (
+                                    <g key={i}>
+                                        <path d={pathData} stroke={link.status === 'critical' ? '#ef4444' : '#3b82f6'} strokeWidth="2" fill="none" strokeOpacity="0.2" />
+                                        <path d={pathData} stroke={link.status === 'critical' ? '#ef4444' : '#60a5fa'} strokeWidth="3" fill="none" strokeOpacity="0.6" className="link-beads" />
+                                        {link.label && (
+                                            <text x={midX} y={midY + offset - 12} textAnchor="middle" className="text-[11px] font-bold fill-slate-500 uppercase tracking-widest">
+                                                {link.label}
+                                            </text>
+                                        )}
+                                    </g>
+                                );
+                            })}
+                            {activeTopo.nodes.map((node: any, i: number) => {
+                                const nodeType = NODE_TYPES[node.type] || NODE_TYPES.router;
+                                const IconComp = nodeType.icon;
+                                const size = nodeType.size;
+                                const color = STATUS_COLORS[node.status];
+
+                                return (
+                                    <g 
+                                        key={i} 
+                                        transform={`translate(${node.x}, ${node.y})`} 
+                                        onClick={() => handleNodeClick(node)}
+                                        onContextMenu={(e) => onContextMenuNode(e, node)}
+                                        className="cursor-pointer group"
+                                    >
+                                        {node.predicted && (
+                                            <circle r={size * 1.5} fill={color} className="predictive-pulse" opacity="0.1" />
+                                        )}
+                                        <rect x="-24" y="-24" width="48" height="48" rx="12" fill="#0B0F19" stroke={node.status !== 'normal' ? color : 'rgba(255,255,255,0.1)'} strokeWidth="2" className={cn(node.anomaly && "anomaly-blink shadow-[0_0_20px_rgba(239,68,68,0.2)]")} />
+
+                                        <foreignObject x="-12" y="-12" width="24" height="24" style={{ pointerEvents: 'none' }}>
+                                            <div className="flex items-center justify-center w-full h-full">
+                                                <IconComp size={20} className={cn(node.anomaly && "anomaly-blink", "transition-colors")} style={{ color: color }} strokeWidth={2.5} />
+                                            </div>
+                                        </foreignObject>
+
+                                        <text y="42" textAnchor="middle" className="text-[11px] font-black fill-slate-400 group-hover:fill-white tracking-tighter transition-colors">
+                                            {node.id}
+                                        </text>
+
+                                        <circle cx="18" cy="-18" r="5" fill={color} className={cn(node.status !== 'normal' && "animate-pulse")} />
+                                    </g>
+                                );
+                            })}
+                        </svg>
+                    </div>
+                </div>
+                
+                {/* CONTEXT MENU */}
+                {contextMenu && (
+                    <div 
+                        className="fixed inset-0 z-[100]" 
+                        onClick={() => setContextMenu(null)}
+                        onContextMenu={(e) => { e.preventDefault(); setContextMenu(null); }}
+                    >
+                        <motion.div 
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="absolute bg-[#0F172A] border border-white/10 rounded-xl shadow-2xl p-1 min-w-[200px] backdrop-blur-xl"
+                            style={{ left: contextMenu.x, top: contextMenu.y }}
+                        >
+                            <button 
+                                onClick={() => handleImpactAnalysis(contextMenu.node)}
+                                className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-primary/20 hover:text-primary rounded-lg text-[12px] font-black text-white tracking-widest transition-all text-left"
+                            >
+                                <Zap className="h-3.5 w-3.5" />
+                                Impact Analysis
+                            </button>
+                        </motion.div>
+                    </div>
+                )}
+
+                {/* ADVANCED IMPACT SIDEBAR */}
+                <AnimatePresence>
+                    {isSidebarOpen && selectedNode && impactData && (
+                        <motion.div
+                            initial={{ width: 0, opacity: 0 }}
+                            animate={{ width: 480, opacity: 1 }}
+                            exit={{ width: 0, opacity: 0 }}
+                            className="h-full border-l border-white/5 bg-[#010816] flex flex-col shadow-2xl relative z-50"
+                        >
+                            {/* SIDEBAR HEADER with CLOSE */}
+                            <div className="flex items-center justify-between px-6 h-14 bg-[#020C1F] border-b border-white/5 shrink-0">
+                                <h2 className="text-[13px] font-black text-white tracking-widest">Impact Analysis</h2>
+                                <button onClick={() => setSidebarOpen(false)} className="p-1 hover:bg-white/5 rounded-full transition-colors">
+                                    <XCircle size={20} className="text-slate-500 hover:text-white" />
+                                </button>
+                            </div>
+
+                            {/* TABS */}
+                            <div className="flex bg-[#020C1F]/50 border-b border-white/5 shrink-0 h-14">
+                                {(['timeline', 'devices', 'services', 'sla'] as const).map((tab) => (
+                                    <button
+                                        key={tab}
+                                        onClick={() => setActiveTab(tab)}
+                                        className={cn(
+                                            "flex-1 flex items-center justify-center gap-2 text-[12px] font-black tracking-widest transition-all relative",
+                                            activeTab === tab ? "text-[#00D4FF] bg-white/[0.03]" : "text-slate-500 hover:text-slate-300"
+                                        )}
+                                    >
+                                        {tab === 'timeline' && <History size={14} />}
+                                        {tab === 'devices' && <Server size={14} />}
+                                        {tab === 'services' && <Zap size={14} />}
+                                        {tab === 'sla' && <Shield size={14} />}
+                                        {tab === 'sla' ? 'SLA' : tab.charAt(0).toUpperCase() + tab.slice(1)}
+                                        {activeTab === tab && <motion.div layoutId="tab" className="absolute bottom-0 left-0 w-full h-0.5 bg-[#00D4FF]" />}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-4">
+                                {activeTab === 'timeline' && (
+                                    <div className="space-y-4">
+                                        <div className="relative pl-8 space-y-6 before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-[#00D4FF]/30">
+                                            {impactData.timeline.map((event: any, idx: number) => (
+                                                <div key={idx} className="relative">
+                                                    <div className="absolute -left-[23px] top-0 w-6 h-6 rounded-full bg-[#010816] border-2 border-[#00D4FF]/50 flex items-center justify-center z-10">
+                                                        <div className="w-5 h-5 rounded-full flex items-center justify-center" style={{ backgroundColor: event.color + '33' }}>
+                                                            {React.createElement(event.icon, { size: 10, color: event.color })}
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <div>
+                                                            <div className="text-[15px] font-black text-[#00D4FF] leading-none mb-1 tracking-tighter">{event.time}</div>
+                                                            <div className="text-[12px] font-bold text-slate-500 font-mono tracking-tighter">{event.timestamp}</div>
+                                                        </div>
+                                                         <div className="p-3 rounded-xl bg-gradient-to-br from-white/[0.04] to-transparent border border-white/[0.06] relative group hover:border-[#00D4FF]/30 transition-all">
+                                                            <div className="flex justify-between items-start mb-2">
+                                                                <h3 className="text-[15px] font-black text-white tracking-tight">{event.device}</h3>
+                                                                <div className="px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-500 text-[11px] font-black">
+                                                                    {event.impact}
+                                                                </div>
+                                                            </div>
+                                                            <div className="grid grid-cols-2 gap-y-2">
+                                                                <div>
+                                                                    <p className="text-[10px] font-bold text-slate-500 mb-0.5">Status</p>
+                                                                    <p className="text-[12px] font-black text-red-500">{event.status.charAt(0).toUpperCase() + event.status.slice(1).toLowerCase()}</p>
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-[10px] font-bold text-slate-500 mb-0.5">Layer</p>
+                                                                    <p className="text-[12px] font-black text-white">{event.layer}</p>
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-[10px] font-bold text-slate-500 mb-0.5">Type</p>
+                                                                    <p className="text-[12px] font-black text-white">{event.type}</p>
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-[10px] font-bold text-slate-500 mb-0.5">Health</p>
+                                                                    <p className="text-[12px] font-black text-white">{event.health}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {activeTab === 'devices' && (
+                                    <div className="space-y-4">
+                                        <div className="p-4 rounded-xl bg-gradient-to-b from-[#00D4FF]/10 to-transparent border border-[#00D4FF]/30 text-center relative overflow-hidden">
+                                            <div className="text-[34px] font-black text-[#00D4FF] mb-1 tracking-tighter">
+                                                {impactData.affectedDevices.length}
+                                            </div>
+                                            <div className="text-[11px] font-black text-slate-400 tracking-[0.2em]">Devices Affected</div>
+                                        </div>
+
+
+                                        <div className="space-y-2">
+                                            {impactData.affectedDevices.map((device: any, idx: number) => (
+                                                 <div key={idx} className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-[#00D4FF]/20 transition-all">
+                                                    <div className="flex justify-between items-center mb-4">
+                                                        <div className="flex items-center gap-2">
+                                                            <Router size={14} color="#00D4FF" />
+                                                            <span className="text-[13px] font-black text-white tracking-tight">{device.id}</span>
+                                                        </div>
+                                                        <div className="px-2 py-0.5 rounded-full bg-orange-500/20 text-orange-500 text-[10px] font-black">
+                                                            {device.impact}
+                                                        </div>
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-y-2">
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-slate-500 mb-0.5">Criticality</p>
+                                                            <p className="text-[12px] font-black text-white">{device.criticality.charAt(0).toUpperCase() + device.criticality.slice(1).toLowerCase()}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-slate-500 mb-0.5">Health</p>
+                                                            <p className="text-[12px] font-black text-white">{device.health}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-slate-500 mb-0.5">Status</p>
+                                                            <p className="text-[12px] font-black text-red-500">{device.status.charAt(0).toUpperCase() + device.status.slice(1).toLowerCase()}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-slate-500 mb-0.5">Cascade Level</p>
+                                                            <p className="text-[12px] font-black text-white">{device.cascade}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {activeTab === 'services' && (
+                                    <div className="space-y-4">
+                                        <div className="p-4 rounded-xl bg-gradient-to-b from-[#00D4FF]/10 to-transparent border border-[#00D4FF]/30 text-center relative overflow-hidden">
+                                            <div className="text-[34px] font-black text-[#00D4FF] mb-1 tracking-tighter">
+                                                {impactData.affectedServices.length}
+                                            </div>
+                                            <div className="text-[11px] font-black text-slate-400 tracking-[0.2em]">Network Services Affected</div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="bg-white/[0.03] p-3 rounded-xl border border-white/5 text-center">
+                                                <div className="text-[26px] font-black text-red-500 mb-1 leading-none tracking-tighter">
+                                                    {impactData.affectedServices.filter((s: any) => s.impact === 'CRITICAL').length}
+                                                </div>
+                                                <div className="text-[9px] font-black text-slate-500 tracking-widest">Critical Impact</div>
+                                            </div>
+                                            <div className="bg-white/[0.03] p-3 rounded-xl border border-white/5 text-center">
+                                                <div className="text-[26px] font-black text-orange-500 mb-1 leading-none tracking-tighter">
+                                                    {impactData.affectedServices.filter((s: any) => s.impact === 'HIGH').length}
+                                                </div>
+                                                <div className="text-[9px] font-black text-slate-500 tracking-widest">High Impact</div>
+                                            </div>
+                                        </div>
+
+
+                                        <div className="space-y-2">
+                                            {impactData.affectedServices.map((service: any, idx: number) => (
+                                                 <div key={idx} className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] group hover:border-[#00D4FF]/20 transition-all">
+                                                    <div className="flex justify-between items-start mb-4">
+                                                        <div className="flex items-center gap-2">
+                                                            {React.createElement(service.icon, { size: 14, className: "text-[#00D4FF]" })}
+                                                            <p className="text-[14px] font-black text-white tracking-tight">{service.name}</p>
+                                                        </div>
+                                                        <div className={cn("px-2 py-0.5 rounded-full text-[10px] font-black", service.impact === 'CRITICAL' ? 'bg-red-500/20 text-red-500' : 'bg-orange-500/20 text-orange-500')}>
+                                                            {service.impact}
+                                                        </div>
+                                                    </div>
+                                                    <div className="grid grid-cols-2 gap-y-2">
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-slate-500 mb-0.5">Protocol</p>
+                                                            <p className="text-[12px] font-black text-white">{service.protocol}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-slate-500 mb-0.5">Port</p>
+                                                            <p className="text-[12px] font-black text-white">{service.port}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-slate-500 mb-0.5">Dependencies</p>
+                                                            <p className="text-[12px] font-black text-white">{service.dependencies}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[10px] font-bold text-slate-500 mb-0.5">Uptime</p>
+                                                            <p className="text-[12px] font-black text-white">{service.uptime}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {activeTab === 'sla' && (
+                                    <div className="space-y-4">
+                                        <div className="p-4 rounded-xl bg-gradient-to-b from-[#00D4FF]/10 to-transparent border border-[#00D4FF]/30 text-center relative overflow-hidden">
+                                            <div className="text-[32px] font-black text-[#00D4FF] mb-1 tracking-tighter">
+                                                {impactData.slaSummary.total}
+                                            </div>
+                                            <div className="text-[10px] font-black text-slate-400 tracking-[0.2em]">Total SLA Affected</div>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {[
+                                                { label: 'Critical SLA', count: impactData.slaSummary.critical, color: 'text-red-500' },
+                                                { label: 'High Priority', count: impactData.slaSummary.high, color: 'text-orange-500' },
+                                                { label: 'Medium Priority', count: impactData.slaSummary.medium, color: 'text-blue-500' },
+                                                { label: 'Low Priority', count: impactData.slaSummary.low, color: 'text-emerald-500' }
+                                            ].map((item, idx) => (
+                                                <div key={idx} className="bg-white/[0.03] p-3 rounded-xl border border-white/5 text-center">
+                                                    <div className={cn("text-[20px] font-black mb-1 leading-none tracking-tighter", item.color)}>{item.count}</div>
+                                                    <div className="text-[8px] font-black text-slate-500 tracking-widest">{item.label}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            {/* Critical SLA Card */}
+                                            <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-red-500/30 transition-all">
+                                                <div className="flex justify-between items-center mb-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <Shield size={14} className="text-red-500" />
+                                                        <span className="text-[14px] font-black text-white tracking-tight">Critical SLA</span>
+                                                    </div>
+                                                    <div className="px-2 py-0.5 rounded-full bg-red-500 text-black text-[10px] font-black">
+                                                        {impactData.slaSummary.critical} SLA
+                                                    </div>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-y-2 text-[12px] font-black">
+                                                    <div>
+                                                        <p className="text-[10px] font-bold text-slate-500 mb-0.5">Uptime Target</p>
+                                                        <p className="text-white">99.99%</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] font-bold text-slate-500 mb-0.5">MTTR</p>
+                                                        <p className="text-white">15 min</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* High Priority SLA Card */}
+                                            <div className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:border-orange-500/30 transition-all">
+                                                <div className="flex justify-between items-center mb-3">
+                                                    <div className="flex items-center gap-2">
+                                                        <Shield size={14} className="text-orange-500" />
+                                                        <span className="text-[14px] font-black text-white tracking-tight">High Priority</span>
+                                                    </div>
+                                                    <div className="px-2 py-0.5 rounded-full bg-orange-500 text-black text-[10px] font-black">
+                                                        {impactData.slaSummary.high} SLA
+                                                    </div>
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-y-2 text-[12px] font-black">
+                                                    <div>
+                                                        <p className="text-[10px] font-bold text-slate-500 mb-0.5">Uptime Target</p>
+                                                        <p className="text-white">99.95%</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] font-bold text-slate-500 mb-0.5">MTTR</p>
+                                                        <p className="text-white">30 min</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </div>
         </MainLayout>
     );
-}
-
-// Helper for conditional class merging
-function cn(...classes: string[]) {
-    return classes.filter(Boolean).join(' ');
 }

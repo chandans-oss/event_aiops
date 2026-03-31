@@ -12,13 +12,14 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { ErrorBoundary } from "@/shared/components/common/ErrorBoundary";
 import AnalyticsDashboard from "@/features/analytics/pages/AnalyticsDashboard";
+import AiopsDashboardDraft from "@/features/analytics/pages/AiopsDashboardDraft";
 import Events from "@/features/events/pages/EventsPage";
 import PredictedEvents from "@/features/events/pages/PredictedEventsPage";
 import Preprocessing from "@/features/analytics/pages/PreprocessingPage";
 import Clustering from "@/features/analytics/pages/ClusteringPage";
 import RCAImpact from "@/features/rca/pages/RcaImpactPage";
 import Remediation from "@/features/remediation/pages/RemediationPage";
-import Topology from "@/features/topology/pages/TopologyPage";
+
 import Admin from "@/features/admin/pages/AdminPage";
 import EventUpload from "@/features/events/pages/EventUploadPage";
 import RCADetailPage from "@/features/rca/pages/RcaDetailPage";
@@ -27,6 +28,7 @@ import CorrelationPage from "@/features/analytics/pages/CorrelationPage";
 import KBDetailPage from "@/features/admin/pages/KBDetailPage";
 import AgentsPage from "@/features/agents/pages/AgentsPage";
 import NotFound from "@/shared/components/common/NotFound";
+import DocsPage from "@/pages/DocsPage";
 import LiveInferencePage from "./pages/LiveInferencePage";
 import RCAPlaygroundPage from "./pages/RCAPlaygroundPage";
 import PatternPage from "./pages/PatternPage";
@@ -47,6 +49,8 @@ import AlgoConfigPage from "./pages/algo-training/AlgoConfigPage";
 import AlgoTrainingPage from "./pages/algo-training/AlgoTrainingPage";
 import AlgoResultsPage from "./pages/algo-training/AlgoResultsPage";
 
+import TrainingReportPage from "./pages/TrainingReportPage";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -60,6 +64,7 @@ const App = () => (
             <Routes>
               {/* Pattern Prediction - Results first to avoid any shadowing */}
               <Route path="/pattern-prediction/results" element={<LovelableResultsPage />} />
+              <Route path="/pattern-prediction/report/:reportId" element={<TrainingReportPage />} />
               <Route path="/pattern-prediction/training" element={<TrainingLovelablePage />} />
               <Route path="/pattern-prediction/prediction" element={<PredictionPage />} />
               <Route path="/pattern-prediction/anomalies" element={<AnomaliesPage />} />
@@ -84,7 +89,7 @@ const App = () => (
               <Route path="/clustering" element={<Clustering />} />
               <Route path="/rca-impact" element={<RCAImpact />} />
               <Route path="/remediation" element={<Remediation />} />
-              <Route path="/topology" element={<Topology />} />
+
               <Route path="/correlation" element={<CorrelationPage />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/agents" element={<AgentsPage />} />
@@ -103,6 +108,8 @@ const App = () => (
               <Route path="/event-processing/suppression" element={<SuppressionPage />} />
               <Route path="/event-processing/bulk-processing" element={<BulkEventProcessingPage />} />
               <Route path="/event-processing" element={<EventProcessingPage />} />
+              <Route path="/docs" element={<DocsPage />} />
+              <Route path="/temp/aiops-draft" element={<AiopsDashboardDraft />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>

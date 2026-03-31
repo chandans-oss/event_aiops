@@ -37,14 +37,10 @@ export interface Cluster {
 }
 
 export type DeduplicationRuleType = 
-  | 'exact_match' 
-  | 'structured_exact' 
-  | 'temporal_sliding' 
-  | 'temporal_bucket' 
-  | 'state_flap' 
-  | 'state_transition' 
-  | 'template_based' 
-  | 'similarity_fuzzy';
+  | 'hash_based' 
+  | 'signature_based' 
+  | 'similarity_based' 
+  | 'semantic_based';
 export type SuppressionRuleType = 
   | 'maintenance' 
   | 'business_hours' 
@@ -57,7 +53,8 @@ export type SuppressionRuleType =
   | 'temporal_clustering' 
   | 'static_threshold' 
   | 'dynamic_threshold' 
-  | 'event_storm';
+  | 'event_storm'
+  | 'seasonal';
 export type CorrelationRuleType = 'temporal' | 'spatial' | 'topological' | 'causal_rule_based' | 'ml_gnn_refinement' | 'llm_semantic' | 'dynamic_rule';
 
 export interface BaseRule {

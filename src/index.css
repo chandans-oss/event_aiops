@@ -82,16 +82,16 @@
     --secondary-foreground: 210 40% 98%;
 
     --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-
-    --accent: 217 33% 22%;
+    --muted-foreground: 210 40% 90%;
+    
+    --accent: 217 33% 25%;
     --accent-foreground: 210 40% 98%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217 33% 20%;
-    --input: 217 33% 20%;
+    --border: 217 33% 30%;
+    --input: 217 33% 30%;
     --ring: 210 100% 50%;
 
     /* Severity Colors */
@@ -99,7 +99,7 @@
     --severity-high: 25 95% 53%;
     --severity-medium: 48 96% 53%;
     --severity-low: 217 91% 60%;
-    --severity-info: 215 20% 65%;
+    --severity-info: 210 40% 90%;
 
     /* Status Colors */
     --status-success: 142 76% 36%;

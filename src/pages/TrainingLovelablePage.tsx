@@ -72,13 +72,18 @@ const DonutChart = ({ val, size = 30 }: { val: number, size?: number }) => {
   );
 };
 
+const formatLabel = (str: string) =>
+  str.replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/(^\w|\s\w|\(\w)/g, m => m.toUpperCase());
+
 const AnomalyHeatMap = ({ data }: { data: any[] }) => {
   const metrics = [
-    { key: 'cpu', label: 'CPU' },
-    { key: 'mem', label: 'MEM_UTIL' },
-    { key: 'lat', label: 'LATENCY' },
-    { key: 'qd', label: 'QUEUE_DEPTH' },
-    { key: 'crc', label: 'CRC_ERRORS' }
+    { key: 'cpu', label: 'Cpu' },
+    { key: 'mem', label: 'Mem Util' },
+    { key: 'lat', label: 'Latency' },
+    { key: 'qd', label: 'Queue Depth' },
+    { key: 'crc', label: 'Crc Errors' }
   ];
 
   return (
@@ -100,15 +105,15 @@ const AnomalyHeatMap = ({ data }: { data: any[] }) => {
       <div className="p-4 overflow-x-auto no-scrollbar">
         <div className="min-w-[650px]">
           <div className="grid grid-cols-[160px_repeat(5,1fr)] gap-2 mb-3 px-2">
-            <div className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] uppercase font-black pr-2 tracking-widest">Entity Identifier</div>
+            <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#475569] uppercase font-black pr-2 tracking-widest">Entity Identifier</div>
             {metrics.map(m => (
-              <div key={m.key} className="text-center font-['IBM_Plex_Mono',monospace] text-[8px] text-[#64748B] font-black uppercase tracking-widest">{m.label}</div>
+              <div key={m.key} className="text-center font-['IBM_Plex_Mono',monospace] text-[9px] text-[#64748B] font-black uppercase tracking-widest">{m.label}</div>
             ))}
           </div>
           <div className="space-y-1.5">
             {data.map((d, i) => (
               <div key={i} className="grid grid-cols-[160px_repeat(5,1fr)] gap-1.5 items-center group/row animate-in fade-in slide-in-from-left-2 duration-300" style={{ animationDelay: `${i * 30}ms` }}>
-                <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate pr-3 border-r border-white/5 group-hover/row:text-[#3B82F6] transition-colors">{d.e}</div>
+                <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#CBD5E1] truncate pr-3 border-r border-white/5 group-hover/row:text-[#3B82F6] transition-colors">{d.e}</div>
                 {metrics.map(m => {
                   const val = d.metrics?.[m.key] || 0;
                   const severity = val > 10 ? 'HIGH' : val > 5 ? 'MED' : val > 2 ? 'LOW' : 'NONE';
@@ -131,7 +136,7 @@ const AnomalyHeatMap = ({ data }: { data: any[] }) => {
                       style={{ background: color, opacity }}
                     >
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/cell:opacity-100 transition-opacity whitespace-nowrap z-50 pointer-events-none">
-                        <div className="bg-[#0F172A] px-2 py-1 rounded border border-white/10 shadow-2xl text-[8px] font-bold text-white font-['IBM_Plex_Mono',monospace]">
+                        <div className="bg-[#0F172A] px-2 py-1 rounded border border-white/10 shadow-2xl text-[9px] font-bold text-white font-['IBM_Plex_Mono',monospace]">
                           {m.label}: {val.toFixed(1)}%
                         </div>
                       </div>
@@ -143,7 +148,7 @@ const AnomalyHeatMap = ({ data }: { data: any[] }) => {
           </div>
         </div>
       </div>
-      <div className="px-3.5 py-2 bg-[#0F172A]/50 border-t border-[#334155] flex justify-between font-['IBM_Plex_Mono',monospace] text-[8px] text-[#475569] uppercase tracking-wider">
+      <div className="px-3.5 py-2 bg-[#0F172A]/50 border-t border-[#334155] flex justify-between font-['IBM_Plex_Mono',monospace] text-[10px] text-[#475569] uppercase tracking-wider">
         <span>Windows Sampled</span>
         <span>Isolation Depth</span>
       </div>
@@ -159,7 +164,7 @@ const LiftMatrixHeatMap = ({ dataR, dataS }: { dataR: any[], dataS: any[] }) => 
       if (!map.has(key)) map.set(key, { ...d });
       else {
         const existing = map.get(key);
-        existing.lift = Math.max(existing.lift, d.lift); // Take strongest correlation found
+        existing.lift = Math.max(existing.lift, d.lift);
         existing.n += d.n;
       }
     });
@@ -174,17 +179,17 @@ const LiftMatrixHeatMap = ({ dataR, dataS }: { dataR: any[], dataS: any[] }) => 
         <div className="px-4 py-3 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <div className="w-2 h-2 rounded-full bg-[#3DDAB4] shadow-[0_0_10px_rgba(61,218,180,0.4)] animate-pulse" />
-            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] tracking-[0.1em] text-[#3DDAB4] font-black uppercase">Event Co-occurrence Heatmap</span>
+            <span className="font-['IBM_Plex_Mono',monospace] text-[14px] tracking-[0.1em] text-[#3DDAB4] font-black">Event Co-occurrence Heatmap</span>
           </div>
           <div className="flex gap-6 items-center">
-            <div className="flex items-center gap-2 font-['IBM_Plex_Mono',monospace] text-[10px] text-[#F8FAFC] font-black uppercase tracking-wider">
-              <div className="w-3.5 h-3.5 rounded-[3px] bg-[#3DDAB4] shadow-[0_0_10px_rgba(61,218,180,0.3)]" /> HI-LIFT ({'>'}1.2)
+            <div className="flex items-center gap-2 font-['IBM_Plex_Mono',monospace] text-[13px] text-[#F8FAFC] font-black tracking-wider">
+              <div className="w-3.5 h-3.5 rounded-[3px] bg-[#3DDAB4] shadow-[0_0_10px_rgba(61,218,180,0.3)]" /> Hi-Lift ({'>'}1.2)
             </div>
-            <div className="flex items-center gap-2 font-['IBM_Plex_Mono',monospace] text-[10px] text-[#F8FAFC] font-black uppercase tracking-wider">
-              <div className="w-3.5 h-3.5 rounded-[3px] bg-[#F59E0B] shadow-[0_0_10px_rgba(245,158,11,0.3)]" /> MED (~1.1)
+            <div className="flex items-center gap-2 font-['IBM_Plex_Mono',monospace] text-[13px] text-[#F8FAFC] font-black tracking-wider">
+              <div className="w-3.5 h-3.5 rounded-[3px] bg-[#F59E0B] shadow-[0_0_10px_rgba(245,158,11,0.3)]" /> Med (~1.1)
             </div>
-            <div className="flex items-center gap-2 font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] font-black uppercase tracking-wider">
-              <div className="w-3.5 h-3.5 rounded-[3px] bg-[#1e293b] border border-white/20" /> BASELINE (1.0)
+            <div className="flex items-center gap-2 font-['IBM_Plex_Mono',monospace] text-[13px] text-[#94A3B8] font-black tracking-wider">
+              <div className="w-3.5 h-3.5 rounded-[3px] bg-[#1e293b] border border-white/20" /> Baseline (1.0)
             </div>
           </div>
         </div>
@@ -193,15 +198,15 @@ const LiftMatrixHeatMap = ({ dataR, dataS }: { dataR: any[], dataS: any[] }) => 
           <div className="grid grid-cols-[140px_repeat(6,1fr)] gap-1.5 mb-4">
             <div />
             {events.map(e => (
-              <div key={e} className="text-[9px] text-[#64748B] font-black uppercase tracking-tighter text-center -rotate-45 h-20 flex items-end justify-center pb-3 leading-none whitespace-nowrap overflow-visible font-['IBM_Plex_Mono',monospace]">
-                {e}
+              <div key={e} className="text-[13px] text-[#64748B] font-black tracking-tight text-center -rotate-45 h-20 flex items-end justify-center pb-3 leading-none whitespace-nowrap overflow-visible font-['IBM_Plex_Mono',monospace]">
+                {formatLabel(e)}
               </div>
             ))}
           </div>
 
           {events.map(row => (
             <div key={row} className="grid grid-cols-[140px_repeat(6,1fr)] gap-1.5 mb-1.5 items-stretch">
-              <div className="text-[10px] text-[#94A3B8] font-black uppercase truncate pr-6 text-right flex items-center justify-end font-['IBM_Plex_Mono',monospace] border-r border-white/5">{row}</div>
+              <div className="text-[14px] text-[#94A3B8] font-black truncate pr-6 text-right flex items-center justify-end font-['IBM_Plex_Mono',monospace] border-r border-white/5">{formatLabel(row)}</div>
               {events.map(col => {
                 const d = mergedData.find(x => (x.a === row && x.b === col) || (x.a === col && x.b === row));
                 const isDiag = row === col;
@@ -211,12 +216,12 @@ const LiftMatrixHeatMap = ({ dataR, dataS }: { dataR: any[], dataS: any[] }) => 
 
                 return (
                   <div key={col} className={cn("h-12 rounded-[4px] border border-white/5 flex items-center justify-center relative group transition-all duration-300", lift > 0 ? "hover:scale-[1.15] hover:z-10 cursor-help hover:border-white/20 shadow-lg" : "opacity-20")} style={{ background: color, opacity }}>
-                    {lift > 0 && <span className="text-[12px] font-black text-[#0F172A] group-hover:text-white transition-colors font-['IBM_Plex_Mono',monospace]">{lift.toFixed(1)}</span>}
+                    {lift > 0 && <span className="text-[15px] font-black text-[#0F172A] group-hover:text-white transition-colors font-['IBM_Plex_Mono',monospace]">{lift.toFixed(1)}</span>}
                     {lift > 0 && (
                       <div className="absolute inset-x-0 -top-12 opacity-0 group-hover:opacity-100 transition-all z-50 pointer-events-none translate-y-2 group-hover:translate-y-0">
                         <div className="bg-[#0F172A] px-3 py-2 rounded-lg border border-[#3DDAB4]/30 shadow-[0_10px_30px_rgba(0,0,0,0.5)] flex flex-col items-center gap-1">
-                          <span className="text-[8px] text-[#3DDAB4] font-black uppercase tracking-widest">{row} & {col}</span>
-                          <span className="text-[11px] text-white font-black">{lift.toFixed(2)} Lift Score</span>
+                          <span className="text-[13px] text-[#3DDAB4] font-black tracking-widest">{formatLabel(row)} & {formatLabel(col)}</span>
+                          <span className="text-[15px] text-white font-black">{lift.toFixed(2)} Lift Score</span>
                         </div>
                       </div>
                     )}
@@ -231,125 +236,200 @@ const LiftMatrixHeatMap = ({ dataR, dataS }: { dataR: any[], dataS: any[] }) => 
   );
 };
 
+
+
 const CorrelationVennDiagram = ({ a, b, r, dev, lag }: { a: string, b: string, r: number, dev: string, lag: string }) => {
-  const r2 = r * r;
-  const distance = 80 - (Math.abs(r) * 60); // Distance between centers based on R
+  const distance = 100 - (Math.abs(r) * 80);
+  const formatLabel = (str: string) => str.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+  const labelA = formatLabel(a);
+  const labelB = formatLabel(b);
+  const isNegativeLag = lag.includes('-');
+  const lagColor = isNegativeLag ? '#EF4444' : '#3DDAB4';
 
   return (
-    <div className="bg-[#0F172A]/40 border border-[#334155] rounded-xl p-4 flex flex-col items-center animate-in zoom-in duration-500 hover:border-[#3B82F6]/50 transition-all group">
-      <div className="w-full mb-3">
-        <div className="flex flex-col">
-          <span className="text-[10px] text-[#3B82F6] font-bold uppercase tracking-widest leading-none mb-1">Node Info</span>
-          <span className="text-[14px] font-bold text-[#F8FAFC] tracking-tight leading-tight">{a} & {b}</span>
+    <div className="bg-[#0F172A]/60 border border-[#334155]/60 rounded-[20px] p-5 flex flex-col items-center animate-in zoom-in duration-500 hover:border-[#3B82F6]/50 transition-all group overflow-hidden shadow-2xl h-full justify-center gap-2 relative">
+      <div className="w-full relative z-10">
+        <div className="flex flex-col items-center text-center">
+          <span className="text-[15px] font-black text-white tracking-[0.1em] font-['IBM_Plex_Mono',monospace] opacity-90">{labelA} & {labelB}</span>
         </div>
       </div>
 
-      <div className="relative h-32 w-full flex items-center justify-center">
-        <svg viewBox="0 0 300 160" className="w-full h-full drop-shadow-[0_0_15px_rgba(59,130,246,0.1)]">
+      <div className="relative h-48 w-full flex items-center justify-center">
+        <svg viewBox="0 0 400 200" className="w-full h-full drop-shadow-[0_0_20px_rgba(59,130,246,0.1)]">
           <defs>
             <linearGradient id={`grad-left-${a}-${b}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1" />
-            </linearGradient>
-            <linearGradient id={`grad-right-${a}-${b}`} x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="#3DDAB4" stopOpacity="0.4" />
               <stop offset="100%" stopColor="#3DDAB4" stopOpacity="0.1" />
             </linearGradient>
+            <linearGradient id={`grad-right-${a}-${b}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1" />
+            </linearGradient>
             <clipPath id={`clip-overlap-${a}-${b}`}>
-              <circle cx={150 + distance / 2} cy="80" r="55" />
+              <circle cx={200 + distance / 2} cy="100" r="90" />
             </clipPath>
           </defs>
 
-          <circle cx={150 - distance / 2} cy="80" r="55" fill={`url(#grad-left-${a}-${b})`} stroke="#3B82F6" strokeWidth="1.5" strokeDasharray="4 2" />
-          <circle cx={150 + distance / 2} cy="80" r="55" fill={`url(#grad-right-${a}-${b})`} stroke="#3DDAB4" strokeWidth="1.5" strokeDasharray="4 2" />
+          {/* Left Circle (A) */}
+          <circle cx={200 - distance / 2} cy="100" r="90" fill={`url(#grad-left-${a}-${b})`} stroke="#3DDAB4" strokeWidth="2.5" strokeDasharray="6 3" className="opacity-80" />
 
+          {/* Right Circle (B) */}
+          <circle cx={200 + distance / 2} cy="100" r="90" fill={`url(#grad-right-${a}-${b})`} stroke="#3B82F6" strokeWidth="2.5" strokeDasharray="6 3" className="opacity-80 transition-opacity" />
+
+          {/* Overlap Highlight */}
           <g clipPath={`url(#clip-overlap-${a}-${b})`}>
-            <circle cx={150 - distance / 2} cy="80" r="55" fill="#3B82F6" fillOpacity="0.3" className="animate-pulse" />
+            <circle cx={200 - distance / 2} cy="100" r="90" fill="white" fillOpacity="0.08" className="animate-pulse" />
           </g>
 
-          {/* Side Labels to avoid overlap */}
-          <text x={150 - distance / 2 - 60} y="85" textAnchor="end" className="fill-[#64748B] text-[9px] font-black uppercase font-['IBM_Plex_Mono',monospace]">{a}</text>
-          <text x={150 + distance / 2 + 60} y="85" textAnchor="start" className="fill-[#64748B] text-[9px] font-black uppercase font-['IBM_Plex_Mono',monospace]">{b}</text>
+          {/* Side Labels - Vertical */}
+          <text
+            x={200 - distance / 2 - 105}
+            y="100"
+            textAnchor="middle"
+            transform={`rotate(-90, ${200 - distance / 2 - 105}, 100)`}
+            className="fill-white text-[14px] font-black font-['IBM_Plex_Mono',monospace] tracking-widest opacity-95"
+          >
+            {labelA}
+          </text>
+
+          <text
+            x={200 + distance / 2 + 105}
+            y="100"
+            textAnchor="middle"
+            transform={`rotate(90, ${200 + distance / 2 + 105}, 100)`}
+            className="fill-white text-[14px] font-black font-['IBM_Plex_Mono',monospace] tracking-widest opacity-95"
+          >
+            {labelB}
+          </text>
+
+          {/* Centered Stats in Overlap */}
+          <g className="font-['IBM_Plex_Mono',monospace] font-black">
+            <text x="200" y="95" textAnchor="middle">
+              <tspan fill="#FFFFFF" fontSize="16" letterSpacing="0.1em">Corr </tspan>
+              <tspan fill="#3DDAB4" fontSize="28" letterSpacing="-0.02em">{(r * 100).toFixed(0)}%</tspan>
+            </text>
+            <text x="200" y="125" textAnchor="middle">
+              <tspan fill="#FFFFFF" fontSize="15" letterSpacing="0.1em">Lag </tspan>
+              <tspan fill={lagColor} fontSize="20" letterSpacing="-0.02em">{lag.replace(' polls', '')}</tspan>
+            </text>
+          </g>
         </svg>
       </div>
 
-      <div className="w-full mt-2 pt-2 border-t border-white/5 flex justify-center gap-6">
-        <div className="flex flex-col items-center">
-          <span className="text-[12px] text-[#F8FAFC] font-bold">{(r * 100).toFixed(1)}%</span>
-          <span className="text-[9px] text-[#475569] uppercase font-black">Pearson Value</span>
+      {dev && (
+        <div className="absolute bottom-5 left-5 z-10">
+          <span className={cn("px-2 py-1 rounded-[4px] text-[10px] font-black uppercase tracking-widest shadow-sm backdrop-blur-md", dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6] border border-[#3B82F6]/30' : 'bg-[#3DDAB4]/20 text-[#3DDAB4] border border-[#3DDAB4]/30')}>
+            {dev}
+          </span>
         </div>
-        <div className="flex flex-col items-center border-l border-white/10 pl-6">
-          <span className="text-[12px] text-[#3B82F6] font-bold">{lag}</span>
-          <span className="text-[9px] text-[#475569] uppercase font-black">Best Lag</span>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
 
 const CausalVennDiagram = ({ cause, effect, fstat, p, lag, dev }: { cause: string, effect: string, fstat: number, p: string, lag: string, dev: string }) => {
+  const prob = Math.min(99.9, 100 * (1 - Math.exp(-fstat / 35))).toFixed(1);
+  const formatLabel = (str: string) => str.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+  const labelC = formatLabel(cause);
+  const labelE = formatLabel(effect);
+  const isNegativeLag = lag.includes('-');
+  const lagColor = isNegativeLag ? '#EF4444' : '#3DDAB4';
+
   return (
-    <div className="bg-[#0F172A]/60 border border-[#334155]/60 rounded-2xl p-4 flex flex-col animate-in zoom-in duration-500 hover:border-[#F59E0B]/40 transition-all group relative overflow-hidden shadow-2xl">
-      <div className="w-full mb-3 pb-2 border-b border-white/5 flex items-center justify-between px-1">
-        <span className="text-[12px] font-black text-[#F8FAFC] flex items-center gap-2 truncate font-['IBM_Plex_Mono',monospace]">
-          {cause} <ArrowRight className="w-3.5 h-3.5 text-[#F59E0B] opacity-60" /> {effect}
-        </span>
-        <span className={cn("px-1.5 py-0.5 rounded-[4px] text-[8px] font-black uppercase tracking-tighter shrink-0", dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'bg-[#3DDAB4]/20 text-[#3DDAB4]')}>{dev}</span>
+    <div className="bg-[#0F172A]/60 border border-[#334155]/60 rounded-[20px] p-5 flex flex-col items-center animate-in zoom-in duration-500 hover:border-[#F59E0B]/50 transition-all group overflow-hidden shadow-2xl h-full justify-center gap-2 relative">
+      <div className="w-full relative z-10">
+        <div className="flex items-center justify-center text-center px-1">
+          <span className="text-[15px] font-black text-white tracking-[0.1em] font-['IBM_Plex_Mono',monospace] opacity-90 leading-tight">
+            {labelC} <span className="opacity-50 mx-1">→</span> {labelE}
+          </span>
+        </div>
       </div>
 
-      <div className="relative h-32 w-full flex items-center justify-center bg-[#0F172A]/20 rounded-xl border border-white/5 mb-2">
-        <svg viewBox="0 0 300 160" className="w-full h-full drop-shadow-[0_0_20px_rgba(245,158,11,0.08)]">
+      <div className="relative h-48 w-full flex items-center justify-center">
+        <svg viewBox="0 0 400 200" className="w-full h-full drop-shadow-[0_0_20px_rgba(245,158,11,0.08)]">
           <defs>
             <linearGradient id={`grad-cause-${cause}-${effect}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.5" />
+              <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.4" />
               <stop offset="100%" stopColor="#F59E0B" stopOpacity="0.1" />
             </linearGradient>
             <linearGradient id={`grad-effect-${cause}-${effect}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.5" />
+              <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.4" />
               <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.1" />
             </linearGradient>
-            <marker id="arrowhead-causal" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orientation="auto">
+            <marker id={`arrowhead-causal-${cause}-${effect}`} markerWidth="10" markerHeight="7" refX="9" refY="3.5" orientation="auto">
               <polygon points="0 0, 10 3.5, 0 7" fill="#F59E0B" />
             </marker>
+            <clipPath id={`clip-causal-overlap-${cause}-${effect}`}>
+              <circle cx="250" cy="100" r="90" />
+            </clipPath>
           </defs>
 
-          {/* Connectors */}
-          <path d="M 120 80 Q 150 70, 180 80" fill="none" stroke="#F59E0B" strokeWidth="2" strokeDasharray="4 4" className="opacity-20 translate-y-[-10px]" />
-          <path d="M 120 80 Q 150 90, 180 80" fill="none" stroke="#F59E0B" strokeWidth="2" strokeDasharray="4 4" className="opacity-20 translate-y-[10px]" />
+          {/* Lines (Arrows) */}
+          <path d="M 150 100 Q 200 80, 250 100" fill="none" stroke="#F59E0B" strokeWidth="2.5" strokeDasharray="6 4" className="opacity-30 translate-y-[-15px]" />
+          <path d="M 150 100 Q 200 120, 250 100" fill="none" stroke="#F59E0B" strokeWidth="2.5" strokeDasharray="6 4" className="opacity-30 translate-y-[15px]" />
 
-          <circle cx="110" cy="80" r="50" fill={`url(#grad-cause-${cause}-${effect})`} stroke="#F59E0B" strokeWidth="2" strokeDasharray="4 2" className="opacity-80" />
-          <circle cx="190" cy="80" r="50" fill={`url(#grad-effect-${cause}-${effect})`} stroke="#3B82F6" strokeWidth="2" strokeDasharray="4 2" className="group-hover:opacity-100 opacity-60 transition-opacity" />
+          {/* Left Circle (Cause) */}
+          <circle cx="150" cy="100" r="90" fill={`url(#grad-cause-${cause}-${effect})`} stroke="#F59E0B" strokeWidth="2.5" strokeDasharray="6 3" className="opacity-80" />
 
-          {/* Causal Vector */}
+          {/* Right Circle (Effect) */}
+          <circle cx="250" cy="100" r="90" fill={`url(#grad-effect-${cause}-${effect})`} stroke="#3B82F6" strokeWidth="2.5" strokeDasharray="6 3" className="opacity-80 transition-opacity group-hover:opacity-100" />
+
+          {/* Overlap Highlight */}
+          <g clipPath={`url(#clip-causal-overlap-${cause}-${effect})`}>
+            <circle cx="150" cy="100" r="90" fill="white" fillOpacity="0.08" className="animate-pulse" />
+          </g>
+
+          {/* Main Arrow in center */}
           <line
-            x1="110" y1="80" x2="182" y2="80"
+            x1="150" y1="100" x2="235" y2="100"
             stroke="#F59E0B"
-            strokeWidth="3"
-            markerEnd="url(#arrowhead-causal)"
-            className="animate-pulse"
+            strokeWidth="3.5"
+            markerEnd={`url(#arrowhead-causal-${cause}-${effect})`}
+            className="animate-pulse opacity-80"
           />
 
-          {/* Side Labels to avoid overlap */}
-          <text x="50" y="85" textAnchor="end" className="fill-[#F59E0B] text-[8px] font-black uppercase font-['IBM_Plex_Mono',monospace]">{cause}</text>
-          <text x="250" y="85" textAnchor="start" className="fill-[#3B82F6] text-[8px] font-black uppercase font-['IBM_Plex_Mono',monospace]">{effect}</text>
+          {/* Side Labels - Vertical */}
+          <text
+            x={150 - 105}
+            y="100"
+            textAnchor="middle"
+            transform={`rotate(-90, ${150 - 105}, 100)`}
+            className="fill-white text-[14px] font-black font-['IBM_Plex_Mono',monospace] tracking-widest opacity-95"
+          >
+            {labelC}
+          </text>
+
+          <text
+            x={250 + 105}
+            y="100"
+            textAnchor="middle"
+            transform={`rotate(90, ${250 + 105}, 100)`}
+            className="fill-white text-[14px] font-black font-['IBM_Plex_Mono',monospace] tracking-widest opacity-95"
+          >
+            {labelE}
+          </text>
+
+          {/* Centered Stats in Overlap */}
+          <g className="font-['IBM_Plex_Mono',monospace] font-black drop-shadow-md">
+            <text x="200" y="82" textAnchor="middle">
+              <tspan fill="#FFFFFF" fontSize="16" letterSpacing="0.1em">Conf </tspan>
+              <tspan fill="#3DDAB4" fontSize="28" letterSpacing="-0.02em">{prob}%</tspan>
+            </text>
+            <text x="200" y="138" textAnchor="middle">
+              <tspan fill="#FFFFFF" fontSize="15" letterSpacing="0.1em">Lag </tspan>
+              <tspan fill={lagColor} fontSize="20" letterSpacing="-0.02em">{lag.replace(' min', 'm')}</tspan>
+            </text>
+          </g>
         </svg>
       </div>
 
-      <div className="w-full mt-auto pt-3 border-t border-white/5 flex justify-between px-1">
-        <div className="flex flex-col items-start gap-1">
-          <span className="text-[11px] text-[#F8FAFC] font-black font-['IBM_Plex_Mono',monospace]">
-            {Math.min(99.9, 100 * (1 - Math.exp(-fstat / 35))).toFixed(1)}%
+      {dev && (
+        <div className="absolute bottom-5 left-5 z-10">
+          <span className={cn("px-2 py-1 rounded-[4px] text-[10px] font-black uppercase tracking-widest shadow-sm backdrop-blur-md", dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6] border border-[#3B82F6]/30' : 'bg-[#3DDAB4]/20 text-[#3DDAB4] border border-[#3DDAB4]/30')}>
+            {dev}
           </span>
-          <span className="text-[8px] text-[#64748B] uppercase font-black tracking-widest">Confidence</span>
         </div>
-        <div className="flex flex-col items-end gap-1">
-          <div className="flex items-center gap-1.5">
-            <Clock className="w-3 h-3 text-[#3DDAB4]" />
-            <span className="text-[11px] text-[#3DDAB4] font-black font-['IBM_Plex_Mono',monospace]">{lag}</span>
-          </div>
-          <span className="text-[8px] text-[#64748B] uppercase font-black tracking-widest">Lag</span>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
@@ -367,58 +447,38 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
     <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[15px] overflow-hidden shadow-2xl animate-in fade-in duration-1000 mt-6 relative group">
       <div className="px-5 py-3.5 bg-[#0F172A] border-b border-[#334155] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col">
-          <span className="font-['IBM_Plex_Mono',monospace] text-[11px] tracking-[0.15em] text-[#3B82F6] font-black uppercase flex items-center gap-2">
+          <span className="font-['IBM_Plex_Mono',monospace] text-[15px] tracking-[0.15em] text-[#3B82F6] font-black uppercase flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse" />
             Multivariate Anomaly Spike Analysis
           </span>
-          <span className="text-[9px] text-[#475569] font-bold mt-1 uppercase tracking-tight">Quantitative Drift Vectorization</span>
+          <span className="text-[13px] text-[#475569] font-bold mt-1 uppercase tracking-tight">Quantitative Drift Vectorization</span>
         </div>
         <div className="flex flex-wrap gap-3 items-center">
           {data.slice(0, 5).map((d, i) => (
-            <div key={i} className="flex items-center gap-2 bg-[#0F172A] border border-white/5 px-2 py-1 rounded-md" style={{ animationDelay: `${i * 100}ms` }}>
-              <div className="w-2 h-2 rounded-full" style={{ background: colors[i % colors.length], boxShadow: `0 0 10px ${colors[i % colors.length]}` }} />
-              <span className="font-['IBM_Plex_Mono',monospace] text-[9px] font-bold text-[#CBD5E1] uppercase tracking-tighter whitespace-nowrap">{d.e}</span>
+            <div key={i} className="flex items-center gap-2 bg-[#0F172A] border border-white/5 px-2 py-1 rounded-md">
+              <div className="w-2.5 h-2.5 rounded-full" style={{ background: colors[i % colors.length], boxShadow: `0 0 10px ${colors[i % colors.length]}` }} />
+              <span className="font-['IBM_Plex_Mono',monospace] text-[13px] font-bold text-[#CBD5E1] uppercase tracking-tighter whitespace-nowrap">{d.e}</span>
             </div>
           ))}
         </div>
       </div>
 
       <div className="p-10 h-[400px] relative mt-2">
-        {/* Y-Axis Label */}
         <div className="absolute left-4 top-1/2 -rotate-90 origin-left -translate-y-1/2 flex items-center gap-2 transition-opacity group-hover:opacity-100 opacity-40">
-          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] font-black uppercase tracking-widest whitespace-nowrap">Spike Magnitude</span>
+          <span className="font-['IBM_Plex_Mono',monospace] text-[13px] text-[#475569] font-black uppercase tracking-widest whitespace-nowrap">Spike Magnitude</span>
         </div>
 
         <svg className="w-full h-full overflow-visible" viewBox={`0 0 1000 ${chartHeight + paddingY}`}>
-          {/* Y-Axis Lines & Labels */}
           {[0, 3.75, 7.5, 11.25, 15].map((v, i) => {
             const y = chartHeight - (v / 15 * chartHeight);
             return (
               <g key={i}>
-                <line
-                  x1={paddingX}
-                  y1={y}
-                  x2="1000"
-                  y2={y}
-                  stroke="#334155"
-                  strokeWidth="0.5"
-                  strokeDasharray="4 4"
-                  className="opacity-40"
-                />
-                <text
-                  x={paddingX - 15}
-                  y={y}
-                  textAnchor="end"
-                  alignmentBaseline="middle"
-                  className="font-['IBM_Plex_Mono',monospace] text-[10px] fill-[#475569] font-black"
-                >
-                  {v.toFixed(1)}%
-                </text>
+                <line x1={paddingX} y1={y} x2="1000" y2={y} stroke="#334155" strokeWidth="0.5" strokeDasharray="4 4" className="opacity-40" />
+                <text x={paddingX - 15} y={y} textAnchor="end" alignmentBaseline="middle" className="font-['IBM_Plex_Mono',monospace] text-[14px] fill-[#475569] font-black">{v.toFixed(1)}%</text>
               </g>
             );
           })}
 
-          {/* Lines for each top entity */}
           {data.slice(0, 5).map((d, i) => {
             const color = colors[i % colors.length];
             const points = metrics.map((m, idx) => {
@@ -429,80 +489,36 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
             }).join(' ');
 
             return (
-              <g key={i} className="group/line transition-all duration-300">
-                <polyline
-                  points={points}
-                  fill="none"
-                  stroke={color}
-                  strokeWidth="3.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="opacity-40 transition-all duration-500 group-hover/line:opacity-100 group-hover/line:stroke-[5px]"
-                />
-                <polyline
-                  points={points}
-                  fill="none"
-                  stroke={color}
-                  strokeWidth="12"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="opacity-0 group-hover/line:opacity-5 transition-all duration-500"
-                />
+              <g key={i} className="group/line">
+                <polyline points={points} fill="none" stroke={color} strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-40 transition-all group-hover/line:opacity-100 group-hover/line:stroke-[5px]" />
                 {metrics.map((m, idx) => {
                   const x = paddingX + (idx * (1000 - paddingX) / (metrics.length - 1));
                   const val = d.metrics?.[m.key] || 0;
                   const y = chartHeight - (Math.min(val, 15) / 15 * chartHeight);
                   return (
                     <g key={idx}>
-                      <circle
-                        cx={x}
-                        cy={y}
-                        r="6"
-                        fill="#0F172A"
-                        stroke={color}
-                        strokeWidth="2.5"
-                        className="transition-all duration-500 group-hover/line:r-8 group-hover/line:opacity-100"
-                      />
-                      {/* Data point value labels */}
-                      <text
-                        x={x}
-                        y={y - 12}
-                        textAnchor="middle"
-                        className="font-['IBM_Plex_Mono',monospace] text-[10px] font-black opacity-0 group-hover/line:opacity-100 transition-opacity duration-300"
-                        fill={color}
-                      >
-                        {val.toFixed(1)}%
-                      </text>
+                      <circle cx={x} cy={y} r="6" fill="#0F172A" stroke={color} strokeWidth="2.5" className="transition-all duration-500 group-hover/line:r-8 group-hover/line:opacity-100" />
+                      <text x={x} y={y - 12} textAnchor="middle" className="font-['IBM_Plex_Mono',monospace] text-[14px] font-black opacity-0 group-hover/line:opacity-100 transition-opacity duration-300" fill={color}>{val.toFixed(1)}%</text>
                     </g>
                   );
                 })}
               </g>
             );
           })}
-
-          {/* Metric labels on x-axis */}
           {metrics.map((m, idx) => {
             const x = paddingX + (idx * (1000 - paddingX) / (metrics.length - 1));
             return (
               <g key={idx}>
                 <line x1={x} y1={chartHeight} x2={x} y2={chartHeight + 8} stroke="#334155" strokeWidth="1" />
-                <text
-                  x={x}
-                  y={chartHeight + 35}
-                  textAnchor="middle"
-                  className="font-['IBM_Plex_Mono',monospace] text-[11px] fill-[#64748B] font-black uppercase tracking-tighter"
-                >
-                  {m.label}
-                </text>
+                <text x={x} y={chartHeight + 35} textAnchor="middle" className="font-['IBM_Plex_Mono',monospace] text-[14px] fill-[#64748B] font-black uppercase tracking-tighter">{m.label}</text>
               </g>
             );
           })}
         </svg>
 
-        {/* X-Axis Footer Label */}
         <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-3">
           <div className="h-[1px] w-8 bg-[#334155]" />
-          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#475569] font-black uppercase tracking-[0.3em] whitespace-nowrap">Normalized Feature Space Vector</span>
+          <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#475569] font-black uppercase tracking-[0.3em] whitespace-nowrap">Normalized Feature Space Vector</span>
           <div className="h-[1px] w-8 bg-[#334155]" />
         </div>
       </div>
@@ -513,7 +529,6 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
 
 const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) => {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
-  // Generate points based on centroids to make it look "legitimate"
   const points = useMemo(() => {
     return clusters.flatMap((c, cIdx) => {
       const cent = c.centroids || { util_pct: 50, queue_depth: 30 };
@@ -521,14 +536,13 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
       const centerY = 100 - Math.min(Math.max(cent.queue_depth * 1.5, 10), 90);
 
       return Array.from({ length: 50 }).map((_, i) => {
-        // Box-Muller transform for Gaussian distribution
         const u1 = Math.random();
         const u2 = Math.random();
         const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
         const z1 = Math.sqrt(-2.0 * Math.log(u1)) * Math.sin(2.0 * Math.PI * u2);
 
         return {
-          x: centerX + z0 * 3.5, // Spread
+          x: centerX + z0 * 3.5,
           y: centerY + z1 * 3.5,
           c: c.c,
           cIdx,
@@ -542,31 +556,25 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
 
   return (
     <div className="relative w-full aspect-[4/3] bg-[#0F172A] border border-[#334155] rounded-xl overflow-hidden p-8 group shadow-2xl">
-      {/* Technical Backdrop */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{ backgroundImage: 'linear-gradient(#F8FAFC 1px, transparent 1px), linear-gradient(90deg, #F8FAFC 1px, transparent 1px)', backgroundSize: '10% 10%' }} />
 
-      {/* Axis Ticks */}
       <div className="absolute left-7 top-8 bottom-8 w-[1px] bg-[#334155] h-full opacity-50" />
       <div className="absolute left-7 bottom-7 right-8 h-[1px] bg-[#334155] w-full opacity-50" />
 
-      {/* Y Axis Ticks */}
       {[0, 25, 50, 75, 100].map(v => (
-        <div key={v} className="absolute left-3 font-['IBM_Plex_Mono',monospace] text-[7px] text-[#475569] -translate-y-1/2" style={{ bottom: `${7 + (v * 0.85)}%` }}>
+        <div key={v} className="absolute left-3 font-['IBM_Plex_Mono',monospace] text-[10px] text-[#475569] -translate-y-1/2" style={{ bottom: `${7 + (v * 0.85)}%` }}>
           {v}
         </div>
       ))}
 
-      {/* X Axis Ticks */}
       {[0, 25, 50, 75, 100].map(v => (
-        <div key={v} className="absolute bottom-3 font-['IBM_Plex_Mono',monospace] text-[7px] text-[#475569] -translate-x-1/2" style={{ left: `${7 + (v * 0.85)}%` }}>
+        <div key={v} className="absolute bottom-3 font-['IBM_Plex_Mono',monospace] text-[10px] text-[#475569] -translate-x-1/2" style={{ left: `${7 + (v * 0.85)}%` }}>
           {v}%
         </div>
       ))}
 
-      {/* Points Container */}
       <div className="relative w-full h-full border-l border-b border-[#334155]/30">
-        {/* Centroid Crosses */}
         {clusters.map((c, i) => {
           const cent = c.centroids || { util_pct: 50, queue_depth: 30 };
           const px = Math.min(Math.max(cent.util_pct, 10), 90);
@@ -586,30 +594,34 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
                 <div className="h-4 w-[1.5px] absolute" style={{ background: c.c }} />
               </div>
 
-              {/* Permanent Label Above Cluster */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-[130%] group-hover/cent:-translate-y-[150%] transition-transform pointer-events-none">
                 <div className="bg-[#0F172A]/80 border border-white/10 px-2 py-0.5 rounded-[4px] backdrop-blur-sm shadow-2xl flex items-center gap-2 whitespace-nowrap">
                   <div className="w-1.5 h-1.5 rounded-full" style={{ background: c.c }} />
-                  <span className="text-[9px] font-black text-white/90 font-['IBM_Plex_Mono',monospace] uppercase tracking-widest leading-none mt-0.5">{c.n}</span>
+                  {(() => {
+                    const formatLabel = (str: string) => str.replace(/_/g, ' ').toLowerCase().replace(/(^\w|\s\w|\(\w)/g, m => m.toUpperCase());
+                    return <span className="text-[12px] font-black text-white/90 font-['IBM_Plex_Mono',monospace] tracking-widest leading-none mt-0.5">{formatLabel(c.n)}</span>;
+                  })()}
                 </div>
-                {/* Arrow pointing down */}
                 <div className="absolute top-full left-1/2 -translate-x-1/2 -translate-y-px w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-t-[4px] border-t-white/10" />
               </div>
 
               {isHovered && (
                 <div className="absolute top-1/2 left-full ml-4 -translate-y-1/2 bg-[#0F172A]/95 border border-[#3B82F6]/40 p-3 rounded-lg shadow-2xl z-[100] min-w-[140px] backdrop-blur-md animate-in fade-in zoom-in duration-200">
-                  <div className="text-[10px] font-bold text-white mb-1 whitespace-nowrap uppercase tracking-wider" style={{ color: c.c }}>{c.n}</div>
+                  {(() => {
+                    const formatLabel = (str: string) => str.replace(/_/g, ' ').toLowerCase().replace(/(^\w|\s\w|\(\w)/g, m => m.toUpperCase());
+                    return <div className="text-[14px] font-bold text-white mb-1 whitespace-nowrap tracking-wider" style={{ color: c.c }}>{formatLabel(c.n)}</div>;
+                  })()}
                   <div className="space-y-1">
-                    <div className="flex justify-between text-[9px] font-['IBM_Plex_Mono',monospace]">
-                      <span className="text-[#94A3B8]">UTIL %</span>
+                    <div className="flex justify-between text-[13px] font-['IBM_Plex_Mono',monospace]">
+                      <span className="text-[#94A3B8]">Util %</span>
                       <span className="text-white">{cent.util_pct}%</span>
                     </div>
-                    <div className="flex justify-between text-[9px] font-['IBM_Plex_Mono',monospace]">
-                      <span className="text-[#94A3B8]">QUEUE D.</span>
+                    <div className="flex justify-between text-[13px] font-['IBM_Plex_Mono',monospace]">
+                      <span className="text-[#94A3B8]">Queue D.</span>
                       <span className="text-white">{cent.queue_depth.toFixed(1)}</span>
                     </div>
-                    <div className="pt-1 mt-1 border-t border-white/5 flex justify-between text-[9px] font-['IBM_Plex_Mono',monospace]">
-                      <span className="text-[#94A3B8]">SHARE</span>
+                    <div className="pt-1 mt-1 border-t border-white/5 flex justify-between text-[13px] font-['IBM_Plex_Mono',monospace]">
+                      <span className="text-[#94A3B8]">Share</span>
                       <span className="text-[#3DDAB4] font-bold">{((c.size / 8156) * 100).toFixed(1)}%</span>
                     </div>
                   </div>
@@ -619,7 +631,6 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
           );
         })}
 
-        {/* Data Points */}
         {visiblePoints.map((p) => {
           const isDimmed = hoveredIdx !== null && hoveredIdx !== p.cIdx;
           return (
@@ -639,19 +650,17 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
         })}
       </div>
 
-      {/* Axis Labels */}
-      <div className="absolute left-1.5 top-1/2 -translate-y-1/2 -rotate-90 text-[8px] text-[#94A3B8] font-['IBM_Plex_Mono',monospace] tracking-[0.25em] uppercase font-bold opacity-80">
+      <div className="absolute left-1.5 top-1/2 -translate-y-1/2 -rotate-90 text-[11px] text-[#94A3B8] font-['IBM_Plex_Mono',monospace] tracking-[0.25em] font-bold opacity-80">
         Queue Depth Norm
       </div>
-      <div className="absolute left-1/2 bottom-2 -translate-x-1/2 text-[8px] text-[#94A3B8] font-['IBM_Plex_Mono',monospace] tracking-[0.25em] uppercase font-bold opacity-80">
+      <div className="absolute left-1/2 bottom-2 -translate-x-1/2 text-[11px] text-[#94A3B8] font-['IBM_Plex_Mono',monospace] tracking-[0.25em] font-bold opacity-80">
         Network Utilization
       </div>
 
-      {/* Real-time Processing Overlay */}
       {limit < 10 && (
         <div className="absolute top-4 right-4 flex items-center gap-2 px-2 py-1 bg-[#3B82F6]/5 border border-[#3B82F6]/20 rounded backdrop-blur-sm">
-          <Loader2 className="w-2.5 h-2.5 text-[#3B82F6] animate-spin" />
-          <span className="text-[7px] font-bold text-[#3B82F6] uppercase tracking-widest">Plotting Clusters</span>
+          <Loader2 className="w-3 h-3 text-[#3B82F6] animate-spin" />
+          <span className="text-[10px] font-bold text-[#3B82F6] tracking-widest">Plotting Clusters</span>
         </div>
       )}
     </div>
@@ -676,7 +685,6 @@ const ClusterDonutPlot = ({ clusters, deviceFilter }: { clusters: any[], deviceF
             const strokeDasharray = `${pct * circumference} ${circumference}`;
             const strokeDashoffset = -accumulatedPct * circumference;
 
-            // Calculate midpoint for label
             const midAngle = (accumulatedPct + pct / 2) * 2 * Math.PI;
             const lx = 50 + radius * Math.cos(midAngle);
             const ly = 50 + radius * Math.sin(midAngle);
@@ -702,7 +710,7 @@ const ClusterDonutPlot = ({ clusters, deviceFilter }: { clusters: any[], deviceF
                     y={ly}
                     fill="white"
                     textAnchor="middle"
-                    className="text-[6px] font-black pointer-events-none drop-shadow-md"
+                    className="text-[9px] font-black pointer-events-none drop-shadow-md"
                     transform={`rotate(90 ${lx} ${ly})`}
                     style={{ dominantBaseline: 'middle' }}
                   >
@@ -714,13 +722,13 @@ const ClusterDonutPlot = ({ clusters, deviceFilter }: { clusters: any[], deviceF
           })}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <span className="text-[8px] text-[#475569] font-black uppercase tracking-widest leading-none mb-1">Scale</span>
-          <span className="text-[14px] font-black text-white tabular-nums leading-none">100%</span>
+          <span className="text-[11px] text-[#475569] font-black tracking-widest leading-none mb-1">Scale</span>
+          <span className="text-[17px] font-black text-white tabular-nums leading-none">100%</span>
         </div>
       </div>
 
       <div className="w-full space-y-2.5">
-        <div className="text-[9px] text-[#475569] font-black uppercase tracking-[0.2em] mb-2 border-b border-white/5 pb-1">Cluster Share</div>
+        <div className="text-[12px] text-[#475569] font-black tracking-[0.2em] mb-2 border-b border-white/5 pb-1">Cluster Share</div>
         {clusters.map((c, i) => {
           const switchSize = (deviceFilter !== 'device') ? (D.clS[i]?.size || 0) : 0;
           const totalSize = c.size + switchSize;
@@ -729,9 +737,12 @@ const ClusterDonutPlot = ({ clusters, deviceFilter }: { clusters: any[], deviceF
             <div key={i} className="flex items-center justify-between group transition-colors hover:text-white">
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full" style={{ background: c.c }} />
-                <span className="text-[10px] font-bold text-[#94A3B8] group-hover:text-[#F8FAFC] truncate max-w-[100px] uppercase tracking-tighter">{c.n}</span>
+                {(() => {
+                  const formatLabel = (str: string) => str.replace(/_/g, ' ').toLowerCase().replace(/(^\w|\s\w|\(\w)/g, m => m.toUpperCase());
+                  return <span className="text-[13px] font-bold text-[#94A3B8] group-hover:text-[#F8FAFC] truncate max-w-[150px] tracking-tighter">{formatLabel(c.n)}</span>;
+                })()}
               </div>
-              <span className="text-[10px] font-black text-[#3DDAB4] font-['IBM_Plex_Mono',monospace]">{pct}%</span>
+              <span className="text-[13px] font-black text-[#3DDAB4] font-['IBM_Plex_Mono',monospace]">{pct}%</span>
             </div>
           );
         })}
@@ -741,40 +752,38 @@ const ClusterDonutPlot = ({ clusters, deviceFilter }: { clusters: any[], deviceF
 };
 
 
-const PreEventComparisonPlot = ({ data }: { data: PreEventData[] }) => {
-  // Focus on the top 4 most significant events for the 2x2 grid layout
+const PreEventComparisonPlot = ({ data }: { data: any[] }) => {
   const displayEvents = data.slice(0, 4);
+  const formatLabel = (str: string) => str.replace(/_/g, ' ').toLowerCase().replace(/(^\w|\s\w|\(\w)/g, m => m.toUpperCase());
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-visible">
       {displayEvents.map((pe, idx) => {
-        // Local max for THIS event to ensure full scale visibility for smaller variations
-        const eventMax = Math.max(...pe.metrics.map(m => Math.max(m.normal || 0, m.pre || 0)), 1);
+        const eventMax = Math.max(...pe.metrics.map((m: any) => Math.max(m.normal || 0, m.pre || 0)), 1);
 
         return (
           <div key={idx} className="bg-[#1E293B]/40 border border-[#334155]/60 rounded-xl p-6 hover:bg-[#1E293B]/60 transition-all group animate-in slide-in-from-bottom-4 duration-500 shadow-xl" style={{ animationDelay: `${idx * 150}ms` }}>
             <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-4">
-              <span className="text-[13px] font-black text-white uppercase tracking-tight font-['IBM_Plex_Mono',monospace]">{pe.evt}: Normal vs Pre-Event</span>
+              <span className="text-[16px] font-black text-white tracking-tight font-['IBM_Plex_Mono',monospace]">{formatLabel(pe.evt)}: Normal Vs Pre-Event</span>
 
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded-sm bg-[#3B82F6]" />
-                  <span className="text-[10px] font-bold text-[#94A3B8] uppercase">Normal</span>
+                  <span className="text-[13px] font-bold text-[#94A3B8]">Normal</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded-sm bg-[#F97316]" />
-                  <span className="text-[10px] font-bold text-[#94A3B8] uppercase">Pre-Event</span>
+                  <span className="text-[13px] font-bold text-[#94A3B8]">Pre-Event</span>
                 </div>
               </div>
             </div>
 
             <div className="flex items-end justify-between h-[180px] px-2 gap-8 mb-12 relative">
-              {/* Y-Axis guide lines */}
               <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-5">
                 {[0, 1, 2, 3, 4].map(line => <div key={line} className="w-full h-px bg-white" />)}
               </div>
 
-              {pe.metrics.map((m, midx) => {
+              {pe.metrics.map((m: any, midx: number) => {
                 const normalH = (m.normal / eventMax) * 100;
                 const preH = (m.pre / eventMax) * 100;
                 const isSignificant = Math.abs(m.dpct) > 50;
@@ -782,36 +791,32 @@ const PreEventComparisonPlot = ({ data }: { data: PreEventData[] }) => {
                 return (
                   <div key={midx} className="flex-1 flex flex-col items-center h-full relative group/metric">
                     <div className="flex-1 w-full flex items-end justify-center gap-1.5 px-1 relative z-10">
-                      {/* Normal Bar */}
                       <div className="w-full max-w-[12px] bg-[#3B82F6] rounded-t-[2px] transition-all duration-1000 relative group-hover/metric:brightness-125" style={{ height: `${normalH}%` }}>
-                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 opacity-0 group-hover/metric:opacity-100 transition-opacity whitespace-nowrap bg-black p-1 rounded text-[8px] font-mono text-white z-50">{m.normal.toFixed(1)}</div>
+                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 opacity-0 group-hover/metric:opacity-100 transition-opacity whitespace-nowrap bg-black p-1 rounded text-[12px] font-mono text-white z-50">{m.normal.toFixed(1)}</div>
                       </div>
-                      {/* Pre-Event Bar */}
                       <div className="w-full max-w-[12px] bg-[#F97316] rounded-t-[2px] transition-all duration-1000 relative group-hover/metric:brightness-125" style={{ height: `${preH}%` }}>
-                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 opacity-0 group-hover/metric:opacity-100 transition-opacity whitespace-nowrap bg-black p-1 rounded text-[8px] font-mono text-white z-50">{m.pre.toFixed(1)}</div>
+                        <div className="absolute -top-5 left-1/2 -translate-x-1/2 opacity-0 group-hover/metric:opacity-100 transition-opacity whitespace-nowrap bg-black p-1 rounded text-[12px] font-mono text-white z-50">{m.pre.toFixed(1)}</div>
                       </div>
                     </div>
 
-                    {/* Label */}
                     <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap origin-center -rotate-45">
-                      <span className={cn("text-[9px] font-bold tracking-tight py-0.5 px-1 rounded transition-colors uppercase",
+                      <span className={cn("text-[12px] font-bold tracking-tight py-0.5 px-1 rounded transition-colors",
                         isSignificant ? "text-[#CBD5E1] bg-white/5" : "text-[#64748B]")}>
-                        {m.m}
+                        {formatLabel(m.m)}
                       </span>
                     </div>
 
-                    {/* Significant Indicator */}
                     {isSignificant && (
                       <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                        <span className="text-[8px] font-black text-[#F97316] bg-[#F97316]/10 px-1 rounded border border-[#F97316]/20">+{m.dpct}%</span>
+                        <span className="text-[11px] font-black text-[#F97316] bg-[#F97316]/10 px-1 rounded border border-[#F97316]/20">+{m.dpct}%</span>
                       </div>
                     )}
                   </div>
-                )
+                );
               })}
             </div>
           </div>
-        )
+        );
       })}
     </div>
   );
@@ -834,19 +839,19 @@ const LollipopChart = ({
 }) => {
   const max = Math.max(...data.map(d => Math.abs(d.val)), 0.01);
   return (
-    <div className="bg-[#1e293b]/20 border border-white/5 rounded-[10px] p-4 h-full flex flex-col">
+    <div className="bg-[#1e293b]/20 border border-white/5 rounded-[10px] p-4 h-full flex flex-col shadow-2xl">
       <div className="flex flex-col gap-3 mb-6">
         <div className="flex justify-between items-center px-1">
-          <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-[0.2em] uppercase font-bold">Strength Ranking</span>
+          <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8] tracking-[0.2em] uppercase font-bold">Strength Ranking</span>
         </div>
 
         {onFocusChange && metricsList.length > 0 && (
           <div className="space-y-1.5 px-1">
-            <div className="font-['IBM_Plex_Mono',monospace] text-[8px] text-[#94A3B8] uppercase opacity-40 font-bold tracking-widest">FocusMetric:</div>
+            <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] uppercase opacity-40 font-bold tracking-widest">FocusMetric:</div>
             <select
               value={focusMetric}
               onChange={(e) => onFocusChange(e.target.value)}
-              className="w-full h-8 bg-[#0F172A] border border-white/5 rounded-[4px] text-[10px] font-['IBM_Plex_Mono',monospace] text-[#F8FAFC] px-2 outline-none cursor-pointer hover:border-[#3B82F6]/30 transition-colors"
+              className="w-full h-8 bg-[#0F172A] border border-white/5 rounded-[4px] text-[13px] font-['IBM_Plex_Mono',monospace] text-[#F8FAFC] px-2 outline-none cursor-pointer hover:border-[#3B82F6]/30 transition-colors"
             >
               <option value="all">All pairs ranked</option>
               {metricsList.map(m => <option key={m} value={m}>{m}</option>)}
@@ -860,12 +865,12 @@ const LollipopChart = ({
           const w = Math.min((Math.abs(d.val) / max) * 100, 100);
           return (
             <div key={i} className="group grid grid-cols-[210px_1fr] gap-4 items-center animate-in fade-in slide-in-from-left-2 duration-500" style={{ animationDelay: `${i * 70}ms` }}>
-              <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-right font-medium truncate pr-4 border-r border-white/10 h-10 flex items-center justify-end">
+              <div className="font-['IBM_Plex_Mono',monospace] text-[13px] text-[#94A3B8] text-right font-medium truncate pr-4 border-r border-white/10 h-10 flex items-center justify-end uppercase tracking-tighter">
                 {d.label}
               </div>
               <div className="relative h-10 w-full flex items-center pr-4">
                 <div
-                  className="h-8 transition-all duration-1000 ease-out rounded-[4px] flex items-center justify-end px-3 font-['IBM_Plex_Mono',monospace] text-[10px] font-bold text-white shadow-lg"
+                  className="h-8 transition-all duration-1000 ease-out rounded-[4px] flex items-center justify-end px-3 font-['IBM_Plex_Mono',monospace] text-[13px] font-bold text-white shadow-lg"
                   style={{
                     width: `${Math.max(w, 15)}%`,
                     background: `linear-gradient(90deg, ${d.color || '#2563EB'} 0%, ${d.color || '#3B82F6'} 100%)`,
@@ -879,15 +884,15 @@ const LollipopChart = ({
           );
         })}
         {data.length === 0 && (
-          <div className="h-40 flex flex-col items-center justify-center text-[10px] text-[#475569] font-['IBM_Plex_Mono',monospace] uppercase tracking-widest italic gap-2 opacity-50">
-            <div className="w-1 h-1 bg-[#475569] rounded-full" />
+          <div className="h-40 flex flex-col items-center justify-center text-[13px] text-[#475569] font-['IBM_Plex_Mono',monospace] uppercase tracking-widest  gap-2 opacity-50">
+            <div className="w-1.5 h-1.5 bg-[#475569] rounded-full" />
             No results found for focus
           </div>
         )}
       </div>
 
       <div className="mt-8 pt-4 border-t border-white/5">
-        <div className="flex justify-between font-['IBM_Plex_Mono',monospace] text-[8px] text-[#475569] tracking-tighter">
+        <div className="flex justify-between font-['IBM_Plex_Mono',monospace] text-[11px] text-[#475569] tracking-tighter font-black">
           <span>0.0</span>
           <span>{(max * 0.5).toFixed(2)}</span>
           <span>{max.toFixed(2)}</span>
@@ -909,8 +914,6 @@ const STEP_CATEGORIES: Record<string, string> = {
   'Chains': 'Failure Chain Patterns',
   'Co-occurrence': 'Event Co-Occurrence',
 };
-
-// SCOPE_TARGETS removed - using shared version
 
 const TERMINAL_LOG = `==============================================================================
  NETWORK PATTERN MINING SYSTEM  v3
@@ -1171,7 +1174,7 @@ const TERMINAL_LOG = `==========================================================
   Lead time distribution (>10% divergence from normal):
   Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
   ------------------------------------------------------------------------------
-  util_pct                      2p        1p        1p       408  [█▄·············]
+  util_pct                      2p        1p        1p       408  [█▄············]
   queue_depth                   1p        1p        1p       408  [█···············]
   crc_errors                    1p        1p        1p       408  [█···············]
   latency_ms                    1p        1p        1p       408  [█···············]
@@ -2223,16 +2226,16 @@ export default function TrainingLovelablePage() {
         <div className="flex items-center gap-5">
           <div className="flex flex-col">
             <div className="flex items-center gap-3 mb-1.5">
-              <span className="text-[15px] font-bold text-[#F8FAFC] tracking-tight font-['IBM_Plex_Mono',monospace] uppercase">{label}</span>
-              <span className={cn("px-2 py-0.5 rounded-[4px] text-[8px] font-black uppercase tracking-[0.1em]", dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'bg-[#3DDAB4]/20 text-[#3DDAB4]')}>{dev}</span>
+              <span className="text-[16px] font-bold text-[#F8FAFC] tracking-tight font-['IBM_Plex_Mono',monospace]">{formatLabel(label)}</span>
+              <span className={cn("px-2 py-0.5 rounded-[4px] text-[9px] font-black tracking-[0.1em]", dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'bg-[#3DDAB4]/20 text-[#3DDAB4]')}>{dev}</span>
             </div>
             <div className="flex items-center gap-4">
-              <div className="text-[9px] text-[#475569] font-black uppercase tracking-[0.1em] opacity-40">Top Signals:</div>
+              <div className="text-[10px] text-[#475569] font-white tracking-[0.1em] opacity-40">Top Signals:</div>
               <div className="flex items-center gap-3">
                 {feats?.slice(0, 3).map(([fn, fi], k) => (
                   <div key={k} className="flex items-center gap-1.5">
-                    <span className="text-[10px] text-[#94A3B8] font-medium transition-colors group-hover:text-[#3B82F6]">{fn}</span>
-                    <span className="text-[10px] font-bold text-[#3DDAB4]">{(fi * 100).toFixed(0)}%</span>
+                    <span className="text-[11px] text-[#94A3B8] font-medium transition-colors group-hover:text-[#3B82F6]">{formatLabel(fn)}</span>
+                    <span className="text-[11px] font-bold text-[#3DDAB4]">{(fi * 100).toFixed(0)}%</span>
                   </div>
                 ))}
               </div>
@@ -2241,8 +2244,8 @@ export default function TrainingLovelablePage() {
         </div>
 
         <div className="flex flex-col items-end pr-2">
-          <div className="text-[22px] font-black tabular-nums leading-none tracking-tighter" style={{ color }}>{percentage.toFixed(1)}%</div>
-          <div className="text-[8px] font-bold text-[#475569] uppercase tracking-[0.25em] mt-1.5 opacity-60">Model Confidence</div>
+          <div className="text-[23px] font-black tabular-nums leading-none tracking-tighter" style={{ color }}>{percentage.toFixed(1)}%</div>
+          <div className="text-[9px] font-bold text-[#475569] tracking-[0.25em] mt-1.5 opacity-60">Model Confidence</div>
         </div>
       </div>
     );
@@ -2385,13 +2388,13 @@ export default function TrainingLovelablePage() {
         <header className="bg-[#0F172A] text-[#F8FAFC] px-10 pt-7 pb-6 border-b-[3px] border-[#3B82F6]">
           <div className="flex items-start justify-between gap-5 mb-4">
             <div>
-              <h1 className="text-[22px] font-semibold tracking-[-0.02em] leading-tight">Model Training Analysis</h1>
+              <h1 className="text-[25px] font-semibold tracking-[-0.02em] leading-tight">Model Training Analysis</h1>
             </div>
             <div className="flex flex-col items-end gap-5 flex-shrink-0">
               <div className="flex items-end gap-6">
                 <div className="space-y-2">
-                  <div className="font-['IBM_Plex_Mono',monospace] text-[9px] tracking-[0.2em] text-[#3DDAB4] font-bold uppercase px-0.5">
-                    TRAINING SCOPE
+                  <div className="font-['IBM_Plex_Mono',monospace] text-[11px] tracking-[0.2em] text-[#3DDAB4] font-bold px-0.5">
+                    Training Scope
                   </div>
                   <Select
                     value={deviceFilter}
@@ -2400,31 +2403,31 @@ export default function TrainingLovelablePage() {
                       setSelectedTarget(SCOPE_TARGETS[v][0].label);
                     }}
                   >
-                    <SelectTrigger className="w-[180px] h-9 bg-[#1E293B] border border-white/5 rounded-md px-3 text-[10px] font-medium text-[#F8FAFC] outline-none hover:border-[#3B82F6]/50 transition-all shadow-inner">
+                    <SelectTrigger className="w-[180px] h-10 bg-[#1E293B] border border-white/5 rounded-md px-3 text-[12px] font-medium text-[#F8FAFC] outline-none hover:border-[#3B82F6]/50 transition-all shadow-inner">
                       <SelectValue placeholder="Select Scope" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#0F172A] border border-[#334155] text-[#F8FAFC]">
-                      <SelectItem value="device" className="text-[10px] focus:bg-[#3B82F6] focus:text-white">Device Specific</SelectItem>
-                      <SelectItem value="topology" className="text-[10px] focus:bg-[#3B82F6] focus:text-white">Topology Based</SelectItem>
-                      <SelectItem value="group" className="text-[10px] focus:bg-[#3B82F6] focus:text-white">Device Group Based</SelectItem>
+                      <SelectItem value="device" className="text-[12px] focus:bg-[#3B82F6] focus:text-white">Device Specific</SelectItem>
+                      <SelectItem value="topology" className="text-[12px] focus:bg-[#3B82F6] focus:text-white">Topology Based</SelectItem>
+                      <SelectItem value="group" className="text-[12px] focus:bg-[#3B82F6] focus:text-white">Device Group Based</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-2">
-                  <div className="font-['IBM_Plex_Mono',monospace] text-[9px] tracking-[0.2em] text-[#94A3B8] font-bold uppercase px-0.5">
-                    {deviceFilter === 'device' ? 'SELECT DEVICE' : deviceFilter === 'topology' ? 'SELECT TOPOLOGY' : 'SELECT DEVICE GROUP'}
+                  <div className="font-['IBM_Plex_Mono',monospace] text-[11px] tracking-[0.2em] text-[#94A3B8] font-bold px-0.5">
+                    {deviceFilter === 'device' ? 'Select Device' : deviceFilter === 'topology' ? 'Select Topology' : 'Select Device Group'}
                   </div>
                   <Select value={selectedTarget} onValueChange={setSelectedTarget}>
-                    <SelectTrigger className="w-[180px] h-9 bg-[#1E293B] border border-white/5 rounded-md px-3 text-[10px] font-medium text-[#F8FAFC] outline-none hover:border-[#3B82F6]/50 transition-all shadow-inner">
+                    <SelectTrigger className="w-[180px] h-10 bg-[#1E293B] border border-white/5 rounded-md px-3 text-[12px] font-medium text-[#F8FAFC] outline-none hover:border-[#3B82F6]/50 transition-all shadow-inner">
                       <SelectValue placeholder="Select Target" />
                     </SelectTrigger>
                     <SelectContent className="bg-[#0F172A] border border-[#334155] text-[#F8FAFC]">
                       {SCOPE_TARGETS[deviceFilter].map((t) => (
-                        <SelectItem key={t.label} value={t.label} className="text-[10px] focus:bg-[#3B82F6] focus:text-white">
+                        <SelectItem key={t.label} value={t.label} className="text-[12px] focus:bg-[#3B82F6] focus:text-white">
                           <div className="flex items-center gap-2">
                             <span>{t.label}</span>
-                            <span className="text-[8px] opacity-40 font-normal">{t.sub}</span>
+                            <span className="text-[10px] opacity-40 font-normal">{t.sub}</span>
                           </div>
                         </SelectItem>
                       ))}
@@ -2433,13 +2436,13 @@ export default function TrainingLovelablePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="font-['IBM_Plex_Mono',monospace] text-[9px] tracking-[0.2em] text-[#94A3B8] font-bold uppercase px-0.5 opacity-60">
+                  <div className="font-['IBM_Plex_Mono',monospace] text-[11px] tracking-[0.2em] text-[#94A3B8] font-bold px-0.5 opacity-60">
                     Period
                   </div>
                   <select
                     value={trainingPeriod}
                     onChange={(e) => setTrainingPeriod(e.target.value)}
-                    className="w-[140px] h-9 bg-[#1E293B] border border-white/5 rounded-md px-3 text-[10px] font-['IBM_Plex_Mono',monospace] text-[#F8FAFC] outline-none cursor-pointer hover:border-[#3B82F6]/50 transition-colors appearance-none"
+                    className="w-[140px] h-10 bg-[#1E293B] border border-white/5 rounded-md px-3 text-[12px] font-['IBM_Plex_Mono',monospace] text-[#F8FAFC] outline-none cursor-pointer hover:border-[#3B82F6]/50 transition-colors appearance-none"
                     style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5' viewBox='0 0 10 6' fill='none'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%233B82F6' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' }}
                   >
                     <option value="Last Week">Last Week</option>
@@ -2453,13 +2456,13 @@ export default function TrainingLovelablePage() {
                   {!started ? (
                     <button
                       onClick={handleStart}
-                      className="flex items-center gap-2 bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 py-2 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider transition-all shadow-[0_4px_0_0_#1D4ED8] active:translate-y-[2px] active:shadow-none h-9 mt-auto"
+                      className="flex items-center gap-2 bg-[#3B82F6] hover:bg-[#2563EB] text-white px-5 py-2 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[13px] font-bold tracking-wider transition-all shadow-[0_4px_0_0_#1D4ED8] active:translate-y-[2px] active:shadow-none h-10 mt-auto"
                     >
-                      <Play className="w-3.5 h-3.5 fill-current" />
+                      <Play className="w-4 h-4 fill-current" />
                       Start Training Analysis
                     </button>
                   ) : !isComplete ? (
-                    <div className="flex items-center gap-3 mt-auto h-9">
+                    <div className="flex items-center gap-3 mt-auto h-10">
                       <button
                         onClick={handleReset}
                         className="p-2 text-[#9a9488] hover:text-[#f4f2ed] transition-colors"
@@ -2467,23 +2470,23 @@ export default function TrainingLovelablePage() {
                       >
                         <RotateCcw className="w-4 h-4" />
                       </button>
-                      <div className="flex items-center gap-2 bg-[#2a2520] text-[#2a9070] px-5 py-1.5 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider border border-[#2a9070]/30 shadow-[0_0_15px_rgba(42,144,112,0.15)]">
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        TRAINING...
+                      <div className="flex items-center gap-2 bg-[#2a2520] text-[#2a9070] px-5 py-1.5 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[13px] font-bold tracking-wider border border-[#2a9070]/30 shadow-[0_0_15px_rgba(42,144,112,0.15)]">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Training...
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-3 mt-auto h-9">
+                    <div className="flex items-center gap-3 mt-auto h-10">
                       <button
                         onClick={handleReset}
-                        className="flex items-center gap-2 text-[#9a9488] hover:text-[#f4f2ed] font-['IBM_Plex_Mono',monospace] text-[10px] uppercase font-bold tracking-widest transition-colors mr-2"
+                        className="flex items-center gap-2 text-[#9a9488] hover:text-[#f4f2ed] font-['IBM_Plex_Mono',monospace] text-[12px] uppercase font-bold tracking-widest transition-colors mr-2"
                       >
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        RETRAIN
+                        <RotateCcw className="w-4 h-4" />
+                        Retrain
                       </button>
-                      <div className="flex items-center gap-2 bg-[#e8f4f0] text-[#0a7c5c] px-5 py-1.5 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider border border-[#2a9070] shadow-[0_4px_12px_rgba(10,124,92,0.1)] select-none">
-                        <CheckCircle2 className="w-3.5 h-3.5" />
-                        COMPLETE
+                      <div className="flex items-center gap-2 bg-[#e8f4f0] text-[#0a7c5c] px-5 py-1.5 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[13px] font-bold tracking-wider border border-[#2a9070] shadow-[0_4px_12px_rgba(10,124,92,0.1)] select-none">
+                        <CheckCircle2 className="w-4 h-4" />
+                        Complete
                       </div>
                     </div>
                   )}
@@ -2495,19 +2498,19 @@ export default function TrainingLovelablePage() {
                   {isComplete && (
                     <NavLink
                       to="/pattern-prediction/results"
-                      className="flex items-center gap-2 bg-[#F8FAFC]/5 hover:bg-[#F8FAFC]/10 text-[#F8FAFC] px-5 py-2 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-wider border border-white/20 transition-all group shadow-2xl"
+                      className="flex items-center gap-2 bg-[#F8FAFC]/5 hover:bg-[#F8FAFC]/10 text-[#F8FAFC] px-5 py-2 rounded-[6px] font-['IBM_Plex_Mono',monospace] text-[13px] font-bold tracking-wider border border-white/20 transition-all group shadow-2xl"
                     >
-                      VIEW RESULTS
-                      <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                      View Results
+                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </NavLink>
                   )}
                 </div>
 
                 {started && !isComplete && currentStep < 4 && (
-                  <div className="flex items-center gap-2 text-[10px] text-[#3B82F6] font-['IBM_Plex_Mono',monospace] animate-in fade-in slide-in-from-right-2 duration-300 pr-1">
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                    <span className="opacity-70 uppercase tracking-widest">MongoDB Ingestion:</span>
-                    <span className="font-bold uppercase tracking-tight">{D.pipeline[currentStep]}...</span>
+                  <div className="flex items-center gap-2 text-[12px] text-[#3B82F6] font-['IBM_Plex_Mono',monospace] animate-in fade-in slide-in-from-right-2 duration-300 pr-1">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span className="opacity-70 tracking-widest text-[#3B82F6]">Ingestion Pipeline:</span>
+                    <span className="font-bold tracking-tight">{formatLabel(D.pipeline[currentStep])}...</span>
                   </div>
                 )}
               </div>
@@ -2532,19 +2535,19 @@ export default function TrainingLovelablePage() {
                   id={`tab-btn-${i}`}
                   onClick={() => setActiveTab(i)}
                   className={cn(
-                    "flex items-center h-14 px-6 font-['IBM_Plex_Mono',monospace] text-[10px] transition-all duration-300 border-b-2 whitespace-nowrap flex-shrink-0",
-                    isActive ? "bg-[#1E293B] border-[#3B82F6] text-[#F8FAFC] font-bold" : "border-transparent text-[#94A3B8] hover:bg-[#1E293B]/50"
+                    "flex items-center h-14 px-6 font-['IBM_Plex_Mono',monospace] text-[12px] transition-all duration-300 border-b-2 whitespace-nowrap flex-shrink-0",
+                    isActive
+                      ? (cat.name === 'Failure Chains' ? "bg-[#F59E0B]/10 border-[#F59E0B] text-[#F59E0B] font-bold" : "bg-[#1E293B] border-[#3B82F6] text-[#F8FAFC] font-bold")
+                      : (cat.name === 'Failure Chains' ? "border-transparent text-[#F59E0B]/70 hover:bg-[#F59E0B]/10 hover:text-[#F59E0B]" : "border-transparent text-[#94A3B8] hover:bg-[#1E293B]/50")
                   )}
                 >
                   <div className={cn(
-                    "w-[20px] h-[20px] rounded-full flex items-center justify-center text-[9px] font-medium border-[1.5px] transition-all duration-300 mr-2 flex-shrink-0",
-                    isDone ? "bg-[#3DDAB4] border-[#3DDAB4] text-[#0F172A]" :
-                      isProcessing ? "bg-white border-[#3B82F6] text-[#3B82F6] shadow-[0_0_10px_rgba(59,130,246,0.3)] animate-pulse" :
-                        "border-[#334155] bg-[#0F172A]"
-                  )}>
-                    {i + 1}
-                  </div>
-                  <span className="uppercase tracking-[0.1em]">{cat.name}</span>
+                    "w-3 h-3 rounded-full flex items-center justify-center border-[1.5px] transition-all duration-300 mr-2 flex-shrink-0",
+                    isDone ? (cat.name === 'Failure Chains' ? "bg-[#F59E0B] border-[#F59E0B]" : "bg-[#3DDAB4] border-[#3DDAB4]") :
+                      isProcessing ? "bg-white border-[#3B82F6] shadow-[0_0_10px_rgba(59,130,246,0.3)] animate-pulse" :
+                        (cat.name === 'Failure Chains' ? "border-[#F59E0B]/30 bg-[#0F172A]" : "border-[#334155] bg-[#0F172A]")
+                  )} />
+                  <span className="tracking-[0.1em]">{cat.name}</span>
                 </button>
               </div>
             );
@@ -2572,15 +2575,12 @@ export default function TrainingLovelablePage() {
             </div>
           )}
 
-          {/* DATA LOAD LOADING SCREEN REMOVED - NOW HANDLED BY TERMINAL LOG IN DATA PREP TAB */}
-
-
           {/* SECTION 01: SLIDING WINDOWS */}
           <section className={cn("animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(3) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">01</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Data Prep</span>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">8,156 document windows integrated</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8]"></span>
+              <span className="text-[16px] font-semibold tracking-[-0.01em]">Data Prep</span>
+              <span className="text-[13px] text-[#94A3B8] ml-auto">8,156 document windows integrated</span>
             </div>
 
             {!isStepReady(3) ? <LoadingState title="Time Series" /> : (
@@ -2590,7 +2590,7 @@ export default function TrainingLovelablePage() {
                   {/* Terminal Processing Log */}
                   <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden flex flex-col">
                     <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium uppercase">Pipeline Execution Log</span>
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[12px] tracking-[0.06em] text-[#CBD5E1] font-bold">Pipeline Execution Log</span>
                       <div className="flex gap-1">
                         <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444]/40" />
                         <div className="w-1.5 h-1.5 rounded-full bg-[#F59E0B]/40" />
@@ -2599,7 +2599,7 @@ export default function TrainingLovelablePage() {
                     </div>
                     <div
                       ref={terminalRef}
-                      className="p-4 font-['IBM_Plex_Mono',monospace] text-[11px] leading-relaxed text-[#94A3B8] flex-1 overflow-auto no-scrollbar max-h-[500px]"
+                      className="p-4 font-['IBM_Plex_Mono',monospace] text-[13px] leading-relaxed text-[#94A3B8] flex-1 overflow-auto no-scrollbar max-h-[500px]"
                     >
                       <pre className="whitespace-pre">{visibleLogLines.join('\n')}</pre>
                       {started && visibleLogLines.length < allLogLines.length && (
@@ -2614,20 +2614,19 @@ export default function TrainingLovelablePage() {
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(4) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">05</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Cross Correlation (Pearson / Spearman)</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8]"></span>
+              <span className="text-[16px] font-semibold tracking-[-0.01em]">Cross Correlation (Pearson / Spearman)</span>
               <button
                 onClick={() => setShowTimeLagVenn(!showTimeLagVenn)}
                 className={cn("ml-2 p-1 rounded-full transition-all", showTimeLagVenn ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#94A3B8] hover:text-white")}
               >
-                <Info className="w-3.5 h-3.5" />
+                <Info className="w-4 h-4" />
               </button>
-              <span className="text-[11px] text-[#94A3B8] ml-auto">Cross Correlation (Pearson / Spearman)</span>
             </div>
             {!isStepReady(4) ? <LoadingState title="Statistical Correlation" /> : (
               <div className="animate-in fade-in duration-700">
                 {showTimeLagVenn ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 px-2">
                     {combinedXcorr.slice(0, 12).map((d, i) => (
                       <CorrelationVennDiagram
                         key={i}
@@ -2644,33 +2643,35 @@ export default function TrainingLovelablePage() {
                     <div className={cn("grid grid-cols-[1fr_400px] gap-4", !shouldShow(4) && "hidden")}>
                       <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
                         <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#3DDAB4] font-bold uppercase italic">Combined Network-Wide Relations [Top Correlations]</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] tracking-widest">{combinedXcorr.length} significant nodes (&gt;0.75 R) identified</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[12px] tracking-[0.06em] text-[#3DDAB4] font-bold">Combined Network-Wide Relations [Top Correlations]</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8] tracking-widest">{combinedXcorr.length} significant nodes (&gt;0.75 R) identified</span>
                         </div>
                         <div className="p-0">
                           <div className="grid grid-cols-[100px_100px_80px_100px_70px_80px_1fr] gap-4 py-2 px-4 items-center bg-[#0F172A]/30 border-b border-[#334155]">
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Metric A</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Metric B</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Best Lag</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-center">Pearson r</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-right">Spearman r</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-center">Node</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Interpretation</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] font-black">Metric A</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] font-black">Metric B</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] font-black">Best Lag</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] font-black text-center">Pearson r</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] font-black text-right">Spearman r</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] font-black text-center">Node</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] font-black">Interpretation</span>
                           </div>
-                          {combinedXcorr.slice(0, 15).map((d, i) => (
-                            <div key={i} className="grid grid-cols-[100px_100px_80px_100px_70px_80px_1fr] gap-4 items-center border-b border-[#334155] last:border-none py-2 px-4 animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.02] transition-colors">
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#CBD5E1] truncate font-bold">{d.a}</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#CBD5E1] truncate font-bold">{d.b}</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] whitespace-nowrap">{d.lag}</span>
-                              <div className="flex items-center justify-center gap-2">
-                                <DonutChart val={d.r} size={28} />
-                                <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#F8FAFC] w-12">{d.r.toFixed(3)}</span>
+                          {combinedXcorr.slice(0, 15).map((d, i) => {
+                            return (
+                              <div key={i} className="grid grid-cols-[100px_100px_80px_100px_70px_80px_1fr] gap-4 items-center border-b border-[#334155] last:border-none py-2 px-4 animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.02] transition-colors">
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#CBD5E1] truncate font-bold">{formatLabel(d.a)}</span>
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#CBD5E1] truncate font-bold">{formatLabel(d.b)}</span>
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8] whitespace-nowrap">{d.lag}</span>
+                                <div className="flex items-center justify-center gap-2">
+                                  <DonutChart val={d.r} size={28} />
+                                  <span className="font-['IBM_Plex_Mono',monospace] text-[13px] text-[#F8FAFC] w-12">{d.r.toFixed(3)}</span>
+                                </div>
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[13px] text-right text-[#94A3B8] font-bold">{d.s.toFixed(3)}</span>
+                                <span className={cn("px-1.5 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[10px] text-center uppercase font-bold", d.dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'bg-[#3DDAB4]/20 text-[#3DDAB4]')}>{d.dev}</span>
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#3B82F6] opacity-80">{d.interp}</span>
                               </div>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-right text-[#94A3B8]">{d.s.toFixed(3)}</span>
-                              <span className={cn("px-1.5 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[8px] text-center uppercase font-bold", d.dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'bg-[#3DDAB4]/20 text-[#3DDAB4]')}>{d.dev}</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#3B82F6] opacity-80">{d.interp}</span>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                       <LollipopChart
@@ -2696,29 +2697,29 @@ export default function TrainingLovelablePage() {
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(5) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">06</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Granger Causality</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8]"></span>
+              <span className="text-[16px] font-semibold tracking-[-0.01em]">Granger Causality</span>
               <div className="flex items-center gap-4 ml-8 px-3 py-1 bg-[#1e293b]/60 border border-[#334155] rounded-lg">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-[#F59E0B] shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
-                  <span className="text-[9px] text-[#94A3B8] font-black uppercase tracking-widest">Cause</span>
+                  <span className="text-[10px] text-[#94A3B8] font-black uppercase tracking-widest">Cause</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-[#3B82F6] shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
-                  <span className="text-[9px] text-[#94A3B8] font-black uppercase tracking-widest">Effect</span>
+                  <span className="text-[11px] text-[#94A3B8] font-black uppercase tracking-widest">Effect</span>
                 </div>
               </div>
               <button
                 onClick={() => setShowCausalVenn(!showCausalVenn)}
                 className={cn("ml-2 p-1 rounded-full transition-all", showCausalVenn ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#94A3B8] hover:text-white")}
               >
-                <Info className="w-3.5 h-3.5" />
+                <Info className="w-4 h-4" />
               </button>
             </div>
             {!isStepReady(5) ? <LoadingState title="Granger Causality" /> : (
               <div className="animate-in fade-in duration-700">
                 {showCausalVenn ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 px-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 px-2">
                     {combinedGranger.slice(0, 12).map((d, i) => (
                       <CausalVennDiagram
                         key={i}
@@ -2736,31 +2737,33 @@ export default function TrainingLovelablePage() {
                     <div className="grid grid-cols-[1fr_400px] gap-4">
                       <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
                         <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium uppercase italic">Combined Network-Wide Causality [Top F-Stats]</span>
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] tracking-widest">{combinedGranger.length} nodes analyzed</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[12px] tracking-[0.06em] text-[#CBD5E1] font-bold">Combined Network-Wide Causality [Top F-Stats]</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8] tracking-widest">{combinedGranger.length} nodes analyzed</span>
                         </div>
                         <div className="p-3.5 space-y-1">
                           <div className="grid grid-cols-[125px_14px_125px_60px_60px_60px_60px] gap-2 pb-1.5 items-center bg-[#0F172A]/30 px-3 rounded">
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase tracking-widest px-1">CAUSE</span><span />
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase tracking-widest">EFFECT</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">F-STAT</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">P-VALUE</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right px-2">LAG</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">DEVICE</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] tracking-widest px-1 font-black">Cause</span><span />
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] tracking-widest font-black">Effect</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] text-right font-black">F-Stat</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] text-right font-black">P-Value</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] text-right px-2 font-black">Lag</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] text-right font-black">Device</span>
                           </div>
-                          {combinedGranger.slice(0, 15).map((d, i) => (
-                            <div key={i} className="grid grid-cols-[125px_14px_125px_60px_60px_60px_60px] gap-2 items-center border-b border-[#334155] last:border-none py-2 px-3 animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.04] transition-all">
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate font-bold">{d.c}</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center opacity-50">→</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate font-bold">{d.e}</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right px-1" style={{ color: d.f > 100 ? '#F59E0B' : '#CBD5E1' }}>{d.f.toFixed(1)}</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right opacity-70">{d.p}</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-right px-2">{d.lag}</span>
-                              <div className="flex justify-end pr-1">
-                                <span className={cn("px-1.5 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[8px] uppercase font-black tracking-tighter", d.dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'bg-[#3DDAB4]/20 text-[#3DDAB4]')}>{d.dev === 'Router' ? 'RO' : 'SW'}</span>
+                          {combinedGranger.slice(0, 15).map((d, i) => {
+                            return (
+                              <div key={i} className="grid grid-cols-[125px_14px_125px_60px_60px_60px_60px] gap-2 items-center border-b border-[#334155] last:border-none py-2 px-3 animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.04] transition-all">
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#CBD5E1] truncate font-bold">{formatLabel(d.c)}</span>
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[13px] text-[#94A3B8] text-center opacity-50">→</span>
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#CBD5E1] truncate font-bold">{formatLabel(d.e)}</span>
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-right px-1 font-bold" style={{ color: d.f > 100 ? '#F59E0B' : '#CBD5E1' }}>{d.f.toFixed(1)}</span>
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] text-right opacity-70 font-bold">{d.p}</span>
+                                <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8] text-right px-2">{d.lag}</span>
+                                <div className="flex justify-end pr-1">
+                                  <span className={cn("px-1.5 py-0.5 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[10px] uppercase font-black tracking-tighter", d.dev === 'Router' ? 'bg-[#3B82F6]/20 text-[#3B82F6]' : 'bg-[#3DDAB4]/20 text-[#3DDAB4]')}>{d.dev === 'Router' ? 'RO' : 'SW'}</span>
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                       <LollipopChart
@@ -2786,13 +2789,13 @@ export default function TrainingLovelablePage() {
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(6) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">04</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Pre-Event Behavior</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8]"></span>
+              <span className="text-[16px] font-semibold tracking-[-0.01em]">Pre-Event Behavior</span>
               <button
                 onClick={() => setShowPreEvtTable(!showPreEvtTable)}
                 className={cn("ml-2 p-1 rounded-full transition-all", showPreEvtTable ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#94A3B8] hover:text-white")}
               >
-                <Info className="w-3.5 h-3.5" />
+                <Info className="w-4 h-4" />
               </button>
             </div>
             {!isStepReady(6) ? <LoadingState title="Pre-Event Behavior" /> : (
@@ -2808,44 +2811,45 @@ export default function TrainingLovelablePage() {
                 ) : (
                   <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden shadow-2xl">
                     <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium uppercase italic">Event Behavior Matrix [Baseline vs Pre-Event]</span>
-                      <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-widest uppercase font-bold">Total windows Analyzed: 14,208</span>
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[12px] tracking-[0.06em] text-[#CBD5E1] font-bold">Event Behavior Matrix [Baseline vs Pre-Event]</span>
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] tracking-widest font-black uppercase">Total windows Analyzed: 14,208</span>
                     </div>
                     <div className="p-0 overflow-auto max-h-[500px]">
                       <table className="w-full text-left border-collapse">
                         <thead className="bg-[#0F172A] sticky top-0 z-10 border-b border-[#334155]">
                           <tr>
-                            <th className="px-3.5 py-2 text-[9px] font-black font-mono text-[#94A3B8] uppercase">Event Type</th>
-                            <th className="px-3.5 py-2 text-[9px] font-black font-mono text-[#94A3B8] uppercase">Metric Name</th>
-                            <th className="px-3.5 py-2 text-[9px] font-black font-mono text-[#94A3B8] uppercase text-right">Normal Value</th>
-                            <th className="px-3.5 py-2 text-[9px] font-black font-mono text-[#94A3B8] uppercase text-right">Pre-Event Value</th>
-                            <th className="px-3.5 py-2 text-[9px] font-black font-mono text-[#94A3B8] uppercase text-right">Delta (%)</th>
-                            <th className="px-3.5 py-2 text-[9px] font-black font-mono text-[#94A3B8] uppercase">Detection Window</th>
+                            <th className="px-3.5 py-2 text-[11px] font-black font-mono text-[#94A3B8]">Event Type</th>
+                            <th className="px-3.5 py-2 text-[11px] font-black font-mono text-[#94A3B8]">Metric Name</th>
+                            <th className="px-3.5 py-2 text-[11px] font-black font-mono text-[#94A3B8] text-right">Normal Value</th>
+                            <th className="px-3.5 py-2 text-[11px] font-black font-mono text-[#94A3B8] text-right">Pre-Event Value</th>
+                            <th className="px-3.5 py-2 text-[11px] font-black font-mono text-[#94A3B8] text-right">Delta (%)</th>
+                            <th className="px-3.5 py-2 text-[11px] font-black font-mono text-[#94A3B8]">Detection Window</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-[#334155]">
-                          {(deviceFilter === 'device' ? (targetType === 'Router' ? D.preEvtR : D.preEvtS) : [...D.preEvtR, ...D.preEvtS]).map((pe, idx) => (
-                            pe.metrics.map((m, midx) => (
+                          {(deviceFilter === 'device' ? (targetType === 'Router' ? D.preEvtR : D.preEvtS) : [...D.preEvtR, ...D.preEvtS]).map((pe, idx) => {
+                            const formatLabel = (str: string) => str.replace(/_/g, ' ').toLowerCase().replace(/(^\w|\s\w|\(\w)/g, m => m.toUpperCase());
+                            return pe.metrics.map((m, midx) => (
                               <tr key={`${idx}-${midx}`} className="hover:bg-[#1e293b]/60 transition-colors group">
                                 {midx === 0 && (
-                                  <td rowSpan={pe.metrics.length} className="px-3.5 py-2 text-[10px] text-white font-mono bg-[#0F172A]/20 font-bold border-r border-[#334155]">
-                                    {pe.evt}
+                                  <td rowSpan={pe.metrics.length} className="px-3.5 py-2 text-[12px] text-white font-mono bg-[#0F172A]/20 font-bold border-r border-[#334155]">
+                                    {formatLabel(pe.evt)}
                                   </td>
                                 )}
-                                <td className="px-3.5 py-2 text-[10px] text-[#94A3B8] font-mono group-hover:text-white transition-colors uppercase">{m.m}</td>
-                                <td className="px-3.5 py-2 text-[10px] text-[#475569] font-black tabular-nums text-right">{m.normal ?? 'N/A'}</td>
-                                <td className="px-3.5 py-2 text-[10px] text-white font-black tabular-nums text-right">{m.pre ?? 'N/A'}</td>
-                                <td className={cn("px-3.5 py-2 text-[10px] font-black tabular-nums text-right", m.up ? 'text-red-500' : 'text-blue-500')}>
+                                <td className="px-3.5 py-2 text-[12px] text-[#94A3B8] font-mono group-hover:text-white transition-colors font-bold whitespace-nowrap">{formatLabel(m.m)}</td>
+                                <td className="px-3.5 py-2 text-[12px] text-[#475569] font-black tabular-nums text-right">{m.normal ?? 'N/A'}</td>
+                                <td className="px-3.5 py-2 text-[13px] text-white font-black tabular-nums text-right">{m.pre ?? 'N/A'}</td>
+                                <td className={cn("px-3.5 py-2 text-[13px] font-black tabular-nums text-right", m.up ? 'text-red-500' : 'text-blue-500')}>
                                   {m.up ? '+' : ''}{m.dpct}%
                                 </td>
                                 {midx === 0 && (
-                                  <td rowSpan={pe.metrics.length} className="px-3.5 py-2 text-[9px] text-[#3B82F6] font-black uppercase text-center border-l border-[#334155]">
+                                  <td rowSpan={pe.metrics.length} className="px-3.5 py-2 text-[11px] text-[#3B82F6] font-black text-center border-l border-[#334155]">
                                     {pe.warn} Prior
                                   </td>
                                 )}
                               </tr>
-                            ))
-                          ))}
+                            ));
+                          })}
                         </tbody>
                       </table>
                     </div>
@@ -2857,16 +2861,20 @@ export default function TrainingLovelablePage() {
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(7) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">03</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">KMeans Clustering Patterns</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8]"></span>
+              <span className="text-[16px] font-semibold tracking-[-0.01em]">KMeans Clustering Patterns</span>
             </div>
             {!isStepReady(7) ? <LoadingState title="K-Means Clustering" /> : (
               <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
                 <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                  <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#3DDAB4] font-bold uppercase">
-                    {deviceFilter === 'device' ? `${targetType?.toUpperCase()} SPECIFIC PATTERN CLUSTERING` : 'INTEGRATED NETWORK-WIDE PATTERN CLUSTERING'}
-                  </span>
-                  <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#3B82F6] uppercase">K=4 / Silhouette: 0.742</div>
+                  {(() => {
+                    return (
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[11px] tracking-[0.06em] text-[#3DDAB4] font-bold">
+                        {deviceFilter === 'device' ? `${targetType} Specific Pattern Clustering` : 'Integrated Network-Wide Pattern Clustering'}
+                      </span>
+                    );
+                  })()}
+                  <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#3B82F6]">K=4 / Silhouette: 0.742</div>
                 </div>
 
                 <div className="p-6 grid grid-cols-[1fr_300px] gap-10 items-start">
@@ -2890,13 +2898,13 @@ export default function TrainingLovelablePage() {
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(8) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">02</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Random Forest</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8]"></span>
+              <span className="text-[16px] font-semibold tracking-[-0.01em]">Random Forest</span>
               <button
                 onClick={() => setShowRFTable(!showRFTable)}
                 className={cn("ml-2 p-1 rounded-full transition-all", showRFTable ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#94A3B8] hover:text-white")}
               >
-                <Info className="w-3.5 h-3.5" />
+                <Info className="w-4 h-4" />
               </button>
             </div>
             {!isStepReady(8) ? <LoadingState title="Random Forest" /> : (
@@ -2924,39 +2932,45 @@ export default function TrainingLovelablePage() {
                     }).map((group, idx) => (
                       <div key={idx} className={cn("bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden mb-2.5 last:mb-0")}>
                         <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[11px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
                         </div>
                         <div className="p-3.5 space-y-2">
                           <div className="grid grid-cols-[160px_50px_50px_50px_50px_1fr] gap-2 items-start pb-1.5 border-b border-[#334155]">
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] tracking-[0.07em]">EVENT</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-center">F1</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-center">PREC</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-center">REC</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-center">ACC</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">TOP 3 FEATURES</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] tracking-[0.05em]">Event</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center">F1</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center">Prec</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center">Rec</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center">Acc</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">Top 3 Features</span>
                           </div>
                           {group.data.slice(0, itemLimit).map((r, i) => (
                             <div key={i} className={cn("grid grid-cols-[160px_50px_50px_50px_50px_1fr] gap-2 items-start py-2 border-b border-[#334155] last:border-none animate-in fade-in slide-in-from-left-2 duration-300", r.skip && "opacity-40")}>
-                              <div>
-                                <div className="text-[11px] font-medium text-[#F8FAFC]">{r.evt}</div>
-                                <div className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">{r.skip ? `SKIPPED — ${r.reason}` : `${r.pos} pos rate`}</div>
-                              </div>
+                              {(() => {
+                                return (
+                                  <div>
+                                    <div className="text-[12px] font-medium text-[#F8FAFC]">{formatLabel(r.evt)}</div>
+                                    <div className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">{r.skip ? `Skipped — ${r.reason}` : `${r.pos} pos rate`}</div>
+                                  </div>
+                                );
+                              })()}
                               {!r.skip && r.f1 !== undefined && (
                                 <>
-                                  <div className="text-[11px] font-['IBM_Plex_Mono',monospace] text-center" style={{ color: (r.f1 as number) > 0.88 ? '#3B82F6' : (r.f1 as number) > 0.82 ? '#F8FAFC' : '#CBD5E1' }}>
+                                  <div className="text-[12px] font-['IBM_Plex_Mono',monospace] text-center" style={{ color: (r.f1 as number) > 0.88 ? '#3B82F6' : (r.f1 as number) > 0.82 ? '#F8FAFC' : '#CBD5E1' }}>
                                     {r.f1}
                                   </div>
-                                  <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-center text-[#CBD5E1]">{r.prec}</div>
-                                  <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-center text-[#CBD5E1]">{r.rec}</div>
-                                  <div className="font-['IBM_Plex_Mono',monospace] text-[11px] text-center text-[#CBD5E1]">{r.acc}</div>
+                                  <div className="font-['IBM_Plex_Mono',monospace] text-[12px] text-center text-[#CBD5E1]">{r.prec}</div>
+                                  <div className="font-['IBM_Plex_Mono',monospace] text-[12px] text-center text-[#CBD5E1]">{r.rec}</div>
+                                  <div className="font-['IBM_Plex_Mono',monospace] text-[12px] text-center text-[#CBD5E1]">{r.acc}</div>
                                   <div className="flex flex-col gap-1 max-w-[280px]">
-                                    {r.feats?.map(([fn, fi], k) => (
-                                      <div key={k} className="flex items-center gap-1.5">
-                                        <div className="h-[2px] rounded-[1px] bg-[#3B82F6]" style={{ width: `${Math.min(fi * 150, 48)}px` }} />
-                                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] whitespace-nowrap">{fn}</span>
-                                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#3B82F6] font-bold ml-2">{(fi * 100).toFixed(1)}%</span>
-                                      </div>
-                                    ))}
+                                    {r.feats?.map(([fn, fi], k) => {
+                                      return (
+                                        <div key={k} className="flex items-center gap-1.5">
+                                          <div className="h-[2px] rounded-[1px] bg-[#3B82F6]" style={{ width: `${Math.min(fi * 150, 48)}px` }} />
+                                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] whitespace-nowrap">{formatLabel(fn)}</span>
+                                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#3B82F6] font-bold ml-2">{(fi * 100).toFixed(1)}%</span>
+                                        </div>
+                                      );
+                                    })}
                                   </div>
                                 </>
                               )}
@@ -2972,56 +2986,59 @@ export default function TrainingLovelablePage() {
           </section>
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(9) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">07</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Sequential Pattern Mining</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8]"></span>
+              <span className="text-[16px] font-semibold tracking-[-0.01em]">Sequential Pattern Mining</span>
             </div>
             {!isStepReady(9) ? <LoadingState title="Sequence Mining" /> : (
               <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden shadow-xl">
 
                 <div className="p-3 space-y-2">
                   {/* Table Header */}
-                  <div className="grid grid-cols-[120px_1fr_110px_110px] gap-4 px-4 py-2 bg-[#0F172A]/40 border-b border-[#334155]">
-                    <span className="text-[9px] font-black text-[#475569] uppercase tracking-[0.15em]">Device Type</span>
-                    <span className="text-[9px] font-black text-[#475569] uppercase tracking-[0.15em]">Sequence Flow</span>
-                    <span className="text-[9px] font-black text-[#475569] uppercase tracking-[0.15em] text-center">Frequency</span>
-                    <span className="text-[9px] font-black text-[#475569] uppercase tracking-[0.15em] text-center">Accuracy</span>
+                  <div className="grid grid-cols-[1fr_110px_110px] gap-4 px-4 py-2 bg-[#0F172A]/40 border-b border-[#334155]">
+                    <span className="text-[11px] font-black text-[#475569] tracking-[0.1em]">Sequence Flow</span>
+                    <span className="text-[11px] font-black text-[#475569] tracking-[0.1em] text-center">Frequency</span>
+                    <span className="text-[11px] font-black text-[#475569] tracking-[0.1em] text-center">Accuracy</span>
                   </div>
 
-                  {combinedSeq.slice(0, 4).map((s, i) => {
+                  {combinedSeq.slice(0, 6).map((s, i) => {
                     const evtCol: any = {
-                      'HIGH_UTIL_WARNING': 'bg-amber-500/10 text-amber-500 border border-amber-500/20',
+                      'HIGH_UTIL_WARNING': 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20',
                       'PACKET_DROP': 'bg-red-500/10 text-red-500 border border-red-500/20',
-                      'INTERFACE_FLAP': 'bg-rose-500/10 text-rose-500 border border-rose-500/20',
-                      'HIGH_LATENCY': 'bg-orange-500/10 text-orange-500 border border-orange-500/20',
-                      'LINK_DOWN': 'bg-slate-500/10 text-slate-400 border border-slate-500/20',
-                      'DEVICE_REBOOT': 'bg-red-600/10 text-red-600 border border-red-600/20'
+                      'INTERFACE_FLAP': 'bg-red-500/10 text-red-500 border border-red-500/20',
+                      'HIGH_LATENCY': 'bg-red-500/10 text-red-500 border border-red-500/20',
+                      'LINK_DOWN': 'bg-red-500/10 text-red-500 border border-red-500/20',
+                      'DEVICE_REBOOT': 'bg-red-500/10 text-red-500 border border-red-500/20',
+                      'R1 (HIGH_UTIL)': 'bg-yellow-500/10 text-yellow-500 border border-yellow-500/20',
+                      'R1 (QUEUE_BUILDUP)': 'bg-orange-500/10 text-orange-500 border border-orange-500/20',
+                      'S1 (PACKET_DROP)': 'bg-red-500/10 text-red-500 border border-red-500/20',
+                      'S1 (LATENCY_HIGH)': 'bg-red-500/10 text-red-500 border border-red-500/20',
+                      'APP1 (RESPONSE_SLOW)': 'bg-orange-500/10 text-orange-500 border border-orange-500/20',
+                      'R1 (CONFIG_CHANGE)': 'bg-orange-500/10 text-orange-500 border border-orange-500/20',
+                      'R2 (PEER_DOWN)': 'bg-red-500/10 text-red-500 border border-red-500/20',
                     };
                     return (
-                      <div key={i} className="grid grid-cols-[120px_1fr_110px_110px] gap-4 items-center px-4 py-3 bg-[#0F172A]/20 border border-[#334155] rounded-lg group hover:border-[#3B82F6]/30 hover:bg-[#0F172A]/40 transition-all duration-300 animate-in fade-in slide-in-from-left-2">
-                        <div className="flex justify-start">
-                          <span className={cn("px-2 py-0.5 rounded-[4px] text-[9px] font-black uppercase tracking-tighter border", s.dev === 'Router' ? 'bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/20' : 'bg-[#3DDAB4]/10 text-[#3DDAB4] border-[#3DDAB4]/20')}>{s.dev}</span>
-                        </div>
+                      <div key={i} className="grid grid-cols-[1fr_110px_110px] gap-4 items-center px-4 py-3 bg-[#0F172A]/20 border border-[#334155] rounded-lg group hover:border-[#3B82F6]/30 hover:bg-[#0F172A]/40 transition-all duration-300 animate-in fade-in slide-in-from-left-2">
                         <div className="flex flex-wrap items-center gap-1.5 min-w-0">
                           {s.seq.map((e, k) => (
                             <React.Fragment key={k}>
-                              <span className={cn("px-2.5 py-1 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[9px] font-bold tracking-tight whitespace-nowrap transition-transform group-hover:scale-[1.02]", evtCol[e] || 'bg-[#334155]/40 text-[#CBD5E1] border border-white/5')}>
-                                {e}
+                              <span className={cn("px-2.5 py-1 rounded-[3px] font-['IBM_Plex_Mono',monospace] text-[11px] font-bold tracking-tight whitespace-nowrap transition-transform group-hover:scale-[1.02]", evtCol[e] || 'bg-[#334155]/40 text-[#CBD5E1] border border-white/5')}>
+                                {formatLabel(e)}
                               </span>
                               {k < s.seq.length - 1 && (
                                 <div className="flex flex-col items-center px-0.5 opacity-40">
-                                  <span className="text-[7px] text-[#3B82F6] font-black">~10m</span>
-                                  <ChevronRight className="w-2.5 h-2.5 text-[#475569]" />
+                                  <span className="text-[9px] text-[#3B82F6] font-black">~10m</span>
+                                  <ChevronRight className="w-3 h-3 text-[#475569]" />
                                 </div>
                               )}
                             </React.Fragment>
                           ))}
                         </div>
                         <div className="text-center border-l border-white/5 h-full flex items-center justify-center">
-                          <span className="text-[12px] font-black text-[#94A3B8] font-['IBM_Plex_Mono',monospace] tracking-tighter">{s.supp}</span>
+                          <span className="text-[13px] font-black text-[#94A3B8] font-['IBM_Plex_Mono',monospace] tracking-tighter">{s.supp}</span>
                         </div>
                         <div className="flex flex-col items-center border-l border-white/5 h-full justify-center pl-2">
-                          <DonutChart val={s.conf} size={26} />
-                          <span className="text-[10px] font-black mt-1 text-[#3B82F6] font-['IBM_Plex_Mono',monospace]">{((s.conf) * 100).toFixed(0)}%</span>
+                          <DonutChart val={s.conf} size={28} />
+                          <span className="text-[11px] font-black mt-1 text-[#3B82F6] font-['IBM_Plex_Mono',monospace]">{((s.conf) * 100).toFixed(0)}%</span>
                         </div>
                       </div>
                     );
@@ -3033,15 +3050,15 @@ export default function TrainingLovelablePage() {
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(12) && "hidden")}>
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">08</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Event Co-occurrence</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8]"></span>
+              <span className="text-[16px] font-semibold tracking-[-0.01em]">Event Co-occurrence</span>
               <button
                 onClick={() => setShowCoocHeatMap(!showCoocHeatMap)}
                 className={cn("ml-2 p-1 rounded-full transition-all", showCoocHeatMap ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#94A3B8] hover:text-white")}
               >
-                <Info className="w-3.5 h-3.5" />
+                <Info className="w-4 h-4" />
               </button>
-              <span className="text-[11px] text-[#94A3B8] ml-auto uppercase font-black tracking-widest">{showCoocHeatMap ? 'Heatmap View' : 'Table View'}</span>
+              <span className="text-[12px] text-[#94A3B8] ml-auto uppercase font-black tracking-widest">{showCoocHeatMap ? 'Heatmap View' : 'Table View'}</span>
             </div>
             {!isStepReady(12) ? <LoadingState title="Co-occurrence Analysis" /> : (
               <div className="animate-in fade-in duration-700">
@@ -3058,23 +3075,23 @@ export default function TrainingLovelablePage() {
                     }).map((group, idx) => (
                       <div key={idx} className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
                         <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                          <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
+                          <span className="font-['IBM_Plex_Mono',monospace] text-[11px] tracking-[0.06em] text-[#CBD5E1] font-medium">{group.title}</span>
                         </div>
                         <div className="p-3.5 space-y-1.5">
                           <div className="grid grid-cols-[130px_14px_130px_50px_50px] gap-2 pb-1.5 items-center border-b border-[#334155]">
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EVENT A</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">EVENT A</span>
                             <span />
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8]">EVENT B</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">COUNT</span>
-                            <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] text-right">LIFT</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">EVENT B</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right text-[#94A3B8]">COUNT</span>
+                            <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right text-[#94A3B8]">LIFT</span>
                           </div>
                           {group.data.slice(0, 15).map((d, i) => (
                             <div key={i} className="grid grid-cols-[130px_14px_130px_50px_50px] gap-2 items-center py-2 border-b border-[#334155] last:border-none animate-in fade-in slide-in-from-left-2 duration-300 hover:bg-white/[0.02]">
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.a}</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8] text-center">&amp;</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#CBD5E1] truncate">{d.b}</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right text-[#94A3B8]">{d.n}</span>
-                              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-right font-bold" style={{ color: d.lift > 1.01 ? '#3DDAB4' : '#94A3B8' }}>{d.lift.toFixed(2)}</span>
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#CBD5E1] truncate">{d.a}</span>
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8] text-center">&amp;</span>
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#CBD5E1] truncate">{d.b}</span>
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-right text-[#94A3B8]">{d.n}</span>
+                              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-right font-bold" style={{ color: d.lift > 1.01 ? '#3DDAB4' : '#94A3B8' }}>{d.lift.toFixed(2)}</span>
                             </div>
                           ))}
                         </div>
@@ -3088,18 +3105,17 @@ export default function TrainingLovelablePage() {
 
           {/* SECTION 10: FAILURE CHAINS */}
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12", !shouldShow(10) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-6">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">09</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Failure Chain Patterns</span>
+            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#F59E0B]/50 mb-6">
+              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#F59E0B]"></span>
+              <span className="text-[16px] font-semibold tracking-[-0.01em] text-[#F59E0B]">Failure Chains</span>
             </div>
             {!isStepReady(10) ? <LoadingState title="Failure Chains" /> : (
               <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden shadow-xl">
                 <div className="p-3 space-y-2">
                   {/* Table Header */}
-                  <div className="grid grid-cols-[120px_1fr_120px] gap-4 px-4 py-2 bg-[#0F172A]/40 border-b border-[#334155]">
-                    <span className="text-[9px] font-black text-[#475569] uppercase tracking-[0.15em]">Device Type</span>
-                    <span className="text-[9px] font-black text-[#475569] uppercase tracking-[0.15em]">Causal Chain</span>
-                    <span className="text-[9px] font-black text-[#475569] uppercase tracking-[0.15em] text-center">Confidence</span>
+                  <div className="grid grid-cols-[1fr_120px] gap-4 px-4 py-2 bg-[#0F172A]/40 border-b border-[#334155]">
+                    <span className="text-[10px] font-black text-[#475569] tracking-[0.15em]">Causal Chain</span>
+                    <span className="text-[12px] font-black text-[#475569] tracking-[0.15em]">Confidence</span>
                   </div>
 
                   {combinedChains.slice(0, Math.ceil(itemLimit / 2)).map((c, i) => {
@@ -3107,42 +3123,36 @@ export default function TrainingLovelablePage() {
                     const severityColor = isCritical ? 'border-l-[#EF4444]' : 'border-l-[#F59E0B]';
                     const badgeColor = isCritical ? 'bg-[#7F1D1D]/40 text-[#F87171]' : 'bg-[#78350F]/40 text-[#F59E0B]';
                     const confVal = Math.min(0.72 + (c.n / 1000) * 0.28, 0.99);
-
                     return (
-                      <div key={i} className={cn("grid grid-cols-[120px_1fr_120px] gap-4 items-center px-4 py-3 bg-[#0F172A]/20 border border-[#334155] rounded-lg border-l-4 group hover:border-[#3B82F6]/30 hover:bg-[#0F172A]/40 transition-all duration-300 animate-in fade-in slide-in-from-left-2 shadow-lg", severityColor)}>
-                        {/* Device Column */}
-                        <div className="flex justify-start">
-                          <span className={cn("px-2 py-0.5 rounded-[4px] text-[9px] font-black uppercase tracking-tighter border", c.dev === 'Router' ? 'bg-[#3B82F6]/10 text-[#3B82F6] border-[#3B82F6]/20' : 'bg-[#3DDAB4]/10 text-[#3DDAB4] border-[#3DDAB4]/20')}>{c.dev}</span>
-                        </div>
-
+                      <div key={i} className={cn("grid grid-cols-[1fr_120px] gap-4 items-center px-4 py-3 bg-[#0F172A]/20 border border-[#334155] rounded-lg border-l-4 group hover:border-[#3B82F6]/30 hover:bg-[#0F172A]/40 transition-all duration-300 animate-in fade-in slide-in-from-left-2 shadow-lg", severityColor)}>
                         {/* Causal Chain Column */}
                         <div className="flex flex-wrap items-center gap-y-3 gap-x-1.5 min-w-0">
                           {c.steps.map((s: any, k: number) => (
                             <React.Fragment key={k}>
                               <div className="flex flex-col gap-0.5 font-['IBM_Plex_Mono',monospace]">
-                                <span className="text-[7px] text-[#475569] uppercase font-black opacity-60">Step 0{k + 1}</span>
+                                <span className="text-[10px] text-[#475569] uppercase font-black opacity-60">Step 0{k + 1}</span>
                                 <div className="px-2 py-1 rounded-md bg-[#0F172A]/80 border border-[#334155] flex items-center gap-1.5 shadow-inner group-hover:border-[#3B82F6]/20 transition-colors">
-                                  <span className="text-[9px] text-[#CBD5E1] font-medium">{s.m}</span>
-                                  <span className={cn("font-bold text-[10px]", s.d === '↑' ? 'text-rose-400' : 'text-emerald-400')}>{s.d}</span>
+                                  <span className="text-[12px] text-[#CBD5E1] font-medium whitespace-nowrap">{formatLabel(s.m)}</span>
+                                  <span className={cn("font-bold text-[12px]", s.d === '↑' ? 'text-rose-400' : 'text-emerald-400')}>{s.d}</span>
                                 </div>
                               </div>
                               <div className="flex flex-col items-center px-1 min-w-[24px] opacity-40">
-                                <span className="text-[8px] font-black text-[#60A5FA] mb-0.5">{s.lag}</span>
-                                <ChevronRight className="w-3 h-3 text-[#334155]" />
+                                <span className="text-[10px] font-black text-[#60A5FA] mb-0.5">{s.lag}</span>
+                                <ChevronRight className="w-3.5 h-3.5 text-[#334155]" />
                               </div>
                             </React.Fragment>
                           ))}
                           <div className="flex flex-col gap-0.5 font-['IBM_Plex_Mono',monospace]">
-                            <span className="text-[7px] text-[#475569] uppercase font-black opacity-60">Impact</span>
-                            <div className={cn("px-2.5 py-1 rounded-md text-[9px] font-black shadow-xl border border-white/5 uppercase tracking-wide", badgeColor)}>
-                              {c.evt}
+                            <span className="text-[10px] text-[#475569] uppercase font-black opacity-60">Impact</span>
+                            <div className={cn("px-2.5 py-1 rounded-md text-[12px] font-black shadow-xl border border-white/5 tracking-wide", badgeColor)}>
+                              {c.evt === 'HIGH_LATENCY (VALIDATED)' ? 'High_Latency' : formatLabel(c.evt)}
                             </div>
                           </div>
                         </div>
                         {/* Confidence Column */}
                         <div className="flex flex-col items-center border-l border-white/5 h-full justify-center pl-2">
                           <DonutChart val={confVal} size={28} />
-                          <span className="text-[10px] font-black mt-1 text-[#3B82F6] font-['IBM_Plex_Mono',monospace]">{(confVal * 100).toFixed(0)}%</span>
+                          <span className="text-[12px] font-black mt-1 text-[#3B82F6] font-['IBM_Plex_Mono',monospace]">{(confVal * 100).toFixed(0)}%</span>
                         </div>
                       </div>
                     );
@@ -3155,13 +3165,13 @@ export default function TrainingLovelablePage() {
 
           <section className="hidden">
             <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[10px] text-[#94A3B8]">04</span>
-              <span className="text-[14px] font-semibold tracking-[-0.01em]">Isolation Forest Anomaly Risks</span>
+              <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8]"></span>
+              <span className="text-[16px] font-semibold tracking-[-0.01em]">Isolation Forest Anomaly Risks</span>
               <button
                 onClick={() => setShowAnomTable(!showAnomTable)}
                 className={cn("ml-2 p-1 rounded-full transition-all", showAnomTable ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#94A3B8] hover:text-white")}
               >
-                <Info className="w-3.5 h-3.5" />
+                <Info className="w-4 h-4" />
               </button>
             </div>
             {!isStepReady(11) ? <LoadingState title="Isolation Forest" /> : (
@@ -3174,17 +3184,17 @@ export default function TrainingLovelablePage() {
                 ) : (
                   <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden shadow-2xl">
                     <div className="px-3.5 py-2.5 bg-[#0F172A] border-b border-[#334155] flex items-center justify-between">
-                      <span className="font-['IBM_Plex_Mono',monospace] text-[10px] tracking-[0.06em] text-[#CBD5E1] font-medium uppercase">Statistical Anomaly Distribution</span>
-                      <span className="text-[9px] text-[#475569] font-['IBM_Plex_Mono',monospace]">N=128 ENTITIES</span>
+                      <span className="font-['IBM_Plex_Mono',monospace] text-[12px] tracking-[0.06em] text-[#CBD5E1] font-medium uppercase">Statistical Anomaly Distribution</span>
+                      <span className="text-[12px] text-[#475569] font-['IBM_Plex_Mono',monospace]">N=128 ENTITIES</span>
                     </div>
                     <div className="p-0 overflow-auto max-h-[500px]">
                       <div className="grid grid-cols-[160px_60px_1fr_65px_60px_80px] gap-4 py-2 px-4 items-center bg-[#0F172A]/30 border-b border-[#334155] sticky top-0 z-10">
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Entity</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase">Type</span>
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8] uppercase">Entity</span>
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8] uppercase">Type</span>
                         <span />
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-right">Anom %</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-right">Score</span>
-                        <span className="font-['IBM_Plex_Mono',monospace] text-[9px] text-[#94A3B8] uppercase text-center">Risk</span>
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8] uppercase text-right">Anom %</span>
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8] uppercase text-right">Score</span>
+                        <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8] uppercase text-center">Risk</span>
                       </div>
                       {filteredAnoms.slice(0, 40).map((d: any, i) => {
                         const maxRate = 12;

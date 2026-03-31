@@ -325,14 +325,14 @@ const Topology = () => {
                                                                             <p className="text-muted-foreground font-bold mb-1 text-[10px] uppercase tracking-tighter flex items-center gap-1">
                                                                                 <History className="h-3 w-3" /> Historical Pattern Correlation
                                                                             </p>
-                                                                            <p className="text-foreground/80 leading-relaxed italic">{evt.correlation}</p>
+                                                                            <p className="text-foreground/80 leading-relaxed ">{evt.correlation}</p>
                                                                         </div>
                                                                     </div>
                                                                     <div className="bg-primary/10 p-3 rounded-xl text-xs border border-primary/20 shadow-sm shadow-primary/5">
                                                                         <p className="text-primary font-black mb-1.5 flex items-center gap-1.5 text-[11px] uppercase">
                                                                             <Zap className="h-3.5 w-3.5 fill-primary" /> AI Recommendation
                                                                         </p>
-                                                                        <p className="text-foreground/90 font-bold italic leading-relaxed">"{evt.recommendation}"</p>
+                                                                        <p className="text-foreground/90 font-bold  leading-relaxed">"{evt.recommendation}"</p>
                                                                     </div>
                                                                 </div>
                                                             </CardContent>
@@ -372,7 +372,7 @@ const Topology = () => {
                                                     </Card>
                                                 ))
                                             ) : (
-                                                <p className="text-xs text-muted-foreground text-center py-6 italic bg-muted/10 rounded-xl">Baseline consistency maintained. No anomalies detected.</p>
+                                                <p className="text-xs text-muted-foreground text-center py-6  bg-muted/10 rounded-xl">Baseline consistency maintained. No anomalies detected.</p>
                                             )}
                                         </section>
                                     </TabsContent>
@@ -406,7 +406,7 @@ const Topology = () => {
                                                                     <p className="text-[10px] text-primary/70 font-black uppercase mb-1.5 flex items-center gap-1 underline underline-offset-4 decoration-primary/30">
                                                                         Evidence Analysis
                                                                     </p>
-                                                                    <div className="p-3 bg-background/80 rounded-xl text-xs border border-primary/10 shadow-inner italic leading-relaxed">
+                                                                    <div className="p-3 bg-background/80 rounded-xl text-xs border border-primary/10 shadow-inner  leading-relaxed">
                                                                         "{pred.evidence}"
                                                                     </div>
                                                                 </div>
@@ -518,7 +518,7 @@ const Topology = () => {
                                                 </div>
                                                 <h3 className="text-sm font-black text-primary uppercase tracking-tight">AI Signal Correlation</h3>
                                             </div>
-                                            <p className="text-xs font-medium text-foreground/90 italic leading-relaxed mb-4 pl-1 border-l-2 border-primary/30">
+                                            <p className="text-xs font-medium text-foreground/90  leading-relaxed mb-4 pl-1 border-l-2 border-primary/30">
                                                 "{correlationResult?.situation_summary}"
                                             </p>
 
@@ -610,7 +610,7 @@ const Topology = () => {
                                                         <div className="font-mono text-[10px] text-muted-foreground mb-2 pl-2 border-l-2 border-primary/20 py-1 bg-muted/30 rounded-r">
                                                             {ex.calc}
                                                         </div>
-                                                        <p className="text-[10px] text-foreground/70 italic leading-relaxed">
+                                                        <p className="text-[10px] text-foreground/70  leading-relaxed">
                                                             "{ex.breakdown}"
                                                         </p>
                                                     </div>

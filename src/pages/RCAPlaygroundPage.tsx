@@ -474,11 +474,11 @@ const RCAPlaygroundPage = () => {
                     <Box display="flex" justifyContent="space-between" alignItems="center" mb={4}>
                         <Box display="flex" alignItems="center" gap={2}>
                             <LayoutDashboard size={32} color="#3b82f6" />
-                            <Typography variant="h4" fontWeight="800" color="text.primary">RcaPlayground</Typography>
+                            <Typography variant="h4" fontWeight="800" color="text.primary">RCA Playground</Typography>
                         </Box>
                         {(animatedSteps.length > 0) && (
                             <Button variant="outlined" startIcon={<RotateCcw size={18} />} onClick={handleRestart} sx={{ borderRadius: '10px' }}>
-                                RestartAnalysis
+                                Restart Analysis
                             </Button>
                         )}
                     </Box>

@@ -51,8 +51,13 @@ export function IntentsSection({ highlightIntentId }: { highlightIntentId?: stri
 
   const handleBack = () => {
     if (viewLevel === 'intents') {
-      setViewLevel('subcategories');
-      setSelectedSubcategory(null);
+      if (selectedSubcategory) {
+        setViewLevel('subcategories');
+        setSelectedSubcategory(null);
+      } else {
+        setViewLevel('categories');
+        setSelectedCategory(null);
+      }
     } else if (viewLevel === 'subcategories') {
       setViewLevel('categories');
       setSelectedCategory(null);
@@ -137,7 +142,10 @@ export function IntentsSection({ highlightIntentId }: { highlightIntentId?: stri
       {/* Categories View */}
       {viewLevel === 'categories' && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {mockIntentCategories.map((category) => (
+          {mockIntentCategories.filter(category => {
+            const count = mockIntentsFull.filter(i => category.subcategories.some(s => i.intent === s.id)).length;
+            return count > 0;
+          }).map((category) => (
             <div
               key={category.id}
               onClick={() => handleCategoryClick(category)}
@@ -173,7 +181,10 @@ export function IntentsSection({ highlightIntentId }: { highlightIntentId?: stri
       {/* Subcategories View */}
       {viewLevel === 'subcategories' && selectedCategory && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {selectedCategory.subcategories.map((subcategory) => (
+          {selectedCategory.subcategories.filter(subcategory => {
+            const count = mockIntentsFull.filter(i => i.intent === subcategory.id).length;
+            return count > 0;
+          }).map((subcategory) => (
             <div
               key={subcategory.id}
               onClick={() => handleSubcategoryClick(subcategory)}

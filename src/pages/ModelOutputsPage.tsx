@@ -95,7 +95,7 @@ export default function ModelOutputsPage() {
               <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 shadow-inner">
                 <Settings className="h-6 w-6 text-primary" />
               </div>
-              <h1 className="text-3xl font-black tracking-tighter uppercase italic">EngineConfiguration</h1>
+              <h1 className="text-3xl font-black tracking-tighter uppercase ">EngineConfiguration</h1>
             </div>
             <p className="text-muted-foreground text-sm font-medium pl-24">
               Detailed Model Analysis & 75-Minute Window Diagnostic
@@ -202,12 +202,12 @@ export default function ModelOutputsPage() {
             ].map((metric) => (
               <div key={metric.key} className="space-y-1.5 group">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black text-foreground uppercase tracking-tighter italic">{metric.key}</span>
+                  <span className="text-[10px] font-black text-foreground uppercase tracking-tighter ">{metric.key}</span>
                   <Badge variant="outline" className="text-[8px] bg-primary/5 text-primary border-primary/20">{metric.unit}</Badge>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[9px] font-medium text-muted-foreground uppercase opacity-80">{metric.name}</p>
-                  <p className="text-[8px] text-muted-foreground/40 italic">{metric.desc}</p>
+                  <p className="text-[8px] text-muted-foreground/40 ">{metric.desc}</p>
                 </div>
               </div>
             ))}
@@ -219,7 +219,7 @@ export default function ModelOutputsPage() {
             <ShieldCheck className="h-3 w-3" />
             <span className="text-[9px] font-black uppercase tracking-widest">Validation Mode</span>
           </div>
-          <p className="text-[8px] text-orange-400/60 font-medium leading-normal italic">
+          <p className="text-[8px] text-orange-400/60 font-medium leading-normal ">
             All telemetry is verified for schema compliance before inference ingestion.
           </p>
         </div>
@@ -270,7 +270,7 @@ export default function ModelOutputsPage() {
       <div className="rounded-2xl bg-[#0a0a0a] p-4 border border-white/5 space-y-3 shadow-2xl">
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-4 w-4 text-emerald-500" />
-          <span className="text-[10px] font-black uppercase tracking-widest italic text-emerald-500/80">ActiveProtections</span>
+          <span className="text-[10px] font-black uppercase tracking-widest  text-emerald-500/80">ActiveProtections</span>
         </div>
         <div className="flex flex-wrap gap-2">
           <Badge variant="outline" className="text-[8px] bg-emerald-500/5 text-emerald-500 border-emerald-500/20">Drift Detect</Badge>

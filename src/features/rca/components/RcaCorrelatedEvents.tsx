@@ -141,7 +141,7 @@ export function RCACorrelatedEvents({ data }: RCACorrelatedEventsProps) {
 
                     {/* Child Events */}
                     {filteredEvents.length === 0 ? (
-                        <div className="text-center py-8 text-muted-foreground text-sm italic">
+                        <div className="text-center py-8 text-muted-foreground text-sm ">
                             No events match the selected strategy filter.
                         </div>
                     ) : (

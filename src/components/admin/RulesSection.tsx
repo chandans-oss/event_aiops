@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Copy, Layers, GitBranch, Plus, Edit2, Trash2, GripVertical, ToggleLeft, Clock, Wrench, AlertTriangle, MapPin, Network, Brain, Search, X, Server, RefreshCw, Timer, ListChecks, ArrowRightCircle, Zap, Activity, Shield, Terminal } from 'lucide-react';
+import { Copy, Layers, GitBranch, Plus, Edit2, Trash2, GripVertical, ToggleLeft, Clock, Wrench, AlertTriangle, MapPin, Network, Brain, Search, X, Server, RefreshCw, Timer, ListChecks, ArrowRightCircle, Zap, Activity, Shield, Terminal, Snowflake } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Badge } from '@/shared/components/ui/badge';
 import { Switch } from '@/shared/components/ui/switch';
@@ -13,33 +13,31 @@ import { DeduplicationRule, SuppressionRule, CorrelationRule } from '@/shared/ty
 import { useToast } from '@/shared/hooks/use-toast';
 import { cn } from '@/shared/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { AdminSection } from './AdminSidebar';
 
 // Deduplication rule icons and labels
 const dedupRuleConfig: Record<string, { icon: any; label: string }> = {
-  exact_match: { icon: Copy, label: 'ExactMatch' },
-  structured_exact: { icon: ListChecks, label: 'StructuredExact' },
-  temporal_sliding: { icon: Clock, label: 'SlidingWindow' },
-  temporal_bucket: { icon: Layers, label: 'TimeBucket' },
-  state_flap: { icon: Activity, label: 'FlapAware' },
-  state_transition: { icon: RefreshCw, label: 'StateTransition' },
-  template_based: { icon: GitBranch, label: 'TemplateBased' },
-  similarity_fuzzy: { icon: Brain, label: 'SimilarityFuzzy' },
+  hash_based: { icon: Copy, label: 'Hash-Based' },
+  signature_based: { icon: ListChecks, label: 'Signature-Based' },
+  similarity_based: { icon: Layers, label: 'Similarity-Based' },
+  semantic_based: { icon: Brain, label: 'Semantic-Based' },
 };
 
 // Suppression rule icons and labels
 const suppressionRuleConfig: Record<string, { icon: any; label: string }> = {
-  maintenance: { icon: Wrench, label: 'Maintenance' },
-  business_hours: { icon: Clock, label: 'BusinessHours' },
-  tag_policy: { icon: MapPin, label: 'TagPolicy' },
-  parent_child: { icon: Network, label: 'ParentChild' },
-  spatial_site: { icon: Layers, label: 'SpatialSite' },
-  dedup_noise: { icon: Copy, label: 'DedupNoise' },
-  time_window: { icon: Timer, label: 'TimeWindow' },
-  flap_detection: { icon: Activity, label: 'FlapDetection' },
-  temporal_clustering: { icon: ListChecks, label: 'TemporalCluster' },
-  static_threshold: { icon: AlertTriangle, label: 'StaticThreshold' },
-  dynamic_threshold: { icon: Brain, label: 'DynamicThreshold' },
-  event_storm: { icon: Zap, label: 'EventStorm' },
+  maintenance: { icon: Wrench, label: 'Maintenance Based' },
+  business_hours: { icon: Clock, label: 'Business-Hour' },
+  tag_policy: { icon: MapPin, label: 'Tag/ Policy-Based' },
+  parent_child: { icon: Network, label: 'Topology Based (Parent- Child)' },
+  spatial_site: { icon: Layers, label: 'Spatial Based' },
+  dedup_noise: { icon: Copy, label: 'Dedup Noise' },
+  time_window: { icon: Timer, label: 'Time-Window' },
+  flap_detection: { icon: Activity, label: 'Flap Detection' },
+  temporal_clustering: { icon: ListChecks, label: 'Temporal Clustering' },
+  static_threshold: { icon: AlertTriangle, label: 'Static Threshold' },
+  dynamic_threshold: { icon: Brain, label: 'Dynamic Threshold' },
+  event_storm: { icon: Zap, label: 'Event Storm Pattern' },
+  seasonal: { icon: Snowflake, label: 'Seasonal Suppression' },
 };
 
 // Correlation rule icons and labels
@@ -47,13 +45,18 @@ const correlationRuleConfig: Record<string, { icon: any; label: string }> = {
   temporal: { icon: Clock, label: 'Temporal' },
   spatial: { icon: MapPin, label: 'Spatial' },
   topological: { icon: Network, label: 'Topological' },
-  causal_rule_based: { icon: ArrowRightCircle, label: 'CausalRuleBased' },
-  dynamic_rule: { icon: Layers, label: 'DynamicRule' },
-  ml_gnn_refinement: { icon: Brain, label: 'MlGnnRefinement' },
-  llm_semantic: { icon: Zap, label: 'LlmSemantic' },
+  causal_rule_based: { icon: ArrowRightCircle, label: 'Causal Rule Based' },
+  dynamic_rule: { icon: Layers, label: 'Dynamic Rule' },
+  ml_gnn_refinement: { icon: Brain, label: 'GNN Refinement' },
+  llm_semantic: { icon: Zap, label: 'Semantic Correlation' },
 };
 
-export function RulesSection({ section }: { section: 'Suppression' | 'Deduplication' | 'CorrelationTypes' }) {
+interface RulesSectionProps {
+  section: 'Suppression' | 'Deduplication' | 'CorrelationTypes';
+  onSectionChange?: (section: AdminSection) => void;
+}
+
+export function RulesSection({ section, onSectionChange }: RulesSectionProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [typeFilter, setTypeFilter] = useState<string>('all');
@@ -182,7 +185,7 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
         <div className="relative flex-1 min-w-[200px] max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="SearchRulesByNameDescriptionOrType"
+            placeholder="Search rules by name, description or type"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10 pr-10"
@@ -204,7 +207,7 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
             <SelectValue placeholder="Status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">AllStatus</SelectItem>
+            <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="active">Active</SelectItem>
             <SelectItem value="inactive">Inactive</SelectItem>
           </SelectContent>
@@ -215,7 +218,7 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
             <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">AllTypes</SelectItem>
+            <SelectItem value="all">All Types</SelectItem>
             {getTypeOptions().map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
@@ -227,7 +230,7 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
         {hasActiveFilters && (
           <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground">
             <X className="h-4 w-4 mr-1" />
-            ClearFilters
+            Clear Filters
           </Button>
         )}
       </div>
@@ -236,16 +239,16 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
       {section === 'Suppression' && (
         <div className="mt-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">SuppressionRules</h2>
+            <h2 className="text-lg font-semibold text-foreground">Suppression Rules</h2>
             <Button className="gap-2 gradient-primary" onClick={handleAddRule}>
               <Plus className="h-4 w-4" />
-              AddRule
+              Add Rule
             </Button>
           </div>
           {(filteredSuppressionRules || []).length === 0 ? (
             <div className="glass-card rounded-xl p-12 text-center">
               <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">NoRulesFound</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-2">No Rules Found</h3>
               <p className="text-muted-foreground">Try adjusting your search or filters</p>
             </div>
           ) : (
@@ -265,15 +268,17 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
                           <Icon className="h-5 w-5 text-severity-high" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-foreground text-sm sm:text-base">{rule.name}</h3>
-                          <div className="mt-1">
-                            <Badge variant="outline" className="text-[9px] py-0.5 px-2 border-severity-high/30 text-severity-high uppercase font-bold tracking-wider leading-none">
-                              {rule.category}
-                            </Badge>
-                          </div>
+                          <h3 className="font-semibold text-foreground text-sm sm:text-base">
+                            {rule.name.replace(/\s+(suppression|deduplication)$/i, '')}
+                          </h3>
                         </div>
                       </div>
-                      <GripVertical className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-grab" />
+                      <div className="flex flex-col items-end gap-2">
+                        <Badge variant="outline" className="text-[9px] py-0.5 px-2 border-severity-high/30 text-severity-high font-bold tracking-wider leading-none whitespace-nowrap bg-severity-high/5">
+                          {rule.category.replace(/\s+(suppression|deduplication)$/i, '')}
+                        </Badge>
+                        <GripVertical className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-grab" />
+                      </div>
                     </div>
                     <div className="mb-4">
                       <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
@@ -306,16 +311,16 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
       {section === 'Deduplication' && (
         <div className="mt-6">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-foreground">DeduplicationRules</h2>
+            <h2 className="text-lg font-semibold text-foreground">Deduplication Rules</h2>
             <Button className="gap-2 gradient-primary" onClick={handleAddRule}>
               <Plus className="h-4 w-4" />
-              AddRule
+              Add Rule
             </Button>
           </div>
           {(filteredDeduplicationRules || []).length === 0 ? (
             <div className="glass-card rounded-xl p-12 text-center">
               <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">NoRulesFound</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-2">No Rules Found</h3>
               <p className="text-muted-foreground">Try adjusting your search or filters</p>
             </div>
           ) : (
@@ -335,30 +340,22 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
                           <Icon className="h-5 w-5 text-primary" />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-foreground text-sm sm:text-base">{rule.name}</h3>
-                          <div className="mt-1">
-                            <Badge variant="outline" className="text-[9px] py-0.5 px-2 border-primary/30 text-primary uppercase font-bold tracking-wider leading-none">
-                              {rule.category}
-                            </Badge>
-                          </div>
+                          <h3 className="font-semibold text-foreground text-sm sm:text-base">
+                            {rule.name.replace(/\s+(suppression|deduplication)$/i, '')}
+                          </h3>
                         </div>
                       </div>
-                      <GripVertical className="h-5 w-5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-grab" />
+                      <div className="flex flex-col items-end gap-2">
+                        <Badge variant="outline" className="text-[9px] py-0.5 px-2 border-primary/30 text-primary font-bold tracking-wider leading-none whitespace-nowrap bg-primary/5">
+                          {rule.category.replace(/\s+(suppression|deduplication)$/i, '')}
+                        </Badge>
+                        <GripVertical className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-grab" />
+                      </div>
                     </div>
-                    <div className="space-y-2 mb-4">
-                      <p className="text-xs text-muted-foreground line-clamp-2">
+                    <div className="mb-4">
+                      <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
                         {rule.description}
                       </p>
-                      <div className="bg-white/5 rounded-md p-2.5 space-y-1.5 border border-white/5">
-                        <div className="flex justify-between items-start text-[10px]">
-                          <span className="text-slate-500 font-black uppercase tracking-widest text-[8px]">StrategyLogic</span>
-                          <span className="text-slate-400 text-right max-w-[140px] truncate leading-tight" title={rule.implementationLogic}>{rule.implementationLogic}</span>
-                        </div>
-                        <div className="flex justify-between items-center text-[10px] border-t border-white/5 pt-1.5">
-                          <span className="text-slate-500 font-black uppercase text-[8px] tracking-widest">ConcreteExample</span>
-                          <span className="text-amber-500/80 text-[10px] italic line-clamp-1 text-right font-medium">{rule.example}</span>
-                        </div>
-                      </div>
                     </div>
                     <div className="flex items-center justify-end pt-3 border-t border-border/50" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-2">
@@ -391,11 +388,11 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
           {(filteredCorrelationRules || []).length === 0 ? (
             <div className="glass-card rounded-xl p-8 text-center">
               <Search className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-              <h3 className="text-lg font-semibold text-foreground mb-1">NoRulesFound</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-1">No Rules Found</h3>
               <p className="text-muted-foreground text-sm">Try adjusting your search or filters</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {(filteredCorrelationRules || []).map((rule) => {
                 const config = correlationRuleConfig[rule.type] || { icon: GitBranch, label: rule.type };
                 const Icon = config.icon;
@@ -404,7 +401,7 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
                     key={rule.id}
                     onClick={() => {
                       if (rule.name.toLowerCase().includes('dynamic')) {
-                        navigate('/pattern-prediction/pattern');
+                        navigate('/correlation');
                       }
                     }}
                     className="glass-card rounded-lg p-3 hover-lift cursor-pointer group flex flex-col justify-between border border-transparent hover:border-status-success/30 transition-all"
@@ -423,15 +420,8 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
                       <p className="text-xs text-muted-foreground mb-2">
                         {rule.description}
                       </p>
-                      <div className="flex items-center gap-1 mb-2">
-                        {rule.mlEnabled && (
-                          <Badge className="bg-primary/20 text-primary border-primary/30 text-[10px] px-1 py-0">ML</Badge>
-                        )}
-                        {rule.gnnEnabled && (
-                          <Badge className="bg-severity-medium/20 text-severity-medium border-severity-medium/30 text-[10px] px-1 py-0">GNN</Badge>
-                        )}
                       </div>
-                    </div>
+
                     <div className="flex items-center justify-between pt-2 border-t border-border/50">
                       <Switch
                         checked={rule.status === 'active'}
@@ -495,11 +485,13 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
                   <div className={cn("p-2 rounded-xl border", section === 'Deduplication' ? "bg-primary/10 border-primary/20" : "bg-severity-high/10 border-severity-high/20")}>
                     {section === 'Deduplication' ? <Copy className="w-4 h-4 text-primary" /> : <Shield className="w-4 h-4 text-severity-high" />}
                   </div>
-                  <Badge variant="outline" className={cn("text-[10px] font-black uppercase tracking-widest px-2.5", section === 'Deduplication' ? "text-primary border-primary/20" : "text-severity-high border-severity-high/20")}>
-                    {selectedRuleDetail.category}
+                  <Badge variant="outline" className={cn("text-[10px] font-black tracking-widest px-2.5", section === 'Deduplication' ? "text-primary border-primary/20" : "text-severity-high border-severity-high/20")}>
+                    {selectedRuleDetail.category.replace(/\s+(suppression|deduplication)$/i, '')}
                   </Badge>
                 </div>
-                <h2 className="text-xl sm:text-2xl font-black text-white italic tracking-tight mb-2 uppercase break-words">{selectedRuleDetail.name}</h2>
+                <h2 className="text-xl sm:text-2xl font-black text-white  tracking-tight mb-2 break-words">
+                  {selectedRuleDetail.name.replace(/\s+(suppression|deduplication)$/i, '')}
+                </h2>
                 <p className="text-slate-400 text-xs sm:text-sm font-medium leading-relaxed">{selectedRuleDetail.description}</p>
               </div>
 
@@ -508,16 +500,16 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
                 <div className="grid grid-cols-1 gap-6">
                   {/* Operational Identity */}
                   <div className="space-y-4">
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic px-1">OperationalIdentity</p>
+                    <p className="text-[10px] font-black text-foreground/60 tracking-[0.2em]  px-1">Operational Identity</p>
                     
                     <div className="grid grid-cols-1 gap-2">
                       <div className="flex flex-col p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1.5">RuleMechanism</span>
-                        <span className="text-sm font-black text-white italic">{selectedRuleDetail.mechanism}</span>
+                        <span className="text-[9px] font-black text-slate-500 tracking-widest mb-1.5">Rule Mechanism</span>
+                        <span className="text-sm font-black text-white ">{selectedRuleDetail.mechanism}</span>
                       </div>
                       
                       <div className="flex flex-col p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1.5">StrategicExplanation</span>
+                        <span className="text-[9px] font-black text-slate-500 tracking-widest mb-1.5">Strategic Explanation</span>
                         <span className="text-sm font-medium text-slate-300 leading-relaxed">{selectedRuleDetail.explanation}</span>
                       </div>
                     </div>
@@ -525,13 +517,13 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
 
                   {/* Technical Implementation */}
                   <div className="space-y-4 pt-2">
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic px-1">TechnicalExecutionLogic</p>
+                    <p className="text-[10px] font-black text-foreground/60 tracking-[0.2em]  px-1">Technical Execution Logic</p>
                     
                     <div className="p-4 rounded-xl bg-emerald-500/[0.03] border border-emerald-500/10 font-mono text-[12px] text-emerald-500/90 leading-relaxed relative overflow-hidden">
                       <div className="absolute top-0 right-0 p-3 opacity-20 hidden sm:block">
                         <Terminal className="w-6 h-6" />
                       </div>
-                      <div className="whitespace-pre-wrap break-all uppercase">
+                      <div className="whitespace-pre-wrap break-all">
                         {selectedRuleDetail.implementationLogic}
                       </div>
                     </div>
@@ -539,7 +531,7 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
 
                   {/* Concrete Context */}
                   <div className="space-y-4 pt-2">
-                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em] italic px-1">RealWorldApplicationExample</p>
+                    <p className="text-[10px] font-black text-foreground/60 tracking-[0.2em]  px-1">Real World Application Example</p>
                     
                     <div className="p-4 rounded-xl bg-amber-500/[0.03] border border-amber-500/10 relative overflow-hidden group">
                       <div className="flex gap-4">
@@ -547,8 +539,8 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
                           <Search className="w-4 h-4" />
                         </div>
                         <div>
-                          <span className="text-[9px] font-black text-amber-500/70 uppercase tracking-widest block mb-2">ContextualFootprint</span>
-                          <p className="text-[13px] font-black text-amber-500 italic leading-relaxed">
+                          <span className="text-[9px] font-black text-amber-500/70 tracking-widest block mb-2">Contextual Footprint</span>
+                          <p className="text-[13px] font-black text-amber-500  leading-relaxed">
                             {selectedRuleDetail.example}
                           </p>
                         </div>
@@ -561,7 +553,7 @@ export function RulesSection({ section }: { section: 'Suppression' | 'Deduplicat
               {/* Footer */}
               <div className="p-4 sm:p-6 border-t border-white/5 bg-[#111827]/80 backdrop-blur-md flex justify-end shrink-0">
                 <Button variant="outline" className="text-slate-400 hover:text-white border-white/10 hover:bg-white/5" onClick={() => setSelectedRuleDetail(null)}>
-                  CloseDetailedView
+                  Close Detailed View
                 </Button>
               </div>
             </div>

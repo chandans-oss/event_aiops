@@ -343,11 +343,9 @@ export const LOVELABLE_REPORT_DATA: LovelableReport = {
     { evt: 'PACKET_DROP', pos: '8.1%', acc: 0.980, prec: 0.821, rec: 0.970, f1: 0.889, feats: [['queue_depth_last', 0.154], ['latency_ms_last', 0.152], ['crc_errors_last', 0.115]] },
   ],
   seqR: [
+    { seq: ['R1 (HIGH_UTIL)', 'R1 (QUEUE_BUILDUP)', 'S1 (PACKET_DROP)', 'S1 (LATENCY_HIGH)', 'APP1 (RESPONSE_SLOW)'], supp: 42, conf: 0.98 },
+    { seq: ['R1 (CONFIG_CHANGE)', 'R2 (PEER_DOWN)', 'S1 (LATENCY_HIGH)'], supp: 35, conf: 0.92 },
     { seq: ['HIGH_UTIL_WARNING', 'PACKET_DROP', 'INTERFACE_FLAP'], supp: 28, conf: 1.00 },
-    { seq: ['HIGH_UTIL_WARNING', 'PACKET_DROP', 'HIGH_LATENCY'], supp: 26, conf: 0.93 },
-    { seq: ['HIGH_UTIL_WARNING', 'HIGH_LATENCY', 'INTERFACE_FLAP'], supp: 21, conf: 0.72 },
-    { seq: ['PACKET_DROP', 'HIGH_LATENCY', 'INTERFACE_FLAP'], supp: 20, conf: 0.71 },
-    { seq: ['PACKET_DROP', 'HIGH_UTIL_WARNING', 'INTERFACE_FLAP'], supp: 3, conf: 1.00 },
   ],
   seqS: [
     { seq: ['HIGH_UTIL_WARNING', 'PACKET_DROP', 'INTERFACE_FLAP'], supp: 24, conf: 0.89 },
@@ -380,11 +378,9 @@ export const LOVELABLE_REPORT_DATA: LovelableReport = {
     { e: 'switch-04:Eth1/3', rate: 5.5, score: 0.1144, risk: 'low', metrics: { cpu: 2.8, mem: 3.1, lat: 4.5, qd: 5.5, crc: 1.8 } },
   ],
   chainsR: [
-    { evt: 'HIGH_LATENCY (VALIDATED)', n: 289, steps: [{ m: 'cpu_pct', d: '↑', lag: '10m' }, { m: 'crc_errors', d: '↑', lag: '10m' }, { m: 'buffer_util', d: '↑', lag: '10m' }, { m: 'latency_ms', d: '↑', lag: '2m' }] },
-    { evt: 'HIGH_LATENCY', n: 231, steps: [{ m: 'cpu_pct', d: '↑', lag: '2m' }, { m: 'crc_errors', d: '↑', lag: '5m' }, { m: 'queue_depth', d: '↑', lag: '3m' }, { m: 'latency_ms', d: '↑', lag: '1m' }, { m: 'util_pct', d: '↑', lag: '2m' }] },
-    { evt: 'HIGH_UTIL_WARNING', n: 532, steps: [{ m: 'cpu_pct', d: '↑', lag: '3m' }, { m: 'crc_errors', d: '↑', lag: '4m' }, { m: 'latency_ms', d: '↑', lag: '6m' }, { m: 'queue_depth', d: '↑', lag: '2m' }, { m: 'util_pct', d: '↑', lag: '1m' }] },
-    { evt: 'INTERFACE_FLAP', n: 277, steps: [{ m: 'cpu_pct', d: '↑', lag: '1m' }, { m: 'util_pct', d: '↑', lag: '3m' }, { m: 'crc_errors', d: '↑', lag: '8m' }, { m: 'queue_depth', d: '↑', lag: '2m' }, { m: 'latency_ms', d: '↑', lag: '4m' }] },
-    { evt: 'PACKET_DROP', n: 493, steps: [{ m: 'cpu_pct', d: '↑', lag: '4m' }, { m: 'crc_errors', d: '↑', lag: '2m' }, { m: 'queue_depth', d: '↑', lag: '1m' }, { m: 'latency_ms', d: '↑', lag: '5m' }, { m: 'util_pct', d: '↑', lag: '3m' }] },
+    { evt: 'HIGH_LATENCY', n: 420, steps: [{ m: 'R1:cpu_pct', d: '↑', lag: '10m' }, { m: 'SW1:crc_errors', d: '↑', lag: '10m' }, { m: 'SW2:buffer_util', d: '↑', lag: '10m' }, { m: 'FW1:latency_ms', d: '↑', lag: '10m' }] },
+    { evt: 'PACKET_DROP', n: 385, steps: [{ m: 'R1:buffer_util', d: '↑', lag: '5m' }, { m: 'SW1:crc_errors', d: '↑', lag: '10m' }, { m: 'SW2:latency_ms', d: '↑', lag: '5m' }, { m: 'FW1:packet_drop', d: '↑', lag: '5m' }] },
+    { evt: 'HIGH_LATENCY', n: 310, steps: [{ m: 'R2:config_change', d: '↑', lag: '5m' }, { m: 'R2:peer_down', d: '↑', lag: '10m' }, { m: 'SW1:crc_errors', d: '↑', lag: '10m' }, { m: 'FW1:latency_ms', d: '↑', lag: '10m' }] },
   ],
   chainsS: [
     { evt: 'DEVICE_REBOOT', n: 2, steps: [{ m: 'queue_depth', d: '↓', lag: '1m' }, { m: 'crc_errors', d: '↓', lag: '2m' }, { m: 'latency_ms', d: '↓', lag: '3m' }, { m: 'util_pct', d: '↓', lag: '2m' }, { m: 'cpu_pct', d: '↓', lag: '1m' }] },

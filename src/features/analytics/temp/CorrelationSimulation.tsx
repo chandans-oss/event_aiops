@@ -387,7 +387,7 @@ export function CorrelationSimulation({ onBack }: { onBack: () => void }) {
                         <CardContent className="flex-1 overflow-y-auto p-0 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
                             <div className="flex flex-col">
                                 {events.length === 0 && (
-                                    <div className="p-8 text-center text-xs text-muted-foreground italic opacity-50">
+                                    <div className="p-8 text-center text-xs text-muted-foreground  opacity-50">
                                         No critical threshold violations.
                                     </div>
                                 )}
@@ -423,7 +423,7 @@ export function CorrelationSimulation({ onBack }: { onBack: () => void }) {
                         <CardContent className="flex-1 overflow-y-auto p-0 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
                             <div className="flex flex-col">
                                 {predictions.length === 0 && (
-                                    <div className="p-8 text-center text-xs text-muted-foreground italic opacity-50">
+                                    <div className="p-8 text-center text-xs text-muted-foreground  opacity-50">
                                         No predictive patterns matched.
                                     </div>
                                 )}
@@ -438,7 +438,7 @@ export function CorrelationSimulation({ onBack }: { onBack: () => void }) {
                                                 {pred.confidence}% Conf
                                             </Badge>
                                         </div>
-                                        <p className="opacity-70 italic mb-1">{pred.reason}</p>
+                                        <p className="opacity-70  mb-1">{pred.reason}</p>
                                         <span className="font-mono text-[10px] opacity-50">{pred.timestamp}</span>
                                     </div>
                                 ))}

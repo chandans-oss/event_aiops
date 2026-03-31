@@ -207,7 +207,7 @@ const MiniMetricPlot = ({ data, dataKey, color, name, occId }: { data: any[], da
             <div className="flex items-center justify-between px-0.5">
                 <div className="flex items-center gap-1.5">
                     <div className="w-1 h-3 rounded-full" style={{ backgroundColor: color }} />
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground/70 tracking-tight group-hover:text-foreground/90 transition-colors">{name}</span>
+                    <span className="text-[10px] font-bold text-foreground/80 tracking-tight group-hover:text-foreground/90 transition-colors">{name}</span>
                 </div>
                 <span className="text-[11px] font-mono font-bold text-foreground/60">
                     {data && data.length > 0 ? (data[data.length - 1][dataKey] ?? 0) : 0}
@@ -257,7 +257,7 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
     const [manualInputs, setManualInputs] = useState({ metric1: 0, metric2: 0, metric3: 0 });
     const [hasUserInteracted, setHasUserInteracted] = useState(false);
     const [dynamicPredictions, setDynamicPredictions] = useState(pattern.predictedEvents);
-    const [timeFilter, setTimeFilter] = useState<'7D' | '1M' | '3M' | '6M' | 'ALL'>('ALL');
+    const [timeFilter, setTimeFilter] = useState<'24H' | '7D' | '1M' | 'ALL'>('ALL');
     const [subTab, setSubTab] = useState<'occurrence' | 'history' | 'analysis'>('occurrence');
     const navigate = useNavigate();
 
@@ -318,16 +318,16 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                 <div className="flex flex-col min-w-[200px] border-r border-white/5 pr-6 justify-center">
                     <div className="flex items-center gap-2 mb-3">
                         <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
-                        <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">Case #{pattern.occurrences.length - idx}</span>
+                        <span className="text-[10px] font-bold text-foreground/60 tracking-widest">Case #{pattern.occurrences.length - idx}</span>
                     </div>
 
                     <div className="space-y-0.5">
-                        <div className="text-sm font-bold text-muted-foreground/40 uppercase tracking-tighter">Event Date</div>
+                        <div className="text-sm font-bold text-foreground/40 tracking-tighter">Event Date</div>
                         <div className="text-lg font-black text-foreground tracking-tight leading-none mb-2">
                             {dateDisplay}
                         </div>
-                        <div className="text-sm font-bold text-muted-foreground/40 uppercase tracking-tighter">Trigger Time</div>
-                        <div className="text-[12px] font-mono font-bold text-primary/80 uppercase bg-primary/5 px-2 py-1 rounded w-fit">
+                        <div className="text-sm font-bold text-foreground/40 tracking-tighter">Trigger Time</div>
+                        <div className="text-[12px] font-mono font-bold text-primary/80 bg-primary/5 px-2 py-1 rounded w-fit">
                             {timeDisplay}
                         </div>
                     </div>
@@ -365,14 +365,14 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
 
                 {/* Outcomes */}
                 <div className="min-w-[180px] border-l border-white/5 pl-6 flex flex-col justify-center">
-                    <div className="text-[10px] uppercase font-bold text-muted-foreground/50 mb-4 flex items-center gap-2 tracking-widest">
+                    <div className="text-[10px] font-bold text-foreground/50 mb-4 flex items-center gap-2 tracking-widest">
                         <Zap className="h-3 w-3 text-primary/70" /> Predictions
                     </div>
                     <div className="flex flex-col gap-2">
                         {occ.outcomes?.map((out, i) => (
                             <div key={i} className="flex items-center gap-2 group/item">
                                 <div className="w-[3px] h-3 bg-red-500/60 rounded-full" />
-                                <span className="text-[10px] font-black text-red-400 uppercase tracking-widest">{out}</span>
+                                <span className="text-[10px] font-black text-red-400 tracking-widest">{out}</span>
                             </div>
                         ))}
                     </div>
@@ -388,10 +388,9 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
         const cutoff = new Date(now);
 
         switch (timeFilter) {
+            case '24H': cutoff.setHours(now.getHours() - 24); break;
             case '7D': cutoff.setDate(now.getDate() - 7); break;
             case '1M': cutoff.setMonth(now.getMonth() - 1); break;
-            case '3M': cutoff.setMonth(now.getMonth() - 3); break;
-            case '6M': cutoff.setMonth(now.getMonth() - 6); break;
         }
 
         return occurrences.filter(occ => {
@@ -999,13 +998,13 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                         </TabsTrigger>
                                         <TabsTrigger
                                             value="history"
-                                            className="px-0 py-2 bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary rounded-none font-bold uppercase text-[11px] tracking-widest transition-all"
+                                            className="px-0 py-2 bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary rounded-none font-bold text-[11px] tracking-widest transition-all"
                                         >
                                             History / Proof ({Math.max(0, pattern.occurrences.length - 5)})
                                         </TabsTrigger>
                                         <TabsTrigger
                                             value="analysis"
-                                            className="px-0 py-2 bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary rounded-none font-bold uppercase text-[11px] tracking-widest transition-all"
+                                            className="px-0 py-2 bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary rounded-none font-bold text-[11px] tracking-widest transition-all"
                                         >
                                             Analysis
                                         </TabsTrigger>
@@ -1013,13 +1012,13 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
 
                                     {subTab === 'history' && (
                                         <div className="flex items-center gap-2">
-                                            {(['7D', '1M', '3M', '6M', 'ALL'] as const).map((tf) => (
+                                            {(['24H', '7D', '1M', 'ALL'] as const).map((tf) => (
                                                 <button
                                                     key={tf}
                                                     onClick={() => setTimeFilter(tf)}
                                                     className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all ${timeFilter === tf ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-muted'}`}
                                                 >
-                                                    {tf}
+                                                    {tf === '24H' ? '24 Hrs' : tf}
                                                 </button>
                                             ))}
                                         </div>
@@ -1044,7 +1043,7 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                         ) : (
                                             <div className="flex flex-col items-center justify-center py-16 text-muted-foreground/40 bg-card/20 rounded-xl border border-dashed border-border/30">
                                                 <Clock className="h-10 w-10 mb-2 opacity-20" />
-                                                <p className="text-sm italic">No additional historical occurrences found for this pattern.</p>
+                                                <p className="text-sm ">No additional historical occurrences found for this pattern.</p>
                                             </div>
                                         )}
                                     </div>
@@ -1062,7 +1061,7 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                     </CardTitle>
                                                 </CardHeader>
                                                 <CardContent className="space-y-4">
-                                                    <div className="bg-muted/30 p-3 rounded-lg text-xs leading-relaxed text-muted-foreground border border-border/20 italic">
+                                                    <div className="bg-muted/30 p-3 rounded-lg text-xs leading-relaxed text-muted-foreground border border-border/20 ">
                                                         "{pattern.logicSummary || "Multivariate correlation logic identifies cascading failures across layers using semantic proximity and temporal clustering."}"
                                                     </div>
                                                     <div className="space-y-3">
@@ -1170,20 +1169,20 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                         <div className="space-y-4">
                                                             <div className="p-3 bg-black/20 rounded-lg border border-white/5">
                                                                 <div className="text-[10px] font-bold text-primary mb-1 uppercase">Signal Synchronization (Pearson r)</div>
-                                                                <div className="text-[11px] font-mono text-muted-foreground mb-2 italic">r = [âˆ‘(x-xÌ…)(y-yÌ…)] / [âˆšâˆ‘(x-xÌ…)Â²âˆ‘(y-yÌ…)Â²]</div>
-                                                                <p className="text-[10px] text-muted-foreground italic">Quantifies temporal alignment between metric pairs (e.g., Links vs Buffers).</p>
+                                                                <div className="text-[11px] font-mono text-muted-foreground mb-2 ">r = [âˆ‘(x-xÌ…)(y-yÌ…)] / [âˆšâˆ‘(x-xÌ…)Â²âˆ‘(y-yÌ…)Â²]</div>
+                                                                <p className="text-[10px] text-muted-foreground ">Quantifies temporal alignment between metric pairs (e.g., Links vs Buffers).</p>
                                                             </div>
 
                                                             <div className="p-3 bg-black/20 rounded-lg border border-white/5">
                                                                 <div className="text-[10px] font-bold text-purple-400 mb-1 uppercase">Causal Integrity (Granger F-Stat)</div>
-                                                                <div className="text-[11px] font-mono text-muted-foreground mb-2 italic">{"Y_t = âˆ‘a_i Y_{t - i} + âˆ‘b_i X_{t - i} + Îµ"}</div>
-                                                                <p className="text-[10px] text-muted-foreground italic">Verifies that Metric X (Cause) significantly improves prediction of Metric Y (Effect).</p>
+                                                                <div className="text-[11px] font-mono text-muted-foreground mb-2 ">{"Y_t = âˆ‘a_i Y_{t - i} + âˆ‘b_i X_{t - i} + Îµ"}</div>
+                                                                <p className="text-[10px] text-muted-foreground ">Verifies that Metric X (Cause) significantly improves prediction of Metric Y (Effect).</p>
                                                             </div>
 
                                                             <div className="p-3 bg-black/20 rounded-lg border border-white/5">
                                                                 <div className="text-[10px] font-bold text-emerald-400 mb-1 uppercase">Predictive Lift Score</div>
-                                                                <div className="text-[11px] font-mono text-muted-foreground mb-2 italic">Lift = P(Event | Pattern) / P(Event)</div>
-                                                                <p className="text-[10px] text-muted-foreground italic">Measures how much more likely an event is when the pattern is observed vs baseline.</p>
+                                                                <div className="text-[11px] font-mono text-muted-foreground mb-2 ">Lift = P(Event | Pattern) / P(Event)</div>
+                                                                <p className="text-[10px] text-muted-foreground ">Measures how much more likely an event is when the pattern is observed vs baseline.</p>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1224,7 +1223,7 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                                     <Activity className="h-3 w-3" /> LEAD TIME ANALYSIS
                                                                 </div>
                                                                 <div className="text-[18px] font-bold text-foreground">15 - 20 Minutes</div>
-                                                                <p className="text-[10px] text-muted-foreground italic">Typical horizon for high-confidence predictive warnings.</p>
+                                                                <p className="text-[10px] text-muted-foreground ">Typical horizon for high-confidence predictive warnings.</p>
                                                             </div>
 
                                                             <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
@@ -1232,7 +1231,7 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                                     <TerminalIcon className="h-3 w-3" /> ENGINE RUNTIME
                                                                 </div>
                                                                 <div className="text-[18px] font-bold text-foreground">0.84 Seconds</div>
-                                                                <p className="text-[10px] text-muted-foreground italic">Pattern extraction & causal mining latency.</p>
+                                                                <p className="text-[10px] text-muted-foreground ">Pattern extraction & causal mining latency.</p>
                                                             </div>
                                                         </div>
 

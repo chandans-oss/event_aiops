@@ -276,56 +276,56 @@ export default function TrainingPage() {
               <div className="h-9 w-9 rounded-xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20 shadow-inner">
                 <BrainCircuit className="h-5 w-5 text-orange-500" />
               </div>
-              <h1 className="text-2xl font-black tracking-tighter uppercase italic">ModelTraining</h1>
+              <h1 className="text-2xl font-black tracking-tighter">Model Training</h1>
             </div>
           </div>
 
           <div className="flex items-center gap-4">
             {/* Timeline Dropdown */}
             <div className="flex flex-col gap-1 items-end">
-              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-50">Timeline</span>
+               <span className="text-[10px] font-black tracking-widest text-muted-foreground opacity-50">Timeline</span>
               <Select value={timeline} onValueChange={setTimeline}>
-                <SelectTrigger className="w-[160px] bg-card/50 border-white/10 font-bold h-10 text-[10px] uppercase">
-                  <SelectValue placeholder="SelectDataRange" />
+                <SelectTrigger className="w-[160px] bg-card/50 border-white/10 font-bold h-10 text-[10px]">
+                  <SelectValue placeholder="Select Data Range" />
                 </SelectTrigger>
                 <SelectContent className="bg-[#0a0a0a] border-white/10">
-                  <SelectItem value="1m" className="text-[10px] uppercase font-bold text-white/70">Last 1 Month</SelectItem>
-                  <SelectItem value="3m" className="text-[10px] uppercase font-bold text-white/70">Last 3 Months</SelectItem>
-                  <SelectItem value="6m" className="text-[10px] uppercase font-bold text-white/70">Last 6 Months</SelectItem>
+                  <SelectItem value="1m" className="text-[10px] font-bold text-white/70 tracking-tight">Last 1 Month</SelectItem>
+                  <SelectItem value="3m" className="text-[10px] font-bold text-white/70 tracking-tight">Last 3 Months</SelectItem>
+                  <SelectItem value="6m" className="text-[10px] font-bold text-white/70 tracking-tight">Last 6 Months</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {/* Scope Selection */}
             <div className="flex flex-col gap-1 items-end ml-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#555] opacity-80">Training Scope</span>
+               <span className="text-[10px] font-black tracking-widest text-[#555] opacity-80">Training Scope</span>
               <Select value={deviceFilter} onValueChange={(v: any) => {
                 setDeviceFilter(v);
                 setSelectedTarget(SCOPE_TARGETS[v][0].label);
               }}>
-                <SelectTrigger className="w-[180px] bg-card/50 border-white/10 font-bold h-10 text-[10px] uppercase">
+                <SelectTrigger className="w-[180px] bg-card/50 border-white/10 font-bold h-10 text-[10px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-[#0a0a0a] border-white/10">
-                  <SelectItem value="device" className="text-[10px] uppercase font-bold text-white/70">Device Specific</SelectItem>
-                  <SelectItem value="topology" className="text-[10px] uppercase font-bold text-white/70">Topology Based</SelectItem>
-                  <SelectItem value="group" className="text-[10px] uppercase font-bold text-white/70">Device Group Based</SelectItem>
+                  <SelectItem value="device" className="text-[10px] font-bold text-white/70 tracking-tight">Device Specific</SelectItem>
+                  <SelectItem value="topology" className="text-[10px] font-bold text-white/70 tracking-tight">Topology Based</SelectItem>
+                  <SelectItem value="group" className="text-[10px] font-bold text-white/70 tracking-tight">Device Group Based</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {/* Target Selection */}
             <div className="flex flex-col gap-1 items-end -ml-1">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#555] opacity-80">
+              <span className="text-[10px] font-black tracking-widest text-[#555] opacity-80">
                 {deviceFilter === 'group' ? 'Select Group' : 'Select Target'}
               </span>
               <Select value={selectedTarget} onValueChange={setSelectedTarget}>
-                <SelectTrigger className="w-[180px] bg-card/50 border-white/10 font-bold h-10 text-[10px] uppercase">
+                <SelectTrigger className="w-[180px] bg-card/50 border-white/10 font-bold h-10 text-[10px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-[#0a0a0a] border-white/10">
                   {(SCOPE_TARGETS as any)[deviceFilter].map((t: any) => (
-                    <SelectItem key={t.label} value={t.label} className="text-[10px] uppercase font-bold text-white/70">
+                    <SelectItem key={t.label} value={t.label} className="text-[10px] font-bold text-white/70 tracking-tight">
                       {t.label}
                     </SelectItem>
                   ))}
@@ -341,26 +341,26 @@ export default function TrainingPage() {
                   selectedTarget
                 } 
               })}
-              className="bg-[#2a9070] hover:bg-[#237a5f] text-white font-black uppercase tracking-widest h-10 px-6 text-[11px] rounded-xl shadow-lg shadow-[#2a9070]/20 mt-5 border-b-4 border-[#1a6a52]"
+               className="bg-[#2a9070] hover:bg-[#237a5f] text-white font-black tracking-widest h-10 px-6 text-[11px] rounded-xl shadow-lg shadow-[#2a9070]/20 mt-5 border-b-4 border-[#1a6a52]"
             >
               <Heart className="mr-2 h-3.5 w-3.5 fill-current" />
-              LovelableV3
+               Lovelable V3
             </Button>
 
             <Button
               onClick={startTraining}
               disabled={isTraining}
-              className="bg-orange-500 hover:bg-orange-600 text-white font-black uppercase tracking-widest h-10 px-6 text-[11px] rounded-xl shadow-lg shadow-orange-500/20 mt-5"
+               className="bg-orange-500 hover:bg-orange-600 text-white font-black tracking-widest h-10 px-6 text-[11px] rounded-xl shadow-lg shadow-orange-500/20 mt-5"
             >
               {isTraining ? (
                 <>
                   <Activity className="mr-2 h-3.5 w-3.5 animate-spin" />
-                  TRAINING...
+                   Training...
                 </>
               ) : (
                 <>
                   <Play className="mr-2 h-3.5 w-3.5 fill-current" />
-                  StartTraining
+                   Start Training
                 </>
               )}
             </Button>
@@ -380,11 +380,11 @@ export default function TrainingPage() {
                           <Settings className="h-5 w-5 text-orange-500" />
                         </div>
                         <div className="text-left">
-                          <SheetTitle className="text-lg font-black uppercase italic tracking-tighter text-foreground">
-                            EngineConfig
+                          <SheetTitle className="text-lg font-black uppercase tracking-tighter text-foreground">
+                             Engine Configuration
                           </SheetTitle>
                           <SheetDescription className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground/50">
-                            v3.4.2 Optimized Runtime
+                             v3.4.2 Optimized Runtime
                           </SheetDescription>
                         </div>
                       </div>
@@ -433,7 +433,7 @@ export default function TrainingPage() {
                                   <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">{config.label}</span>
                                   <span className="text-[10px] font-black text-foreground tabular-nums bg-white/5 px-2 py-0.5 rounded border border-white/5">{config.value}</span>
                                 </div>
-                                <p className="text-[8px] text-muted-foreground/30 font-medium italic leading-none">{config.desc}</p>
+                                <p className="text-[8px] text-muted-foreground/30 font-medium leading-none">{config.desc}</p>
                               </div>
                             ))}
                           </div>
@@ -455,15 +455,15 @@ export default function TrainingPage() {
             <div className="flex items-center justify-between px-2">
               <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
                 <Monitor className="h-3.5 w-3.5" />
-                TelemetryIngestion
+                 Telemetry Ingestion
               </h2>
               <Badge variant="outline" className="text-[8px] font-bold border-orange-500/20 text-orange-500 animate-pulse uppercase tracking-widest h-5">
-                PollingActive
+                 Polling Active
               </Badge>
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 px-2 italic">SlidingWindowBatches75mContext</h3>
+                <h3 className="text-[9px] font-black tracking-widest text-muted-foreground/40 px-2">Sliding Window Batches 75m Context</h3>
               <Card className="p-5 bg-card/30 border-white/5 space-y-4 h-fit overflow-hidden relative">
                 <div className="space-y-3">
                   {BATCHES.map((batch, i) => (
@@ -498,7 +498,7 @@ export default function TrainingPage() {
             </div>
 
             <div className="space-y-4">
-              <h3 className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 px-2 italic">MonitoredMetricStreams</h3>
+                <h3 className="text-[9px] font-black tracking-widest text-muted-foreground/40 px-2">Monitored Metric Streams</h3>
               <div className="grid grid-cols-2 gap-2 px-1">
                 {METRICS_LIST.map((metric, i) => (
                   <div key={i} className="bg-white/5 border border-white/5 p-2 rounded-lg flex items-center justify-between group hover:bg-white/10 transition-colors">
@@ -517,7 +517,7 @@ export default function TrainingPage() {
           <div className="flex flex-col space-y-6">
             <div className="flex items-center gap-2 px-2">
               <Workflow className="h-3.5 w-3.5 text-primary" />
-              <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary italic">AlgorithmPipeline</h2>
+                <h2 className="text-[10px] font-black tracking-[0.2em] text-primary">Algorithm Pipeline</h2>
             </div>
 
             <ScrollArea className="flex-1 h-[calc(100vh-300px)] min-h-[500px] pr-4">
@@ -559,10 +559,10 @@ export default function TrainingPage() {
                           </div>
                         </div>
                         {modelStatuses[model.id] === 'active' ? (
-                            <Badge className="bg-primary/20 text-primary border-primary/30 text-[7px] h-3.5 px-2 uppercase font-black tracking-widest animate-pulse">Training...</Badge>
-                        ) : (
-                            <Badge variant="outline" className="text-[7px] h-3.5 px-2 uppercase border-white/10 font-black tracking-widest">{model.type}</Badge>
-                        )}
+                         <Badge className="bg-primary/20 text-primary border-primary/40 text-[7px] h-3.5 px-2 tracking-widest animate-pulse font-black">Training...</Badge>
+                         ) : (
+                             <Badge variant="outline" className="text-[7px] h-3.5 px-2 border-white/10 font-black tracking-widest">{model.type}</Badge>
+                         )}
                       </div>
                       <p className="text-[9px] text-muted-foreground/60 leading-relaxed font-medium">
                         {model.desc}
@@ -598,7 +598,7 @@ export default function TrainingPage() {
 
           <Button variant="outline" className="text-[9px] font-black uppercase tracking-widest border-white/10 hover:bg-white/5 h-9 px-5 opacity-50 hover:opacity-100 transition-all">
             <RotateCcw className="mr-2 h-3 w-3" />
-            ResetEngineCache
+             Reset Engine Cache
           </Button>
         </div>
       </div>

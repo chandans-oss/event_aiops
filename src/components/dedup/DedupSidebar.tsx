@@ -1,23 +1,23 @@
 import { useState } from 'react';
-import { 
-  Target, 
-  Layers, 
-  RefreshCw, 
-  MessageSquare, 
-  Sliders, 
-  BrainCircuit, 
-  ChevronRight, 
+import {
+  Target,
+  Layers,
+  RefreshCw,
+  MessageSquare,
+  Sliders,
+  BrainCircuit,
+  ChevronRight,
   ChevronLeft,
   Sparkles
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 
-export type Technique = 
-  | 'exact' 
-  | 'structured' 
-  | 'state' 
-  | 'template' 
-  | 'similarity' 
+export type Technique =
+  | 'exact'
+  | 'structured'
+  | 'state'
+  | 'template'
+  | 'similarity'
   | 'semantic';
 
 interface DedupSidebarProps {
@@ -48,10 +48,7 @@ export function DedupSidebar({ activeTechnique, onTechniqueChange }: DedupSideba
       )}>
         {!isCollapsed && (
           <div className="flex flex-col animate-in fade-in slide-in-from-left-2 duration-500">
-            <h2 className="text-xl font-bold text-foreground">Dedup Lab</h2>
-            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight opacity-70">
-              Explainable Logic Engine
-            </p>
+            <h2 className="text-xl font-bold text-foreground">Deduplication Engine</h2>
           </div>
         )}
         <button
@@ -111,12 +108,6 @@ export function DedupSidebar({ activeTechnique, onTechniqueChange }: DedupSideba
 
       {!isCollapsed && (
         <div className="p-4 border-t border-border/30 bg-secondary/5">
-          <div className="flex items-center gap-2 px-1">
-            <Sparkles className="h-3 w-3 text-primary/50" />
-            <p className="text-[9px] text-muted-foreground leading-tight uppercase tracking-widest font-semibold opacity-50">
-              AI Powered RCA
-            </p>
-          </div>
         </div>
       )}
     </div>

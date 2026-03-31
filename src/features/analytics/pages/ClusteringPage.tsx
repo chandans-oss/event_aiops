@@ -216,30 +216,6 @@ export default function AnomalyDetectionPage() {
         <MainLayout>
             <div className="p-6 space-y-6 animate-in fade-in duration-500">
 
-                {/* Header */}
-                <div className="flex items-center justify-between">
-                    <div>
-                        <div className="flex items-center gap-2 mb-1">
-                            <div className="p-2 bg-amber-500/10 rounded-lg">
-                                <AlertTriangle className="h-5 w-5 text-amber-500" />
-                            </div>
-                            <h1 className="text-2xl font-bold tracking-tight text-foreground">Behavioral Anomaly Detection</h1>
-                        </div>
-                        <p className="text-muted-foreground text-sm">
-                            Real-time outlier detection using unsupervised Isolation Forest models
-                        </p>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        <Button variant="outline" size="sm" className="gap-2">
-                            <History className="h-4 w-4" /> Baseline History
-                        </Button>
-                        <Button size="sm" className="gradient-primary gap-2">
-                            <Zap className="h-4 w-4" /> Detection Settings
-                        </Button>
-                    </div>
-                </div>
-
                 {/* Top Grid: Main Table and Selected Info */}
                 <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
 
@@ -407,15 +383,7 @@ export default function AnomalyDetectionPage() {
                     )}
                 </div>
 
-                {/* Live Processing Pipeline Monitoring */}
-                {!selectedAnomId && (
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-in slide-in-from-bottom-6 duration-700 delay-200">
-                        <StatsPanel label="Inference Engine" value="Isolation Forest" icon={Cpu} color="text-primary" />
-                        <StatsPanel label="Samples Proc." value="1.2M / day" icon={Database} color="text-blue-500" />
-                        <StatsPanel label="Proc. Latency" value="45 ms" icon={Clock} color="text-amber-500" />
-                        <StatsPanel label="Confidence" value="96.5%" icon={Target} color="text-emerald-500" />
-                    </div>
-                )}
+                {/* Live Processing Pipeline Monitoring removed as requested */}
             </div>
         </MainLayout>
     );

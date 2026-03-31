@@ -164,7 +164,7 @@ export default function Remediation() {
                 <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground flex items-center gap-2">
                   <Info className="h-3 w-3" /> Execution Context
                 </h4>
-                <p className="text-xl text-muted-foreground font-medium italic border-l-4 border-primary/20 pl-8 py-2">
+                <p className="text-xl text-muted-foreground font-medium  border-l-4 border-primary/20 pl-8 py-2">
                   "{activeStep.description}"
                 </p>
               </div>
@@ -179,7 +179,7 @@ export default function Remediation() {
                         <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
                         <span className="leading-relaxed">{v}</span>
                       </div>
-                    )) || <div className="text-xs italic text-muted-foreground">Standard status verification</div>}
+                    )) || <div className="text-xs  text-muted-foreground">Standard status verification</div>}
                   </div>
                 </div>
 
@@ -364,7 +364,7 @@ export default function Remediation() {
               <h2 className="text-4xl font-black tracking-tighter uppercase leading-none">Post-Flow Verification</h2>
               <Badge className="bg-emerald-500 text-white font-black text-[10px] uppercase px-3 py-1 animate-pulse">PASSED</Badge>
             </div>
-            <p className="text-lg text-muted-foreground font-medium italic opacity-70">
+            <p className="text-lg text-muted-foreground font-medium  opacity-70">
               Payload execution verified for {clusterId} on {clusterData.rcaMetadata.device}
             </p>
           </div>
@@ -451,7 +451,7 @@ export default function Remediation() {
         </div>
         <div className="space-y-4">
           <h2 className="text-6xl font-black tracking-tighter uppercase text-foreground">Case Archived</h2>
-          <p className="text-2xl text-muted-foreground font-medium italic opacity-60">Closed-Loop Resolution for {clusterId}</p>
+          <p className="text-2xl text-muted-foreground font-medium  opacity-60">Closed-Loop Resolution for {clusterId}</p>
         </div>
       </div>
 
@@ -479,7 +479,7 @@ export default function Remediation() {
             <History className="h-8 w-8" />
             <h4 className="text-xl font-black uppercase tracking-[0.3em]">Executive Summary Log</h4>
           </div>
-          <div className="text-xl text-white/60 font-medium leading-relaxed italic max-w-3xl border-l-4 border-emerald-500/20 pl-10 py-4">
+          <div className="text-xl text-white/60 font-medium leading-relaxed  max-w-3xl border-l-4 border-emerald-500/20 pl-10 py-4">
             "The orchestrated response for {clusterId} was successfully executed on {clusterData.rcaMetadata.device}.
             Downstream congestion was suppressed through dynamic QoS shaping and job rescheduling.
             The incident is now classified as [CLOSED] and passed to long-term analytics."
@@ -656,7 +656,7 @@ export default function Remediation() {
                             <h4 className="text-lg font-black tracking-tight">{kb.title}</h4>
                             <Badge variant="secondary" className="text-[10px] font-black">Score: {kb.relevance}%</Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground mb-4 italic leading-relaxed">Cross-referenced from historical recovery events on {clusterData.rcaMetadata.device} and similar assets.</p>
+                          <p className="text-sm text-muted-foreground mb-4  leading-relaxed">Cross-referenced from historical recovery events on {clusterData.rcaMetadata.device} and similar assets.</p>
                           <Button variant="link" className="p-0 text-primary font-black uppercase text-[10px] tracking-widest gap-2">
                             Read Full Doc <ChevronRight className="h-3 w-3" />
                           </Button>

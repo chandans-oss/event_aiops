@@ -13,7 +13,33 @@ export default {
       },
     },
     extend: {
+      fontSize: {
+        'xs': ['0.75rem', { lineHeight: '1rem' }],
+        'sm': ['0.875rem', { lineHeight: '1.25rem' }],
+        'base': ['1rem', { lineHeight: '1.5rem' }],
+        'lg': ['1.125rem', { lineHeight: '1.75rem' }],
+        'xl': ['1.25rem', { lineHeight: '1.75rem' }],
+        '2xl': ['1.5rem', { lineHeight: '2rem' }],
+      },
       colors: {
+        slate: {
+          300: "#cbd5e1",
+          400: "#e2e8f0",
+          500: "#f1f5f9",
+          600: "#f8fafc",
+        },
+        gray: {
+          300: "#d1d5db",
+          400: "#f3f4f6",
+          500: "#f9fafb",
+          600: "#ffffff",
+        },
+        zinc: {
+          300: "#d4d4d8",
+          400: "#f4f4f5",
+          500: "#fafafa",
+          600: "#ffffff",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

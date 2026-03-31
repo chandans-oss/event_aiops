@@ -1,17 +1,17 @@
 import { useState } from 'react';
-import { 
-  Calendar, 
-  Clock, 
-  Tag, 
-  GitMerge, 
-  MapPin, 
-  Layers, 
-  Activity, 
-  Zap, 
-  History, 
-  TrendingUp, 
+import {
+  Calendar,
+  Clock,
+  Tag,
+  GitMerge,
+  MapPin,
+  Layers,
+  Activity,
+  Zap,
+  History,
+  TrendingUp,
   Snowflake,
-  ChevronRight, 
+  ChevronRight,
   ChevronLeft,
   Filter,
   ShieldCheck,
@@ -19,18 +19,18 @@ import {
 } from 'lucide-react';
 import { cn } from '@/shared/lib/utils';
 
-export type SuppressionTechnique = 
-  | 'maintenance' 
-  | 'business_hours' 
-  | 'tag_based' 
-  | 'parent_child' 
-  | 'spatial' 
-  | 'dedup_suppress' 
-  | 'time_window' 
-  | 'flap_detection' 
-  | 'temporal_cluster' 
-  | 'dynamic_threshold' 
-  | 'event_storm' 
+export type SuppressionTechnique =
+  | 'maintenance'
+  | 'business_hours'
+  | 'tag_based'
+  | 'parent_child'
+  | 'spatial'
+  | 'dedup_suppress'
+  | 'time_window'
+  | 'flap_detection'
+  | 'temporal_cluster'
+  | 'dynamic_threshold'
+  | 'event_storm'
   | 'seasonal';
 
 interface SuppressionSidebarProps {
@@ -93,7 +93,7 @@ export function SuppressionSidebar({ activeTechnique, onTechniqueChange }: Suppr
         {!isCollapsed && (
           <div className="flex flex-col animate-in fade-in slide-in-from-left-2 duration-500">
             <h2 className="text-xl font-bold text-foreground">Suppression Lab</h2>
-            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tight opacity-70">
+            <p className="text-[10px] text-muted-foreground font-medium tracking-tight opacity-70">
               Noise Extraction Engine
             </p>
           </div>
@@ -113,7 +113,7 @@ export function SuppressionSidebar({ activeTechnique, onTechniqueChange }: Suppr
         {groups.map((group) => (
           <div key={group.label} className="space-y-1">
             {!isCollapsed && (
-              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest px-3 mb-2 opacity-50">
+              <p className="text-[9px] font-black text-muted-foreground tracking-widest px-3 mb-2 opacity-50">
                 {group.label}
               </p>
             )}
@@ -158,17 +158,6 @@ export function SuppressionSidebar({ activeTechnique, onTechniqueChange }: Suppr
           </div>
         ))}
       </div>
-
-      {!isCollapsed && (
-        <div className="p-4 border-t border-border/30 bg-secondary/5">
-          <div className="flex items-center gap-2 px-1">
-            <ShieldCheck className="h-3 w-3 text-status-success/50" />
-            <p className="text-[9px] text-muted-foreground leading-tight uppercase tracking-widest font-semibold opacity-50">
-              Validated Policy Mode
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

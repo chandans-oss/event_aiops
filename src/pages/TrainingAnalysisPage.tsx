@@ -109,7 +109,7 @@ export default function TrainingAnalysisPage() {
     let baseLines = raw.split("\n");
 
     // Add scope-aware prefixes to some lines for immersion
-    const prefix = selectedTarget.toUpperCase();
+    const prefix = selectedTarget;
     finalLines = baseLines.map(line => {
       if (line.trim().length > 0 && !line.includes("=") && !line.includes("-") && !line.includes("SECTION")) {
         return `[${prefix}] ${line}`;
@@ -154,11 +154,11 @@ export default function TrainingAnalysisPage() {
               <ChevronLeft className="h-4 w-4" />
             </Button>
             <div>
-              <div className="flex items-center gap-2 text-[10px] uppercase font-black tracking-widest text-[#555] mb-0.5">
+              <div className="flex items-center gap-2 text-[11px] font-black tracking-widest text-[#555] mb-0.5">
                 <BrainCircuit className="h-3 w-3 text-orange-500/60" />
                 Training Core
               </div>
-              <h1 className="text-xl font-black uppercase italic tracking-tighter text-white leading-none">
+              <h1 className="text-[21px] font-black tracking-tighter text-white leading-none">
                 {PIPELINE_STEPS[stepIdx]?.name} <span className="text-muted-foreground/30 ml-2">— {selectedTarget} Diagnostic</span>
               </h1>
             </div>
@@ -168,7 +168,7 @@ export default function TrainingAnalysisPage() {
             {!started && (
               <Button
                 onClick={() => setStarted(true)}
-                className="bg-orange-500 hover:bg-orange-600 text-white text-[11px] font-black uppercase tracking-widest px-8 h-10 rounded-full shadow-[0_0_25px_rgba(249,115,22,0.3)] transition-all transform hover:scale-105"
+                className="bg-orange-500 hover:bg-orange-600 text-white text-[12px] font-black tracking-widest px-8 h-10 rounded-full shadow-[0_0_25px_rgba(249,115,22,0.3)] transition-all transform hover:scale-105"
               >
                 <div className="flex items-center">
                   <Play className="mr-2 h-4 w-4 fill-current" />
@@ -176,8 +176,7 @@ export default function TrainingAnalysisPage() {
                 </div>
               </Button>
             )}
-            {done && (
-              <Button
+            {done && (               <Button
                 onClick={() => {
                   const nextIdx = stepIdx + 1;
                   if (nextIdx < PIPELINE_STEPS.length) {
@@ -186,12 +185,12 @@ export default function TrainingAnalysisPage() {
                     navigate("/pattern-prediction/training-lovelable", { state: location.state });
                   }
                 }}
-                className="bg-emerald-500 hover:bg-emerald-600 text-white text-[11px] font-black uppercase tracking-widest px-8 h-10 rounded-full shadow-[0_0_25px_rgba(16,185,129,0.3)] transition-all transform hover:scale-105"
+                className="bg-emerald-500 hover:bg-emerald-600 text-white text-[13px] font-black tracking-widest px-8 h-10 rounded-full shadow-[0_0_25px_rgba(16,185,129,0.3)] transition-all transform hover:scale-105"
               >
                 {stepIdx + 1 < PIPELINE_STEPS.length ? "Next Step" : "Final Report"}
               </Button>
             )}
-            <Button variant="outline" className="bg-[#0a0a0a] border-white/10 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-white h-10 px-6 rounded-full">
+            <Button variant="outline" className="bg-[#0a0a0a] border-white/10 text-[12px] font-black tracking-widest text-muted-foreground hover:text-white h-10 px-6 rounded-full">
               <Download className="mr-2 h-3.5 w-3.5" />
               Export
             </Button>
@@ -207,22 +206,22 @@ export default function TrainingAnalysisPage() {
             {/* Telemetry Ingestion Visualizer */}
             <section className="space-y-4">
               <div className="flex items-center justify-between px-1">
-                <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-orange-500/80 flex items-center gap-3">
+                <h2 className="text-[12px] font-black tracking-[0.2em] text-orange-500/80 flex items-center gap-3">
                   <Monitor className="h-4 w-4" />
                   Telemetry Ingestion
                 </h2>
-                {started && <Badge className="bg-orange-500/10 text-orange-500 border-none animate-pulse text-[8px] font-black tracking-widest">Realtime</Badge>}
+                {started && <Badge className="bg-orange-500/10 text-orange-500 border-none animate-pulse text-[9px] font-black tracking-widest">Realtime</Badge>}
               </div>
 
               <Card className="p-6 bg-[#0a0a0a]/80 border-white/5 space-y-6 shadow-2xl overflow-hidden relative group">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500/50 via-amber-500/50 to-orange-500/50 opacity-20 group-hover:opacity-100 transition-opacity duration-700" />
-                <h3 className="text-[10px] font-black uppercase opacity-30 italic text-muted-foreground">Temporal Windows 75 Minute</h3>
+                <h3 className="text-[11px] font-black opacity-30 text-muted-foreground">Temporal Windows 75 Minute</h3>
 
                 <div className="space-y-4">
                   {BATCHES.map((batch, i) => (
                     <div key={batch.id} className="space-y-2">
-                      <div className="flex justify-between text-[9px] font-mono font-bold tracking-tight">
-                        <span className="text-white/40 uppercase">{batch.id} / Partition-0{i+1}</span>
+                      <div className="flex justify-between text-[10px] font-mono font-bold tracking-tight">
+                        <span className="text-white/40">Batch {i+1} / Partition-0{i+1}</span>
                         <span className="text-orange-500/60 ">{batch.start} — {batch.end}</span>
                       </div>
                       <div className="h-[16px] bg-[#111] border border-white/5 rounded-md overflow-hidden relative shadow-inner">
@@ -247,7 +246,7 @@ export default function TrainingAnalysisPage() {
 
             {/* Algorithm Pipeline List */}
             <section className="flex-1 flex flex-col gap-4 min-h-0">
-              <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-orange-500/80 flex items-center gap-3 italic">
+               <h2 className="text-[12px] font-black tracking-[0.2em] text-orange-500/80 flex items-center gap-3">
                 <Workflow className="h-4 w-4" />
                 Algorithmic Engine Pipeline
               </h2>
@@ -275,16 +274,16 @@ export default function TrainingAnalysisPage() {
                             )}>
                               {isDone ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <GitBranch className={cn("h-4 w-4", isActive ? "text-orange-500 animate-pulse" : "opacity-10")} />}
                             </div>
-                            <span className={cn("text-[11px] font-black uppercase tracking-tight", isActive ? "text-orange-500" : "text-white/50")}>{step.name}</span>
+                            <span className={cn("text-[13px] font-black tracking-tight", isActive ? "text-orange-500" : "text-white/50")}>{step.name}</span>
                           </div>
                           {isActive && (
-                            <div className="flex items-center gap-3 text-orange-500 text-[10px] font-black bg-orange-500/10 px-2 py-0.5 rounded-full">
+                            <div className="flex items-center gap-3 text-orange-500 text-[12px] font-black bg-orange-500/10 px-2 py-0.5 rounded-full">
                               <DonutLoader className="h-3 w-3" />
                               <span className="tabular-nums">{progress}%</span>
                             </div>
                           )}
                         </div>
-                        <p className="text-[10px] opacity-20 font-bold leading-relaxed pl-11 group-hover:opacity-40 transition-opacity">{step.desc}</p>
+                        <p className="text-[12px] opacity-20 font-bold leading-relaxed pl-11 group-hover:opacity-40 transition-opacity">{step.desc}</p>
                       </Card>
                     );
                   })}
@@ -306,7 +305,7 @@ export default function TrainingAnalysisPage() {
                     <div className="h-2.5 w-2.5 rounded-full bg-green-500/20" />
                   </div>
                   <div className="h-4 w-[1px] bg-white/5 mx-2" />
-                  <span className="font-mono text-[9px] text-white/20 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <span className="font-mono text-[10px] text-white/20 tracking-[0.2em] flex items-center gap-2">
                     <Terminal className="h-3 w-3" />
                     Diagnostic Kernel
                   </span>
@@ -316,7 +315,7 @@ export default function TrainingAnalysisPage() {
                     <div className="h-0.5 w-24 bg-white/5 rounded-full overflow-hidden">
                       <div className="h-full bg-orange-500/60 transition-all duration-300" style={{ width: `${progress}%` }} />
                     </div>
-                    <span className="font-mono text-[9px] text-orange-500/50 animate-pulse font-bold tracking-widest">{progress}% ANALYZED</span>
+                    <span className="font-mono text-[10px] text-orange-500/50 animate-pulse font-bold tracking-widest">{progress}% Analyzed</span>
                   </div>
                 )}
               </div>
@@ -331,18 +330,18 @@ export default function TrainingAnalysisPage() {
                         <Play className="h-10 w-10 text-orange-500 fill-orange-500/20 ml-1.5" />
                       </div>
                     </div>
-                    <h3 className="mt-8 text-xs font-black uppercase tracking-[0.4em] text-white/40 italic">System Ready</h3>
-                    <p className="mt-2 text-[10px] text-white/20 font-bold uppercase tracking-widest">Awaiting Algorithmic Trigger</p>
+                     <h3 className="mt-8 text-sm font-black tracking-[0.4em] text-white/40">System Ready</h3>
+                    <p className="mt-2 text-[11px] text-white/20 font-bold tracking-widest">Awaiting Algorithmic Trigger</p>
                   </div>
                 )}
 
-                <div className="p-10 font-mono text-[12px] leading-[1.8] text-white/40 whitespace-pre selection:bg-orange-500/50 min-h-full">
+                <div className="p-10 font-mono text-[13px] leading-[1.8] text-white/40 whitespace-pre selection:bg-orange-500/50 min-h-full">
                   {visibleLines.map((line, i) => (
                     <div
                       key={i}
                       className={cn(
                         "animate-in fade-in slide-in-from-left-2 duration-500 min-h-[1.5em]",
-                        line.includes("SECTION") && "text-orange-500 font-black tracking-wider text-[13px] border-b border-orange-500/20 pb-1 mb-4 first:mt-0",
+                        line.includes("SECTION") && "text-orange-500 font-black tracking-wider text-[14px] border-b border-orange-500/20 pb-1 mb-4 first:mt-0",
                         line.includes("[RESULT]") && "text-emerald-400 bg-emerald-400/5 px-2 rounded-sm",
                         line.includes("*** SIGNIFICANT") && "text-amber-400"
                       )}
@@ -358,7 +357,7 @@ export default function TrainingAnalysisPage() {
               </ScrollArea>
 
               {/* Terminal Footer */}
-              <div className="h-12 border-t border-white/5 bg-white/[0.01] flex items-center justify-between px-8 text-[9px] font-black uppercase tracking-widest">
+              <div className="h-12 border-t border-white/5 bg-white/[0.01] flex items-center justify-between px-8 text-[10px] font-black tracking-widest">
                 <div className="flex items-center gap-5">
                   <div className="flex items-center gap-3">
                     {done ? <CheckCircle2 className="h-4 w-4 text-emerald-500" /> : <DonutLoader className="h-4 w-4 text-orange-500" />}
@@ -367,10 +366,10 @@ export default function TrainingAnalysisPage() {
                     </span>
                   </div>
                   <div className="h-3 w-[1px] bg-white/5" />
-                  <span className="text-white/20 flex items-center gap-2"><Clock className="h-3 w-3" /> BufferStatusOptimal</span>
+                  <span className="text-white/20 flex items-center gap-2"><Clock className="h-3 w-3" /> Buffer Status Optimal</span>
                 </div>
                 <div className="text-white/10 hover:text-white/30 transition-colors cursor-help">
-                  CHARSET: UTF-8 | POLL: 5M
+                  Charset: UTF-8 | Poll: 5M
                 </div>
               </div>
             </Card>

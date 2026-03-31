@@ -33,6 +33,14 @@ import { cn } from '@/shared/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/shared/hooks/use-toast';
 
+const formatLabel = (str: string) => {
+  if (!str) return '';
+  return str
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/(^\w|\s\w|\(\w)/g, m => m.toUpperCase());
+};
+
 type SidebarType = 'rca' | 'impact' | 'remediation' | 'probable-cause' | null;
 
 const ITEMS_PER_PAGE = 10;
@@ -355,7 +363,7 @@ export default function Events() {
             {hasActiveFilters && (
               <Button variant="ghost" size="sm" onClick={clearFilters} className="gap-2">
                 <X className="h-4 w-4" />
-                ClearAll
+                Clear All
               </Button>
             )}
 
@@ -373,12 +381,11 @@ export default function Events() {
           <div className="overflow-x-auto">
             <div className="min-w-[1000px]">
               {/* Table Header */}
-              <div className="grid grid-cols-12 gap-4 px-4 py-2 bg-secondary/50 border-b border-border text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                <div className="col-span-2">EventIdAndDevice</div>
+              <div className="grid grid-cols-12 gap-4 px-4 py-2 bg-secondary/50 border-b border-border text-xs font-semibold text-muted-foreground tracking-wide">
+                <div className="col-span-2">Event Id And Device</div>
                 <div className="col-span-1">Severity</div>
-                <div className="col-span-3">EventMessage</div>
-                <div className="col-span-2">EventCode</div>
-                <div className="col-span-2">LabelAndCorrelation</div>
+                <div className="col-span-5">Event Message</div>
+                <div className="col-span-2">Event Code</div>
                 <div className="col-span-1">Timestamp</div>
                 <div className="col-span-1">Actions</div>
               </div>
@@ -419,36 +426,15 @@ export default function Events() {
                       </div>
 
                       {/* Message */}
-                      <div className="col-span-3 flex items-center py-1">
+                      <div className="col-span-5 flex items-center py-1">
                         <p className="text-sm text-muted-foreground break-words">{event.message}</p>
                       </div>
 
                       {/* Event Code */}
                       <div className="col-span-2 flex items-center">
                         <Badge variant="outline" className="font-mono text-[10px] py-1 px-3 break-all">
-                          {event.event_code}
+                          {formatLabel(event.event_code)}
                         </Badge>
-                      </div>
-
-                      {/* Label / Correlation */}
-                      <div className="col-span-2 flex flex-col justify-center gap-1 min-w-0">
-                        <Badge variant="outline" className={cn("gap-1 text-xs w-fit shrink-0", labelCfg.bg, labelCfg.border)}>
-                          <LabelIcon className={cn("h-3 w-3 shrink-0", labelCfg.color)} />
-                          <span className={labelCfg.color}>{labelCfg.label}</span>
-                        </Badge>
-                        {event.correlationLabels && event.correlationLabels.length > 0 && (
-                          <div className="flex flex-wrap gap-1 max-w-full">
-                            {event.correlationLabels.map(corr => (
-                              <span
-                                key={corr}
-                                title={corr}
-                                className="inline-block text-[9px] px-1.5 py-0.5 rounded font-medium bg-primary/10 text-primary border border-primary/20 truncate max-w-[120px]"
-                              >
-                                {corr}
-                              </span>
-                            ))}
-                          </div>
-                        )}
                       </div>
 
                       {/* Timestamp */}
@@ -469,7 +455,7 @@ export default function Events() {
                             }}
                           >
                             <Eye className="h-3 w-3" />
-                            RcaAndImpact
+                            RCA and Impact
                           </Button>
                         ) : (
                           <Button
@@ -480,7 +466,7 @@ export default function Events() {
                             title="RCA/Impact is only available for Root events"
                           >
                             <Eye className="h-3 w-3" />
-                            RcaAndImpact
+                            RCA and Impact
                           </Button>
                         )}
                       </div>
@@ -551,7 +537,7 @@ export default function Events() {
         {filteredEvents.length === 0 && (
           <div className="glass-card rounded-xl p-12 text-center">
             <Filter className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-foreground mb-2">NoEventsFound</h3>
+            <h3 className="text-lg font-semibold text-foreground mb-2">No Events Found</h3>
             <p className="text-muted-foreground mb-4">Try adjusting your filters or search query</p>
             <Button variant="outline" onClick={clearFilters}>Clear Filters</Button>
           </div>

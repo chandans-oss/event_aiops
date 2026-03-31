@@ -288,7 +288,7 @@ export function CorrelationExplorer() {
                                     </p>
                                 </div>
                             ) : (
-                                <div className="text-xs text-muted-foreground italic">Waiting for pattern match...</div>
+                                <div className="text-xs text-muted-foreground ">Waiting for pattern match...</div>
                             )}
                         </CardContent>
                     </Card>
@@ -318,7 +318,7 @@ export function CorrelationExplorer() {
                                     <Button size="sm" className="w-full mt-2 h-7 text-xs">View Incident #INC-LIVE-001</Button>
                                 </div>
                             ) : (
-                                <div className="text-xs text-muted-foreground italic">No active actions.</div>
+                                <div className="text-xs text-muted-foreground ">No active actions.</div>
                             )}
                         </CardContent>
                     </Card>

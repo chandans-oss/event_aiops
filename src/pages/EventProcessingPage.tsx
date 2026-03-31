@@ -11,7 +11,7 @@ export default function EventProcessingPage() {
           </div>
         </div>
         
-        <div className="min-h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-primary/10 rounded-2xl bg-card/20 text-muted-foreground italic">
+        <div className="min-h-[400px] flex flex-col items-center justify-center border-2 border-dashed border-primary/10 rounded-2xl bg-card/20 text-muted-foreground ">
           <p>The Event Processing workspace is currently under development.</p>
         </div>
       </div>

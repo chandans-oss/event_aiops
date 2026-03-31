@@ -50,12 +50,12 @@ const TrainingReportPage = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div>
-          <div className="flex items-center gap-2 text-[#3B82F6] mb-1.5 font-['IBM_Plex_Mono',monospace] text-[12px] font-bold tracking-[0.1em] uppercase">
+          <div className="flex items-center gap-2 text-[#3B82F6] mb-1.5 font-['IBM_Plex_Mono',monospace] text-[12px] font-bold tracking-[0.1em]">
             <FileText className="w-4 h-4" />
-            AnalyticalIntelligenceRegistry
+            Analytical Intelligence Registry
           </div>
           <h1 className="text-[32px] font-black tracking-[-0.03em] bg-gradient-to-r from-white via-white to-white/40 bg-clip-text text-transparent">
-            LovelableSystemReport
+            Lovelable System Report
           </h1>
           <p className="text-[#94A3B8] text-[14px]">Industry-standard audit for serialized model patterns and behavioral shifts.</p>
         </div>
@@ -67,14 +67,14 @@ const TrainingReportPage = () => {
             className="h-10 bg-[#1E293B]/40 border-[#334155] text-white hover:bg-[#334155] gap-2 rounded-xl"
           >
             <RotateCcw className="w-4 h-4" />
-            BackToTraining
+            Back To Training
           </Button>
           <Button 
             onClick={handleExportJSON}
             className="h-10 bg-[#3B82F6] hover:bg-[#2563EB] text-white gap-2 px-6 rounded-xl font-bold shadow-[0_0_20px_rgba(59,130,246,0.3)]"
           >
             <Download className="w-4 h-4" />
-            ExportRegistry
+            Export Registry
           </Button>
         </div>
       </div>
@@ -84,10 +84,10 @@ const TrainingReportPage = () => {
         <Tabs defaultValue="summary" className="w-full flex flex-col flex-1">
           <div className="border-b border-[#334155] bg-[#0F172A]/80 backdrop-blur-xl sticky top-0 z-20 px-4 flex items-center justify-between">
             <TabsList className="bg-transparent h-auto p-0 flex justify-start gap-2">
-              <TabsTrigger value="summary" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black uppercase tracking-[0.1em] transition-all">AuditSummary</TabsTrigger>
-              <TabsTrigger value="correlation" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black uppercase tracking-[0.1em] transition-all">CrossCorrelation</TabsTrigger>
-              <TabsTrigger value="granger" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black uppercase tracking-[0.1em] transition-all">GrangerCausality</TabsTrigger>
-              <TabsTrigger value="json" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black uppercase tracking-[0.1em] transition-all">JsonSchema</TabsTrigger>
+              <TabsTrigger value="summary" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black tracking-[0.1em] transition-all">Audit Summary</TabsTrigger>
+              <TabsTrigger value="correlation" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black tracking-[0.1em] transition-all">Cross Correlation</TabsTrigger>
+              <TabsTrigger value="granger" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black tracking-[0.1em] transition-all">Granger Causality</TabsTrigger>
+              <TabsTrigger value="json" className="px-6 py-5 data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-[#3B82F6] data-[state=active]:text-[#3B82F6] rounded-none border-b-2 border-transparent text-[#64748B] text-[12px] font-black tracking-[0.1em] transition-all">JSON Schema</TabsTrigger>
             </TabsList>
 
             <div className="hidden md:flex items-center gap-4 px-4">
@@ -109,8 +109,8 @@ const TrainingReportPage = () => {
                <Table>
                 <TableHeader className="bg-black/40 sticky top-0 z-10">
                   <TableRow className="border-[#334155] hover:bg-transparent">
-                    {['Device','Event','Metric','NormalMean','PreEventMean','DeltaPct','Occurrences','Performance'].map(h => (
-                      <TableHead key={h} className="text-[10px] font-black text-[#64748B] uppercase tracking-[0.2em] px-6 py-5">{h}</TableHead>
+                    {['Device','Event','Metric','Normal Mean','Pre Event Mean','Delta %','Occurrences','Performance'].map(h => (
+                      <TableHead key={h} className="text-[10px] font-black text-[#64748B] tracking-[0.2em] px-6 py-5">{h}</TableHead>
                     ))}
                   </TableRow>
                 </TableHeader>
@@ -120,7 +120,7 @@ const TrainingReportPage = () => {
                       <TableCell className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           {row.device_type === 'router' ? <NetworkIcon className="w-3.5 h-3.5 text-[#3B82F6]" /> : <Cpu className="w-3.5 h-3.5 text-[#10B981]" />}
-                          <span className="text-[11px] font-black text-white uppercase">{row.device_type}</span>
+                          <span className="text-[11px] font-black text-white">{row.device_type === 'router' ? 'Router' : 'Switch'}</span>
                         </div>
                       </TableCell>
                       <TableCell className="px-6 py-4">
@@ -164,18 +164,18 @@ const TrainingReportPage = () => {
                   <div key={type} className="animate-in fade-in slide-in-from-bottom-2 duration-500">
                     <div className="flex items-center gap-2 mb-6">
                       <Activity className="w-4 h-4 text-[#3B82F6]" />
-                      <h3 className="text-[14px] font-black text-white uppercase tracking-widest">{type} Shift-Lag Analysis</h3>
+                      <h3 className="text-[14px] font-black text-white tracking-widest">{type} Shift-Lag Analysis</h3>
                     </div>
                     <div className="space-y-4">
                       {Object.entries(metrics).map(([pair, data]: [string, any]) => (
                         <div key={pair} className="bg-black/30 border border-[#334155] rounded-[16px] p-5 hover:border-[#3B82F6]/50 transition-all font-['IBM_Plex_Mono',monospace]">
                           <div className="flex items-center justify-between mb-4">
-                            <span className="text-[11px] font-black text-white uppercase">{pair.replace('->', ' ➔ ')}</span>
+                            <span className="text-[11px] font-black text-white">{pair.replace('->', ' ➔ ')}</span>
                             <Badge className="bg-[#3B82F6]/10 text-[#3B82F6] text-[10px] font-black">LAG: {data.lag_min}m</Badge>
                           </div>
                           <div className="flex items-center gap-6">
                             <div className="flex-1">
-                              <div className="flex justify-between text-[9px] text-[#64748B] font-black tracking-widest uppercase mb-1.5">
+                              <div className="flex justify-between text-[9px] text-[#64748B] font-black tracking-widest mb-1.5">
                                 <span>Pearson-R</span>
                                 <span>Strength: {(data.pearson_r * 100).toFixed(0)}%</span>
                               </div>
@@ -184,7 +184,7 @@ const TrainingReportPage = () => {
                               </div>
                             </div>
                             <div className="text-right">
-                              <div className="text-[9px] text-[#64748B] font-black uppercase">Spearman</div>
+                              <div className="text-[9px] text-[#64748B] font-black">Spearman</div>
                               <div className="text-[14px] font-black text-white">{data.spearman_r.toFixed(3)}</div>
                             </div>
                           </div>
@@ -200,7 +200,7 @@ const TrainingReportPage = () => {
                <div className="max-w-4xl">
                  <div className="flex items-center gap-2 mb-8">
                   <Target className="w-4 h-4 text-[#EF4444]" />
-                  <h3 className="text-[14px] font-black text-white uppercase tracking-widest">Statistical Causality Registry</h3>
+                  <h3 className="text-[14px] font-black text-white tracking-widest">Statistical Causality Registry</h3>
                 </div>
                 <div className="grid grid-cols-1 gap-3">
                   {Object.entries(trainingJsonReport.granger).map(([type, tests]) => (
@@ -211,8 +211,8 @@ const TrainingReportPage = () => {
                             <NetworkIcon className="w-5 h-5" />
                           </div>
                           <div>
-                            <div className="text-[12px] font-black text-white uppercase mb-0.5">{type} · {pair.replace('->', ' ➔ ')}</div>
-                            <div className="flex items-center gap-2 text-[10px] text-[#64748B] font-bold uppercase">
+                            <div className="text-[12px] font-black text-white mb-0.5">{type} · {pair.replace('->', ' ➔ ')}</div>
+                            <div className="flex items-center gap-2 text-[10px] text-[#64748B] font-bold">
                               <CheckCircle2 className="w-3 h-3 text-[#10B981]" />
                               Significance Verified
                             </div>
@@ -220,11 +220,11 @@ const TrainingReportPage = () => {
                         </div>
                         <div className="flex items-center gap-12">
                           <div className="text-right">
-                            <div className="text-[9px] text-[#64748B] font-black uppercase tracking-widest">F-Statistic</div>
+                            <div className="text-[9px] text-[#64748B] font-black tracking-widest">F Statistic</div>
                             <div className="text-[16px] font-black text-white">{data.f_stat.toFixed(4)}</div>
                           </div>
                           <div className="text-right pr-4">
-                            <div className="text-[9px] text-[#64748B] font-black uppercase tracking-widest">P-Value</div>
+                            <div className="text-[9px] text-[#64748B] font-black tracking-widest">P Value</div>
                             <div className="text-[16px] font-black text-[#3B82F6]">{data.p_value.toFixed(4)}</div>
                           </div>
                           <ChevronRight className="w-5 h-5 text-[#1E293B] group-hover:text-[#3B82F6]" />
@@ -250,11 +250,11 @@ const TrainingReportPage = () => {
        {/* Footer / Meta */}
        <div className="mt-8 flex items-center justify-between text-[#475569] text-[10px] font-black uppercase tracking-[0.2em] px-2">
         <div className="flex items-center gap-6">
-          <span>REGISTRY_ID: CRT-882-X</span>
-          <span>TIMESTAMP: {new Date().toISOString()}</span>
-          <span>AUDITOR: ANTIGRAVITY AI v2.0</span>
+          <span>Registry ID: CRT-882-X</span>
+          <span>Timestamp: {new Date().toISOString()}</span>
+          <span>Auditor: Antigravity AI v2.0</span>
         </div>
-        <div className="text-[#3B82F6] animate-pulse">AUTHENTICATED ANALYTICAL REGISTRY</div>
+        <div className="text-[#3B82F6] animate-pulse">Authenticated Analytical Registry</div>
       </div>
 
       <style>{`

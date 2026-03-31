@@ -45,7 +45,7 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                        AI Behavioral Analytics Correlator
+                        Correlation Patterns
                     </h1>
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -65,14 +65,14 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                 <Table>
                     <TableHeader className="bg-muted/50">
                         <TableRow>
-                            <TableHead className="w-[180px] text-[12px] font-bold uppercase text-muted-foreground/60">Pattern Name</TableHead>
-                            <TableHead className="w-[450px] text-[12px] font-bold uppercase text-muted-foreground/60">Details</TableHead>
-                            <TableHead className="text-[12px] font-bold uppercase text-muted-foreground/60">Domain</TableHead>
-                            <TableHead className="text-[12px] font-bold uppercase text-muted-foreground/60 whitespace-nowrap">Rule Creation Date</TableHead>
-                            <TableHead className="text-[12px] font-bold uppercase text-muted-foreground/60">Confidence</TableHead>
-                            <TableHead className="text-[12px] font-bold uppercase text-muted-foreground/60">Occurrences</TableHead>
-                            <TableHead className="text-[12px] font-bold uppercase text-muted-foreground/60">Last Seen</TableHead>
-                            <TableHead className="text-right text-[12px] font-bold uppercase text-muted-foreground/60">Active</TableHead>
+                            <TableHead className="w-[180px] text-[12px] font-bold text-foreground/80">Pattern Name</TableHead>
+                            <TableHead className="w-[450px] text-[12px] font-bold text-foreground/80">Details</TableHead>
+                            <TableHead className="text-[12px] font-bold text-foreground/80">Domain</TableHead>
+                            <TableHead className="text-[12px] font-bold text-foreground/80 whitespace-nowrap">Rule Creation Date</TableHead>
+                            <TableHead className="text-[12px] font-bold text-foreground/80">Confidence</TableHead>
+                            <TableHead className="text-[12px] font-bold text-foreground/80">Occurrences</TableHead>
+                            <TableHead className="text-[12px] font-bold text-foreground/80">Last Seen</TableHead>
+                            <TableHead className="text-right text-[12px] font-bold text-foreground/80">Active</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>

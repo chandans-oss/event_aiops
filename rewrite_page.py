@@ -147,7 +147,7 @@ export default function TrainingAnalysisPage() {
                 <BrainCircuit className="h-3 w-3 text-orange-500/60" />
                 Training Core / v3.4 Alpha
               </div>
-              <h1 className="text-xl font-black uppercase italic tracking-tighter text-white leading-none">
+              <h1 className="text-xl font-black uppercase tracking-tighter text-white leading-none">
                 {PIPELINE_STEPS[stepIdx]?.name} <span className="text-muted-foreground/30 ml-2">— Live Analysis</span>
               </h1>
             </div>
@@ -190,7 +190,7 @@ export default function TrainingAnalysisPage() {
 
               <Card className="p-6 bg-[#0a0a0a]/80 border-white/5 space-y-6 shadow-2xl overflow-hidden relative group">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-500/50 via-amber-500/50 to-orange-500/50 opacity-20 group-hover:opacity-100 transition-opacity duration-700" />
-                <h3 className="text-[10px] font-black uppercase opacity-30 italic text-muted-foreground">75-Minute Temporal Windows</h3>
+                 <h3 className="text-[10px] font-black uppercase opacity-30 text-muted-foreground">75-Minute Temporal Windows</h3>
 
                 <div className="space-y-4">
                   {BATCHES.map((batch, i) => (
@@ -221,7 +221,7 @@ export default function TrainingAnalysisPage() {
 
             {/* Algorithm Pipeline List */}
             <section className="flex-1 flex flex-col gap-4 min-h-0">
-              <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-orange-500/80 flex items-center gap-3 italic">
+               <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-orange-500/80 flex items-center gap-3">
                 <Workflow className="h-4 w-4" />
                 Algorithmic Engine Pipeline
               </h2>
@@ -305,7 +305,7 @@ export default function TrainingAnalysisPage() {
                         <Play className="h-10 w-10 text-orange-500 fill-orange-500/20 ml-1.5" />
                       </div>
                     </div>
-                    <h3 className="mt-8 text-xs font-black uppercase tracking-[0.4em] text-white/40 italic">System Ready</h3>
+                     <h3 className="mt-8 text-xs font-black uppercase tracking-[0.4em] text-white/40">System Ready</h3>
                     <p className="mt-2 text-[10px] text-white/20 font-bold uppercase tracking-widest">Awaiting algorithmic trigger...</p>
                   </div>
                 )}

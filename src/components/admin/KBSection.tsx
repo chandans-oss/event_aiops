@@ -14,7 +14,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 function escapePlaceholders(md: string): string {
-    return md.replace(/<([a-zA-Z][a-zA-Z0-9_-]*)>/g, (_, tag) => `\`<${tag}>\``);
+  return md.replace(/<([a-zA-Z][a-zA-Z0-9_-]*)>/g, (_, tag) => `\`<${tag}>\``);
 }
 
 type ViewLevel = 'categories' | 'subcategories' | 'articles';
@@ -105,7 +105,7 @@ export function KBSection() {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-bold text-foreground">
-                {viewLevel === 'categories' && 'KnowledgeBase'}
+                {viewLevel === 'categories' && 'Knowledge Base'}
                 {viewLevel === 'subcategories' && selectedCategory?.name}
                 {viewLevel === 'articles' && selectedSubcategory}
               </h1>
@@ -127,12 +127,12 @@ export function KBSection() {
             <DialogTrigger asChild>
               <Button className="gap-2 gradient-primary">
                 <Plus className="h-4 w-4" />
-                AddArticle
+                Add Article
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>CreateKbArticle</DialogTitle>
+                <DialogTitle>Create KB Article</DialogTitle>
               </DialogHeader>
               <KBArticleForm
                 category={selectedCategory?.name}
@@ -149,7 +149,7 @@ export function KBSection() {
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="SearchArticles"
+            placeholder="Search Articles"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -174,8 +174,8 @@ export function KBSection() {
               </div>
               <h3 className="text-lg font-semibold text-foreground mb-1">{category.name}</h3>
               <p className="text-sm text-muted-foreground mb-3">
-                {mockKBArticlesEnhanced.filter(a => 
-                  category.subcategories.includes(a.category) || 
+                {mockKBArticlesEnhanced.filter(a =>
+                  category.subcategories.includes(a.category) ||
                   category.subcategories.includes(a.subcategory)
                 ).length} articles
               </p>
@@ -231,11 +231,11 @@ export function KBSection() {
           {filteredArticles.length === 0 ? (
             <div className="col-span-full glass-card rounded-xl p-12 text-center">
               <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-foreground mb-2">NoArticlesFound</h3>
-              <p className="text-muted-foreground mb-4">CreateFirstKbArticleForCategory</p>
+              <h3 className="text-lg font-semibold text-foreground mb-2">No Articles Found</h3>
+              <p className="text-muted-foreground mb-4">Create first KB article for category</p>
               <Button className="gap-2 gradient-primary" onClick={() => setIsCreateDialogOpen(true)}>
                 <Plus className="h-4 w-4" />
-                AddArticle
+                Add Article
               </Button>
             </div>
           ) : (
@@ -262,7 +262,7 @@ export function KBSection() {
       <Dialog open={!!selectedArticle} onOpenChange={(open) => !open && setSelectedArticle(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>EditKbArticle</DialogTitle>
+            <DialogTitle>Edit KB Article</DialogTitle>
           </DialogHeader>
           {selectedArticle && (
             <KBArticleForm article={selectedArticle} onClose={() => setSelectedArticle(null)} />
@@ -286,23 +286,23 @@ export function KBSection() {
                 <Star className="h-4 w-4 text-severity-medium" />
                 <span className="text-sm">{viewingArticle.effectiveness}% effectiveness</span>
               </div>
-                <ReactMarkdown 
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                        h3: ({node, ...props}) => <h3 className="text-primary font-bold uppercase tracking-widest mt-4 mb-2 text-[10px]" {...props} />,
-                        ul: ({node, ...props}) => <ul className="space-y-1 my-2 list-none pl-0 font-sans" {...props} />,
-                        li: ({node, ...props}) => (
-                            <li className="flex items-start gap-2 text-[11px] bg-white/5 p-1.5 rounded-lg border border-white/5" {...props}>
-                                <div className="h-1 w-1 rounded-full bg-primary mt-1.5 shrink-0" />
-                                <span>{props.children}</span>
-                            </li>
-                        ),
-                        p: ({node, ...props}) => <p className="leading-relaxed text-[11px] opacity-80 font-sans" {...props} />,
-                        code: ({node, ...props}) => <code className="bg-black/50 px-1.5 py-0.5 rounded font-mono text-[10px] text-blue-400" {...props} />
-                    }}
-                >
-                    {escapePlaceholders(viewingArticle.content)}
-                </ReactMarkdown>
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  h3: ({ node, ...props }) => <h3 className="text-primary font-bold tracking-widest mt-4 mb-2 text-[10px]" {...props} />,
+                  ul: ({ node, ...props }) => <ul className="space-y-1 my-2 list-none pl-0 font-sans" {...props} />,
+                  li: ({ node, ...props }) => (
+                    <li className="flex items-start gap-2 text-[11px] bg-white/5 p-1.5 rounded-lg border border-white/5" {...props}>
+                      <div className="h-1 w-1 rounded-full bg-primary mt-1.5 shrink-0" />
+                      <span>{props.children}</span>
+                    </li>
+                  ),
+                  p: ({ node, ...props }) => <p className="leading-relaxed text-[11px] opacity-80 font-sans" {...props} />,
+                  code: ({ node, ...props }) => <code className="bg-black/50 px-1.5 py-0.5 rounded font-mono text-[10px] text-blue-400" {...props} />
+                }}
+              >
+                {escapePlaceholders(viewingArticle.content)}
+              </ReactMarkdown>
               <div>
                 <h4 className="text-sm font-semibold mb-2">Tags</h4>
                 <div className="flex flex-wrap gap-1">
@@ -464,7 +464,7 @@ function KBArticleForm({
       <div className="flex justify-end gap-3 pt-4 border-t border-border/50">
         <Button variant="outline" onClick={onClose}>Cancel</Button>
         <Button className="gradient-primary" onClick={onClose}>
-          {article ? 'UpdateArticle' : 'CreateArticle'}
+          {article ? 'Update Article' : 'Create Article'}
         </Button>
       </div>
     </div>

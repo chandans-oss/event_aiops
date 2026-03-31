@@ -50,7 +50,7 @@ export function RCASidebar({ cluster, selectedCauseId, onClose, onOpenRemediatio
           </div>
           <div>
             <h2 className="text-xl font-bold text-foreground">Root Cause Analysis</h2>
-            <p className="text-sm text-muted-foreground font-mono">{cluster.id} • {clusterData.rcaMetadata.rootEventType.replace(/_/g, ' ')}</p>
+            <p className="text-[15px] text-muted-foreground font-mono">{cluster.id} • {clusterData.rcaMetadata.rootEventType.replace(/_/g, ' ')}</p>
           </div>
         </div>
 
@@ -66,25 +66,25 @@ export function RCASidebar({ cluster, selectedCauseId, onClose, onOpenRemediatio
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Column 1: Incident Meta Data */}
             <div className="lg:col-span-1 space-y-4 border-r border-border/50 pr-4">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Incident Details</h3>
+              <h3 className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wider">Incident Details</h3>
               <div className="grid grid-cols-2 gap-y-4 gap-x-2">
                 <div>
-                  <span className="text-[10px] text-muted-foreground block">Event ID</span>
-                  <span className="text-xs font-mono font-medium text-foreground">{cluster.id}</span>
+                  <span className="text-[11px] text-muted-foreground block">Event ID</span>
+                  <span className="text-[13px] font-mono font-medium text-foreground">{cluster.id}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-muted-foreground block">Detect Time</span>
-                  <span className="text-xs font-mono font-medium text-foreground">{new Date(clusterData.rcaMetadata.timestamp).toLocaleTimeString()}</span>
+                  <span className="text-[11px] text-muted-foreground block">Detect Time</span>
+                  <span className="text-[13px] font-mono font-medium text-foreground">{new Date(clusterData.rcaMetadata.timestamp).toLocaleTimeString()}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-muted-foreground block">Severity</span>
+                  <span className="text-[11px] text-muted-foreground block">Severity</span>
                   <Badge variant={clusterData.rcaMetadata.severity === 'Critical' ? 'destructive' : 'default'} className="uppercase text-[9px] h-4">
                     {clusterData.rcaMetadata.severity}
                   </Badge>
                 </div>
                 <div>
-                  <span className="text-[10px] text-muted-foreground block">Confidence</span>
-                  <span className="text-xs font-mono font-medium text-primary">{(cluster.rca?.confidence || 0.95) * 100}%</span>
+                  <span className="text-[11px] text-muted-foreground block">Confidence</span>
+                  <span className="text-[13px] font-mono font-medium text-primary">{(cluster.rca?.confidence || 0.95) * 100}%</span>
                 </div>
               </div>
             </div>
@@ -92,8 +92,8 @@ export function RCASidebar({ cluster, selectedCauseId, onClose, onOpenRemediatio
             {/* Column 2: Issue Summary & Remediation (Combined) */}
             <div className="lg:col-span-2 flex flex-col justify-between pl-2">
               <div>
-                <h4 className="text-base font-bold text-foreground mb-1">{clusterData.remedyTitle || 'Apply Strategic Remediation'}</h4>
-                <p className="text-xs text-muted-foreground leading-relaxed max-w-2xl">
+                <h4 className="text-[17px] font-bold text-foreground mb-1">{clusterData.remedyTitle || 'Apply Strategic Remediation'}</h4>
+                <p className="text-[13px] text-muted-foreground leading-relaxed max-w-2xl">
                   <span className="font-semibold text-foreground">Diagnosis:</span> {clusterData.rcaSummary}
                   <br />
                   <span className="font-semibold text-foreground mt-1 inline-block">Action:</span> {clusterData.remediationSteps?.[0]?.description || 'Initiate standard recovery protocols.'}
@@ -115,11 +115,11 @@ export function RCASidebar({ cluster, selectedCauseId, onClose, onOpenRemediatio
         <Tabs value={currentTab} onValueChange={setCurrentTab} className="p-4 pt-2">
           <div className="border-b border-border bg-background sticky top-0 z-10 -mx-4 px-4 mb-4">
             <TabsList className="h-12 w-full grid grid-cols-5 bg-transparent p-0">
-              <TabsTrigger value="summary" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">RCA Summary</TabsTrigger>
-              <TabsTrigger value="correlated" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">Correlated Events</TabsTrigger>
-              <TabsTrigger value="impact" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">Impact Analysis</TabsTrigger>
-              <TabsTrigger value="evidence" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">Data Evidence</TabsTrigger>
-              <TabsTrigger value="analytics" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-xs">Event Analytics</TabsTrigger>
+              <TabsTrigger value="summary" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-[13px]">RCA Summary</TabsTrigger>
+              <TabsTrigger value="correlated" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-[13px]">Correlated Events</TabsTrigger>
+              <TabsTrigger value="impact" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-[13px]">Impact Analysis</TabsTrigger>
+              <TabsTrigger value="evidence" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-[13px]">Data Evidence</TabsTrigger>
+              <TabsTrigger value="analytics" className="data-[state=active]:bg-background data-[state=active]:shadow-sm data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none border-b-2 border-transparent px-4 py-2 text-[13px]">Event Analytics</TabsTrigger>
             </TabsList>
           </div>
 

@@ -23,7 +23,8 @@ import {
   Settings,
   Plus,
   ChevronDown,
-  RotateCcw
+  RotateCcw,
+  Server
 } from "lucide-react";
 
 const CONFIG_FUNCTIONS = [
@@ -703,7 +704,8 @@ const PATTERNS_DATA = {
       confidence: 0.98,
       occurrences: 231,
       lastSeen: "12 min ago",
-      severity: "critical"
+      severity: "critical",
+      domain: "Network"
     },
     {
       id: "R-FC-02",
@@ -739,7 +741,8 @@ const PATTERNS_DATA = {
       confidence: 0.96,
       occurrences: 277,
       lastSeen: "2 hours ago",
-      severity: "critical"
+      severity: "critical",
+      domain: "Network"
     },
     {
       id: "R-FC-04",
@@ -757,7 +760,8 @@ const PATTERNS_DATA = {
       confidence: 0.92,
       occurrences: 493,
       lastSeen: "5 min ago",
-      severity: "warning"
+      severity: "warning",
+      domain: "Network"
     },
     {
       id: "R-ES-01",
@@ -768,7 +772,8 @@ const PATTERNS_DATA = {
       confidence: 1.00,
       occurrences: 28,
       lastSeen: "18 min ago",
-      severity: "critical"
+      severity: "critical",
+      domain: "Network"
     },
     {
       id: "R-ES-02",
@@ -779,7 +784,8 @@ const PATTERNS_DATA = {
       confidence: 0.93,
       occurrences: 26,
       lastSeen: "4 min ago",
-      severity: "warning"
+      severity: "warning",
+      domain: "Network"
     },
     {
       id: "R-ES-03",
@@ -790,7 +796,8 @@ const PATTERNS_DATA = {
       confidence: 0.72,
       occurrences: 21,
       lastSeen: "1 hour ago",
-      severity: "warning"
+      severity: "warning",
+      domain: "Network"
     },
     {
       id: "R-ES-04",
@@ -801,7 +808,8 @@ const PATTERNS_DATA = {
       confidence: 0.71,
       occurrences: 20,
       lastSeen: "30 min ago",
-      severity: "warning"
+      severity: "warning",
+      domain: "Network"
     }
   ],
   switches: [
@@ -821,7 +829,8 @@ const PATTERNS_DATA = {
       confidence: 0.88,
       occurrences: 2,
       lastSeen: "2 days ago",
-      severity: "critical"
+      severity: "critical",
+      domain: "Data Center"
     },
     {
       id: "S-FC-02",
@@ -840,7 +849,8 @@ const PATTERNS_DATA = {
       confidence: 0.91,
       occurrences: 207,
       lastSeen: "12 min ago",
-      severity: "warning"
+      severity: "warning",
+      domain: "Data Center"
     },
     {
       id: "S-FC-03",
@@ -858,8 +868,9 @@ const PATTERNS_DATA = {
       date: "Mar 12, 2026",
       confidence: 0.95,
       occurrences: 146,
-      lastSeen: "1 hour ago",
-      severity: "critical"
+      lastSeen: "2 hours ago",
+      severity: "critical",
+      domain: "Data Center"
     },
     {
       id: "S-FC-04",
@@ -878,7 +889,8 @@ const PATTERNS_DATA = {
       confidence: 0.93,
       occurrences: 239,
       lastSeen: "3 hours ago",
-      severity: "warning"
+      severity: "warning",
+      domain: "Data Center"
     },
     {
       id: "S-ES-01",
@@ -889,7 +901,8 @@ const PATTERNS_DATA = {
       confidence: 0.89,
       occurrences: 24,
       lastSeen: "45 min ago",
-      severity: "warning"
+      severity: "warning",
+      domain: "Data Center"
     },
     {
       id: "S-ES-02",
@@ -900,7 +913,8 @@ const PATTERNS_DATA = {
       confidence: 0.80,
       occurrences: 8,
       lastSeen: "2 hours ago",
-      severity: "warning"
+      severity: "warning",
+      domain: "Data Center"
     },
     {
       id: "S-ES-03",
@@ -911,7 +925,8 @@ const PATTERNS_DATA = {
       confidence: 0.06,
       occurrences: 2,
       lastSeen: "10 min ago",
-      severity: "critical"
+      severity: "critical",
+      domain: "Data Center"
     },
     {
       id: "S-ES-04",
@@ -922,23 +937,22 @@ const PATTERNS_DATA = {
       confidence: 0.06,
       occurrences: 2,
       lastSeen: "15 min ago",
-      severity: "critical"
+      severity: "critical",
+      domain: "Data Center"
     }
   ]
 };
 
-export default function PatternPage() {
+export function PatternPredictionContent({ onSectionChange }: { onSectionChange?: (section: any) => void }) {
   const allPatterns = [...PATTERNS_DATA.routers, ...PATTERNS_DATA.switches];
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
-  
+
   const totalPages = Math.ceil(allPatterns.length / itemsPerPage);
   const currentPatterns = allPatterns.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
-
 
   const renderDetails = (item: any) => {
     if (item.type === "Metrics Pattern") {
@@ -960,10 +974,10 @@ export default function PatternPage() {
           ))}
           <span className="text-muted-foreground/30 mx-0.5">→</span>
           <span className={cn(
-            "text-[10px] font-bold uppercase tracking-tight px-1 rounded",
+            "text-[10px] font-bold tracking-tight px-1 rounded",
             item.severity === "critical" ? "bg-rose-500/10 text-rose-500" : "bg-amber-500/10 text-amber-500"
           )}>
-            {item.event}
+            {item.event.split('_').map((word: string) => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
           </span>
         </div>
       );
@@ -976,9 +990,9 @@ export default function PatternPage() {
               "text-[9px] font-bold px-1.5 py-0.5 rounded border whitespace-nowrap",
               idx === item.sequence.length - 1
                 ? "bg-primary/20 border-primary/40 text-primary"
-                : "bg-muted/50 border-border/50 text-muted-foreground"
+                : "bg-muted/50 border-border/50 text-foreground/70"
             )}>
-              {ev}
+              {ev.split('_').map((word: string) => word.charAt(0) + word.slice(1).toLowerCase()).join(' ')}
             </span>
             {idx < item.sequence.length - 1 && (
               <span className="text-muted-foreground/30">→</span>
@@ -1013,41 +1027,13 @@ export default function PatternPage() {
   };
 
   return (
-    <MainLayout>
-      <div className="p-8 space-y-8 animate-in fade-in duration-500">
+    <div className="p-4 space-y-4 animate-in fade-in duration-500">
         <div className="flex items-center justify-between border-b pb-6 mb-8">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Pattern Workspace</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
-            </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-card/40 border border-primary/20 rounded-lg px-3 py-1">
-              <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Page {currentPage} Of {totalPages}</span>
-              <div className="flex items-center gap-1 ml-2 border-l border-primary/10 pl-2">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-6 w-6 hover:bg-primary/10"
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage(prev => prev - 1)}
-                >
-                  <ChevronLeft className="h-3 w-3" />
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  className="h-6 w-6 hover:bg-primary/10"
-                  disabled={currentPage === totalPages}
-                  onClick={() => setCurrentPage(prev => prev + 1)}
-                >
-                  <ChevronRight className="h-3 w-3" />
-                </Button>
-              </div>
-            </div>
-
 
             <Sheet>
               <SheetTrigger asChild>
@@ -1074,13 +1060,13 @@ export default function PatternPage() {
                       <TabsList className="h-14 bg-transparent gap-8 p-0">
                         <TabsTrigger
                           value="procedures"
-                          className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-2 text-[11px] font-bold uppercase tracking-widest"
+                          className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-2 text-[11px] font-bold tracking-widest"
                         >
                           Process Procedures
                         </TabsTrigger>
                         <TabsTrigger
                           value="configurations"
-                          className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-2 text-[11px] font-bold uppercase tracking-widest"
+                          className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent rounded-none px-2 text-[11px] font-bold tracking-widest"
                         >
                           Configurations
                         </TabsTrigger>
@@ -1112,20 +1098,19 @@ export default function PatternPage() {
 
                       <TabsContent value="configurations" className="mt-0 h-full overflow-y-auto">
                         <div className="space-y-6 pb-20">
-                          {/* Consolidated Score */}
                           <div className="p-5 bg-gradient-to-br from-primary/10 via-background to-background border border-primary/20 rounded-2xl flex items-center justify-between shadow-2xl relative overflow-hidden group">
                             <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                             <div className="relative z-10">
-                              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-primary mb-2 flex items-center gap-2">
+                              <h4 className="text-[10px] font-black tracking-[0.3em] text-primary mb-2 flex items-center gap-2">
                                 <Settings className="h-3 w-3 animate-[spin_4s_linear_infinite]" />
                                 Global Model Confidence
                               </h4>
-                              <p className="text-[9px] text-muted-foreground uppercase font-bold tracking-widest opacity-60">System-wide reliability threshold</p>
+                              <p className="text-[9px] text-foreground/80 font-bold tracking-widest opacity-60">System-wide Reliability Threshold</p>
                             </div>
                             <div className="flex items-center gap-5 relative z-10">
                               <div className="text-right">
                                 <span className="text-3xl font-black text-emerald-500 tabular-nums tracking-tighter shadow-sm">94.8%</span>
-                                <div className="text-[9px] font-black text-emerald-500/60 uppercase tracking-tighter mt-1">Optimal State</div>
+                                <div className="text-[9px] font-black text-emerald-500/60 tracking-tighter mt-1">Optimal State</div>
                               </div>
                               <div className="h-10 w-10 rounded-full border-[3px] border-emerald-500/20 border-t-emerald-500 animate-[spin_2s_linear_infinite] shadow-lg shadow-emerald-500/10" />
                             </div>
@@ -1138,7 +1123,7 @@ export default function PatternPage() {
                                   <div className="flex items-center justify-between">
                                     <div className="space-y-1">
                                       <div className="flex items-center gap-2">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-foreground group-hover:text-primary transition-colors">{fn.name}</span>
+                                        <span className="text-[10px] font-black tracking-widest text-foreground group-hover:text-primary transition-colors">{fn.name}</span>
                                         <Badge variant="secondary" className="text-[8px] h-4 px-1 opacity-60 font-mono">{fn.version}</Badge>
                                       </div>
                                       <div className="flex items-center gap-3">
@@ -1148,11 +1133,11 @@ export default function PatternPage() {
                                             activeConfigs[fn.id] ? "bg-emerald-500" : "bg-muted-foreground/40"
                                           )} />
                                           <span className={cn(
-                                            "text-[9px] font-black tracking-widest uppercase",
+                                            "text-[9px] font-black tracking-widest",
                                             activeConfigs[fn.id] ? "text-emerald-500/80" : "text-muted-foreground/40"
                                           )}>{activeConfigs[fn.id] ? "Active" : "Disabled"}</span>
                                         </div>
-                                        <Badge variant="outline" className={cn("text-[9px] h-4 px-1.5 border font-black uppercase tracking-tighter", getConfidenceColor(fn.confidence))}>
+                                        <Badge variant="outline" className={cn("text-[9px] h-4 px-1.5 border font-black tracking-tighter", getConfidenceColor(fn.confidence))}>
                                           {fn.confidence}% Conf.
                                         </Badge>
                                       </div>
@@ -1177,7 +1162,7 @@ export default function PatternPage() {
                                   {fn.hasModels && (
                                     <Accordion type="single" collapsible className="w-full">
                                       <AccordionItem value="models" className="border-none">
-                                        <AccordionTrigger className="py-0 text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors hover:no-underline">
+                                        <AccordionTrigger className="py-0 text-[9px] font-black tracking-widest text-foreground hover:text-primary transition-colors hover:no-underline">
                                           Toggle Pkl Models
                                         </AccordionTrigger>
                                         <AccordionContent className="pt-4 space-y-2">
@@ -1233,8 +1218,8 @@ export default function PatternPage() {
                                 <Plus className="h-6 w-6 text-primary" />
                               </div>
                               <div className="text-center relative z-10">
-                                <span className="text-[11px] font-black uppercase tracking-[0.2em] text-primary block mb-1">Byoa Portal</span>
-                                <p className="text-[8px] text-muted-foreground uppercase font-black tracking-widest opacity-60">Bring Your Own Algorithm</p>
+                                <span className="text-[11px] font-black tracking-[0.2em] text-primary block mb-1">Byoa Portal</span>
+                                <p className="text-[8px] text-foreground/80 font-black tracking-widest opacity-60">Bring Your Own Algorithm</p>
                               </div>
                             </Card>
                           </div>
@@ -1253,13 +1238,14 @@ export default function PatternPage() {
             <table className="w-full text-left border-collapse min-w-[1200px]">
               <thead>
                 <tr className="border-b border-border bg-muted/20">
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[220px]">Pattern Name</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Details</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[180px]">Rule Creation Date</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[120px]">Confidence</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[140px]">Occurrences</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[150px]">Last Seen</th>
-                  <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground w-[80px]">Active</th>
+                  <th className="px-6 py-4 text-[10px] font-bold tracking-wider text-foreground w-[220px]">Pattern Name</th>
+                  <th className="px-6 py-4 text-[10px] font-bold tracking-wider text-foreground">Details</th>
+                  <th className="px-6 py-4 text-[10px] font-bold tracking-wider text-foreground w-[150px]">Domain</th>
+                  <th className="px-6 py-4 text-[10px] font-bold tracking-wider text-foreground w-[180px]">Rule Creation Date</th>
+                  <th className="px-6 py-4 text-[10px] font-bold tracking-wider text-foreground w-[120px]">Confidence</th>
+                  <th className="px-6 py-4 text-[10px] font-bold tracking-wider text-foreground w-[140px]">Occurrences</th>
+                  <th className="px-6 py-4 text-[10px] font-bold tracking-wider text-foreground w-[150px]">Last Seen</th>
+                  <th className="px-6 py-4 text-[10px] font-bold tracking-wider text-foreground w-[80px]">Active</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50">
@@ -1270,7 +1256,7 @@ export default function PatternPage() {
                         <span className="text-[11px] font-bold text-foreground group-hover:text-primary transition-colors">{item.name}</span>
                         <div className="flex items-center gap-2">
                           <Badge variant="outline" className={cn(
-                            "text-[8px] font-bold uppercase tracking-widest h-4 px-1 border-none",
+                            "text-[8px] font-bold tracking-widest h-4 px-1 border-none",
                             item.type === "Metrics Pattern" ? "bg-blue-500/10 text-blue-400" : "bg-purple-500/10 text-purple-400"
                           )}>
                             {item.type}
@@ -1285,7 +1271,13 @@ export default function PatternPage() {
                     <td className="px-6 py-5">
                       {renderDetails(item)}
                     </td>
-                    <td className="px-6 py-5 text-muted-foreground">
+                    <td className="px-6 py-5">
+                      <div className="flex items-center gap-2 text-foreground/80">
+                        {item.domain === 'Network' ? <Globe className="h-3 w-3 text-primary/60" /> : <Server className="h-3 w-3 text-primary/60" />}
+                        <span className="text-[10px] font-bold tracking-tight">{item.domain}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-5 text-foreground/70">
                       <div className="flex items-center gap-2">
                         <Calendar className="h-3 w-3 opacity-50" />
                         <span className="text-[10px]">{item.date}</span>
@@ -1296,7 +1288,7 @@ export default function PatternPage() {
                         <DonutProgress value={item.confidence * 100} size={32} strokeWidth={3} />
                         <div className="flex flex-col">
                           <span className={cn(
-                            "text-[10px] font-black uppercase tracking-tight",
+                            "text-[10px] font-black tracking-tight",
                             (item.confidence * 100) >= 90 ? "text-rose-500" :
                               (item.confidence * 100) >= 80 ? "text-amber-500" :
                                 "text-emerald-500"
@@ -1329,19 +1321,19 @@ export default function PatternPage() {
           </div>
 
           <div className="flex items-center justify-between px-6 py-4 border-t border-border bg-muted/10">
-            <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+            <div className="text-[11px] font-semibold text-foreground tracking-wider">
               Showing <span className="text-foreground">{currentPatterns.length}</span> of <span className="text-foreground">{allPatterns.length}</span> Patterns
             </div>
             <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className={cn("h-8 px-3 gap-1.5", currentPage === 1 && "opacity-50 cursor-not-allowed")}
                 disabled={currentPage === 1}
                 onClick={() => setCurrentPage(prev => prev - 1)}
               >
                 <ChevronLeft className="h-4 w-4" />
-                <span className="text-[10px] font-bold uppercase">Prev</span>
+                <span className="text-[10px] font-bold">Prev</span>
               </Button>
               <div className="flex items-center gap-1 mx-2">
                 {Array.from({ length: totalPages }).map((_, i) => (
@@ -1351,7 +1343,7 @@ export default function PatternPage() {
                     size="sm"
                     className={cn(
                       "h-8 w-8 p-0 text-[11px] font-bold",
-                      currentPage === i + 1 ? "bg-primary/10 text-primary border border-primary/20" : "text-muted-foreground opacity-60 hover:opacity-100"
+                      currentPage === i + 1 ? "bg-primary/10 text-primary border border-primary/20" : "text-foreground opacity-60 hover:opacity-100"
                     )}
                     onClick={() => setCurrentPage(i + 1)}
                   >
@@ -1359,20 +1351,27 @@ export default function PatternPage() {
                   </Button>
                 ))}
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className={cn("h-8 px-3 gap-1.5", currentPage === totalPages && "opacity-50 cursor-not-allowed")}
                 disabled={currentPage === totalPages}
                 onClick={() => setCurrentPage(prev => prev + 1)}
               >
-                <span className="text-[10px] font-bold uppercase">Next</span>
+                <span className="text-[10px] font-bold">Next</span>
                 <ChevronRight className="h-4 w-4" />
               </Button>
             </div>
           </div>
-        </div>
       </div>
+    </div>
+  );
+}
+
+export default function PatternPage() {
+  return (
+    <MainLayout>
+      <PatternPredictionContent />
     </MainLayout>
   );
 }

@@ -867,7 +867,7 @@ export function PatternAnalysisDashboard() {
                                         </div>
 
                                         {!isSimulating && (
-                                            <p className="text-[11px] text-muted-foreground italic pl-1 border-l-2 border-primary/20">
+                                            <p className="text-[11px] text-muted-foreground  pl-1 border-l-2 border-primary/20">
                                                 Current {metric.name.toLowerCase()} is <span className="text-foreground font-medium">{metric.deviationPct}% above</span> learned behavior.
                                             </p>
                                         )}
@@ -982,7 +982,7 @@ export function PatternAnalysisDashboard() {
                                             ])
                                         ) : (
                                             <TableRow className="border-border/50 hover:bg-transparent">
-                                                <TableCell colSpan={5} className="h-24 text-center text-xs text-muted-foreground italic">
+                                                <TableCell colSpan={5} className="h-24 text-center text-xs text-muted-foreground ">
                                                     No specific historical evidence events recorded for this pattern.
                                                 </TableCell>
                                             </TableRow>

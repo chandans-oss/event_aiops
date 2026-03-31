@@ -48,74 +48,39 @@ const navItems: NavItem[] = [
     label: "Dashboard",
     icon: LayoutDashboard,
     children: [
-      { path: "/", label: "Overview", icon: LayoutDashboard },
-      { path: "/dashboard/prediction", label: "Prediction Dashboard", icon: Activity },
-      { path: "/dashboard/kpi", label: "KPI Dashboard", icon: BarChart3 },
-      { path: "/dashboard/rca-analysis", label: "RCA Analysis", icon: Search },
-      { path: "/dashboard/alarm-prediction", label: "Alarm Prediction", icon: TrendingUp },
-      { path: "/dashboard/roi", label: "ROI Dashboard", icon: Target },
+      { path: "/", label: "AIOps Dashboard", icon: LayoutDashboard },
+      { path: "/dashboard/prediction", label: "Topology Dashboard", icon: Activity },
+      { path: "/dashboard/kpi", label: "ROI Dashboard", icon: BarChart3 },
     ]
   },
   {
     path: "/events",
     label: "Events",
     icon: Activity,
-    children: [
-      { path: "/events", label: "Event List", icon: List },
-      { path: "/events/predicted", label: "Prediction", icon: TrendingUp },
-      { path: "/clustering", label: "Anomaly Detection", icon: GitBranch },
-      { path: "/correlation", label: "Pattern Detection", icon: BrainCircuit },
-    ]
   },
-  {
-    path: "/event-processing",
-    label: "Event Processing",
-    icon: Activity,
-    children: [
-      { path: "/event-processing/deduplication", label: "Dedup Lab", icon: FolderArchive },
-      { path: "/event-processing/suppression", label: "Suppression Lab", icon: ShieldCheck },
-      { path: "/event-processing/bulk-processing", label: "Bulk Processing Lab", icon: FileText },
-    ]
-  },
-  { path: "/topology", label: "Topology", icon: Network },
+
   {
     path: "/admin",
     label: "Admin",
     icon: Settings,
     children: [
       { path: "/admin", label: "Configuration", icon: Settings },
-    ]
-  },
-  {
-    path: "/pattern-prediction",
-    label: "Pattern Prediction",
-    icon: TrendingUp,
-    children: [
-      { path: "/pattern-prediction/pattern", label: "Pattern", icon: GitBranch },
-      { path: "/pattern-prediction/prediction", label: "Prediction", icon: BrainCircuit },
-      { path: "/pattern-prediction/anomalies", label: "Anomalies", icon: Activity },
+      { path: "/correlation", label: "Correlation Patterns", icon: BrainCircuit },
       { path: "/pattern-prediction/training", label: "Training", icon: Target },
       { path: "/pattern-prediction/results", label: "Results", icon: FileText },
-      { path: "/pattern-prediction/live-inference", label: "Live Inference", icon: PlayCircle },
     ]
   },
+
   {
     path: "/playground",
     label: "Playground",
     icon: Settings,
     children: [
       { path: "/playground/rca", label: "RCA Playground", icon: Workflow },
-    ]
-  },
-  {
-    path: "/demo",
-    label: "Demo",
-    icon: PlayCircle,
-    children: [
-      { path: "/demo/rca-flow", label: "RCA Flow", icon: Workflow },
-      { path: "/demo/playground", label: "Playground", icon: PlayCircle },
-      { path: "/demo/impact", label: "Impact Analysis", icon: BarChart3 },
-      { path: "/agents", label: "Agents", icon: Bot },
+      { path: "/event-processing/deduplication", label: "Event Deduplication", icon: FolderArchive },
+      { path: "/event-processing/suppression", label: "Event Suppression", icon: ShieldCheck },
+      { path: "/event-processing/bulk-processing", label: "Event - Bulk Processing", icon: FileText },
+      { path: "/pattern-prediction/live-inference", label: "Live Inference", icon: PlayCircle },
     ]
   },
   {
@@ -123,10 +88,23 @@ const navItems: NavItem[] = [
     label: "Temp",
     icon: FolderArchive,
     children: [
+      { path: "/dashboard/rca-analysis", label: "RCA Analysis", icon: Search },
+      { path: "/events/predicted", label: "Prediction", icon: TrendingUp },
+      { path: "/clustering", label: "Anomaly Detection", icon: GitBranch },
+      { path: "/demo/rca-flow", label: "RCA Flow", icon: Workflow },
+      { path: "/demo/playground", label: "Playground", icon: PlayCircle },
+      { path: "/demo/impact", label: "Impact Analysis", icon: BarChart3 },
+      { path: "/agents", label: "Agents", icon: Bot },
       { path: "/preprocessing", label: "Pre-Processing", icon: FileInput },
       { path: "/rca-impact", label: "RCA Impact", icon: Search },
       { path: "/remediation", label: "Remediation", icon: Wrench },
       { path: "/upload", label: "Event Upload", icon: Upload },
+      { path: "/dashboard/alarm-prediction", label: "Alarm Prediction", icon: TrendingUp },
+      { path: "/dashboard/roi", label: "ROI Dashboard", icon: Target },
+      { path: "/temp/aiops-draft", label: "Aiops dashbord draft", icon: LayoutDashboard },
+      { path: "/pattern-prediction/pattern", label: "Pattern", icon: GitBranch },
+      { path: "/pattern-prediction/prediction", label: "Prediction", icon: BrainCircuit },
+      { path: "/pattern-prediction/anomalies", label: "Anomalies", icon: Activity },
     ]
   },
 ];
@@ -163,7 +141,7 @@ export function LeftSidebar() {
     const isActive = location.pathname === item.path || (location.pathname + location.search) === item.path;
     const hasChildren = item.children && item.children.length > 0;
     const isOpen = openMenus.includes(item.path);
-    const isChildActive = hasChildren && item.children?.some(child => 
+    const isChildActive = hasChildren && item.children?.some(child =>
       location.pathname === child.path || (location.pathname + location.search) === child.path
     );
     const Icon = item.icon;
@@ -250,19 +228,16 @@ export function LeftSidebar() {
   };
 
   return (
-    <div className={cn("h-full bg-card/50 border-r border-border flex flex-col transition-all duration-300", collapsed ? "w-16" : "w-56")}>
-      <div className="p-4 border-b border-border flex items-center justify-between">
-        {!collapsed && (
-          <div className="flex items-center gap-2">
-            <img src="/infraon_logo.jpg" alt="Infraon Logo" className="h-8 w-8 object-contain rounded-md" />
-            <span className="font-bold text-foreground">IEP</span>
-          </div>
-        )}
-        <Button variant="ghost" size="icon" className={cn("h-8 w-8", collapsed && "mx-auto")} onClick={() => setCollapsed(!collapsed)}>
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </Button>
-      </div>
-      <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
+    <div className={cn("h-full bg-card/50 border-r border-border flex flex-col transition-all duration-300 relative", collapsed ? "w-16" : "w-56")}>
+      <Button 
+        variant="outline" 
+        size="icon" 
+        className="absolute -right-3 top-6 h-6 w-6 rounded-full border border-border bg-background shadow-md z-50 hover:bg-secondary" 
+        onClick={() => setCollapsed(!collapsed)}
+      >
+        {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+      </Button>
+      <nav className="flex-1 p-2 pt-6 space-y-1 overflow-y-auto">
         {navItems.map(item => <NavItemComponent key={item.path} item={item} />)}
       </nav>
       {!collapsed && (

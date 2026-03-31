@@ -137,6 +137,14 @@ const getConfidenceColor = (score: number) => {
   return "text-emerald-500 border-emerald-500/20 bg-emerald-500/10";
 };
 
+const formatLabel = (str: string) => {
+  if (!str) return '';
+  return str
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/(^\w|\s\w|\(\w)/g, m => m.toUpperCase());
+};
+
 const DonutProgress = ({ value, size = 32, strokeWidth = 3 }: { value: number, size?: number, strokeWidth?: number }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -802,9 +810,6 @@ export default function AnomaliesPage() {
         <div className="flex items-center justify-between border-b pb-6 mb-8">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Anomaly Detection</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
-            </div>
           </div>
 
           <div className="flex items-center gap-4">
@@ -823,7 +828,7 @@ export default function AnomaliesPage() {
                       <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
                         <BarChart3 className="h-4 w-4 text-primary" />
                       </div>
-                      Analysis Workspace — <span className="text-primary italic">Global Anomaly Engine</span>
+                      Analysis Workspace — <span className="text-primary ">Global Anomaly Engine</span>
                     </SheetTitle>
                   </div>
                 </SheetHeader>
@@ -954,7 +959,7 @@ export default function AnomaliesPage() {
                                                   <p className={cn(
                                                     "text-[9px] font-bold transition-colors",
                                                     activeModels[model.name] ? "text-foreground/80 group-hover/model:text-primary" : "text-muted-foreground/40"
-                                                  )}>{model.name}</p>
+                                                  )}>{formatLabel(model.name.replace('.pkl', ''))}</p>
                                                 </div>
                                                 <span className="text-[8px] text-muted-foreground/60 font-mono ml-3">{model.version}</span>
                                               </div>
@@ -1106,7 +1111,7 @@ export default function AnomaliesPage() {
                               </div>
                               <div className="flex items-baseline gap-1.5">
                                 <span className="text-[11px] font-black text-foreground tabular-nums">+{m.change_percent}%</span>
-                                <span className="text-[8px] font-medium text-muted-foreground/60 italic truncate">{m.behavior}</span>
+                                <span className="text-[8px] font-medium text-muted-foreground/60  truncate">{m.behavior}</span>
                               </div>
                             </div>
                           );
@@ -1137,9 +1142,9 @@ export default function AnomaliesPage() {
               Showing <span className="text-foreground">{startIndex + 1}</span> to <span className="text-foreground">{Math.min(endIndex, totalItems)}</span> of <span className="text-foreground">{totalItems}</span> Anomalies
             </div>
             <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className={cn("h-8 w-8 p-0 border-white/10 hover:bg-white/5 text-muted-foreground", currentPage === 1 && "opacity-50 cursor-not-allowed")}
                 onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
@@ -1162,9 +1167,9 @@ export default function AnomaliesPage() {
                   </Button>
                 ))}
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 className={cn("h-8 w-8 p-0 border-white/10 hover:bg-white/5 text-muted-foreground", currentPage === totalPages && "opacity-50 cursor-not-allowed")}
                 onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                 disabled={currentPage === totalPages}

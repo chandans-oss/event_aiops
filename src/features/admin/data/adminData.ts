@@ -16,7 +16,7 @@ export const mockIntentCategories: IntentCategory[] = [
       { id: "vpn", name: "Vpn", function: "Vpn", intentCount: 1 },
       { id: "mpls", name: "Mpls", function: "Mpls", intentCount: 3 },
       { id: "connectivity", name: "Connectivity", function: "Connectivity", intentCount: 3 },
-      { id: "sdwan", name: "SD-Wan", function: "SD-Wan", intentCount: 4 },
+      { id: "sdwan", name: "Sd Wan", function: "Sd Wan", intentCount: 4 },
       { id: "lb", name: "Load Balancer", function: "Load Balancer", intentCount: 5 }
     ]
   },
@@ -1755,7 +1755,7 @@ export const mockIntentsFull: IntentFull[] = [
         ]
       }
     ],
-    situationDesc: "Device {device} chassis temperature is high (temp_c={temp_c}Ã‚Â°C). Top hypothesis: {top_hypothesis} (score={prior}).",
+    situationDesc: "Device {device} chassis temperature is high (temp_c={temp_c}°C). Top hypothesis: {top_hypothesis} (score={prior}).",
     subIntent: "chassis_hot"
   },
   {
@@ -1804,7 +1804,7 @@ export const mockIntentsFull: IntentFull[] = [
         ]
       }
     ],
-    situationDesc: "Room or rack inlet temperature near {device} is high (inlet_temp_c={inlet_temp_c}Ã‚Â°C). Top hypothesis: {top_hypothesis} (score={prior}).",
+    situationDesc: "Room or rack inlet temperature near {device} is high (inlet_temp_c={inlet_temp_c}°C). Top hypothesis: {top_hypothesis} (score={prior}).",
     subIntent: "room_hot"
   },
   {
@@ -3988,7 +3988,7 @@ export const mockKBArticlesEnhanced: KBArticle[] = [
     "title": "Device chassis temperature is above safe limits — what are the causes and immediate actions?",
     "category": "Facility",
     "subcategory": "Device Thermal",
-    "content": "### Overview\nDevice chassis temperature is above safe limits — what are the causes and immediate actions?\n\n### Likely Causes\n- Airflow blocked by cables, blanking panels missing, or rack obstructions\n- Fan failure — one or more chassis fans stopped\n- CRAC unit not delivering adequate cold air to this rack\n- Device placed in wrong airflow orientation (front-to-back vs rear-to-front)\n- Ambient room temperature too high\n- Chassis air filter clogged\n\n### Observability Signals\n- temp_c > 70 on chassis sensor\n- Fan RPM sensor showing reduced speed or failed fan\n- SNMP thermal alarm trap\n- Syslog: 'temperature alarm', 'over temperature'\n- System throttling CPU to reduce heat output\n\n### Recommended CLI Commands\nshow environment temperature (network device)\nshow environment fans\nipmitool sdr type Temperature\nipmitool sdr type Fan\nshow platform hardware chassis detail\n\n### Step-by-Step RCA\n1) Check current temperature reading and trend — acute (spike) or chronic (gradual rise)?\n2) Inspect all chassis fans: 'show environment fans' or IPMI — any stopped?\n3) Check for physical airflow blockage: cables, missing blanking panels, wrong rack orientation\n4) Verify CRAC is delivering cold air to this rack zone (inlet temp sensor)\n5) Check if neighboring device failure changed airflow patterns\n6) Immediate action if > 80Ã‚Â°C: consider graceful shutdown before thermal shutdown\n\n### Related Tools\nIPMI, SNMP environmental MIBs, DCIM, Syslog",
+    "content": "### Overview\nDevice chassis temperature is above safe limits — what are the causes and immediate actions?\n\n### Likely Causes\n- Airflow blocked by cables, blanking panels missing, or rack obstructions\n- Fan failure — one or more chassis fans stopped\n- CRAC unit not delivering adequate cold air to this rack\n- Device placed in wrong airflow orientation (front-to-back vs rear-to-front)\n- Ambient room temperature too high\n- Chassis air filter clogged\n\n### Observability Signals\n- temp_c > 70 on chassis sensor\n- Fan RPM sensor showing reduced speed or failed fan\n- SNMP thermal alarm trap\n- Syslog: 'temperature alarm', 'over temperature'\n- System throttling CPU to reduce heat output\n\n### Recommended CLI Commands\nshow environment temperature (network device)\nshow environment fans\nipmitool sdr type Temperature\nipmitool sdr type Fan\nshow platform hardware chassis detail\n\n### Step-by-Step RCA\n1) Check current temperature reading and trend — acute (spike) or chronic (gradual rise)?\n2) Inspect all chassis fans: 'show environment fans' or IPMI — any stopped?\n3) Check for physical airflow blockage: cables, missing blanking panels, wrong rack orientation\n4) Verify CRAC is delivering cold air to this rack zone (inlet temp sensor)\n5) Check if neighboring device failure changed airflow patterns\n6) Immediate action if > 80°C: consider graceful shutdown before thermal shutdown\n\n### Related Tools\nIPMI, SNMP environmental MIBs, DCIM, Syslog",
     "problem": "Airflow blocked by cables, blanking panels missing, or rack obstructions",
     "area": "Device Thermal",
     "remedyItems": [
@@ -3998,7 +3998,7 @@ export const mockKBArticlesEnhanced: KBArticle[] = [
       "fix CRAC unit",
       "reduce device load to lower heat output.",
       "Monitor all fan sensors",
-      "set alert at 65Ã‚Â°C",
+      "set alert at 65°C",
       "ensure blanking panels in all unused rack slots",
       "clean air filters quarterly."
     ],
@@ -4870,7 +4870,7 @@ export const mockKBArticlesEnhanced: KBArticle[] = [
     "lastUpdated": "2026-03-24T00:00:00Z",
     "effectiveness": 89
   }
-,
+  ,
   {
     "id": "kb-link-006",
     "title": "Optical interface Rx power is degrading — causing intermittent errors. What are the causes?",
@@ -7722,2385 +7722,2385 @@ RabbitMQ management, Kafka CLI, AWS SQS, schema registry, consumer logs`,
     "effectiveness": 85
   },
   {
-  "id": "kb-gen-connectivity-reachability-0",
-  "title": "Why is a device showing 'Host Down' in NMS?",
-  "category": "Network",
-  "subcategory": "Reachability",
-  "content": "### Overview\nWhy is a device showing 'Host Down' in NMS?\n\n### Likely Causes\n- SNMP or ICMP blocked\n- Device/Interface down\n- ACL/Firewall drop\n- Routing not present\n- VRF mismatch\n- Power/Hardware issue\n\n### Observability Signals\n- Ping/ICMP status\n- SNMP poll result & sysUpTime\n- Interface status (admin/oper)\n- ARP/ND entries\n- Routing table path to device\n\n### Recommended CLI Commands\nping <ip>\ntraceroute <ip>\nshow ip route <ip>\nshow interface status\nshow access-lists | include <src/dst>\n\n### Step-by-Step RCA\n1) Verify management IP & VRF\n2) ICMP/SNMP reachability from poller\n3) Check link/neighbor state\n4) Validate routing path/ACLs\n5) Hardware/power checks\n\n### Resolution\nRestore upstream route/ACL; enable ICMP/SNMP to poller; bring up interface; replace faulty hardware/PSU.\n\n### Preventive Actions\nStandardize management VRF; allow-lists for NMS; dual power; path redundancy.\n\n### Related Tools\nPing, Traceroute, SNMP, Syslog",
-  "problem": "SNMP or ICMP blocked",
-  "area": "Reachability",
-  "remedyItems": [
-    "Restore upstream route/ACL",
-    "enable ICMP/SNMP to poller",
-    "bring up interface",
-    "replace faulty hardware/PSU.",
-    "Standardize management VRF",
-    "allow-lists for NMS"
-  ],
-  "tags": [
-    "host-down",
-    "snmp",
-    "icmp",
-    "vrf"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-connectivity-packet-loss-1",
-  "title": "Users report intermittent packet loss to a site—what should I check?",
-  "category": "Network",
-  "subcategory": "Packet Loss",
-  "content": "### Overview\nUsers report intermittent packet loss to a site—what should I check?\n\n### Likely Causes\n- Link errors (CRC, drops)\n- Duplex/Speed mismatch\n- Congestion/Queue drops\n- RF interference (Wi—˜Fi)\n- ISP/WAN degradation\n\n### Observability Signals\n- Interface error counters\n- QoS queue drops\n- Latency/Jitter trends\n- NetFlow/sFlow loss indicators\n\n### Recommended CLI Commands\nshow interface counters errors\nshow platform hardware qfp drops\nshow policy-map interface\nmtr <dst>\n\n### Step-by-Step RCA\n1) Baseline ping/mtr\n2) Inspect interface errors\n3) Check QoS & queue depths\n4) Validate duplex/speed\n5) Engage ISP if WAN\n\n### Resolution\nFix cabling/SFP; correct duplex/speed; tune QoS; open ISP ticket with evidence (latency/loss graphs).\n\n### Preventive Actions\nUse error-threshold alerting; pre—˜mark critical traffic; SLA probes on WAN.\n\n### Related Tools\nNetFlow/sFlow, IPSLA/TWAMP, SNMP, Wireshark",
-  "problem": "Link errors (CRC, drops)",
-  "area": "Packet Loss",
-  "remedyItems": [
-    "Fix cabling/SFP",
-    "correct duplex/speed",
-    "tune QoS",
-    "open ISP ticket with evidence (latency/loss graphs).",
-    "Use error-threshold alerting",
-    "pre—˜mark critical traffic"
-  ],
-  "tags": [
-    "packet-loss",
-    "qos",
-    "wan",
-    "crc"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-services-dns-2",
-  "title": "Clients see 'DNS server not responding'—how to triage?",
-  "category": "Network",
-  "subcategory": "DNS",
-  "content": "### Overview\nClients see 'DNS server not responding'—how to triage?\n\n### Likely Causes\n- DNS server down/restart\n- Firewall blocks 53/UDP\n- Anycast health failover\n- Split-horizon misconfig\n\n### Observability Signals\n- UDP 53 reachability\n- Server CPU/mem\n- Query success rate, NXDOMAIN spikes\n\n### Recommended CLI Commands\nnslookup <name> <dns>\ndig +trace <name>\ntelnet <dns> 53\nshow access-lists | inc 53\n\n### Step-by-Step RCA\n1) Check DNS reachability\n2) Validate server health\n3) Confirm views/split-horizon\n4) Inspect recent changes\n\n### Resolution\nRestore service; open 53/UDP; correct view/zone data; rollback bad changes.\n\n### Preventive Actions\nHealth probes for Anycast; change control; capacity headroom.\n\n### Related Tools\nDNS logs, Packet capture, Syslog",
-  "problem": "DNS server down/restart",
-  "area": "DNS",
-  "remedyItems": [
-    "Restore service",
-    "open 53/UDP",
-    "correct view/zone data",
-    "rollback bad changes.",
-    "Health probes for Anycast",
-    "change control"
-  ],
-  "tags": [
-    "dns",
-    "anycast",
-    "firewall"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-services-dhcp-3",
-  "title": "Why are clients failing to obtain IPs (DHCP timeouts)?",
-  "category": "Network",
-  "subcategory": "DHCP",
-  "content": "### Overview\nWhy are clients failing to obtain IPs (DHCP timeouts)?\n\n### Likely Causes\n- Scope exhaustion\n- Relay (ip helper) broken\n- VLAN trunk issue\n- ACL blocking UDP 67/68\n\n### Observability Signals\n- Pool utilization\n- Relay counters/logs\n- VLAN STP/Trunk state\n\n### Recommended CLI Commands\nshow ip dhcp binding\nshow ip dhcp pool\nshow ip helper\nshow vlan / show interfaces trunk\n\n### Step-by-Step RCA\n1) Verify VLAN reaches relay\n2) Check scope utilization\n3) Inspect ACLs\n4) Confirm server status\n\n### Resolution\nExpand scope; fix relay; correct VLAN tags; open ports 67/68.\n\n### Preventive Actions\nCapacity planning; IPAM alerts for pool thresholds.\n\n### Related Tools\nDHCP logs, NMS traps",
-  "problem": "Scope exhaustion",
-  "area": "DHCP",
-  "remedyItems": [
-    "Expand scope",
-    "fix relay",
-    "correct VLAN tags",
-    "open ports 67/68.",
-    "Capacity planning",
-    "IPAM alerts for pool thresholds."
-  ],
-  "tags": [
-    "dhcp",
-    "ip-helper",
-    "vlan"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-routing-bgp-4",
-  "title": "BGP session flapping with ISP—what causes and fixes?",
-  "category": "Network",
-  "subcategory": "BGP",
-  "content": "### Overview\nBGP session flapping with ISP—what causes and fixes?\n\n### Likely Causes\n- Physical link issues\n- Mismatched timers/MD5\n- Route churn/Max-prefix hit\n- MTU mismatch causing TCP resets\n\n### Observability Signals\n- BGP neighbor log\n- Hold/timer counters\n- Max-prefix alarms\n- Interface errors\n\n### Recommended CLI Commands\nshow bgp summary\nshow ip bgp neighbors\nshow interface counters\nshow logging | inc BGP\n\n### Step-by-Step RCA\n1) Confirm physical stability\n2) Validate auth/timers/MTU\n3) Check max—˜prefix & route leaks\n4) Coordinate with ISP\n\n### Resolution\nFix optics/cable; align timers/MD5; increase max—˜prefix with safeguards; correct MTU.\n\n### Preventive Actions\nBFD for fast detection; route-policy sanity; prefix-limit alerting.\n\n### Related Tools\nBGP logs, BFD, NetFlow",
-  "problem": "Physical link issues",
-  "area": "BGP",
-  "remedyItems": [
-    "Fix optics/cable",
-    "align timers/MD5",
-    "increase max—˜prefix with safeguards",
-    "correct MTU.",
-    "BFD for fast detection",
-    "route-policy sanity"
-  ],
-  "tags": [
-    "bgp",
-    "max-prefix",
-    "mtu",
-    "md5"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-routing-ospf-5",
-  "title": "OSPF neighbor stuck in EXSTART/EXCHANGE—what to check?",
-  "category": "Network",
-  "subcategory": "OSPF",
-  "content": "### Overview\nOSPF neighbor stuck in EXSTART/EXCHANGE—what to check?\n\n### Likely Causes\n- MTU mismatch\n- Duplicate router IDs\n- Network type mismatch\n- ACL blocking multicast\n\n### Observability Signals\n- OSPF neighbor state timeline\n- Interface MTU\n- RID uniqueness\n\n### Recommended CLI Commands\nshow ip ospf neighbor\nshow interface | inc MTU\nshow ip ospf interface\n\n### Step-by-Step RCA\n1) Verify MTU & adjust or set ip ospf mtu-ignore\n2) Ensure unique RIDs\n3) Check network type & multicast reachability\n\n### Resolution\nAlign MTU; fix RID; correct network type/ACLs.\n\n### Preventive Actions\nPre—˜deploy templates; health checks.\n\n### Related Tools\nOSPF logs",
-  "problem": "MTU mismatch",
-  "area": "OSPF",
-  "remedyItems": [
-    "Align MTU",
-    "fix RID",
-    "correct network type/ACLs.",
-    "Pre—˜deploy templates",
-    "health checks."
-  ],
-  "tags": [
-    "ospf",
-    "mtu",
-    "rid"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-switching-stp-6",
-  "title": "Random access outages—could this be STP?",
-  "category": "Network",
-  "subcategory": "STP",
-  "content": "### Overview\nRandom access outages—could this be STP?\n\n### Likely Causes\n- Root bridge change\n- Portfast missing Ã¢â€ â€™ TCN floods\n- Loop due to cabling\n- BPDU guard shutdown\n\n### Observability Signals\n- STP topology change count\n- Root bridge identity\n- BPDU guard logs\n\n### Recommended CLI Commands\nshow spanning-tree detail\nshow spanning-tree root\nshow log | inc STP|BPDU\n\n### Step-by-Step RCA\n1) Verify root placement\n2) Check TCN spikes\n3) Inspect access loops & err—˜disable\n4) Enable loop guard/BPDU guard\n\n### Resolution\nSet deterministic roots; enable Portfast+BPDU guard; fix loops.\n\n### Preventive Actions\nDesign standards; LLDP audits.\n\n### Related Tools\nSTP logs, LLDP",
-  "problem": "Root bridge change",
-  "area": "STP",
-  "remedyItems": [
-    "Set deterministic roots",
-    "enable Portfast+BPDU guard",
-    "fix loops.",
-    "Design standards",
-    "LLDP audits."
-  ],
-  "tags": [
-    "stp",
-    "tcn",
-    "loop-guard",
-    "bpdu"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-switching-vlan-trunk-7",
-  "title": "Hosts in VLAN cannot reach gateway—why?",
-  "category": "Network",
-  "subcategory": "VLAN/Trunk",
-  "content": "### Overview\nHosts in VLAN cannot reach gateway—why?\n\n### Likely Causes\n- Trunk missing VLAN tag\n- SVI down/admin down\n- HSRP/VRRP failover issue\n\n### Observability Signals\n- Trunk allowed list\n- SVI line-protocol\n- ARP table for gateway\n\n### Recommended CLI Commands\nshow interfaces trunk\nshow vlan brief\nshow standby / show vrrp\n\n### Step-by-Step RCA\n1) Validate VLAN allowed on trunks\n2) Confirm SVI up\n3) Verify HSRP/VRRP state & ARP\n\n### Resolution\nPermit VLAN on trunks; bring up SVI; fix FHRP priorities/preempt.\n\n### Preventive Actions\nChange control on trunk changes; monitoring for SVI down.\n\n### Related Tools\nSyslog, SNMP, ARP",
-  "problem": "Trunk missing VLAN tag",
-  "area": "VLAN/Trunk",
-  "remedyItems": [
-    "Permit VLAN on trunks",
-    "bring up SVI",
-    "fix FHRP priorities/preempt.",
-    "Change control on trunk changes",
-    "monitoring for SVI down."
-  ],
-  "tags": [
-    "vlan",
-    "trunk",
-    "svi",
-    "hsrp"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-interfaces-errors-8",
-  "title": "CRC errors increasing on uplink—what now?",
-  "category": "Network",
-  "subcategory": "Errors",
-  "content": "### Overview\nCRC errors increasing on uplink—what now?\n\n### Likely Causes\n- Bad cable/SFP\n- Duplex/speed mismatch\n- EMI interference\n\n### Observability Signals\n- CRC/giants/drops counters\n- Autoneg status\n- Optical levels\n\n### Recommended CLI Commands\nshow interface counters errors\nddm interface <port>\n\n### Step-by-Step RCA\n1) Swap patch/SFP\n2) Lock duplex/speed appropriately\n3) Test on alternate path/port\n\n### Resolution\nReplace faulty components; correct autoneg; reroute temporarily.\n\n### Preventive Actions\nUse certified optics/cables; keep spares.\n\n### Related Tools\nSNMP interface stats",
-  "problem": "Bad cable/SFP",
-  "area": "Errors",
-  "remedyItems": [
-    "Replace faulty components",
-    "correct autoneg",
-    "reroute temporarily.",
-    "Use certified optics/cables",
-    "keep spares."
-  ],
-  "tags": [
-    "crc",
-    "autoneg",
-    "sfp"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-interfaces-flaps-9",
-  "title": "Why does an access port keep going up/down frequently?",
-  "category": "Network",
-  "subcategory": "Flaps",
-  "content": "### Overview\nWhy does an access port keep going up/down frequently?\n\n### Likely Causes\n- Loose cable\n- Power-saving NIC\n- Loop detection\n- PoE power issues\n\n### Observability Signals\n- Link up/down logs\n- PoE power draw\n- Errdisable reasons\n\n### Recommended CLI Commands\nshow log | inc link\nshow power inline <port>\n\n### Step-by-Step RCA\n1) Inspect cabling & NIC power settings\n2) Check PoE budget & negotiate\n3) Review errdisable recovery\n\n### Resolution\nReplace cable/NIC; adjust PoE allocation; disable aggressive power-save.\n\n### Preventive Actions\nCable management; NIC driver updates.\n\n### Related Tools\nSyslog, SNMP traps",
-  "problem": "Loose cable",
-  "area": "Flaps",
-  "remedyItems": [
-    "Replace cable/NIC",
-    "adjust PoE allocation",
-    "disable aggressive power-save.",
-    "Cable management",
-    "NIC driver updates."
-  ],
-  "tags": [
-    "flap",
-    "poe",
-    "errdisable"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-performance-latency-jitter-10",
-  "title": "What causes high jitter on VoIP?",
-  "category": "Network",
-  "subcategory": "Latency/Jitter",
-  "content": "### Overview\nWhat causes high jitter on VoIP?\n\n### Likely Causes\n- Queue congestion\n- Wrong DSCP marking\n- WAN shaping mismatch\n- Clocking issues\n\n### Observability Signals\n- IPSLA MOS & jitter\n- Queue depth & drops\n- DSCP stats\n\n### Recommended CLI Commands\nshow policy-map interface\nip sla statistics\niperf3 -u -b ...\n\n### Step-by-Step RCA\n1) Verify end-to-end QoS trust/marking\n2) Ensure bandwidth/shape alignment\n3) Prioritize EF in queues\n\n### Resolution\nFix policy, adjust shaping/bandwidth, enable LLQ.\n\n### Preventive Actions\nBaseline QoS verification; synthetic probes.\n\n### Related Tools\nIPSLA/TWAMP, NetFlow",
-  "problem": "Queue congestion",
-  "area": "Latency/Jitter",
-  "remedyItems": [
-    "Fix policy, adjust shaping/bandwidth, enable LLQ.",
-    "Baseline QoS verification",
-    "synthetic probes."
-  ],
-  "tags": [
-    "qos",
-    "voip",
-    "jitter"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-security-acl-firewall-11",
-  "title": "Application reachable over Internet but API calls fail—why?",
-  "category": "Security",
-  "subcategory": "ACL/Firewall",
-  "content": "### Overview\nApplication reachable over Internet but API calls fail—why?\n\n### Likely Causes\n- ACL missing ephemeral return path\n- NAT misconfig\n- TLS inspection break\n\n### Observability Signals\n- Firewall deny logs\n- NAT table utilization\n- TLS handshake errors\n\n### Recommended CLI Commands\nshow access-group\nshow conn | i <src>\nshow xlate | i <ip>\n\n### Step-by-Step RCA\n1) Reproduce and capture\n2) Check NAT & ACL symmetry\n3) Bypass inspection to validate\n\n### Resolution\nAdd return rules; fix NAT; adjust inspection policy.\n\n### Preventive Actions\nChange review for firewall pushes; preflight tests.\n\n### Related Tools\nFirewall logs, PCAP",
-  "problem": "ACL missing ephemeral return path",
-  "area": "ACL/Firewall",
-  "remedyItems": [
-    "Add return rules",
-    "fix NAT",
-    "adjust inspection policy.",
-    "Change review for firewall pushes",
-    "preflight tests."
-  ],
-  "tags": [
-    "acl",
-    "nat",
-    "tls"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-vpn-ipsec-12",
-  "title": "Why does IPsec tunnel come up but traffic drops?",
-  "category": "Network",
-  "subcategory": "IPsec",
-  "content": "### Overview\nWhy does IPsec tunnel come up but traffic drops?\n\n### Likely Causes\n- Proxy-ID/Interesting traffic mismatch\n- MTU/MSS issues\n- Phase 2 lifetime mismatch\n\n### Observability Signals\n- SPI counters & rekeys\n- Drop/deny logs\n- Path MTU discovery\n\n### Recommended CLI Commands\nshow crypto isakmp/ikev2 sa\nshow crypto ipsec sa\nping df-bit size <n>\n\n### Step-by-Step RCA\n1) Validate proxy ACLs both sides\n2) Adjust MSS/MTU\n3) Align lifetimes and ciphers\n\n### Resolution\nCorrect selectors; set TCP MSS clamp; coordinate timers/ciphers.\n\n### Preventive Actions\nPredefined templates; PMTU testing.\n\n### Related Tools\nFirewall/VPN logs",
-  "problem": "Proxy-ID/Interesting traffic mismatch",
-  "area": "IPsec",
-  "remedyItems": [
-    "Correct selectors",
-    "set TCP MSS clamp",
-    "coordinate timers/ciphers.",
-    "Predefined templates",
-    "PMTU testing."
-  ],
-  "tags": [
-    "ipsec",
-    "mtu",
-    "proxy-id"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-monitoring-snmp-13",
-  "title": "SNMP polling failing intermittently—how to debug?",
-  "category": "Platform",
-  "subcategory": "SNMP",
-  "content": "### Overview\nSNMP polling failing intermittently—how to debug?\n\n### Likely Causes\n- EngineID changes (v3)\n- ACL/CoPP rate limit\n- Device CPU high\n- VRF/path flap\n\n### Observability Signals\n- Ping vs SNMP success ratio\n- SNMP error codes/timeouts\n- Device CPU/mem spikes\n\n### Recommended CLI Commands\nsnmpwalk -v2c -c <c> <ip> 1.3.6.1.2.1.1\nshow snmp engineid\nshow control-plane statistics\n\n### Step-by-Step RCA\n1) Compare ICMP vs SNMP reachability\n2) Check CoPP/ACLs to poller\n3) Validate creds/EngineID after RMA\n\n### Resolution\nFix CoPP policy; update creds/EngineID; reduce poll frequency on busy devices.\n\n### Preventive Actions\nSNMP allow-lists; staggered polling; distributed pollers.\n\n### Related Tools\nNMS logs, Syslog",
-  "problem": "EngineID changes (v3)",
-  "area": "SNMP",
-  "remedyItems": [
-    "Fix CoPP policy",
-    "update creds/EngineID",
-    "reduce poll frequency on busy devices.",
-    "SNMP allow-lists",
-    "staggered polling",
-    "distributed pollers."
-  ],
-  "tags": [
-    "snmp",
-    "copp",
-    "v3"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-monitoring-trap-alert-storm-14",
-  "title": "We received thousands of traps in minutes—what should we do?",
-  "category": "Platform",
-  "subcategory": "Trap/Alert Storm",
-  "content": "### Overview\nWe received thousands of traps in minutes—what should we do?\n\n### Likely Causes\n- Flapping event source\n- Misconfigured trap destination\n- Firmware bug\n- Broadcast/loop events\n\n### Observability Signals\n- Trap volume rate/min\n- Top talkers by source\n- Recent change logs\n\n### Recommended CLI Commands\ntcpdump udp port 162\nshow logging last 100\nshow spanning-tree detail\n\n### Step-by-Step RCA\n1) Identify noisy source\n2) Quarantine via ACL/Rate-limit\n3) Fix root cause (loop, flaps)\n4) Patch firmware\n\n### Resolution\nApply trap dampening; correct configs; vendor bugfix.\n\n### Preventive Actions\nPre-prod trap tests; enable storm control.\n\n### Related Tools\nSyslog, Packet capture",
-  "problem": "Flapping event source",
-  "area": "Trap/Alert Storm",
-  "remedyItems": [
-    "Apply trap dampening",
-    "correct configs",
-    "vendor bugfix.",
-    "Pre-prod trap tests",
-    "enable storm control."
-  ],
-  "tags": [
-    "trap-storm",
-    "loop",
-    "bug"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-monitoring-clock-ntp-15",
-  "title": "Graphs misaligned and logs out of order—time skew suspected. Next steps?",
-  "category": "Platform",
-  "subcategory": "Clock/NTP",
-  "content": "### Overview\nGraphs misaligned and logs out of order—time skew suspected. Next steps?\n\n### Likely Causes\n- NTP peer down\n- Wrong timezone/DST\n- Virtualization clock drift\n\n### Observability Signals\n- NTP sync state & offset\n- Device clock vs NMS\n- Log timestamps consistency\n\n### Recommended CLI Commands\nshow ntp associations\nshow clock detail\nntpq -p\n\n### Step-by-Step RCA\n1) Verify upstream NTP\n2) Fix ACLs to NTP servers\n3) Force sync and monitor offset\n\n### Resolution\nRestore NTP; standardize TZ; enable HA NTP.\n\n### Preventive Actions\nMultiple NTP sources; alerts on offset>100ms.\n\n### Related Tools\nNTP logs",
-  "problem": "NTP peer down",
-  "area": "Clock/NTP",
-  "remedyItems": [
-    "Restore NTP",
-    "standardize TZ",
-    "enable HA NTP.",
-    "Multiple NTP sources",
-    "alerts on offset>100ms."
-  ],
-  "tags": [
-    "ntp",
-    "time-skew"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-wireless-wlan-16",
-  "title": "Why do clients get frequent Wi—˜Fi disconnects?",
-  "category": "Network",
-  "subcategory": "WLAN",
-  "content": "### Overview\nWhy do clients get frequent Wi—˜Fi disconnects?\n\n### Likely Causes\n- Low SNR/Channel overlap\n- 2.4GHz congestion\n- Sticky clients/roaming issues\n- AP power imbalance\n\n### Observability Signals\n- SNR/RSSI heatmaps\n- Channel utilization\n- Client roam events\n\n### Recommended CLI Commands\nshow wlan client detail\nshow ap auto-rf\niw dev wlan0 link\n\n### Step-by-Step RCA\n1) Survey RF; set proper channels\n2) Enable band-steering & 802.11k/v/r\n3) Tune power and RRM\n\n### Resolution\nReassign channels; enable fast roam; adjust AP power.\n\n### Preventive Actions\nRegular RF surveys; capacity planning.\n\n### Related Tools\nWLC logs, RF tools",
-  "problem": "Low SNR/Channel overlap",
-  "area": "WLAN",
-  "remedyItems": [
-    "Reassign channels",
-    "enable fast roam",
-    "adjust AP power.",
-    "Regular RF surveys",
-    "capacity planning."
-  ],
-  "tags": [
-    "wifi",
-    "rf",
-    "roaming"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-wan-sd-wan-17",
-  "title": "App performance poor on one path only—how to isolate?",
-  "category": "Network",
-  "subcategory": "SD-WAN",
-  "content": "### Overview\nApp performance poor on one path only—how to isolate?\n\n### Likely Causes\n- SLA violation on underlay\n- DPI misclassification\n- Asymmetric routing\n\n### Observability Signals\n- Per-path loss/latency\n- App-ID mapping\n- Path health events\n\n### Recommended CLI Commands\nshow app-route stats\nshow sla-class\ntraceroute --as-path-lookups\n\n### Step-by-Step RCA\n1) Compare path KPIs\n2) Validate App-ID and policy\n3) Force pin to good path and observe\n\n### Resolution\nFix underlay with ISP; correct DPI signatures; adjust policy.\n\n### Preventive Actions\nContinuous path probes; anomaly alerts.\n\n### Related Tools\nController logs, NetFlow",
-  "problem": "SLA violation on underlay",
-  "area": "SD-WAN",
-  "remedyItems": [
-    "Fix underlay with ISP",
-    "correct DPI signatures",
-    "adjust policy.",
-    "Continuous path probes",
-    "anomaly alerts."
-  ],
-  "tags": [
-    "sd-wan",
-    "sla",
-    "dpi"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-device-cpu-memory-18",
-  "title": "NMS shows high CPU on core switch—what to check?",
-  "category": "Compute",
-  "subcategory": "CPU/Memory",
-  "content": "### Overview\nNMS shows high CPU on core switch—what to check?\n\n### Likely Causes\n- Control-plane attack or burst\n- Process leak/bug\n- Netflow/sFlow export overload\n\n### Observability Signals\n- CPU per process timeline\n- CoPP drops\n- SNMP poll rate\n\n### Recommended CLI Commands\nshow processes cpu sorted\nshow control-plane host open-ports\nshow flow exporter statistics\n\n### Step-by-Step RCA\n1) Identify top processes\n2) Rate-limit offenders/enable CoPP\n3) Patch or reload during window\n\n### Resolution\nMitigate traffic; upgrade firmware; tune telemetry rates.\n\n### Preventive Actions\nCapacity tests post-upgrade; monitor trendline.\n\n### Related Tools\nSyslog, SNMP, NetFlow",
-  "problem": "Control-plane attack or burst",
-  "area": "CPU/Memory",
-  "remedyItems": [
-    "Mitigate traffic",
-    "upgrade firmware",
-    "tune telemetry rates.",
-    "Capacity tests post-upgrade",
-    "monitor trendline."
-  ],
-  "tags": [
-    "cpu",
-    "copp"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-performance-internet-saas-19",
-  "title": "Latency spike to SaaS (Teams/Zoom)—what checks isolate the issue?",
-  "category": "Network",
-  "subcategory": "Internet/SaaS",
-  "content": "### Overview\nLatency spike to SaaS (Teams/Zoom)—what checks isolate the issue?\n\n### Likely Causes\n- Peering congestion\n- Middlebox inspection\n- Wrong DNS egress\n\n### Observability Signals\n- Loss/Latency to SaaS POP\n- TLS handshake times\n- DNS egress IP vs geo\n\n### Recommended CLI Commands\nUse standard ping/traceroute; device interface counters; NetFlow to SaaS prefixes.\n\n### Step-by-Step RCA\n1) Compare multiple egress paths\n2) Check middleboxes/inspection\n3) Validate DNS egress mapping\n\n### Resolution\nCompare loss/latency by egress; bypass inspection; test alternate DNS/egress.\n\n### Preventive Actions\nSet direct egress for SaaS; split—˜tunnel VPN; monitor SaaS status.\n\n### Related Tools\nIPSLA/TWAMP, NetFlow, Packet capture",
-  "problem": "Peering congestion",
-  "area": "Internet/SaaS",
-  "remedyItems": [
-    "Compare loss/latency by egress",
-    "bypass inspection",
-    "test alternate DNS/egress.",
-    "Set direct egress for SaaS",
-    "split—˜tunnel VPN",
-    "monitor SaaS status."
-  ],
-  "tags": [
-    "saas",
-    "latency",
-    "vpn"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-interfaces-uplink-20",
-  "title": "Interface down on access switch uplink—what checks isolate the issue?",
-  "category": "Network",
-  "subcategory": "Uplink",
-  "content": "### Overview\nInterface down on access switch uplink—what checks isolate the issue?\n\n### Likely Causes\n- Bad SFP/patch\n- Errdisable from BPDU guard/UDLD\n- Power loss upstream\n\n### Observability Signals\n- Link state logs\n- UDLD status\n- Optics light levels\n\n### Recommended CLI Commands\nUse standard ping/traceroute; device interface counters; NetFlow to SaaS prefixes.\n\n### Step-by-Step RCA\n1) Compare multiple egress paths\n2) Check middleboxes/inspection\n3) Validate DNS egress mapping\n\n### Resolution\nReplace SFP/cable; clear errdisable; restore power/UPLink.\n\n### Preventive Actions\nSpare optics; BPDU guard with intent.\n\n### Related Tools\nIPSLA/TWAMP, NetFlow, Packet capture",
-  "problem": "Bad SFP/patch",
-  "area": "Uplink",
-  "remedyItems": [
-    "Replace SFP/cable",
-    "clear errdisable",
-    "restore power/UPLink.",
-    "Spare optics",
-    "BPDU guard with intent."
-  ],
-  "tags": [
-    "uplink",
-    "errdisable",
-    "udld"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-connectivity-arp-v1-21",
-  "title": "ARP table shows incomplete/failed entries—Hosts can't reach gateway. (Case #1)",
-  "category": "Network",
-  "subcategory": "ARP v1",
-  "content": "### Overview\nARP table shows incomplete/failed entries—Hosts can't reach gateway. (Case #1)\n\n### Likely Causes\n- ARP suppression/Proxy ARP issue\n- Duplicate IP/MAC conflict\n- VLAN mismatch\n\n### Observability Signals\n- ARP cache entries & age\n- Gratuitous ARP events\n\n### Recommended CLI Commands\narp -a\nshow ip arp\nshow mac address-table\n\n### Step-by-Step RCA\n1) Confirm VLAN & gateway reachability\n2) Check IP conflicts\n3) Validate ARP suppression/Proxy\n\n### Resolution\nResolve IP conflict; fix VLAN; disable faulty features.\n\n### Preventive Actions\nIPAM governance; DHCP reservations.\n\n### Related Tools\nPacket capture, ARP logs",
-  "problem": "ARP suppression/Proxy ARP issue",
-  "area": "ARP v1",
-  "remedyItems": [
-    "Resolve IP conflict",
-    "fix VLAN",
-    "disable faulty features.",
-    "IPAM governance",
-    "DHCP reservations."
-  ],
-  "tags": [
-    "arp",
-    "ip-conflict",
-    "vlan"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-security-acl-v1-22",
-  "title": "New app blocked after change window—how to quickly verify? (Case #1)",
-  "category": "Security",
-  "subcategory": "ACL v1",
-  "content": "### Overview\nNew app blocked after change window—how to quickly verify? (Case #1)\n\n### Likely Causes\n- Missing rule or wrong order\n- Object-group not updated\n- Zone mismatch\n\n### Observability Signals\n- Hit counters per rule\n- Deny logs with 5—˜tuple\n\n### Recommended CLI Commands\nshow access-list | i <app>\nshow run object-group\npacket-tracer\n\n### Step-by-Step RCA\n1) Reproduce and capture denies\n2) Adjust rule order/object-group\n3) Change control review\n\n### Resolution\nInsert/modify rule carefully; rollback if needed.\n\n### Preventive Actions\nStaged pushes; shadow policies.\n\n### Related Tools\nFirewall logs",
-  "problem": "Missing rule or wrong order",
-  "area": "ACL v1",
-  "remedyItems": [
-    "Insert/modify rule carefully",
-    "rollback if needed.",
-    "Staged pushes",
-    "shadow policies."
-  ],
-  "tags": [
-    "acl",
-    "change"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-performance-high-latency-29",
-  "title": "Users experience high latency between sites or applications—what could be the reason?",
-  "category": "Network",
-  "subcategory": "High Latency",
-  "content": "### Overview\nUsers experience high latency between sites or applications—what could be the reason?\n\n### Likely Causes\n- Congested WAN/ISP path\n- Queuing delay due to QoS misclassification\n- Routing suboptimal path or asymmetric routing\n- Interface errors or retransmissions\n- Middlebox (firewall, proxy) inspection delay\n\n### Observability Signals\n- Ping RTT and jitter\n- NetFlow latency percentile\n- QoS queue utilization\n- Traceroute hop latency distribution\n\n### Recommended CLI Commands\nping <dst> repeat 100\ntraceroute <dst>\nshow policy-map interface\nshow interface counters\nshow ip route <dst>\n\n### Step-by-Step RCA\n1) Baseline latency across multiple hops\n2) Identify the congested or lossy hop\n3) Check QoS classification and queues\n4) Compare ISP/WAN paths and verify routing symmetry\n\n### Resolution\nOptimize routing path; adjust QoS marking; request ISP reroute; disable deep inspection on latency-sensitive traffic.\n\n### Preventive Actions\nDeploy IPSLA probes; enable QoS monitoring dashboards; use multiple ISPs or SD-WAN dynamic path selection.\n\n### Related Tools\nIPSLA, TWAMP, NetFlow, Ping, Traceroute",
-  "problem": "Congested WAN/ISP path",
-  "area": "High Latency",
-  "remedyItems": [
-    "Optimize routing path",
-    "adjust QoS marking",
-    "request ISP reroute",
-    "disable deep inspection on latency-sensitive traffic.",
-    "Deploy IPSLA probes",
-    "enable QoS monitoring dashboards"
-  ],
-  "tags": [
-    "latency",
-    "qos",
-    "wan",
-    "routing"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-configuration-config-drift-30",
-  "title": "Configuration drift detected between production and baseline—why does this occur?",
-  "category": "Configuration",
-  "subcategory": "Config Drift",
-  "content": "### Overview\nConfiguration drift detected between production and baseline—why does this occur?\n\n### Likely Causes\n- Manual CLI changes without change control\n- Failed or partial automation job\n- Rollback not applied post-maintenance\n- Unauthorized access or miscommit\n\n### Observability Signals\n- Baseline vs running config diff\n- GitOps or NCCM version mismatch\n- Recent user login history\n- Device config checksum alert\n\n### Recommended CLI Commands\nshow running-config | diff saved-config\nshow archive config differences\nshow users\ngit diff <branch>\n\n### Step-by-Step RCA\n1) Compare current config with golden baseline\n2) Identify unauthorized or untracked changes\n3) Validate automation pipeline logs\n4) Rollback to last known good configuration\n\n### Resolution\nRevert to baseline; restore via NCCM; correct automation pipeline; enforce config locks.\n\n### Preventive Actions\nImplement config compliance checks; enable GitOps workflow; automated drift detection with approval gate.\n\n### Related Tools\nNCCM, Git, Syslog, TACACS",
-  "problem": "Manual CLI changes without change control",
-  "area": "Config Drift",
-  "remedyItems": [
-    "Revert to baseline",
-    "restore via NCCM",
-    "correct automation pipeline",
-    "enforce config locks.",
-    "Implement config compliance checks",
-    "enable GitOps workflow"
-  ],
-  "tags": [
-    "config-drift",
-    "nccm",
-    "gitops",
-    "baseline"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-performance-memory-leak-31",
-  "title": "Router or application showing gradual memory increase leading to crash or reload.",
-  "category": "Network",
-  "subcategory": "Memory Leak",
-  "content": "### Overview\nRouter or application showing gradual memory increase leading to crash or reload.\n\n### Likely Causes\n- Firmware or software memory leak bug\n- Logging/debug buffer overflow\n- High SNMP/telemetry polling rate\n- Unreleased session/connection handles\n\n### Observability Signals\n- Memory usage trendline (increasing over time)\n- Process-level memory stats\n- System logs with malloc failures\n- Frequent restarts/reboots\n\n### Recommended CLI Commands\nshow processes memory sorted\nshow system resources\ndir crashinfo:\nshow logging | inc memory\n\n### Step-by-Step RCA\n1) Identify top memory-consuming process\n2) Check for firmware bugs or patches\n3) Reduce SNMP/telemetry frequency\n4) Reboot device during maintenance window if exhausted\n\n### Resolution\nUpgrade to fixed firmware; clean up debug/log settings; adjust polling intervals; apply vendor bug patch.\n\n### Preventive Actions\nMonitor memory trendlines; enable auto-restart policies; maintain software currency.\n\n### Related Tools\nSNMP, Syslog, Crashinfo, Telemetry",
-  "problem": "Firmware or software memory leak bug",
-  "area": "Memory Leak",
-  "remedyItems": [
-    "Upgrade to fixed firmware",
-    "clean up debug/log settings",
-    "adjust polling intervals",
-    "apply vendor bug patch.",
-    "Monitor memory trendlines",
-    "enable auto-restart policies"
-  ],
-  "tags": [
-    "memory-leak",
-    "firmware",
-    "telemetry",
-    "snmp"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-services-dns-failure-32",
-  "title": "Applications failing due to DNS lookup errors or high response time.",
-  "category": "Network",
-  "subcategory": "DNS Failure",
-  "content": "### Overview\nApplications failing due to DNS lookup errors or high response time.\n\n### Likely Causes\n- Primary DNS unreachable\n- Misconfigured resolver or search domain\n- Recursive query timeout\n- Firewall or inspection blocking UDP 53\n- Anycast DNS health degradation\n\n### Observability Signals\n- DNS response time metrics\n- NXDOMAIN and SERVFAIL rates\n- Resolver logs showing timeout/errors\n- Packet capture showing dropped UDP/53\n\n### Recommended CLI Commands\nnslookup <fqdn>\ndig +trace <fqdn>\ntcpdump -n udp port 53\nshow access-lists | inc 53\n\n### Step-by-Step RCA\n1) Test DNS from alternate resolver\n2) Validate forwarder and cache settings\n3) Check packet flow for DNS traffic\n4) Review firewall ACLs or inspection policy\n\n### Resolution\nRestore DNS reachability; correct DNS configuration; disable faulty inspection; failover to secondary resolver.\n\n### Preventive Actions\nDeploy redundant DNS servers; enable DNS SLA probes; automate Anycast health checks.\n\n### Related Tools\nDNS logs, Packet capture, Syslog, IPSLA",
-  "problem": "Primary DNS unreachable",
-  "area": "DNS Failure",
-  "remedyItems": [
-    "Restore DNS reachability",
-    "correct DNS configuration",
-    "disable faulty inspection",
-    "failover to secondary resolver.",
-    "Deploy redundant DNS servers",
-    "enable DNS SLA probes"
-  ],
-  "tags": [
-    "dns-failure",
-    "anycast",
-    "resolver",
-    "udp53"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-routing-bgp-flag-33",
-  "title": "BGP neighbor shows 'Idle', 'Active', or 'Connect' state with route instability.",
-  "category": "Network",
-  "subcategory": "BGP Flag",
-  "content": "### Overview\nBGP neighbor shows 'Idle', 'Active', or 'Connect' state with route instability.\n\n### Likely Causes\n- Incorrect neighbor IP or VRF mismatch\n- Authentication (MD5) mismatch\n- TCP port 179 blocked by firewall\n- Route reflector loop or dampening\n- Flapping link causing session reset\n\n### Observability Signals\n- BGP neighbor state transitions\n- BGP error code messages (FSM log)\n- TCP 179 connection failure\n- Interface flap logs\n\n### Recommended CLI Commands\nshow bgp summary\nshow ip bgp neighbors\nshow tcp brief | inc 179\nshow log | inc BGP\n\n### Step-by-Step RCA\n1) Check BGP neighbor configuration\n2) Validate MD5 authentication keys\n3) Verify reachability of TCP 179\n4) Check link and route stability\n\n### Resolution\nFix neighbor IP/VRF; correct MD5; open TCP 179; stabilize link; coordinate with ISP.\n\n### Preventive Actions\nEnable BFD for fast detection; periodic session stability checks; alert on BGP FSM changes.\n\n### Related Tools\nBGP logs, Syslog, BFD, NetFlow",
-  "problem": "Incorrect neighbor IP or VRF mismatch",
-  "area": "BGP Flag",
-  "remedyItems": [
-    "Fix neighbor IP/VRF",
-    "correct MD5",
-    "open TCP 179",
-    "stabilize link",
-    "coordinate with ISP.",
-    "Enable BFD for fast detection"
-  ],
-  "tags": [
-    "bgp-flag",
-    "fsm",
-    "tcp179",
-    "vrf"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-infrastructure-cpu-process-spike-34",
-  "title": "Device CPU spiked to 100%, affecting control-plane responsiveness.",
-  "category": "Compute",
-  "subcategory": "CPU/Process Spike",
-  "content": "### Overview\nDevice CPU spiked to 100%, affecting control-plane responsiveness.\n\n### Likely Causes\n- Control-plane attack (ICMP/ARP flood)\n- Bug causing runaway process\n- Telemetry or SNMP overload\n- High NetFlow export rate\n\n### Observability Signals\n- CPU per process\n- CoPP drop counters\n- NetFlow export rate\n- Process restart frequency\n\n### Recommended CLI Commands\nshow processes cpu sorted\nshow control-plane statistics\nshow flow exporter statistics\nshow log | inc CPU\n\n### Step-by-Step RCA\n1) Identify top CPU-consuming process\n2) Check for attack or burst traffic\n3) Reduce telemetry/export rates\n4) Upgrade or patch firmware\n\n### Resolution\nRate-limit control-plane; disable unnecessary processes; reboot during maintenance; apply firmware patch.\n\n### Preventive Actions\nEnable CoPP policies; monitor CPU trends; load test before upgrades.\n\n### Related Tools\nSNMP, Syslog, CoPP, Telemetry",
-  "problem": "Control-plane attack (ICMP/ARP flood)",
-  "area": "CPU/Process Spike",
-  "remedyItems": [
-    "Rate-limit control-plane",
-    "disable unnecessary processes",
-    "reboot during maintenance",
-    "apply firmware patch.",
-    "Enable CoPP policies",
-    "monitor CPU trends"
-  ],
-  "tags": [
-    "cpu",
-    "process",
-    "copp",
-    "telemetry"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-gen-uncategorized-general-35",
-  "title": "link loss",
-  "category": "Uncategorized",
-  "subcategory": "General",
-  "content": "### Overview\nlink loss\n\n### Likely Causes\n- physical disconnection\n- packet loss\n- use of low-quality materials\n\n### Observability Signals\n- link is not active more than some time\n- sudden disconnection\n\n### Recommended CLI Commands\nping<ip>\n\n### Step-by-Step RCA\n1) test for speed test\n2) tape or cover exposed part\n3) exchange for new\n\n### Resolution\ntest for speed test, tape or cover exposed part, exchange for new\n\n### Preventive Actions\nfrequent check of physical cables, and regular speed check\n\n### Related Tools\nping",
-  "problem": "physical disconnection",
-  "area": "General",
-  "remedyItems": [
-    "test for speed test, tape or cover exposed part, exchange for new",
-    "frequent check of physical cables, and regular speed check"
-  ],
-  "tags": [
-    "link"
-  ],
-  "linkedIntents": [],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 80
-},
-  {
-  "id": "kb-link-006",
-  "title": "Optical interface Rx power is degrading — causing intermittent errors. What are the causes?",
-  "category": "Network",
-  "subcategory": "Link Layer",
-  "content": "### Overview\nOptical interface Rx power is degrading — causing intermittent errors. What are the causes?\n\n### Likely Causes\n- Dirty or contaminated fiber connector (most common cause)\n- Fiber bend radius violation causing signal attenuation\n- Aging SFP transceiver with declining Tx power\n- Fiber splice degradation or water ingress in outdoor plant\n- Incorrect fiber type (single-mode SFP on multi-mode fiber)\n- Long cable run exceeding SFP Rx sensitivity budget\n\n### Observability Signals\n- optical_rx_power_dbm dropping below -20 dBm\n- DDM Rx power alarms (low warning, low alarm thresholds)\n- CRC errors increasing as Rx power degrades\n- Intermittent link flaps near Rx power sensitivity limit\n- DDM Tx power normal (isolates to fiber/connector, not SFP Tx)\n\n### Recommended CLI Commands\nshow interface <int> transceiver\nddm interface <int>\nshow interface <int> counters errors\nshow environment (optical alarms)\notdr test interface <int> (where supported)\n\n### Step-by-Step RCA\n1) Pull DDM Rx power: compare to SFP minimum Rx sensitivity (-18 to -22 dBm typical)\n2) If Rx power marginal but Tx normal: fiber/connector is suspect, not SFP Tx\n3) Clean fiber connector with approved cleaning kit and re-seat\n4) Test with known-good short patch to isolate plant fiber vs connector\n5) If long-haul: run OTDR to identify splice loss or fiber bend\n6) Check fiber type compatibility: SMF vs MMF SFP mismatch\n\n### Resolution\nClean fiber connectors; replace damaged patch cable; correct fiber type mismatch; replace aging SFP; repair splice.\n\n### Preventive Actions\nSchedule quarterly fiber connector cleaning; baseline DDM Rx power per link at commissioning; alert when Rx drops 3 dB from baseline.\n\n### Related Tools\nDDM/DOM, OTDR, fiber inspection scope, SNMP",
-  "problem": "Dirty or contaminated fiber connector (most common cause)",
-  "area": "Link Layer",
-  "remedyItems": [
-    "Clean fiber connectors",
-    "replace damaged patch cable",
-    "correct fiber type mismatch",
-    "replace aging SFP",
-    "repair splice.",
-    "Schedule quarterly fiber connector cleaning"
-  ],
-  "tags": [
-    "optical",
-    "rx-power",
-    "ddm",
-    "fiber",
-    "sfp",
-    "connector",
-    "otdr"
-  ],
-  "linkedIntents": [
-    "link.optical_degraded"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-link-007",
-  "title": "Interface is in err-disable state — what triggered it and how to recover?",
-  "category": "Network",
-  "subcategory": "Link Layer",
-  "content": "### Overview\nInterface is in err-disable state — what triggered it and how to recover?\n\n### Likely Causes\n- BPDU Guard violation: STP BPDU received on PortFast-enabled access port\n- UDLD aggressive mode detecting unidirectional link\n- Port-security MAC address violation\n- Loop detection (UDLD, loop-guard, or vendor loop-detect)\n- PoE overload causing err-disable\n- Storm control threshold exceeded\n- DHCP snooping rate exceeded\n\n### Observability Signals\n- interface_oper_status == errdisable\n- Syslog: 'err-disabled' with reason code\n- show errdisable recovery showing reason\n- Interface in down state with errdisable reason\n- Port-security violation counter incrementing\n\n### Recommended CLI Commands\nshow interfaces status err-disabled\nshow errdisable recovery\nshow errdisable detect\nshow logging | inc err-disable|BPDU|UDLD|violation\nshow port-security interface <int>\nshow spanning-tree interface <int>\n\n### Step-by-Step RCA\n1) Identify err-disable reason: 'show interfaces status err-disabled'\n2) BPDU guard: unauthorized switch connected to access port?\n3) UDLD: unidirectional fiber issue? Enable UDLD neighbor check\n4) Port-security: MAC violation — unknown device or MAC spoofing?\n5) Loop-detect: physical loop in wiring closet?\n6) Resolve root cause before re-enabling port\n\n### Resolution\nRemove offending device or loop; fix fiber (UDLD); re-enable port after fix: 'shutdown/no shutdown' or configure err-disable recovery timer.\n\n### Preventive Actions\nConfigure err-disable recovery with appropriate timer per reason; alert on err-disable events; document allowed devices per port.\n\n### Related Tools\nSyslog, SNMP, port-security, UDLD, STP logs",
-  "problem": "BPDU Guard violation: STP BPDU received on PortFast-enabled access port",
-  "area": "Link Layer",
-  "remedyItems": [
-    "Remove offending device or loop",
-    "fix fiber (UDLD)",
-    "re-enable port after fix: 'shutdown/no shutdown' or configure err-disable recovery timer.",
-    "Configure err-disable recovery with appropriate timer per reason",
-    "alert on err-disable events",
-    "document allowed devices per port."
-  ],
-  "tags": [
-    "errdisable",
-    "bpdu-guard",
-    "udld",
-    "port-security",
-    "loop-detect",
-    "storm-control"
-  ],
-  "linkedIntents": [
-    "link.errdisable"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-routing-003",
-  "title": "IS-IS adjacency is not forming or has dropped — what should I check?",
-  "category": "Network",
-  "subcategory": "Routing",
-  "content": "### Overview\nIS-IS adjacency is not forming or has dropped — what should I check?\n\n### Likely Causes\n- IS-IS area ID mismatch between peers (Level-1 vs Level-2 boundary)\n- Authentication type or key mismatch\n- MTU mismatch causing LSP fragmentation\n- Duplicate System ID in the domain\n- Interface not enabled for IS-IS\n- Hello padding causing oversized frames on some media types\n- IP address missing on IS-IS enabled interface\n\n### Observability Signals\n- isis_neighbor_state != UP\n- ISIS adjacency change events in syslog\n- IS-IS hello PDU received but adjacency not forming\n- Syslog: 'IS-IS authentication failed', 'area mismatch'\n- isis_adj_changes > 3 in monitoring window\n\n### Recommended CLI Commands\nshow isis neighbors\nshow isis database\nshow clns interface\nshow run | sec router isis\nshow logging | inc ISIS|IS-IS\ndebug isis adj-packets (brief window)\n\n### Step-by-Step RCA\n1) Check neighbor state: 'show isis neighbors' — Init vs Full\n2) Verify area ID matches on both ends (Level-1 must share area)\n3) Validate auth type and key match (MD5 / plaintext)\n4) Check MTU: IS-IS hellos include padding by default to test MTU\n5) Confirm no duplicate System IDs: 'show isis database'\n6) Ensure interface has IP address and 'ip router isis' applied\n\n### Resolution\nAlign area IDs; match auth keys; set 'no isis hello padding' if MTU limited; fix duplicate SID; assign IP to interface.\n\n### Preventive Actions\nPre-validate IS-IS config with template comparison before deploy; monitor adjacency count per device; unique SID assignment process.\n\n### Related Tools\nIS-IS logs, Syslog, SNMP",
-  "problem": "IS-IS area ID mismatch between peers (Level-1 vs Level-2 boundary)",
-  "area": "Routing",
-  "remedyItems": [
-    "Align area IDs",
-    "match auth keys",
-    "set 'no isis hello padding' if MTU limited",
-    "fix duplicate SID",
-    "assign IP to interface.",
-    "Pre-validate IS-IS config with template comparison before deploy"
-  ],
-  "tags": [
-    "isis",
-    "adjacency",
-    "area-id",
-    "authentication",
-    "mtu",
-    "system-id"
-  ],
-  "linkedIntents": [
-    "routing.isis_down"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-routing-004",
-  "title": "EIGRP route is stuck in Active state — what causes SIA and how to recover?",
-  "category": "Network",
-  "subcategory": "Routing",
-  "content": "### Overview\nEIGRP route is stuck in Active state — what causes SIA and how to recover?\n\n### Likely Causes\n- Stuck-In-Active (SIA): query not replied by distant neighbor within active timer\n- Flapping link causing repeated DUAL reconvergence\n- Passive interface configured on link that should be active\n- EIGRP query scope too wide — query propagating across entire domain\n- Neighbor not responding to query due to CPU overload\n- Route summarization missing — queries leaking across domain boundary\n\n### Observability Signals\n- eigrp_sia_count > 0 in logs\n- Route stuck in Active state in topology table\n- Neighbor dropped after active timer expiry\n- Syslog: 'DUAL-3-SIA: Route stuck in active state'\n- Repeated route flaps in routing table\n\n### Recommended CLI Commands\nshow ip eigrp topology active\nshow ip eigrp neighbors\nshow logging | inc DUAL|SIA|EIGRP\nshow ip eigrp topology all-links\nshow ip eigrp interfaces\nshow ip eigrp traffic\n\n### Step-by-Step RCA\n1) Check for SIA routes: 'show ip eigrp topology active'\n2) Identify which neighbor failed to reply to query\n3) Check link quality to that neighbor — lossy link?\n4) Review EIGRP query scope: implement summarization to limit query propagation\n5) Check passive interface config — is a needed link passive?\n6) Check CPU on neighbor that went SIA — was it overwhelmed?\n\n### Resolution\nFix underlying link issue; implement EIGRP summarization at distribution/core; increase SIA timer if needed; add stub routing at edges.\n\n### Preventive Actions\nUse EIGRP stub on spoke/leaf routers to limit queries; implement summarization; monitor SIA count via SNMP.\n\n### Related Tools\nEIGRP logs, Syslog, SNMP",
-  "problem": "Stuck-In-Active (SIA): query not replied by distant neighbor within active timer",
-  "area": "Routing",
-  "remedyItems": [
-    "Fix underlying link issue",
-    "implement EIGRP summarization at distribution/core",
-    "increase SIA timer if needed",
-    "add stub routing at edges.",
-    "Use EIGRP stub on spoke/leaf routers to limit queries",
-    "implement summarization"
-  ],
-  "tags": [
-    "eigrp",
-    "stuck-in-active",
-    "sia",
-    "dual",
-    "query",
-    "summarization",
-    "stub"
-  ],
-  "linkedIntents": [
-    "routing.eigrp_stuck"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-routing-005",
-  "title": "Routes are leaking between routing domains or VRFs — how to detect and contain a route leak?",
-  "category": "Network",
-  "subcategory": "Routing",
-  "content": "### Overview\nRoutes are leaking between routing domains or VRFs — how to detect and contain a route leak?\n\n### Likely Causes\n- Missing or incorrect prefix-list/route-map on redistribution point\n- BGP community no-export not set on routes that should stay internal\n- Default route accidentally redistributed into IGP\n- VRF route-target import/export misconfiguration leaking routes across VPNs\n- Static route redistributed without tag-based loop prevention\n- Summarization suppressing specific routes but redistributing summary incorrectly\n\n### Observability Signals\n- Unexpected prefixes appearing in routing table\n- BGP peers receiving routes they should not see\n- Traffic taking unexpected path (traceroute anomaly)\n- Route metric/source incorrect (e.g., OSPF route in BGP domain)\n- Duplicate routes with different sources in RIB\n\n### Recommended CLI Commands\nshow ip route <leaked-prefix>\nshow bgp neighbors <peer> advertised-routes | inc <prefix>\nshow ip bgp <prefix> (check communities)\nshow route-map <n>\nshow ip prefix-list\nshow ip ospf database | inc <leaked-prefix>\n\n### Step-by-Step RCA\n1) Identify leaked prefix: where is it originating and where is it appearing?\n2) Trace the redistribution path — which device is injecting it?\n3) Check route-map on redistribution: is prefix-list applied inbound and outbound?\n4) For BGP: check community tags — is no-export missing?\n5) For VRF: check RT import policy — is it too broad?\n6) Apply deny rule for leaked prefix immediately, then fix root cause\n\n### Resolution\nApply prefix-list deny on redistribution; add BGP no-export community; fix RT import policy; add route tags for loop prevention.\n\n### Preventive Actions\nAlways use explicit permit prefix-lists on all redistribution points; peer review redistribution configs; lab test before production.\n\n### Related Tools\nBGP logs, routing table, Syslog, looking glass",
-  "problem": "Missing or incorrect prefix-list/route-map on redistribution point",
-  "area": "Routing",
-  "remedyItems": [
-    "Apply prefix-list deny on redistribution",
-    "add BGP no-export community",
-    "fix RT import policy",
-    "add route tags for loop prevention.",
-    "Always use explicit permit prefix-lists on all redistribution points",
-    "peer review redistribution configs"
-  ],
-  "tags": [
-    "route-leak",
-    "redistribution",
-    "bgp-community",
-    "prefix-list",
-    "vrf",
-    "no-export"
-  ],
-  "linkedIntents": [
-    "routing.route_leak"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-switching-001",
-  "title": "A Layer 2 loop is suspected — broadcast storm and MAC flapping occurring. How to detect and break it?",
-  "category": "Network",
-  "subcategory": "Switching",
-  "content": "### Overview\nA Layer 2 loop is suspected — broadcast storm and MAC flapping occurring. How to detect and break it?\n\n### Likely Causes\n- PortFast missing on access ports — TCN floods on every endpoint connect/disconnect\n- bpdu-filter applied incorrectly disabling STP on a port (loop undetected)\n- Unmanaged switch inserted creating loop with no BPDU awareness\n- STP accidentally disabled (no spanning-tree) on a VLAN\n- Incorrect cable creating physical loop in wiring closet\n- MST region boundary misconfiguration creating L2 loop\n\n### Observability Signals\n- broadcast_rate_pps spiking to wire rate\n- MAC address flapping (same MAC seen on multiple ports)\n- CPU at 100% on switch processing broadcasts\n- Interface utilization at 100% in both directions\n- Syslog: 'MAC_MOVE', 'topology change flood'\n\n### Recommended CLI Commands\nshow spanning-tree detail | inc ieee|occur|from\nshow mac address-table | inc <mac>\nshow interfaces counters (look for wire-rate utilization)\nshow logging | inc LOOP|MAC_MOVE|topology\nshow spanning-tree vlan <id>\nshow storm-control\n\n### Step-by-Step RCA\n1) Confirm loop: MAC address seen on 2+ ports simultaneously\n2) Identify affected VLAN via broadcast storm on specific VLAN\n3) Disconnect suspect links one at a time until storm stops\n4) Check for bpdu-filter on any port — if present, likely cause\n5) Check all access ports for PortFast + BPDU guard\n6) After storm cleared: enable storm-control as immediate protection\n\n### Resolution\nDisconnect looping cable; enable BPDU guard on access ports; remove bpdu-filter misuse; re-enable STP on affected VLAN.\n\n### Preventive Actions\nEnable BPDU guard on all access ports; deploy loop-guard on uplinks; enable storm control on all access ports; audit unmanaged switches.\n\n### Related Tools\nSTP logs, Syslog, MAC address table, SNMP",
-  "problem": "PortFast missing on access ports — TCN floods on every endpoint connect/disconnect",
-  "area": "Switching",
-  "remedyItems": [
-    "Disconnect looping cable",
-    "enable BPDU guard on access ports",
-    "remove bpdu-filter misuse",
-    "re-enable STP on affected VLAN.",
-    "Enable BPDU guard on all access ports",
-    "deploy loop-guard on uplinks"
-  ],
-  "tags": [
-    "stp-loop",
-    "broadcast-storm",
-    "mac-flap",
-    "bpdu-filter",
-    "portfast",
-    "loop-guard"
-  ],
-  "linkedIntents": [
-    "switching.stp_loop"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-switching-002",
-  "title": "Traffic not passing across trunk correctly — VLAN mismatch suspected. What should I check?",
-  "category": "Network",
-  "subcategory": "Switching",
-  "content": "### Overview\nTraffic not passing across trunk correctly — VLAN mismatch suspected. What should I check?\n\n### Likely Causes\n- Native VLAN mismatch on 802.1Q trunk (CDP warning visible)\n- VLAN not in allowed list on trunk interface\n- Access port assigned to wrong VLAN\n- VTP domain mismatch causing VLAN database inconsistency\n- Voice VLAN not configured on access port for IP phone\n- VLAN pruning removing needed VLAN from trunk\n\n### Observability Signals\n- Hosts in VLAN cannot reach each other across trunk\n- CDP/LLDP showing native VLAN mismatch warning\n- ARP requests not reaching hosts across trunk\n- Syslog: 'native VLAN mismatch'\n- show interfaces trunk shows VLAN not in 'VLANs allowed and active'\n\n### Recommended CLI Commands\nshow interfaces trunk\nshow vlan brief\nshow interfaces <int> switchport\nshow cdp neighbors <int> detail | inc VLAN\nshow run interface <int> | inc vlan\nshow vtp status\n\n### Step-by-Step RCA\n1) 'show interfaces trunk' — check 'VLANs allowed and active in management domain'\n2) Check native VLAN both ends match: 'show interfaces trunk'\n3) Verify VLAN is in allowed list on trunk: add if missing\n4) For access port: 'show interfaces <int> switchport' — correct access VLAN?\n5) Check VTP: if VTP, VLAN must exist in VTP database\n6) Confirm VLAN is active: 'show vlan brief' — is it active or suspended?\n\n### Resolution\nAdd VLAN to trunk allowed list; align native VLAN both ends; correct access VLAN assignment; fix VTP domain; activate VLAN.\n\n### Preventive Actions\nAlways explicitly define allowed VLANs on trunks; disable VTP (use VTP transparent or off); alert on native VLAN mismatch.\n\n### Related Tools\nSyslog, CDP/LLDP, SNMP, VTP logs",
-  "problem": "Native VLAN mismatch on 802.1Q trunk (CDP warning visible)",
-  "area": "Switching",
-  "remedyItems": [
-    "Add VLAN to trunk allowed list",
-    "align native VLAN both ends",
-    "correct access VLAN assignment",
-    "fix VTP domain",
-    "activate VLAN.",
-    "Always explicitly define allowed VLANs on trunks"
-  ],
-  "tags": [
-    "vlan-mismatch",
-    "native-vlan",
-    "trunk",
-    "vtp",
-    "vlan-allowed",
-    "access-vlan"
-  ],
-  "linkedIntents": [
-    "switching.vlan_mismatch"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-switching-003",
-  "title": "MAC address table overflow causing traffic flooding — how to diagnose and mitigate?",
-  "category": "Network",
-  "subcategory": "Switching",
-  "content": "### Overview\nMAC address table overflow causing traffic flooding — how to diagnose and mitigate?\n\n### Likely Causes\n- Malicious CAM table overflow attack (MAC flooding tool)\n- VM live migration causing MAC moves across physical hosts\n- MAC aging timer too short causing repeated relearning and flooding\n- MAC table exhausted — switch capacity reached\n- Spanning tree topology change resetting MAC aging to 15 seconds\n- High-density environment exceeding switch MAC table capacity\n\n### Observability Signals\n- mac_table_utilization_percent near 100%\n- High unicast flooding rate on all ports\n- MAC entries seen on multiple ports (MAC moves)\n- Syslog: 'MAC_MOVE', 'mac-address-table full'\n- Traffic visible on ports that should not receive unicast\n\n### Recommended CLI Commands\nshow mac address-table count\nshow mac address-table aging-time\nshow mac address-table | count\nshow logging | inc MAC_MOVE\nshow spanning-tree detail | inc topology\nshow port-security (if deployed)\n\n### Step-by-Step RCA\n1) Check MAC table utilization: 'show mac address-table count'\n2) Check for MAC flood attack: many random MACs from single port?\n3) Check for STP topology change resetting aging: 'show spanning-tree'\n4) For VM migration: is flooding expected during vMotion events?\n5) Check aging timer: if very short, relearning constantly\n6) Use port-security max MACs to limit CAM entries per port\n\n### Resolution\nEnable port-security to limit MACs per port; filter MAC flood source; increase MAC table; tune aging timer; fix STP topology changes.\n\n### Preventive Actions\nEnable port-security on access ports with max-mac limit; monitor MAC table utilization; alert on MAC move rate spikes.\n\n### Related Tools\nSyslog, SNMP, port-security, STP logs",
-  "problem": "Malicious CAM table overflow attack (MAC flooding tool)",
-  "area": "Switching",
-  "remedyItems": [
-    "Enable port-security to limit MACs per port",
-    "filter MAC flood source",
-    "increase MAC table",
-    "tune aging timer",
-    "fix STP topology changes.",
-    "Enable port-security on access ports with max-mac limit"
-  ],
-  "tags": [
-    "mac-flood",
-    "cam-overflow",
-    "mac-table",
-    "port-security",
-    "vm-migration",
-    "unicast-flooding"
-  ],
-  "linkedIntents": [
-    "switching.mac_flood"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-switching-004",
-  "title": "LACP port-channel has gone down or lost all members — how to restore?",
-  "category": "Network",
-  "subcategory": "Switching",
-  "content": "### Overview\nLACP port-channel has gone down or lost all members — how to restore?\n\n### Likely Causes\n- All physical member links failed simultaneously (upstream switch failure)\n- LACP partner system ID changed (switch replaced without config)\n- Min-links threshold not met — bundle went down when members fell below minimum\n- Member links failing due to physical/optical issues\n- LACP PDU exchange stopped — remote switch rebooting\n- Incorrect bundling — members distributed across different switches in stack\n\n### Observability Signals\n- portchannel_state == down\n- portchannel_active_members == 0\n- All member interfaces in down/err-disable state\n- LACP PDU counters stopped\n- Syslog: 'LINEPROTO-5-UPDOWN Port-channel down'\n- min-links threshold events in log\n\n### Recommended CLI Commands\nshow etherchannel summary\nshow interfaces port-channel <n>\nshow lacp neighbor\nshow lacp counters\nshow logging | inc Port-channel|LACP\nshow interfaces <member-int> status\n\n### Step-by-Step RCA\n1) Check member link states: 'show etherchannel summary' — any member in I (individual) or D (down)?\n2) Check physical links: all members down simultaneously suggests upstream device failure\n3) Verify LACP partner system MAC: 'show lacp neighbor' — did peer change?\n4) Check min-links config: how many members required?\n5) Restore member links or fix upstream device\n6) If partner changed (device replaced): reconfigure LACP on new device\n\n### Resolution\nRestore physical member links; fix upstream switch; reconfigure LACP partner; adjust min-links threshold; reseat cables.\n\n### Preventive Actions\nSet min-links below number of uplinks for graceful degradation; monitor member count; alert on member count reduction.\n\n### Related Tools\nSNMP, Syslog, LACP PDU counters",
-  "problem": "All physical member links failed simultaneously (upstream switch failure)",
-  "area": "Switching",
-  "remedyItems": [
-    "Restore physical member links",
-    "fix upstream switch",
-    "reconfigure LACP partner",
-    "adjust min-links threshold",
-    "reseat cables.",
-    "Set min-links below number of uplinks for graceful degradation"
-  ],
-  "tags": [
-    "lacp-down",
-    "port-channel",
-    "etherchannel",
-    "min-links",
-    "member-down",
-    "bundle"
-  ],
-  "linkedIntents": [
-    "switching.lacp_down"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-switching-005",
-  "title": "Private VLAN hosts cannot reach gateway or each other as expected — how to diagnose?",
-  "category": "Network",
-  "subcategory": "Switching",
-  "content": "### Overview\nPrivate VLAN hosts cannot reach gateway or each other as expected — how to diagnose?\n\n### Likely Causes\n- Gateway/router port not configured as promiscuous\n- Secondary VLAN not mapped to primary VLAN\n- Primary VLAN not allowed on uplink trunk\n- Community VLAN members cannot reach each other (isolated VLAN misassigned)\n- SVI not configured as PVLAN promiscuous for L3 routing\n- VTP propagation issue with PVLAN configuration\n\n### Observability Signals\n- Hosts in isolated PVLAN cannot reach gateway\n- Community VLAN hosts cannot communicate\n- ARP for gateway not resolving\n- show vlan private-vlan shows mapping missing\n- Trunk not carrying primary VLAN\n\n### Recommended CLI Commands\nshow vlan private-vlan\nshow interfaces switchport\nshow run interface <gateway-int>\nshow vlan brief\nshow interfaces trunk | inc <primary-vlan>\n\n### Step-by-Step RCA\n1) Check PVLAN config: 'show vlan private-vlan' — primary-secondary mapping correct?\n2) Verify gateway port is promiscuous: 'show interfaces <port> switchport'\n3) Confirm primary VLAN on uplink trunk\n4) Check SVI: 'ip address' and 'private-vlan mapping' configured?\n5) Test ARP from isolated host to gateway IP\n6) Verify community vs isolated assignment matches intended policy\n\n### Resolution\nSet gateway port to promiscuous; map secondary to primary VLAN; add primary to trunk; configure SVI PVLAN mapping.\n\n### Preventive Actions\nDocument PVLAN design; test all port types at deployment; avoid VTP for PVLAN (manual config preferred).\n\n### Related Tools\nSyslog, Packet capture, SNMP",
-  "problem": "Gateway/router port not configured as promiscuous",
-  "area": "Switching",
-  "remedyItems": [
-    "Set gateway port to promiscuous",
-    "map secondary to primary VLAN",
-    "add primary to trunk",
-    "configure SVI PVLAN mapping.",
-    "Document PVLAN design",
-    "test all port types at deployment"
-  ],
-  "tags": [
-    "pvlan",
-    "private-vlan",
-    "promiscuous",
-    "isolated",
-    "community",
-    "svi"
-  ],
-  "linkedIntents": [
-    "switching.pvlan_issue"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-perf-003",
-  "title": "End-to-end latency has spiked for specific flows — how to isolate the latency injection point?",
-  "category": "Network",
-  "subcategory": "Performance",
-  "content": "### Overview\nEnd-to-end latency has spiked for specific flows — how to isolate the latency injection point?\n\n### Likely Causes\n- Routing change adding hops (BGP path change, IGP reconvergence)\n- Serialization delay on low-bandwidth links with large frames\n- Device processing delay (high CPU, software switching instead of hardware)\n- ISP BGP routing table change increasing path length\n- Asymmetric routing through distant POP\n- Queuing delay from congestion on transit link\n\n### Observability Signals\n- latency_ms > baseline by > 20%\n- Traceroute showing new hops or increased RTT at specific hop\n- Routing table change coinciding with latency spike\n- IPSLA RTT probe elevated\n- Specific destination affected (not all-destinations = local issue)\n\n### Recommended CLI Commands\ntraceroute <dst> source <src>\nmtr <dst> (continuous traceroute)\nshow ip route <dst>\nping <dst> repeat 100 size 1400\nip sla statistics\nshow ip bgp <dst-prefix> (check path changes)\n\n### Step-by-Step RCA\n1) Run traceroute: identify which hop added latency\n2) Is hop inside your network or ISP network?\n3) Check routing table: did path change recently? When?\n4) Compare BGP path before and after latency increase\n5) If internal device: check CPU — is it software-switching?\n6) Check for serialization: packet_size / link_bps = serialization_delay\n\n### Resolution\nRestore optimal routing path; fix BGP preference; upgrade low-bandwidth link; fix software-switching to hardware CEF; engage ISP.\n\n### Preventive Actions\nDeploy continuous IPSLA RTT probes; alert on latency > 2x baseline; maintain routing change log.\n\n### Related Tools\nIPSLA, traceroute, MTR, BGP logs, SNMP",
-  "problem": "Routing change adding hops (BGP path change, IGP reconvergence)",
-  "area": "Performance",
-  "remedyItems": [
-    "Restore optimal routing path",
-    "fix BGP preference",
-    "upgrade low-bandwidth link",
-    "fix software-switching to hardware CEF",
-    "engage ISP.",
-    "Deploy continuous IPSLA RTT probes"
-  ],
-  "tags": [
-    "latency",
-    "traceroute",
-    "routing-change",
-    "bgp-path",
-    "serialization",
-    "ipsla"
-  ],
-  "linkedIntents": [
-    "performance.high_latency"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-perf-004",
-  "title": "Stateful firewall dropping established sessions — could asymmetric routing be the cause?",
-  "category": "Network",
-  "subcategory": "Performance",
-  "content": "### Overview\nStateful firewall dropping established sessions — could asymmetric routing be the cause?\n\n### Likely Causes\n- Forward and return traffic traversing different stateful devices\n- ECMP load balancing sending flows through different firewall instances\n- HA failover changing active firewall without state sync\n- PBR applied only one direction\n- Multi-homed host with different source IPs per interface\n- Route change causing return path to bypass firewall state table\n\n### Observability Signals\n- Established TCP sessions dropping mid-flow\n- Firewall showing half-open or asymmetric flow logs\n- Traceroute from source and destination showing different paths\n- Session table showing one-sided entries (SYN but no SYN-ACK)\n- Drops specifically on return traffic (outbound fine, inbound dropped)\n\n### Recommended CLI Commands\ntraceroute <dst> source <src>\ntraceroute <src> source <dst> (reverse path)\nshow conn detail (ASA/FTD)\nshow ip cef <prefix> detail (ECMP paths)\nshow ip route <src-prefix> (from fw perspective)\nshow failover (HA state sync check)\n\n### Step-by-Step RCA\n1) Traceroute both directions: do paths differ?\n2) Do both forward and return pass same firewall? Check ECMP hashing\n3) If ECMP: disable and force single path as test\n4) Check HA state sync: is state table synchronized between active/standby?\n5) Review PBR: is it applied on both inbound and return interfaces?\n6) Enable 'ip nat outside' / asymmetric routing compensation if supported\n\n### Resolution\nForce symmetric routing via static routes or PBR; enable firewall state sync; use active/standby HA; tune ECMP per-flow hashing.\n\n### Preventive Actions\nAudit routing symmetry before deploying stateful devices; test HA failover with live sessions; review ECMP paths after routing changes.\n\n### Related Tools\nFirewall logs, Traceroute, NetFlow, ECMP analysis",
-  "problem": "Forward and return traffic traversing different stateful devices",
-  "area": "Performance",
-  "remedyItems": [
-    "Force symmetric routing via static routes or PBR",
-    "enable firewall state sync",
-    "use active/standby HA",
-    "tune ECMP per-flow hashing.",
-    "Audit routing symmetry before deploying stateful devices",
-    "test HA failover with live sessions"
-  ],
-  "tags": [
-    "asymmetric-routing",
-    "stateful-firewall",
-    "ecmp",
-    "ha-failover",
-    "session-drop",
-    "pbr"
-  ],
-  "linkedIntents": [
-    "performance.asymmetric_routing"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-wan-002",
-  "title": "WAN circuit is completely down — how to isolate CPE fault vs carrier fault vs local loop?",
-  "category": "Network",
-  "subcategory": "WAN",
-  "content": "### Overview\nWAN circuit is completely down — how to isolate CPE fault vs carrier fault vs local loop?\n\n### Likely Causes\n- CPE hardware failure (router interface, SFP, WAN card)\n- Local loop fault between CPE and carrier demarc (cable, ONT, DSLAM)\n- Carrier backbone or aggregation network failure\n- Scheduled maintenance not communicated\n- Physical damage to outside plant (fiber cut, cable theft)\n- AC power failure at carrier POP\n\n### Observability Signals\n- WAN interface oper_status == down\n- LOS/LOF alarms on WAN interface\n- No keepalives from CE router to PE\n- BGP/routing protocol down on WAN link\n- Carrier NMS showing circuit alarm\n\n### Recommended CLI Commands\nshow interface <wan-int>\nshow interface <wan-int> | inc alarm|LOS|LOF\nshow controllers serial <int> (T1/E1)\nping <carrier-pe-ip> (loopback test)\nshow logging | inc LINK|down\ncheck carrier status portal\n\n### Step-by-Step RCA\n1) Check physical layer alarms: LOS, LOF, AIS — confirms carrier-side issue\n2) Test CPE: swap cable from CPE to demarc; test with different CPE port\n3) Request loopback test from carrier at demarc — if loopback passes = local loop OK\n4) Check carrier NOC/portal for active incidents on circuit\n5) Check power at both ends: CPE and carrier POP\n6) Escalate to carrier with MTTR SLA enforcement\n\n### Resolution\nReplace CPE hardware if at fault; carrier dispatches tech for local loop repair; carrier restores backbone; activate backup circuit.\n\n### Preventive Actions\nDual-carrier or backup circuit (LTE/SD-WAN); monitor circuit LOS/LOF alarms; carrier SLA with 4-hour MTTR.\n\n### Related Tools\nSNMP, Syslog, carrier portal, loopback test",
-  "problem": "CPE hardware failure (router interface, SFP, WAN card)",
-  "area": "WAN",
-  "remedyItems": [
-    "Replace CPE hardware if at fault",
-    "carrier dispatches tech for local loop repair",
-    "carrier restores backbone",
-    "activate backup circuit.",
-    "Dual-carrier or backup circuit (LTE/SD-WAN)",
-    "monitor circuit LOS/LOF alarms"
-  ],
-  "tags": [
-    "wan-circuit-down",
-    "los",
-    "carrier-fault",
-    "local-loop",
-    "cpe-failure",
-    "fiber-cut"
-  ],
-  "linkedIntents": [
-    "wan.circuit_down"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-wan-003",
-  "title": "Primary WAN failed but backup did not take over — WAN failover is stuck. What to check?",
-  "category": "Network",
-  "subcategory": "WAN",
-  "content": "### Overview\nPrimary WAN failed but backup did not take over — WAN failover is stuck. What to check?\n\n### Likely Causes\n- IP SLA probe target unreachable even on backup path (probe testing wrong target)\n- Track object not linked to static route or routing process\n- Backup interface (LTE/DSL) not dialing up or authenticating\n- Floating static route AD not higher than primary dynamic route\n- Both primary and backup circuits failed simultaneously\n- IP SLA probe itself failing due to firewall blocking probe packets\n\n### Observability Signals\n- Primary WAN down; backup WAN interface not active\n- IP SLA probe state showing down on both paths\n- Track object state not changing despite primary failure\n- Routing table still showing primary route (backup not installed)\n- Backup interface (dialer/cellular) in down/idle state\n\n### Recommended CLI Commands\nshow ip sla statistics\nshow track\nshow ip route\nshow interface dialer <n>\nshow interface cellular <n>\nshow logging | inc TRACK|IPSLA|route\n\n### Step-by-Step RCA\n1) 'show track' — is track object detecting primary failure?\n2) 'show ip sla statistics' — is probe succeeding or failing?\n3) Test probe target: can you reach the probe target from backup path?\n4) Check routing table: is floating static installed?\n5) Check backup interface: 'show interface cellular/dialer' — is it negotiating?\n6) Check cellular signal strength / DSL sync for backup circuit health\n\n### Resolution\nFix IP SLA probe target; link track object to route; fix backup interface auth/PPP; correct floating static AD; restore backup circuit.\n\n### Preventive Actions\nTest failover quarterly with controlled primary outage; monitor backup circuit health proactively; use dual probe targets.\n\n### Related Tools\nIPSLA, Syslog, SNMP, carrier portal",
-  "problem": "IP SLA probe target unreachable even on backup path (probe testing wrong target)",
-  "area": "WAN",
-  "remedyItems": [
-    "Fix IP SLA probe target",
-    "link track object to route",
-    "fix backup interface auth/PPP",
-    "correct floating static AD",
-    "restore backup circuit.",
-    "Test failover quarterly with controlled primary outage"
-  ],
-  "tags": [
-    "wan-failover",
-    "ipsla",
-    "track-object",
-    "floating-static",
-    "lte-backup",
-    "dialer",
-    "failover-stuck"
-  ],
-  "linkedIntents": [
-    "wan.failover_stuck"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-vpn-001",
-  "title": "IPsec tunnel is completely down — IKE/ISAKMP negotiation failing. How to diagnose?",
-  "category": "Network",
-  "subcategory": "VPN",
-  "content": "### Overview\nIPsec tunnel is completely down — IKE/ISAKMP negotiation failing. How to diagnose?\n\n### Likely Causes\n- IKE Phase 1 policy mismatch (encryption, hash, DH group, lifetime)\n- Pre-shared key mismatch\n- NAT-T not enabled when peers are behind NAT\n- Dead Peer Detection (DPD) timeout causing tunnel teardown\n- Certificate authentication failure (cert expired or CA not trusted)\n- Access control blocking IKE UDP 500/4500\n- Peer IP address changed (dynamic IP site)\n\n### Observability Signals\n- ipsec_tunnel_state == down\n- IKE SA not established (show crypto isakmp sa = blank)\n- Syslog: 'ISAKMP: no proposal chosen', 'MM_NO_STATE'\n- UDP 500/4500 not reaching peer\n- DPD R-U-THERE timeouts in log\n\n### Recommended CLI Commands\nshow crypto isakmp sa\nshow crypto ipsec sa\nshow logging | inc ISAKMP|IKE|IPsec\ndebug crypto isakmp (brief window)\nping <peer-ip> (underlay reachability)\ntelnet <peer-ip> 500 (UDP 500 reachability test — won't connect but tests ACL)\n\n### Step-by-Step RCA\n1) Check IKE SA: 'show crypto isakmp sa' — any SA in MM_NO_STATE or AM_ACTIVE?\n2) Check ISAKMP policy: match encryption, hash, DH group, auth method, lifetime on both peers\n3) Verify PSK matches exactly (case-sensitive)\n4) Check NAT-T: if behind NAT, ensure NAT-T enabled and UDP 4500 permitted\n5) Check ACL: UDP 500 and 4500 (NAT-T) must reach peer\n6) For cert auth: check cert expiry and CA chain on both peers\n\n### Resolution\nAlign IKE policy; fix PSK; enable NAT-T; open UDP 500/4500; renew certificate; update peer IP for dynamic sites.\n\n### Preventive Actions\nDocument IKE policy on both peers; test tunnel with 'clear crypto sa' after changes; monitor tunnel uptime.\n\n### Related Tools\nVPN logs, Packet capture, Syslog, certificate monitoring",
-  "problem": "IKE Phase 1 policy mismatch (encryption, hash, DH group, lifetime)",
-  "area": "VPN",
-  "remedyItems": [
-    "Align IKE policy",
-    "fix PSK",
-    "enable NAT-T",
-    "open UDP 500/4500",
-    "renew certificate",
-    "update peer IP for dynamic sites."
-  ],
-  "tags": [
-    "ipsec-down",
-    "ike-phase1",
-    "isakmp",
-    "psk",
-    "nat-t",
-    "dpd",
-    "certificate",
-    "udp-500"
-  ],
-  "linkedIntents": [
-    "vpn.ipsec_down"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-vpn-002",
-  "title": "Remote users cannot connect to SSL VPN gateway — how to diagnose?",
-  "category": "Network",
-  "subcategory": "VPN",
-  "content": "### Overview\nRemote users cannot connect to SSL VPN gateway — how to diagnose?\n\n### Likely Causes\n- SSL VPN gateway process crashed or not listening on HTTPS\n- Certificate on VPN gateway expired — clients rejecting TLS\n- VPN gateway IP/FQDN unreachable (firewall, routing)\n- IP address pool exhausted — no addresses to assign\n- MFA/RADIUS backend unreachable causing auth failure\n- Split-tunnel routing not configured — DNS not resolving after connect\n\n### Observability Signals\n- ssl_vpn_gateway_reachable == 0\n- TLS connection to gateway port 443/10443 refused or timing out\n- Certificate error in client browser/VPN client\n- Session table showing zero active SSL VPN sessions\n- RADIUS auth timeout events in VPN gateway logs\n\n### Recommended CLI Commands\ncurl -vI https://<vpn-gateway>:443\nopenssl s_client -connect <vpn-gateway>:443\nshow vpn-sessiondb summary\nshow ip local pool\nshow aaa servers\nping <vpn-gateway> from external host\n\n### Step-by-Step RCA\n1) Test gateway reachability: curl HTTPS, check TLS cert\n2) Check VPN service process on gateway: is it running?\n3) Check certificate expiry: 'openssl s_client' shows cert details\n4) Check IP pool: 'show ip local pool' — any addresses remaining?\n5) Test RADIUS: 'test aaa group radius' from gateway\n6) Check firewall: is inbound HTTPS to VPN gateway permitted?\n\n### Resolution\nRestart VPN service; renew certificate; expand IP pool; restore RADIUS connectivity; fix firewall rule; update DNS for gateway FQDN.\n\n### Preventive Actions\nMonitor gateway availability via synthetic HTTPS probe; cert expiry alert 30 days; pool utilization alert at 80%.\n\n### Related Tools\nopenssl, curl, VPN logs, RADIUS logs, SNMP",
-  "problem": "SSL VPN gateway process crashed or not listening on HTTPS",
-  "area": "VPN",
-  "remedyItems": [
-    "Restart VPN service",
-    "renew certificate",
-    "expand IP pool",
-    "restore RADIUS connectivity",
-    "fix firewall rule",
-    "update DNS for gateway FQDN."
-  ],
-  "tags": [
-    "ssl-vpn",
-    "remote-access",
-    "certificate",
-    "ip-pool",
-    "radius",
-    "anyconnect",
-    "gateway-down"
-  ],
-  "linkedIntents": [
-    "vpn.ssl_vpn_unreachable"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-vpn-003",
-  "title": "DMVPN spoke cannot register with hub — how to troubleshoot NHRP and IKE for DMVPN?",
-  "category": "Network",
-  "subcategory": "VPN",
-  "content": "### Overview\nDMVPN spoke cannot register with hub — how to troubleshoot NHRP and IKE for DMVPN?\n\n### Likely Causes\n- NHRP network ID mismatch between hub and spoke\n- IKE policy mismatch preventing spoke-hub tunnel establishment\n- NHS (hub) IP address unreachable from spoke underlay\n- CGNAT or carrier-side NAT changing spoke source IP\n- mGRE tunnel interface misconfiguration (wrong tunnel source)\n- NHRP authentication mismatch\n\n### Observability Signals\n- DMVPN spoke state: NHRP registration not in hub cache\n- IKE SA not established from spoke to hub\n- mGRE tunnel interface down on spoke\n- 'show dmvpn' showing spoke as DOWN at hub\n- Spoke cannot ping hub tunnel IP\n\n### Recommended CLI Commands\nshow dmvpn\nshow ip nhrp\nshow crypto isakmp sa\nshow interface tunnel <n>\nshow ip nhrp nhs\ndebug nhrp registration (brief window)\nping <hub-tunnel-ip> source tunnel <n>\n\n### Step-by-Step RCA\n1) Check hub NHRP cache: 'show ip nhrp' — is spoke registered?\n2) Check spoke tunnel interface: up/up? Tunnel source/destination correct?\n3) Test underlay: can spoke reach hub NBMA IP?\n4) Check IKE: is Phase 1 SA established spoke to hub?\n5) Verify NHRP network ID matches hub config\n6) Check if CGNAT is changing spoke source IP (NHRP maps wrong IP)\n\n### Resolution\nFix NHRP network ID; align IKE policy; restore underlay reachability; configure NAT-T for CGNAT; correct tunnel source.\n\n### Preventive Actions\nMonitor DMVPN spoke count at hub; alert on registration drops; test spoke failover on WAN redundancy.\n\n### Related Tools\nNHRP logs, IKE logs, DMVPN controller logs, Syslog",
-  "problem": "NHRP network ID mismatch between hub and spoke",
-  "area": "VPN",
-  "remedyItems": [
-    "Fix NHRP network ID",
-    "align IKE policy",
-    "restore underlay reachability",
-    "configure NAT-T for CGNAT",
-    "correct tunnel source.",
-    "Monitor DMVPN spoke count at hub"
-  ],
-  "tags": [
-    "dmvpn",
-    "nhrp",
-    "spoke-down",
-    "mGRE",
-    "nhs",
-    "cgnat",
-    "ike"
-  ],
-  "linkedIntents": [
-    "vpn.dmvpn_spoke_down"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-vpn-004",
-  "title": "GRE tunnel interface is down or traffic is not forwarding — what are the root causes?",
-  "category": "Network",
-  "subcategory": "VPN",
-  "content": "### Overview\nGRE tunnel interface is down or traffic is not forwarding — what are the root causes?\n\n### Likely Causes\n- Recursive routing: tunnel destination routed via tunnel itself\n- IP Protocol 47 (GRE) blocked by ACL or firewall\n- GRE keepalives failing (if configured) causing tunnel down\n- Tunnel source or destination IP unreachable\n- MTU mismatch causing large packets to be dropped inside GRE\n- IP address not configured on tunnel interface\n\n### Observability Signals\n- tunnel_oper_status == down\n- Recursive routing error in syslog\n- GRE traffic not seen at far end (capture shows GRE packets dropped)\n- Tunnel down with 'no keepalive responses' reason\n- Large pings fail through tunnel; small pings succeed\n\n### Recommended CLI Commands\nshow interface tunnel <n>\nshow ip route <tunnel-destination>\nping <far-end-tunnel-ip> source tunnel <n>\nping <far-end-tunnel-ip> df-bit size 1400\nshow ip traffic | inc GRE\ntraceroute <dst> source tunnel <n>\n\n### Step-by-Step RCA\n1) Check tunnel interface: 'show interface tunnel' — line protocol down or up?\n2) For recursive routing: 'show ip route <tunnel-dest>' — is it via the tunnel itself?\n3) If recursive: add static route for tunnel destination via physical interface\n4) Test proto 47: packet capture on underlay — are GRE packets visible?\n5) Check MTU: 'ping df-bit size 1452' — does it pass through tunnel?\n6) Verify keepalive configuration if used — disable and test\n\n### Resolution\nFix recursive routing with static route; permit proto 47 in ACL; set tunnel MTU minus 24 bytes; disable or fix keepalives.\n\n### Preventive Actions\nAlways use static route for tunnel destination to prevent recursive routing; document GRE MTU requirements.\n\n### Related Tools\nPacket capture, Syslog, SNMP, Ping/traceroute",
-  "problem": "Recursive routing: tunnel destination routed via tunnel itself",
-  "area": "VPN",
-  "remedyItems": [
-    "Fix recursive routing with static route",
-    "permit proto 47 in ACL",
-    "set tunnel MTU minus 24 bytes",
-    "disable or fix keepalives.",
-    "Always use static route for tunnel destination to prevent recursive routing",
-    "document GRE MTU requirements."
-  ],
-  "tags": [
-    "gre",
-    "tunnel-down",
-    "recursive-routing",
-    "proto-47",
-    "keepalive",
-    "mtu",
-    "blackhole"
-  ],
-  "linkedIntents": [
-    "vpn.gre_down"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-services-001",
-  "title": "NXDOMAIN response rate spiked — clients getting 'name not found' errors. What is causing this?",
-  "category": "Network",
-  "subcategory": "Services",
-  "content": "### Overview\nNXDOMAIN response rate spiked — clients getting 'name not found' errors. What is causing this?\n\n### Likely Causes\n- DNS zone data missing or zone transfer failure\n- DNS delegation broken — parent zone not pointing to authoritative server\n- Wrong search domain suffix causing FQDN resolution failure\n- DNS server cache poisoned with invalid NXDOMAIN responses\n- Recent DNS record deletion or TTL expiry\n- Split-horizon DNS serving wrong zone to clients\n\n### Observability Signals\n- nxdomain_rate > baseline by > 3x\n- Specific domain or subdomain generating NXDOMAIN\n- DNS zone transfer failures in authoritative server logs\n- Clients reporting specific application FQDNs not resolving\n- Recent DNS record changes correlating with spike\n\n### Recommended CLI Commands\ndig <failing-fqdn> +trace\nnslookup <fqdn> <dns-server>\ndig @<auth-server> <zone> AXFR (zone transfer test)\ndig <fqdn> SOA (check zone authority)\ncheck DNS server logs for NXDOMAIN volume\ntail -f /var/log/named/default (BIND)\n\n### Step-by-Step RCA\n1) Identify which FQDN(s) generating NXDOMAIN\n2) 'dig +trace' to follow delegation from root\n3) Is authoritative server responding? Is zone loaded?\n4) Check zone transfer: is secondary in sync with primary?\n5) Check for recent record deletions in DNS change log\n6) For split-horizon: is the correct view serving the client network?\n\n### Resolution\nRestore deleted record; fix zone transfer; correct delegation; fix search domain; flush poisoned cache; correct split-horizon view.\n\n### Preventive Actions\nMonitor zone transfer success rate; DNSSEC for cache poisoning protection; change control for DNS record deletions.\n\n### Related Tools\ndig, nslookup, DNS logs, DNSSEC validator",
-  "problem": "DNS zone data missing or zone transfer failure",
-  "area": "Services",
-  "remedyItems": [
-    "Restore deleted record",
-    "fix zone transfer",
-    "correct delegation",
-    "fix search domain",
-    "flush poisoned cache",
-    "correct split-horizon view."
-  ],
-  "tags": [
-    "dns-nxdomain",
-    "zone-transfer",
-    "delegation",
-    "search-domain",
-    "split-horizon",
-    "cache-poisoning"
-  ],
-  "linkedIntents": [
-    "services.dns_nxdomain_spike"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-services-002",
-  "title": "DHCP pool is exhausted — clients not getting IP addresses. How to recover and prevent recurrence?",
-  "category": "Network",
-  "subcategory": "Services",
-  "content": "### Overview\nDHCP pool is exhausted — clients not getting IP addresses. How to recover and prevent recurrence?\n\n### Likely Causes\n- DHCP starvation attack: attacker flooding DISCOVER with random MACs\n- Lease time too long — stale leases from departed devices\n- Scope undersized for current device count\n- Rogue DHCP server consuming part of pool\n- Ghost leases from improperly decommissioned devices\n- Rapid device turnover (hot-desking, guest access) exhausting leases\n\n### Observability Signals\n- dhcp_pool_utilization_percent == 100\n- DHCP DISCOVER with no OFFER in capture\n- New devices getting APIPA (169.254.x.x) addresses\n- DHCP server log: 'no free leases'\n- Unusually high number of active leases vs connected devices\n\n### Recommended CLI Commands\nshow ip dhcp binding | count\nshow ip dhcp pool\nshow ip dhcp conflict\nshow ip dhcp statistics\ntcpdump -i <int> port 67 or port 68\nclear ip dhcp binding * (emergency — use with caution)\n\n### Step-by-Step RCA\n1) Check utilization: 'show ip dhcp pool' — leased vs total\n2) Compare lease count vs known-connected device count (via ARP/MAC table)\n3) Look for starvation: many leases to sequential/random MACs from same port?\n4) Check lease time: if 8 days, old leases from gone devices still held\n5) For starvation attack: identify source port, enable DHCP snooping\n6) Emergency recovery: reduce lease time to reclaim expired leases faster\n\n### Resolution\nReduce lease time; clear stale bindings; expand pool; enable DHCP snooping; block starvation source; add exclusion ranges.\n\n### Preventive Actions\nAlert at 80% pool utilization; enable DHCP snooping; IPAM for pool capacity planning; use short lease times for guest/WiFi.\n\n### Related Tools\nDHCP logs, SNMP, IPAM, DHCP snooping",
-  "problem": "DHCP starvation attack: attacker flooding DISCOVER with random MACs",
-  "area": "Services",
-  "remedyItems": [
-    "Reduce lease time",
-    "clear stale bindings",
-    "expand pool",
-    "enable DHCP snooping",
-    "block starvation source",
-    "add exclusion ranges."
-  ],
-  "tags": [
-    "dhcp-exhausted",
-    "pool-full",
-    "stale-leases",
-    "dhcp-starvation",
-    "snooping",
-    "lease-time"
-  ],
-  "linkedIntents": [
-    "services.dhcp_exhausted"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-services-003",
-  "title": "Device showing high NTP stratum (16 = unsynchronized) — how to restore time sync?",
-  "category": "Network",
-  "subcategory": "Services",
-  "content": "### Overview\nDevice showing high NTP stratum (16 = unsynchronized) — how to restore time sync?\n\n### Likely Causes\n- Upstream NTP server unreachable (ACL, routing, NTP server down)\n- NTP authentication key mismatch\n- All configured NTP peers stratum 16 (upstream hierarchy broken)\n- Clock drift too large for NTP to step-correct (requires ntpdate force)\n- VRF not specified for NTP source interface\n- Firewall blocking UDP 123 between device and NTP server\n\n### Observability Signals\n- ntp_stratum == 16 (unsynchronized)\n- 'show ntp associations' showing no synced peer (*)\n- Time offset between device and NTP server > 1000ms\n- Syslog timestamps misaligned with actual events\n- Multiple correlation/forensic issues due to clock skew\n\n### Recommended CLI Commands\nshow ntp associations detail\nshow ntp status\nshow clock detail\nntpdate -q <ntp-server> (test sync)\ntelnet <ntp-server> (ACL test — NTP is UDP so use ping)\nping <ntp-server> vrf <mgmt>\n\n### Step-by-Step RCA\n1) 'show ntp associations' — is any server in synced state (*)?\n2) Test NTP server reachability from correct VRF: 'ping <ntp-ip> vrf mgmt'\n3) Check NTP auth: key configured on both device and server?\n4) Check offset: if > 128ms, ntp may need manual step-sync\n5) Trace NTP hierarchy upward — is upstream NTP server itself synchronized?\n6) Force sync: 'ntp update-calendar' or 'clock set' then 'ntp sync'\n\n### Resolution\nFix routing/ACL to NTP server; correct auth key; force time step if offset > 128ms; fix upstream NTP hierarchy; specify VRF.\n\n### Preventive Actions\nConfigure 3+ NTP sources; monitor stratum and offset continuously; alert on offset > 100ms; use internal NTP hierarchy.\n\n### Related Tools\nNTP logs, Syslog, SNMP, ntpdate",
-  "problem": "Upstream NTP server unreachable (ACL, routing, NTP server down)",
-  "area": "Services",
-  "remedyItems": [
-    "Fix routing/ACL to NTP server",
-    "correct auth key",
-    "force time step if offset > 128ms",
-    "fix upstream NTP hierarchy",
-    "specify VRF.",
-    "Configure 3+ NTP sources"
-  ],
-  "tags": [
-    "ntp",
-    "stratum-16",
-    "time-sync",
-    "clock-drift",
-    "udp-123",
-    "vrf",
-    "ntp-auth"
-  ],
-  "linkedIntents": [
-    "services.ntp_stratum_high"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-k8s-001",
-  "title": "Kubernetes node is in NotReady state — pods being evicted or not scheduled. How to diagnose?",
-  "category": "Compute",
-  "subcategory": "Node Health",
-  "content": "### Overview\nKubernetes node is in NotReady state — pods being evicted or not scheduled. How to diagnose?\n\n### Likely Causes\n- kubelet process crashed or OOM killed\n- Disk pressure: node disk full (/var/lib/docker or /var/lib/kubelet)\n- Memory pressure: node memory exhausted causing kubelet issues\n- CNI plugin failure (Calico, Flannel, Cilium) preventing pod networking\n- API server unreachable — kubelet cannot report status\n- containerd/docker daemon crashed\n- Clock skew causing TLS certificate validation failure\n\n### Observability Signals\n- node_ready_status == False\n- node_conditions showing DiskPressure, MemoryPressure, PIDPressure\n- Pods in Terminating or Evicted state on node\n- kubelet logs showing errors\n- API server showing node as not reporting\n\n### Recommended CLI Commands\nkubectl get nodes -o wide\nkubectl describe node <node>\nkubectl get events --field-selector involvedObject.name=<node>\nssh <node> systemctl status kubelet\nssh <node> journalctl -u kubelet -n 100\nssh <node> df -h\nssh <node> free -m\n\n### Step-by-Step RCA\n1) 'kubectl describe node <node>' — check conditions: DiskPressure, MemoryPressure\n2) SSH to node: is kubelet running? 'systemctl status kubelet'\n3) Check kubelet logs: 'journalctl -u kubelet -n 200'\n4) Check disk: 'df -h /var/lib/kubelet' and '/var/lib/containerd'\n5) Check memory: is kubelet OOM killed? 'dmesg | grep OOM'\n6) Check CNI: are pod network interfaces being created?\n\n### Resolution\nRestart kubelet; free disk space; increase node resources; reinstall CNI; fix API server reachability; sync clock.\n\n### Preventive Actions\nSet eviction thresholds before NotReady; monitor node conditions via Prometheus; set disk alert at 80% for kubelet paths.\n\n### Related Tools\nkubectl, Prometheus node-exporter, journalctl, k8s events",
-  "problem": "kubelet process crashed or OOM killed",
-  "area": "Node Health",
-  "remedyItems": [
-    "Restart kubelet",
-    "free disk space",
-    "increase node resources",
-    "reinstall CNI",
-    "fix API server reachability",
-    "sync clock."
-  ],
-  "tags": [
-    "k8s",
-    "node-not-ready",
-    "kubelet",
-    "disk-pressure",
-    "memory-pressure",
-    "cni",
-    "eviction"
-  ],
-  "linkedIntents": [
-    "k8s.node_not_ready"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-k8s-002",
-  "title": "Kubernetes pod is stuck in Pending state — it is not being scheduled. What are the causes?",
-  "category": "Compute",
-  "subcategory": "Pod Scheduling",
-  "content": "### Overview\nKubernetes pod is stuck in Pending state — it is not being scheduled. What are the causes?\n\n### Likely Causes\n- Insufficient CPU or memory resources across all nodes\n- Node selector or affinity rules with no matching node\n- Node taint with no matching toleration in pod spec\n- PVC not bound — pod waiting for persistent volume\n- Image pull failure (ImagePullBackOff before Pending)\n- Resource quota exceeded in namespace\n- Pod disruption budget preventing scheduling\n\n### Observability Signals\n- pod_status == Pending for > 5 minutes\n- kubectl events showing 'Insufficient cpu/memory'\n- 'FailedScheduling' event with specific reason\n- No nodes match node selector or affinity\n- PVC in Pending state (no available PV)\n\n### Recommended CLI Commands\nkubectl describe pod <pod> -n <ns>\nkubectl get events -n <ns> | grep FailedScheduling\nkubectl describe nodes | grep -A 5 'Allocated resources'\nkubectl get pvc -n <ns>\nkubectl get resourcequota -n <ns>\nkubectl get nodes -o json | jq '.items[].spec.taints'\n\n### Step-by-Step RCA\n1) 'kubectl describe pod' — check Events section at bottom for scheduling reason\n2) 'Insufficient cpu/memory': check node capacity vs requested resources\n3) 'No nodes match selector': check nodeSelector/affinity vs node labels\n4) 'Taints': add toleration or remove taint from target node\n5) PVC Pending: check StorageClass and available PVs\n6) Quota: 'kubectl describe resourcequota' — which resource is over limit?\n\n### Resolution\nAdd nodes or reduce resource requests; fix node labels/affinity; add toleration; bind PV; increase quota; adjust pod disruption budget.\n\n### Preventive Actions\nCapacity planning for resource requests; limit ranges to prevent over-requesting; monitor scheduling failure events.\n\n### Related Tools\nkubectl, Prometheus, k8s events, vertical pod autoscaler",
-  "problem": "Insufficient CPU or memory resources across all nodes",
-  "area": "Pod Scheduling",
-  "remedyItems": [
-    "Add nodes or reduce resource requests",
-    "fix node labels/affinity",
-    "add toleration",
-    "bind PV",
-    "increase quota",
-    "adjust pod disruption budget."
-  ],
-  "tags": [
-    "k8s",
-    "pod-pending",
-    "scheduling",
-    "resources",
-    "affinity",
-    "taint",
-    "pvc",
-    "quota"
-  ],
-  "linkedIntents": [
-    "k8s.pod_pending"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-k8s-003",
-  "title": "PersistentVolumeClaim is stuck in Pending state — pods cannot start. How to resolve?",
-  "category": "Compute",
-  "subcategory": "Storage",
-  "content": "### Overview\nPersistentVolumeClaim is stuck in Pending state — pods cannot start. How to resolve?\n\n### Likely Causes\n- No PersistentVolume matches the PVC request (size, access mode, StorageClass)\n- StorageClass dynamic provisioner (CSI driver) not running\n- Storage backend quota exhausted\n- Availability zone mismatch between PVC topology and available nodes\n- PVC requesting access mode not supported by StorageClass (ReadWriteMany on block storage)\n- Binding mode 'WaitForFirstConsumer' — PVC waits for pod to schedule first\n\n### Observability Signals\n- pvc_status == Pending\n- Events: 'no persistent volumes available' or 'storageclass not found'\n- CSI provisioner pod in CrashLoopBackOff or not running\n- Storage quota exceeded event\n- PV available but wrong StorageClass or access mode\n\n### Recommended CLI Commands\nkubectl describe pvc <pvc-name> -n <ns>\nkubectl get pv (check available PVs)\nkubectl get storageclass\nkubectl get pods -n kube-system | grep csi\nkubectl describe storageclass <class>\nkubectl get events -n <ns> | grep ProvisioningFailed\n\n### Step-by-Step RCA\n1) 'kubectl describe pvc' — Events show exact failure reason\n2) Check StorageClass: does it exist and is provisioner running?\n3) CSI driver: is provisioner pod healthy in kube-system?\n4) Check existing PVs: any available matching size and access mode?\n5) For WaitForFirstConsumer: PVC binds when pod is scheduled — is pod pending too?\n6) Check storage backend: quota, connectivity, CSI driver logs\n\n### Resolution\nCreate matching PV manually; restart CSI provisioner; expand storage backend quota; change StorageClass; fix zone topology.\n\n### Preventive Actions\nMonitor CSI provisioner health; set storage quota alerts; test dynamic provisioning in staging; document StorageClass capabilities.\n\n### Related Tools\nkubectl, CSI driver logs, Prometheus, storage backend console",
-  "problem": "No PersistentVolume matches the PVC request (size, access mode, StorageClass)",
-  "area": "Storage",
-  "remedyItems": [
-    "Create matching PV manually",
-    "restart CSI provisioner",
-    "expand storage backend quota",
-    "change StorageClass",
-    "fix zone topology.",
-    "Monitor CSI provisioner health"
-  ],
-  "tags": [
-    "k8s",
-    "pvc-pending",
-    "storageclass",
-    "csi",
-    "persistent-volume",
-    "provisioner",
-    "quota"
-  ],
-  "linkedIntents": [
-    "k8s.pvc_unbound"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-k8s-004",
-  "title": "Kubernetes Ingress is not routing traffic — HTTP 502/503 or connection refused. How to debug?",
-  "category": "Compute",
-  "subcategory": "Ingress",
-  "content": "### Overview\nKubernetes Ingress is not routing traffic — HTTP 502/503 or connection refused. How to debug?\n\n### Likely Causes\n- Ingress controller pod not running (nginx, traefik, etc.)\n- Backend service not found or endpoint not ready\n- TLS secret missing or certificate expired\n- Incorrect Ingress annotation causing misrouting\n- Service selector not matching pod labels\n- IngressClass not matching controller\n- Upstream pod not passing readiness probe\n\n### Observability Signals\n- HTTP 502 (bad gateway) or 503 (service unavailable) from ingress\n- Ingress controller pod in CrashLoopBackOff\n- 'No endpoints available' in ingress controller logs\n- TLS secret not found event\n- Service endpoints count == 0\n\n### Recommended CLI Commands\nkubectl get ingress -n <ns>\nkubectl describe ingress <name> -n <ns>\nkubectl get pods -n ingress-nginx (or traefik ns)\nkubectl get endpoints <service> -n <ns>\nkubectl get secret <tls-secret> -n <ns>\nkubectl logs -n ingress-nginx <controller-pod> | grep error\n\n### Step-by-Step RCA\n1) Check ingress controller pod: running and healthy?\n2) 'kubectl describe ingress' — any warning events?\n3) Check backend service: 'kubectl get endpoints <svc>' — any IPs listed?\n4) If endpoints empty: check service selector vs pod labels\n5) Check TLS secret: present in correct namespace? Cert valid?\n6) Review ingress annotations — any typo or incorrect value?\n\n### Resolution\nRestart ingress controller; fix service selector; create TLS secret; correct annotations; fix readiness probe on upstream pods.\n\n### Preventive Actions\nMonitor ingress controller health; synthetic HTTP probe per ingress; cert expiry monitoring for TLS secrets.\n\n### Related Tools\nkubectl, ingress controller logs, Prometheus, cert-manager",
-  "problem": "Ingress controller pod not running (nginx, traefik, etc.)",
-  "area": "Ingress",
-  "remedyItems": [
-    "Restart ingress controller",
-    "fix service selector",
-    "create TLS secret",
-    "correct annotations",
-    "fix readiness probe on upstream pods.",
-    "Monitor ingress controller health"
-  ],
-  "tags": [
-    "k8s",
-    "ingress",
-    "nginx",
-    "traefik",
-    "tls-secret",
-    "endpoints",
-    "502",
-    "503"
-  ],
-  "linkedIntents": [
-    "k8s.ingress_down"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-k8s-005",
-  "title": "etcd cluster is unhealthy — Kubernetes control plane is degraded. What to check?",
-  "category": "Compute",
-  "subcategory": "Control Plane",
-  "content": "### Overview\netcd cluster is unhealthy — Kubernetes control plane is degraded. What to check?\n\n### Likely Causes\n- etcd disk I/O too slow causing raft election timeouts\n- etcd quorum lost (majority of members down)\n- etcd database too large — compaction and defragmentation needed\n- etcd peer certificates expired\n- Network partition between etcd members\n- Memory pressure causing etcd OOM\n\n### Observability Signals\n- etcd_server_health_failures > 0\n- etcd request latency > 100ms (p99)\n- etcd quorum alerts\n- kubectl commands timing out or failing\n- etcd database size growing without compaction\n\n### Recommended CLI Commands\netcdctl endpoint health --cluster\netcdctl endpoint status --cluster --write-out=table\netcdctl alarm list\netcdctl defrag --cluster\niostat -x 1 (on etcd nodes)\netcdctl snapshot status <snapshot>\n\n### Step-by-Step RCA\n1) Check cluster health: 'etcdctl endpoint health --cluster'\n2) Check member list: quorum requires majority (3-node = 2 needed)\n3) Check disk I/O latency on etcd nodes — etcd needs < 10ms latency\n4) Check DB size: if > 6GB, compact and defrag needed\n5) Check certificate expiry: 'etcdctl endpoint status'\n6) Review etcd logs for leader election churn or network partition\n\n### Resolution\nRestore failed etcd member; compact/defrag database; move etcd to faster disk (NVMe); renew certificates; fix network partition.\n\n### Preventive Actions\nDedicated fast SSD for etcd; monitor etcd latency and DB size; automated compaction; certificate rotation automation.\n\n### Related Tools\netcdctl, Prometheus etcd metrics, iostat, journalctl",
-  "problem": "etcd disk I/O too slow causing raft election timeouts",
-  "area": "Control Plane",
-  "remedyItems": [
-    "Restore failed etcd member",
-    "compact/defrag database",
-    "move etcd to faster disk (NVMe)",
-    "renew certificates",
-    "fix network partition.",
-    "Dedicated fast SSD for etcd"
-  ],
-  "tags": [
-    "k8s",
-    "etcd",
-    "quorum",
-    "disk-latency",
-    "compaction",
-    "certificate",
-    "control-plane"
-  ],
-  "linkedIntents": [
-    "k8s.etcd_unhealthy"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-k8s-006",
-  "title": "Kubernetes API server is down or unreachable — all cluster operations failing. How to recover?",
-  "category": "Compute",
-  "subcategory": "Control Plane",
-  "content": "### Overview\nKubernetes API server is down or unreachable — all cluster operations failing. How to recover?\n\n### Likely Causes\n- API server OOM killed (large cluster with many objects)\n- etcd unreachable from API server\n- API server TLS certificates expired\n- API server overwhelmed by too many requests (e.g., controller storm)\n- kube-apiserver pod evicted from master node\n- Node hosting API server has failed\n\n### Observability Signals\n- kubectl commands fail with 'connection refused' or timeout\n- kube-apiserver pod not running or CrashLoopBackOff\n- etcd showing high error rate\n- API server audit logs not updating\n- Control plane node CPU/memory critically high\n\n### Recommended CLI Commands\nkubectl cluster-info\ncrictl ps | grep apiserver (on control plane node)\nsystemctl status kube-apiserver (kubeadm)\njournalctl -u kube-apiserver -n 200\nkubectl get --raw /healthz (if partially reachable)\ncurl https://<apiserver>:6443/healthz (from within cluster)\n\n### Step-by-Step RCA\n1) Test API reachability: 'kubectl cluster-info' or 'curl https://<apiserver>:6443/healthz'\n2) SSH to control plane: is kube-apiserver container/process running?\n3) Check API server logs for crash reason\n4) Check certificate expiry: kubeadm certs check-expiration\n5) Check etcd health — API server cannot function without etcd\n6) Check control plane node resources: memory, disk\n\n### Resolution\nRestart kube-apiserver; renew certificates (kubeadm certs renew); restore etcd; free control plane node resources; scale control plane.\n\n### Preventive Actions\nHA control plane (3 masters); cert expiry monitoring; API server request rate limits; dedicated control plane nodes.\n\n### Related Tools\nkubectl, crictl, journalctl, kubeadm, Prometheus",
-  "problem": "API server OOM killed (large cluster with many objects)",
-  "area": "Control Plane",
-  "remedyItems": [
-    "Restart kube-apiserver",
-    "renew certificates (kubeadm certs renew)",
-    "restore etcd",
-    "free control plane node resources",
-    "scale control plane.",
-    "HA control plane (3 masters)"
-  ],
-  "tags": [
-    "k8s",
-    "apiserver",
-    "control-plane",
-    "certificate-expired",
-    "etcd",
-    "oom",
-    "kubeadm"
-  ],
-  "linkedIntents": [
-    "k8s.apiserver_down"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-cloud-001",
-  "title": "Cloud VM/instance is not reachable — how to diagnose connectivity in cloud environments?",
-  "category": "Compute",
-  "subcategory": "Compute",
-  "content": "### Overview\nCloud VM/instance is not reachable — how to diagnose connectivity in cloud environments?\n\n### Likely Causes\n- Instance stopped or terminated (check state)\n- Security group blocking inbound traffic on required port\n- Route table missing route or incorrect default gateway\n- Instance status checks failing (hardware issue at cloud level)\n- SSH key pair mismatch — cannot authenticate\n- Public IP not associated or Elastic IP detached\n- VPC network ACL (stateless) blocking traffic\n\n### Observability Signals\n- instance_reachability_check == failed\n- EC2/GCE instance status check failed\n- Security group showing no inbound rule for management port\n- Route table missing 0.0.0.0/0 to Internet Gateway\n- Instance in stopped/terminated state\n\n### Recommended CLI Commands\naws ec2 describe-instances --instance-ids <id>\naws ec2 describe-instance-status --instance-ids <id>\naws ec2 describe-security-groups --group-ids <sg-id>\naws ec2 describe-route-tables\naws ec2 get-console-output --instance-id <id>\nVPC Flow Logs: filter for REJECT on instance ENI\n\n### Step-by-Step RCA\n1) Check instance state: running, stopped, or terminated?\n2) Check system/instance status checks in cloud console\n3) Check security group: inbound rules for SSH (22) / RDP (3389) from your IP?\n4) Check VPC routing: subnet route table has IGW or NAT route?\n5) Check VPC Network ACL: stateless, must have inbound AND outbound rules\n6) Use 'Get Console Output' for boot/crash logs without SSH\n\n### Resolution\nStart stopped instance; fix security group rule; add route to route table; associate Elastic IP; fix network ACL; restore from snapshot if status check fails.\n\n### Preventive Actions\nBaseline security group rules; monitor instance status checks; use AWS Systems Manager Session Manager for keyless access.\n\n### Related Tools\nAWS Console, AWS CLI, VPC Flow Logs, CloudWatch",
-  "problem": "Instance stopped or terminated (check state)",
-  "area": "Compute",
-  "remedyItems": [
-    "Start stopped instance",
-    "fix security group rule",
-    "add route to route table",
-    "associate Elastic IP",
-    "fix network ACL",
-    "restore from snapshot if status check fails."
-  ],
-  "tags": [
-    "cloud",
-    "ec2",
-    "instance-unreachable",
-    "security-group",
-    "route-table",
-    "vpc",
-    "status-check"
-  ],
-  "linkedIntents": [
-    "cloud.instance_unreachable"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-cloud-002",
-  "title": "Cloud security group is blocking application traffic — how to identify and fix the missing rule?",
-  "category": "Compute",
-  "subcategory": "Security",
-  "content": "### Overview\nCloud security group is blocking application traffic — how to identify and fix the missing rule?\n\n### Likely Causes\n- Missing inbound rule for required port or protocol\n- Port range too narrow (e.g., 8080 specified but app uses 8081)\n- Source CIDR too restrictive (specific IP but client has different IP)\n- Protocol wrong (TCP specified but app uses UDP)\n- Security group applied to wrong resource (ENI, instance, or load balancer)\n- Stateless NACL overriding security group (NACL denying return traffic)\n\n### Observability Signals\n- VPC Flow Logs showing REJECT on destination port\n- Connection timeout from client to application\n- Application reachable from within VPC but not from specific source\n- AWS Security Hub showing overly restrictive group\n- Cloud-native firewall audit showing drop\n\n### Recommended CLI Commands\naws ec2 describe-security-groups --group-ids <sg-id>\nVPC Flow Logs: filter srcaddr, dstaddr, dstport, action=REJECT\naws ec2 describe-network-acls (check stateless NACLs)\naws ec2 describe-instances (check which SG is attached)\ntelnet <instance-ip> <port> (from source host)\ncurl -v http://<instance-ip>:<port>\n\n### Step-by-Step RCA\n1) Enable VPC Flow Logs and filter for REJECT on target ENI\n2) Identify rejected destination port and source IP\n3) Check security group: is there an inbound rule matching that port and source?\n4) Check if NACL is also involved — stateless, needs both inbound and outbound\n5) Verify security group is actually attached to the correct instance/ENI\n6) Add missing rule with least-privilege (specific port and source CIDR)\n\n### Resolution\nAdd precise inbound rule; fix port range; correct source CIDR; check NACL outbound rules; attach correct security group.\n\n### Preventive Actions\nUse Infrastructure-as-Code for security groups; enforce change approval; VPC Flow Logs always enabled; security group drift detection.\n\n### Related Tools\nVPC Flow Logs, AWS Config, AWS Security Hub, CloudTrail",
-  "problem": "Missing inbound rule for required port or protocol",
-  "area": "Security",
-  "remedyItems": [
-    "Add precise inbound rule",
-    "fix port range",
-    "correct source CIDR",
-    "check NACL outbound rules",
-    "attach correct security group.",
-    "Use Infrastructure-as-Code for security groups"
-  ],
-  "tags": [
-    "cloud",
-    "security-group",
-    "vpc-flow-logs",
-    "nacl",
-    "inbound-rule",
-    "port-block",
-    "aws"
-  ],
-  "linkedIntents": [
-    "cloud.security_group_block"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-cloud-003",
-  "title": "Private subnet instances cannot reach the internet — NAT gateway suspected. How to diagnose?",
-  "category": "Compute",
-  "subcategory": "Networking",
-  "content": "### Overview\nPrivate subnet instances cannot reach the internet — NAT gateway suspected. How to diagnose?\n\n### Likely Causes\n- Route table in private subnet not pointing to NAT gateway\n- NAT gateway Elastic IP (EIP) not associated or detached\n- NAT gateway in wrong availability zone (instances in different AZ)\n- NAT gateway connections quota exhausted (55,000 simultaneous)\n- NAT gateway in failed state (cloud provider issue)\n- Outbound security group blocking egress traffic from instances\n\n### Observability Signals\n- private_subnet_outbound_reachability == 0\n- NAT gateway status != available in cloud console\n- CloudWatch: NAT gateway error count > 0\n- VPC Flow Logs showing traffic leaving instance but not returning\n- Route table for private subnet missing 0.0.0.0/0 Ã¢â€ â€™ NAT GW\n\n### Recommended CLI Commands\naws ec2 describe-nat-gateways\naws ec2 describe-route-tables --filters Name=association.subnet-id,Values=<private-subnet>\naws cloudwatch get-metric-data (NatGatewayErrorPortAllocation)\ncurl http://169.254.169.254 (instance metadata test)\ncurl https://checkip.amazonaws.com (outbound test from instance)\n\n### Step-by-Step RCA\n1) Check NAT GW state: 'aws ec2 describe-nat-gateways' — available or failed?\n2) Check route table: private subnet Ã¢â€ â€™ 0.0.0.0/0 Ã¢â€ â€™ NAT GW ID correct?\n3) Check NAT GW in correct AZ (each AZ should have own NAT GW for HA)\n4) Check CloudWatch: ErrorPortAllocation = connections quota hit?\n5) Test from instance: 'curl https://checkip.amazonaws.com'\n6) Check security group on instance: outbound rule to 0.0.0.0/0 exists?\n\n### Resolution\nFix route table; create NAT GW per AZ for HA; increase connection reuse to reduce port exhaustion; fix EIP association.\n\n### Preventive Actions\nNAT GW per AZ; monitor ErrorPortAllocation CloudWatch metric; alert on NAT GW state change; IaC for route table management.\n\n### Related Tools\nAWS Console, AWS CLI, VPC Flow Logs, CloudWatch",
-  "problem": "Route table in private subnet not pointing to NAT gateway",
-  "area": "Networking",
-  "remedyItems": [
-    "Fix route table",
-    "create NAT GW per AZ for HA",
-    "increase connection reuse to reduce port exhaustion",
-    "fix EIP association.",
-    "NAT GW per AZ",
-    "monitor ErrorPortAllocation CloudWatch metric"
-  ],
-  "tags": [
-    "cloud",
-    "nat-gateway",
-    "private-subnet",
-    "route-table",
-    "eip",
-    "az-failure",
-    "aws"
-  ],
-  "linkedIntents": [
-    "cloud.nat_gateway_down"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-cloud-004",
-  "title": "Cloud ELB/ALB showing all targets as unhealthy — traffic not being forwarded. What to investigate?",
-  "category": "Compute",
-  "subcategory": "Load Balancer",
-  "content": "### Overview\nCloud ELB/ALB showing all targets as unhealthy — traffic not being forwarded. What to investigate?\n\n### Likely Causes\n- Health check port or path configured incorrectly\n- Security group blocking health check traffic from LB to targets\n- Target group instances have wrong port open\n- Application returning non-200 on health check path\n- Instance in wrong state (stopped, terminated)\n- Target group protocol mismatch (HTTP health check on HTTPS endpoint)\n- IP target type — IPs removed from target group after deployment\n\n### Observability Signals\n- elb_healthy_host_count == 0\n- ALB access logs showing 502 Bad Gateway\n- Health check logs showing timeouts or connection refused\n- CloudWatch: UnHealthyHostCount == total targets\n- VPC Flow Logs: REJECT on health check port from LB CIDR\n\n### Recommended CLI Commands\naws elbv2 describe-target-health --target-group-arn <arn>\naws elbv2 describe-target-groups --target-group-arns <arn>\naws elbv2 describe-load-balancers\ncurl http://<target-ip>:<port>/<health-check-path> (test directly)\nVPC Flow Logs: filter for LB source CIDR to target port\n\n### Step-by-Step RCA\n1) 'describe-target-health' — get specific reason per target (timeout, unhealthy, unused)\n2) Test health check manually: curl from LB subnet or same AZ instance\n3) Check health check config: correct port, protocol (HTTP vs HTTPS), path, success codes\n4) Check target security group: does it allow traffic from LB security group?\n5) Check if application returns 200 on health check path\n6) For NLB: check target security group AND network ACL\n\n### Resolution\nFix health check path/port/protocol; update target security group; fix application health check endpoint; re-register targets.\n\n### Preventive Actions\nTest health check configuration at deploy time; monitor UnHealthyHostCount; alert on > 50% targets unhealthy.\n\n### Related Tools\nAWS Console, AWS CLI, ALB access logs, CloudWatch, VPC Flow Logs",
-  "problem": "Health check port or path configured incorrectly",
-  "area": "Load Balancer",
-  "remedyItems": [
-    "Fix health check path/port/protocol",
-    "update target security group",
-    "fix application health check endpoint",
-    "re-register targets.",
-    "Test health check configuration at deploy time",
-    "monitor UnHealthyHostCount"
-  ],
-  "tags": [
-    "cloud",
-    "elb",
-    "alb",
-    "target-unhealthy",
-    "health-check",
-    "security-group",
-    "502"
-  ],
-  "linkedIntents": [
-    "cloud.elb_unhealthy"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-cloud-005",
-  "title": "S3 access denied errors occurring — application cannot read/write objects. How to resolve?",
-  "category": "Compute",
-  "subcategory": "Storage",
-  "content": "### Overview\nS3 access denied errors occurring — application cannot read/write objects. How to resolve?\n\n### Likely Causes\n- IAM role/user policy missing s3:GetObject or s3:PutObject permission\n- S3 bucket policy explicitly denying access\n- S3 Block Public Access settings blocking access to public bucket\n- Cross-account: bucket policy not granting access to external account\n- KMS key policy not allowing IAM role to use encryption key\n- S3 VPC endpoint policy restrictive — blocking from specific instances\n- Incorrect bucket region — SDK not configured for correct region\n\n### Observability Signals\n- HTTP 403 AccessDenied from S3 API\n- CloudTrail: s3:GetObject showing AccessDenied for specific principal\n- Application error logs: 'AccessDeniedException'\n- AWS Config showing S3 block public access enabled on bucket\n- STS GetCallerIdentity returns different principal than expected\n\n### Recommended CLI Commands\naws s3 ls s3://<bucket>/ (test access)\naws s3api get-bucket-policy --bucket <name>\naws s3api get-bucket-acl --bucket <name>\naws iam simulate-principal-policy (test permissions)\naws sts get-caller-identity (confirm which principal is acting)\nCloudTrail: filter for ErrorCode=AccessDenied and eventSource=s3.amazonaws.com\n\n### Step-by-Step RCA\n1) Confirm which principal is getting 403: 'aws sts get-caller-identity'\n2) Simulate policy: 'aws iam simulate-principal-policy' for that principal\n3) Check bucket policy: any explicit Deny?\n4) Check S3 Block Public Access: enabled at account or bucket level?\n5) For KMS encrypted bucket: check KMS key policy allows principal\n6) Check VPC endpoint policy if accessing via VPC endpoint\n\n### Resolution\nAdd required S3 permissions to IAM policy; remove explicit Deny from bucket policy; fix KMS key policy; update VPC endpoint policy.\n\n### Preventive Actions\nLeast-privilege IAM policy testing before deploy; use AWS IAM Policy Simulator; CloudTrail alerting on S3 AccessDenied.\n\n### Related Tools\nAWS IAM Policy Simulator, CloudTrail, AWS Config, AWS CLI",
-  "problem": "IAM role/user policy missing s3:GetObject or s3:PutObject permission",
-  "area": "Storage",
-  "remedyItems": [
-    "Add required S3 permissions to IAM policy",
-    "remove explicit Deny from bucket policy",
-    "fix KMS key policy",
-    "update VPC endpoint policy.",
-    "Least-privilege IAM policy testing before deploy",
-    "use AWS IAM Policy Simulator"
-  ],
-  "tags": [
-    "cloud",
-    "s3",
-    "access-denied",
-    "iam-policy",
-    "bucket-policy",
-    "kms",
-    "cross-account",
-    "403"
-  ],
-  "linkedIntents": [
-    "cloud.s3_access_denied"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-cloud-006",
-  "title": "Cloud IAM denying actions despite policy appearing correct — how to debug permission issues?",
-  "category": "Compute",
-  "subcategory": "IAM",
-  "content": "### Overview\nCloud IAM denying actions despite policy appearing correct — how to debug permission issues?\n\n### Likely Causes\n- Explicit Deny in IAM policy overriding any Allow (Deny always wins)\n- Service Control Policy (SCP) at AWS Organization level blocking action\n- IAM Permission Boundary restricting effective permissions\n- Role not being assumed correctly — using wrong credentials\n- Condition in policy not being met (e.g., IP condition, MFA condition)\n- Resource ARN in policy not matching actual resource ARN\n- Session policy (assumed role) more restrictive than role policy\n\n### Observability Signals\n- HTTP 403 AccessDenied from AWS API\n- CloudTrail: errorCode=AccessDenied with requestParameters\n- IAM Policy Simulator showing Denied\n- AWS CLI: 'An error occurred (AccessDenied)'\n- SCP evaluation showing block at org level\n\n### Recommended CLI Commands\naws sts get-caller-identity\naws iam simulate-principal-policy --policy-source-arn <role-arn> --action-names <action>\nCloudTrail: filter errorCode=AccessDenied\naws organizations list-policies-for-target (check SCPs)\naws iam get-role --role-name <name> | jq .Role.PermissionsBoundary\n\n### Step-by-Step RCA\n1) 'sts get-caller-identity' — is application using correct role/identity?\n2) CloudTrail: what exact action, resource ARN, and condition was evaluated?\n3) IAM Policy Simulator: test specific action on specific resource\n4) Check for explicit Deny in any attached policy\n5) Check SCP: is org-level policy blocking this action in this account?\n6) Check Permission Boundary: is it set on role and restricting action?\n\n### Resolution\nRemove explicit Deny; update SCP (requires org admin); remove or expand Permission Boundary; fix role ARN; meet policy conditions.\n\n### Preventive Actions\nPolicy-as-code with automated testing; CloudTrail alerting on AccessDenied; regular IAM access reviews; least-privilege enforcement.\n\n### Related Tools\nCloudTrail, IAM Policy Simulator, AWS Organizations, AWS Config",
-  "problem": "Explicit Deny in IAM policy overriding any Allow (Deny always wins)",
-  "area": "IAM",
-  "remedyItems": [
-    "Remove explicit Deny",
-    "update SCP (requires org admin)",
-    "remove or expand Permission Boundary",
-    "fix role ARN",
-    "meet policy conditions.",
-    "Policy-as-code with automated testing"
-  ],
-  "tags": [
-    "cloud",
-    "iam",
-    "access-denied",
-    "scp",
-    "permission-boundary",
-    "explicit-deny",
-    "cloudtrail",
-    "403"
-  ],
-  "linkedIntents": [
-    "cloud.iam_deny"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-app-001",
-  "title": "Application error rate is elevated — how to determine root cause and recover quickly?",
-  "category": "Application",
-  "subcategory": "Error Rate",
-  "content": "### Overview\nApplication error rate is elevated — how to determine root cause and recover quickly?\n\n### Likely Causes\n- Recent code deployment with bug in new code path\n- Downstream dependency (DB, cache, third-party API) returning errors\n- Resource exhaustion (memory, connections, threads)\n- Bad data in request causing unhandled exception\n- Configuration change causing misconfigured application behavior\n- Traffic spike exceeding application capacity\n\n### Observability Signals\n- error_rate_percent > 5 for HTTP 5xx\n- Specific error type dominant: 500 (app), 503 (capacity), 504 (timeout)\n- Error rate correlated with deployment event\n- Downstream dependency latency or error rate also elevated\n- Thread pool or connection pool saturation metrics\n\n### Recommended CLI Commands\ngrep -c 'ERROR\\|Exception' app.log\ntail -f app.log | grep -v INFO\ncurl -o /dev/null -s -w '%{http_code}' https://<endpoint>/health\ncheck deployment history (git log / CI/CD)\ncheck APM transaction traces for error span\ncheck dependency health endpoints\n\n### Step-by-Step RCA\n1) Check deployment history — did error rate increase after deploy?\n2) If yes: rollback immediately, then investigate\n3) Identify error type: 500 vs 503 vs 504 — different root causes\n4) Check APM trace for failing span: which service call is throwing error?\n5) Check downstream dependencies: DB, cache, queue error rates\n6) Check resource utilization: thread pool, connection pool, memory\n\n### Resolution\nRollback bad deployment; fix dependency; scale application; fix error handling for bad input; apply hot-fix.\n\n### Preventive Actions\nCanary deployments; error rate SLO with burn rate alerts; circuit breakers; chaos engineering testing.\n\n### Related Tools\nAPM, error tracking (Sentry), CI/CD platform, Prometheus, logs",
-  "problem": "Recent code deployment with bug in new code path",
-  "area": "Error Rate",
-  "remedyItems": [
-    "Rollback bad deployment",
-    "fix dependency",
-    "scale application",
-    "fix error handling for bad input",
-    "apply hot-fix.",
-    "Canary deployments"
-  ],
-  "tags": [
-    "app-errors",
-    "5xx",
-    "deployment-rollback",
-    "dependency-failure",
-    "error-rate",
-    "canary"
-  ],
-  "linkedIntents": [
-    "app.high_error_rate"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-app-002",
-  "title": "Application process is being OOM-killed by the OS or container runtime — how to diagnose and prevent?",
-  "category": "Application",
-  "subcategory": "Memory",
-  "content": "### Overview\nApplication process is being OOM-killed by the OS or container runtime — how to diagnose and prevent?\n\n### Likely Causes\n- JVM heap limit too low for workload (Java -Xmx too small)\n- Memory leak triggered by specific request pattern\n- Large file or payload loaded entirely into memory\n- Unbounded in-memory cache growing without eviction\n- Concurrent request spike exhausting memory pool\n- Container memory limit too restrictive for application\n\n### Observability Signals\n- OOMKilled container exit code 137\n- Kernel OOM killer log in dmesg\n- Heap memory usage at 100% before crash\n- GC pressure very high (> 20% time in GC)\n- Process RSS growing monotonically until crash\n\n### Recommended CLI Commands\ndmesg | grep -i oom\nkubectl describe pod <pod> | grep -i oom\njournalctl -k | grep OOM\njstat -gcutil <pid> 1000 (JVM GC stats)\njmap -histo <pid> (JVM heap histogram)\ncat /sys/fs/cgroup/memory/docker/<id>/memory.oom_control\n\n### Step-by-Step RCA\n1) Confirm OOM: dmesg or kubectl events showing OOMKilled\n2) Check what triggered OOM: specific request pattern? Traffic spike?\n3) JVM: run heap dump before next OOM (add -XX:+HeapDumpOnOutOfMemoryError)\n4) Analyze heap dump: which objects consuming most memory?\n5) Check for unbounded cache: add eviction policy\n6) For containers: is memory limit too low vs actual need?\n\n### Resolution\nIncrease JVM heap or container memory limit; fix memory leak; add cache eviction; paginate large payloads; reduce concurrency limit.\n\n### Preventive Actions\nSet memory alerts at 80% heap; load test with production-like payloads; automatic heap dump on OOM; right-size container limits.\n\n### Related Tools\nJVM profiler, heapdump analyzer (Eclipse MAT), dmesg, Prometheus",
-  "problem": "JVM heap limit too low for workload (Java -Xmx too small)",
-  "area": "Memory",
-  "remedyItems": [
-    "Increase JVM heap or container memory limit",
-    "fix memory leak",
-    "add cache eviction",
-    "paginate large payloads",
-    "reduce concurrency limit.",
-    "Set memory alerts at 80% heap"
-  ],
-  "tags": [
-    "oom",
-    "memory",
-    "heap",
-    "jvm",
-    "container-limit",
-    "oomkilled",
-    "gc",
-    "cache"
-  ],
-  "linkedIntents": [
-    "app.memory_oom"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-app-003",
-  "title": "Application thread pool is exhausted — requests queuing or being rejected. How to resolve?",
-  "category": "Application",
-  "subcategory": "Concurrency",
-  "content": "### Overview\nApplication thread pool is exhausted — requests queuing or being rejected. How to resolve?\n\n### Likely Causes\n- Slow downstream dependency blocking threads (synchronous I/O waiting)\n- Thread leak — threads not returned to pool after use\n- Thread pool size too small for concurrency requirements\n- Deadlock causing threads to wait indefinitely\n- Long-running transactions holding threads\n- Synchronization bottleneck causing thread contention\n\n### Observability Signals\n- active_threads == max_pool_size sustained\n- Request queue depth growing\n- HTTP 503 Service Unavailable (thread pool rejection)\n- Thread pool wait time increasing in APM\n- JVM thread dump showing all threads WAITING or BLOCKED\n\n### Recommended CLI Commands\njstack <pid> > threaddump.txt (JVM thread dump)\nkill -3 <pid> (JVM thread dump to stdout)\ncat /proc/<pid>/status | grep Threads\nnetstat -an | grep ESTABLISHED | wc -l\ncheck APM: thread pool metrics (active, queued, rejected)\nkubectl exec <pod> -- jstack 1\n\n### Step-by-Step RCA\n1) Capture thread dump: 'jstack <pid>' — what are most threads waiting on?\n2) If all threads WAITING on DB/HTTP call: downstream is the bottleneck\n3) Check for deadlock: jstack output shows 'deadlock' section\n4) Check downstream response times — are they much slower than normal?\n5) Count active threads vs pool size — is pool truly exhausted or misconfigured?\n6) Set timeout on all downstream calls — threads must not wait indefinitely\n\n### Resolution\nSet timeouts on downstream calls; increase pool size (with caution); fix deadlock; implement async I/O; use circuit breaker for slow dependency.\n\n### Preventive Actions\nAlways set timeouts on network calls; monitor thread pool utilization; configure circuit breakers; load test with upstream dependencies slow.\n\n### Related Tools\njstack, APM, Prometheus JVM metrics, thread dump analyzer",
-  "problem": "Slow downstream dependency blocking threads (synchronous I/O waiting)",
-  "area": "Concurrency",
-  "remedyItems": [
-    "Set timeouts on downstream calls",
-    "increase pool size (with caution)",
-    "fix deadlock",
-    "implement async I/O",
-    "use circuit breaker for slow dependency.",
-    "Always set timeouts on network calls"
-  ],
-  "tags": [
-    "thread-pool",
-    "exhausted",
-    "503",
-    "deadlock",
-    "blocking-io",
-    "jvm",
-    "timeout",
-    "circuit-breaker"
-  ],
-  "linkedIntents": [
-    "app.thread_pool_exhausted"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-app-004",
-  "title": "Database or service connection pool is exhausted — new requests failing to acquire connections. How to fix?",
-  "category": "Application",
-  "subcategory": "Concurrency",
-  "content": "### Overview\nDatabase or service connection pool is exhausted — new requests failing to acquire connections. How to fix?\n\n### Likely Causes\n- Slow database queries holding connections for extended periods\n- Connection leak — connections not returned to pool after use\n- Pool size too small for concurrent request rate\n- Long-running transactions blocking connection release\n- Database restarted — pool holding stale closed connections\n- Thundering herd on startup exhausting pool before warmup\n\n### Observability Signals\n- connection_pool_active == connection_pool_max sustained\n- 'Cannot get connection from pool' errors in app logs\n- Connection pool wait time increasing in APM\n- DB showing max_connections near limit\n- Requests timing out waiting for connection (not from query)\n\n### Recommended CLI Commands\nSHOW STATUS LIKE 'Threads_connected'; (MySQL)\nSELECT count(*) FROM pg_stat_activity; (PostgreSQL)\nSELECT * FROM pg_stat_activity WHERE wait_event_type='Lock'; (blocking queries)\ncheck connection pool library metrics (HikariCP, c3p0)\ncheck APM pool dashboard\nnetstat -an | grep :5432 | wc -l (active DB connections)\n\n### Step-by-Step RCA\n1) Check pool utilization: active vs max from pool library metrics (HikariCP JMX)\n2) Check DB: active connections vs max_connections allowed\n3) Look for long-running transactions: 'pg_stat_activity' or MySQL processlist\n4) Kill long-running idle connections: set pool idle timeout\n5) Check for connection leaks: pool grow without release pattern\n6) Enable pool timeout with exception to find code paths not returning connections\n\n### Resolution\nKill long transactions; increase pool size (with DB capacity check); fix connection leak; set connection max lifetime; fix slow queries.\n\n### Preventive Actions\nSet pool connection timeout and max lifetime; use connection pool leak detection; monitor pool utilization via APM.\n\n### Related Tools\nHikariCP metrics, pg_stat_activity, MySQL processlist, APM, Prometheus",
-  "problem": "Slow database queries holding connections for extended periods",
-  "area": "Concurrency",
-  "remedyItems": [
-    "Kill long transactions",
-    "increase pool size (with DB capacity check)",
-    "fix connection leak",
-    "set connection max lifetime",
-    "fix slow queries.",
-    "Set pool connection timeout and max lifetime"
-  ],
-  "tags": [
-    "connection-pool",
-    "exhausted",
-    "db-pool",
-    "connection-leak",
-    "long-transaction",
-    "hikaricp",
-    "max-connections"
-  ],
-  "linkedIntents": [
-    "app.connection_pool_exhausted"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-app-005",
-  "title": "Application TLS certificate has expired or is about to expire — causing SSL errors for clients. How to renew?",
-  "category": "Application",
-  "subcategory": "Security",
-  "content": "### Overview\nApplication TLS certificate has expired or is about to expire — causing SSL errors for clients. How to renew?\n\n### Likely Causes\n- Leaf certificate expired (most common — renewal process failed)\n- Intermediate CA certificate expired (affects all leaf certs under it)\n- Auto-renewal (ACME/Let's Encrypt) failed silently\n- Certificate chain incomplete — intermediate not bundled\n- Wildcard certificate not covering the specific subdomain\n- Certificate deployed to wrong server/load balancer instance\n\n### Observability Signals\n- SSL handshake errors increasing\n- Browser showing certificate expired or invalid warning\n- Monitoring alert for cert expiry < 14 days\n- openssl showing 'Verify return code: 10 (certificate has expired)'\n- Synthetic HTTPS probe failing with SSL error\n\n### Recommended CLI Commands\nopenssl s_client -connect <host>:443 -servername <hostname>\necho | openssl s_client -connect <host>:443 2>/dev/null | openssl x509 -noout -dates\ncurl -vI https://<host> 2>&1 | grep -i expire\ncertbot renew --dry-run (Let's Encrypt)\ncheck certificate management platform (cert-manager, Venafi, DigiCert)\n\n### Step-by-Step RCA\n1) Confirm expiry: 'openssl x509 -noout -dates' — is notAfter in the past?\n2) Check chain: is intermediate CA certificate included and valid?\n3) Check auto-renewal: did ACME challenge succeed? Check certbot/cert-manager logs\n4) Verify certificate deployed to all serving endpoints (multiple LB instances)\n5) Test with new cert before cutover: 'openssl verify'\n6) For wildcard: does *.domain.com cover the failing subdomain?\n\n### Resolution\nRenew certificate immediately; fix ACME renewal process; deploy to all endpoints; add intermediate to chain; expand wildcard or issue SAN cert.\n\n### Preventive Actions\nAutomated renewal (ACME); alerts at 30/14/7 days before expiry; certificate inventory in CMDB; synthetic SSL probe monitoring.\n\n### Related Tools\nopenssl, certbot, cert-manager, certificate monitoring platform, Prometheus",
-  "problem": "Leaf certificate expired (most common — renewal process failed)",
-  "area": "Security",
-  "remedyItems": [
-    "Renew certificate immediately",
-    "fix ACME renewal process",
-    "deploy to all endpoints",
-    "add intermediate to chain",
-    "expand wildcard or issue SAN cert.",
-    "Automated renewal (ACME)"
-  ],
-  "tags": [
-    "certificate",
-    "tls",
-    "ssl-expiry",
-    "acme",
-    "lets-encrypt",
-    "intermediate-ca",
-    "wildcard",
-    "renewal"
-  ],
-  "linkedIntents": [
-    "app.cert_expiry"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-app-006",
-  "title": "Application behaviour changed without code deployment — configuration drift suspected. How to detect and recover?",
-  "category": "Application",
-  "subcategory": "Configuration",
-  "content": "### Overview\nApplication behaviour changed without code deployment — configuration drift suspected. How to detect and recover?\n\n### Likely Causes\n- Environment variable changed in deployment platform (K8s ConfigMap, ECS env)\n- Config file overwritten by automation or manual change\n- Secret rotated in vault but application not updated with new value\n- Feature flag toggled accidentally in feature flag platform\n- A/B test configuration changed affecting production percentage\n- Infrastructure config change (instance type, memory) changing runtime behavior\n\n### Observability Signals\n- Application behavior change without code deployment\n- Specific feature suddenly broken or enabled unexpectedly\n- Authentication failures after secret rotation\n- Configuration-sensitive metric (cache TTL, timeout) changed\n- Audit log showing config change event\n\n### Recommended CLI Commands\nkubectl describe configmap <name> -n <ns>\nkubectl get secret <name> -n <ns> -o yaml\ngit diff HEAD~1 <config-file> (if git-managed)\ncheck feature flag platform audit log\ncheck secret manager version history (Vault, AWS Secrets Manager)\nenv (from inside running container)\n\n### Step-by-Step RCA\n1) Compare current config with last known-good config: what changed?\n2) Check change audit logs: who changed what and when?\n3) For secrets: has secret been rotated? Is app using old cached value?\n4) For feature flags: check flag platform for recent toggles\n5) Roll back config change to known-good state\n6) Understand why drift occurred — manual change? Automation?\n\n### Resolution\nRevert config to known-good state; update application with new secret; restore feature flag; fix automation causing drift.\n\n### Preventive Actions\nGitOps for all config (config-as-code); audit logging on all config changes; configuration drift detection tools; immutable ConfigMaps.\n\n### Related Tools\nGitOps (ArgoCD/Flux), AWS Config, Vault audit logs, feature flag audit, kubectl",
-  "problem": "Environment variable changed in deployment platform (K8s ConfigMap, ECS env)",
-  "area": "Configuration",
-  "remedyItems": [
-    "Revert config to known-good state",
-    "update application with new secret",
-    "restore feature flag",
-    "fix automation causing drift.",
-    "GitOps for all config (config-as-code)",
-    "audit logging on all config changes"
-  ],
-  "tags": [
-    "config-drift",
-    "configmap",
-    "secret-rotation",
-    "feature-flag",
-    "environment-variable",
-    "gitops"
-  ],
-  "linkedIntents": [
-    "app.config_drift"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-obs-001",
-  "title": "Thousands of alerts firing in minutes — alert storm overwhelming the team. How to triage and suppress?",
-  "category": "Platform",
-  "subcategory": "Alerting",
-  "content": "### Overview\nThousands of alerts firing in minutes — alert storm overwhelming the team. How to triage and suppress?\n\n### Likely Causes\n- Single root cause generating hundreds of symptom alerts (no deduplication)\n- Alert threshold too sensitive (transient spike triggering alert)\n- No alert dampening or evaluation period\n- Flapping event source generating repeated state changes\n- Monitoring system not suppressing child alerts when parent is alerting\n- Mass device event (power outage, network split) generating flood\n\n### Observability Signals\n- alert_rate_per_minute > 100\n- Multiple alerts with same root cause device or component\n- Alert IDs all within same short time window\n- Repeated FIRING Ã¢â€ â€™ RESOLVED Ã¢â€ â€™ FIRING cycling (flap)\n- On-call team unable to identify the root cause alert\n\n### Recommended CLI Commands\nCheck alertmanager silence rules (Prometheus)\nCheck alert correlation / grouping rules\nReview alert history for top firing alert names\nCheck root cause device for primary alarm\nCheck alert inhibition rules\n\n### Step-by-Step RCA\n1) Identify single highest-priority alert that could be root cause\n2) Group by source device/component — is one device generating most alerts?\n3) Silence downstream symptom alerts while investigating root cause\n4) Fix underlying issue first, then clear symptom alerts\n5) Post-incident: add inhibition rules to suppress child alerts\n6) Add dampening (evaluate for period before firing) for flapping alerts\n\n### Resolution\nSilence symptom alerts; fix root cause device; add alert inhibition rules; increase evaluation period for sensitive thresholds; implement alert correlation.\n\n### Preventive Actions\nAlert hierarchy with inhibition; parent/child alert relationships; dampening/evaluation periods on all threshold alerts; test alert volume in staging.\n\n### Related Tools\nAlertmanager, PagerDuty, OpsGenie, alert correlation engine",
-  "problem": "Single root cause generating hundreds of symptom alerts (no deduplication)",
-  "area": "Alerting",
-  "remedyItems": [
-    "Silence symptom alerts",
-    "fix root cause device",
-    "add alert inhibition rules",
-    "increase evaluation period for sensitive thresholds",
-    "implement alert correlation.",
-    "Alert hierarchy with inhibition"
-  ],
-  "tags": [
-    "alert-storm",
-    "alert-flood",
-    "inhibition",
-    "dampening",
-    "deduplication",
-    "correlation",
-    "flapping-alert"
-  ],
-  "linkedIntents": [
-    "obs.alert_storm"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-obs-002",
-  "title": "Logs not appearing in centralized logging system — log pipeline has broken. How to diagnose?",
-  "category": "Platform",
-  "subcategory": "Logging",
-  "content": "### Overview\nLogs not appearing in centralized logging system — log pipeline has broken. How to diagnose?\n\n### Likely Causes\n- Log shipper (Fluentd, Logstash, Vector, Filebeat) crashed or stopped\n- Elasticsearch/OpenSearch disk full — refusing new documents\n- Log pipeline backpressure causing log drop\n- Parse error in pipeline: log format change breaking parser\n- Network path from log shipper to aggregator blocked\n- Log index rotation/ILM policy failing causing full index\n\n### Observability Signals\n- log_ingestion_rate drops to zero\n- Log shipper process not running\n- Elasticsearch cluster status RED or disk full\n- Pipeline error rate in Logstash/Vector metrics\n- Logs visible on source host but not in Kibana/Grafana Loki\n\n### Recommended CLI Commands\nsystemctl status filebeat|fluentd|vector\njournalctl -u filebeat -n 100\ncurl http://<elasticsearch>:9200/_cluster/health\ncurl http://<elasticsearch>:9200/_cat/indices?v (check index status)\ncheck log shipper metrics endpoint (Prometheus scrape)\ntail -f /var/log/filebeat/filebeat (shipper own logs)\n\n### Step-by-Step RCA\n1) Check log shipper process on source hosts\n2) Check shipper own logs for errors (parse errors, connection refused)\n3) Test network: can shipper reach aggregator port (5044, 9200)?\n4) Check Elasticsearch cluster health and disk usage\n5) Check parse pipeline: did log format change recently?\n6) Check ILM policy: is old index blocking new writes?\n\n### Resolution\nRestart log shipper; free Elasticsearch disk (ILM policy, delete old indices); fix parse error; restore network path; fix index policy.\n\n### Preventive Actions\nMonitor log shipper health as meta-metric; Elasticsearch disk alert at 80%; test pipeline after log format changes.\n\n### Related Tools\nFilebeat, Fluentd, Logstash, Elasticsearch, Kibana, Prometheus",
-  "problem": "Log shipper (Fluentd, Logstash, Vector, Filebeat) crashed or stopped",
-  "area": "Logging",
-  "remedyItems": [
-    "Restart log shipper",
-    "free Elasticsearch disk (ILM policy, delete old indices)",
-    "fix parse error",
-    "restore network path",
-    "fix index policy.",
-    "Monitor log shipper health as meta-metric"
-  ],
-  "tags": [
-    "log-pipeline",
-    "log-shipper",
-    "elasticsearch-full",
-    "fluentd",
-    "filebeat",
-    "parse-error",
-    "ilm"
-  ],
-  "linkedIntents": [
-    "obs.log_pipeline_down"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-obs-003",
-  "title": "Distributed traces are incomplete or missing spans — how to diagnose trace coverage gaps?",
-  "category": "Platform",
-  "subcategory": "Tracing",
-  "content": "### Overview\nDistributed traces are incomplete or missing spans — how to diagnose trace coverage gaps?\n\n### Likely Causes\n- Trace sampler set too low (e.g., 0.01%) losing most traces\n- Service not instrumented with tracing library\n- Trace context headers not propagated between services (broken trace chain)\n- Trace exporter (OTLP, Jaeger, Zipkin) connectivity failing\n- New service deployment without adding tracing agent\n- W3C TraceContext vs B3 header format mismatch between services\n\n### Observability Signals\n- trace_completeness_percent < 90\n- Missing spans in traces (gaps in service call chain)\n- Specific service always showing as external (not instrumented)\n- Trace exporter error count > 0\n- New deployments not appearing in service map\n\n### Recommended CLI Commands\ncheck OTLP exporter metrics (otelcol: grpc_exporter_sent_spans)\ncurl http://<service>:8080/actuator/metrics | grep trace (Spring)\ncheck trace sampling config: OTEL_TRACES_SAMPLER env var\ncheck W3C trace context header: 'traceparent' in HTTP requests\ncheck Jaeger/Zipkin UI for missing service\ncheck service mesh sidecar (Istio/Envoy) tracing config\n\n### Step-by-Step RCA\n1) Identify missing service in trace waterfall\n2) Is that service instrumented? Check for OTEL agent/SDK in deployment\n3) Check trace context propagation: is traceparent header forwarded in HTTP calls?\n4) Check sampling rate: is it too low to capture this trace?\n5) Check exporter connectivity: OTLP endpoint reachable from service?\n6) For service mesh: is Envoy sidecar trace propagation enabled?\n\n### Resolution\nAdd tracing instrumentation; fix context propagation; increase sampling rate; fix exporter connectivity; align header formats.\n\n### Preventive Actions\nRequire tracing in service deployment checklist; validate trace coverage in staging; set sampling to 100% for errors and slow traces.\n\n### Related Tools\nJaeger, Zipkin, Tempo, OpenTelemetry Collector, service mesh",
-  "problem": "Trace sampler set too low (e.g., 0.01%) losing most traces",
-  "area": "Tracing",
-  "remedyItems": [
-    "Add tracing instrumentation",
-    "fix context propagation",
-    "increase sampling rate",
-    "fix exporter connectivity",
-    "align header formats.",
-    "Require tracing in service deployment checklist"
-  ],
-  "tags": [
-    "tracing",
-    "opentelemetry",
-    "spans",
-    "sampling",
-    "trace-context",
-    "jaeger",
-    "otlp",
-    "instrumentation"
-  ],
-  "linkedIntents": [
-    "obs.trace_gap"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-obs-004",
-  "title": "Grafana/monitoring dashboard showing 'No Data' — how to find the cause?",
-  "category": "Platform",
-  "subcategory": "Dashboards",
-  "content": "### Overview\nGrafana/monitoring dashboard showing 'No Data' — how to find the cause?\n\n### Likely Causes\n- Datasource connection broken (Prometheus URL changed, credentials expired)\n- Metric name changed after application update (breaking dashboard query)\n- Time range too long causing query timeout on data source\n- Metric cardinality explosion causing Prometheus OOM Ã¢â€ â€™ no metrics\n- Data source query returning empty result set (wrong label filter)\n- Clock skew between dashboard host and data source\n\n### Observability Signals\n- dashboard panels showing 'No Data'\n- Grafana data source connection test failing\n- Prometheus queries returning empty set\n- Prometheus target showing as DOWN\n- Grafana error: 'datasource timeout' or 'connection refused'\n\n### Recommended CLI Commands\ncurl http://<prometheus>:9090/api/v1/query?query=up\ncurl http://<prometheus>:9090/-/ready\ncheck Grafana data source settings: connection test\nrun PromQL directly in Prometheus UI\ncheck label names and values changed: 'label_values()'\ncheck Prometheus target health: /targets page\n\n### Step-by-Step RCA\n1) Test data source connection in Grafana settings\n2) Run query directly in Prometheus/data source UI\n3) Is metric name exactly correct? Check for underscores vs dots changes\n4) Check label filters in query: do label values still exist?\n5) Reduce time range — is it a timeout issue on long queries?\n6) Check Prometheus health: is it up and ingesting targets correctly?\n\n### Resolution\nFix data source connection; update query for new metric name; fix label filters; add recording rule for expensive queries; fix Prometheus health.\n\n### Preventive Actions\nVersion control dashboard JSON; test queries after metric changes; alert on Prometheus target DOWN; data source health checks.\n\n### Related Tools\nGrafana, Prometheus, Loki, InfluxDB, dashboard-as-code",
-  "problem": "Datasource connection broken (Prometheus URL changed, credentials expired)",
-  "area": "Dashboards",
-  "remedyItems": [
-    "Fix data source connection",
-    "update query for new metric name",
-    "fix label filters",
-    "add recording rule for expensive queries",
-    "fix Prometheus health.",
-    "Version control dashboard JSON"
-  ],
-  "tags": [
-    "dashboard",
-    "no-data",
-    "grafana",
-    "prometheus",
-    "datasource",
-    "metric-name-change",
-    "query-timeout"
-  ],
-  "linkedIntents": [
-    "obs.dashboard_no_data"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-obs-005",
-  "title": "Alert is firing but there is no real problem — false positive alert eroding team trust. How to tune?",
-  "category": "Platform",
-  "subcategory": "Alerting",
-  "content": "### Overview\nAlert is firing but there is no real problem — false positive alert eroding team trust. How to tune?\n\n### Likely Causes\n- Alert threshold set without considering normal traffic patterns\n- Seasonal or daily traffic variation exceeding static threshold\n- Very short evaluation window capturing transient spikes\n- Wrong aggregation function (max vs avg on bursty metric)\n- Alert based on single data point, not sustained condition\n- Metric cardinality issue giving misleading aggregate value\n\n### Observability Signals\n- Alert firing frequently with no user-visible impact\n- Alert resolves within minutes without any action\n- Alert fires at same time daily (cron, business hours)\n- Alert ack rate very high — team suppressing without investigating\n- On-call burnout from low signal-to-noise ratio\n\n### Recommended CLI Commands\nQuery Prometheus for historical trend: query_range for 7 days\nCheck alert evaluation period: for duration\nCheck aggregation function in alert expression\nReview alert firing history in Alertmanager\nCompare alert firing pattern with traffic pattern\n\n### Step-by-Step RCA\n1) Plot metric over 7 days — is threshold exceeded regularly without incidents?\n2) Check evaluation period: is 'for' clause too short?\n3) Identify if metric is bursty: use avg or p95 instead of max\n4) Check for daily pattern: does it fire at 9am every day (business hours)?\n5) Consider dynamic threshold based on time-of-day or day-of-week\n6) Raise threshold or extend evaluation window as immediate fix\n\n### Resolution\nIncrease threshold or 'for' duration; switch to percentile-based threshold; implement dynamic/seasonal thresholds; add business-hours filter.\n\n### Preventive Actions\nAlert on SLO burn rate (more robust than threshold); test alerts with historical data before deploying; review false positive rate monthly.\n\n### Related Tools\nPrometheus, Alertmanager, Grafana, SLO platform",
-  "problem": "Alert threshold set without considering normal traffic patterns",
-  "area": "Alerting",
-  "remedyItems": [
-    "Increase threshold or 'for' duration",
-    "switch to percentile-based threshold",
-    "implement dynamic/seasonal thresholds",
-    "add business-hours filter.",
-    "Alert on SLO burn rate (more robust than threshold)",
-    "test alerts with historical data before deploying"
-  ],
-  "tags": [
-    "false-positive",
-    "alert-tuning",
-    "threshold",
-    "seasonality",
-    "evaluation-window",
-    "slo",
-    "signal-to-noise"
-  ],
-  "linkedIntents": [
-    "obs.false_positive_alert"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-mpls-001",
-  "title": "LDP session is down — MPLS label distribution has stopped. How to restore?",
-  "category": "Network",
-  "subcategory": "MPLS",
-  "content": "### Overview\nLDP session is down — MPLS label distribution has stopped. How to restore?\n\n### Likely Causes\n- TCP session failure between LDP peers (transport connectivity)\n- LDP MD5 authentication mismatch\n- LDP hellos not reaching peer (multicast 224.0.0.2 blocked)\n- LDP router-ID not reachable (loopback not advertised in IGP)\n- Interface not LDP-enabled\n- Access list blocking TCP 646 (LDP)\n\n### Observability Signals\n- ldp_session_state != OPERATIONAL\n- LDP bindings missing for expected prefixes\n- MPLS forwarding table gaps\n- Syslog: 'LDP session DOWN', 'MPLS-LDP-5-NBRCHANGE'\n- Traffic black-holing on MPLS paths\n\n### Recommended CLI Commands\nshow mpls ldp neighbor\nshow mpls ldp bindings\nshow mpls forwarding-table\nshow logging | inc LDP|MPLS\nshow run | inc mpls ldp\ntelnet <peer-loopback> 646\n\n### Step-by-Step RCA\n1) Check LDP neighbor state: 'show mpls ldp neighbor'\n2) Test TCP 646 to peer loopback: 'telnet <peer-loopback> 646'\n3) Is peer loopback reachable (IGP route exists)?\n4) Check LDP interface: 'show mpls ldp interface' — all P-PE interfaces LDP-enabled?\n5) Check auth: 'show mpls ldp neighbor detail' shows auth info\n6) Check multicast: can LDP hello (multicast) reach all neighbors?\n\n### Resolution\nFix TCP 646 ACL; restore loopback reachability; enable LDP on interface; fix MD5 auth; restore multicast reachability for hellos.\n\n### Preventive Actions\nMonitor LDP session count via SNMP; alert on session drops; enable LDP session protection to survive brief link failures.\n\n### Related Tools\nMPLS logs, Syslog, SNMP",
-  "problem": "TCP session failure between LDP peers (transport connectivity)",
-  "area": "MPLS",
-  "remedyItems": [
-    "Fix TCP 646 ACL",
-    "restore loopback reachability",
-    "enable LDP on interface",
-    "fix MD5 auth",
-    "restore multicast reachability for hellos.",
-    "Monitor LDP session count via SNMP"
-  ],
-  "tags": [
-    "mpls",
-    "ldp",
-    "label-distribution",
-    "tcp-646",
-    "mpls-forwarding",
-    "authentication"
-  ],
-  "linkedIntents": [
-    "mpls.ldp_down"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-mpls-002",
-  "title": "MPLS LSP (Label Switched Path) is broken — traffic not following the engineered path. How to diagnose?",
-  "category": "Network",
-  "subcategory": "MPLS",
-  "content": "### Overview\nMPLS LSP (Label Switched Path) is broken — traffic not following the engineered path. How to diagnose?\n\n### Likely Causes\n- Physical link failure along LSP path\n- RSVP session timeout due to missed refresh messages\n- TE bandwidth constraint no longer satisfiable (link used by higher priority)\n- Midpoint router dropping packets due to label mismatch\n- LSP head-end not re-signaling after failure (make-before-break not working)\n- CSPF computation failure due to stale TE topology database\n\n### Observability Signals\n- mpls_lsp_state != UP\n- RSVP session not established along path\n- Traffic falling back to IP path (no longer MPLS)\n- Traceroute showing IP hops instead of MPLS labels\n- TE tunnel state down in NMS\n\n### Recommended CLI Commands\nshow mpls traffic-eng tunnels\nshow rsvp session\nshow mpls traffic-eng tunnels detail\ntraceroute mpls ip <lsp-endpoint>\nshow mpls traffic-eng topology\nshow ip rsvp interface\n\n### Step-by-Step RCA\n1) Check tunnel state: 'show mpls traffic-eng tunnels' — is it up or down?\n2) Check RSVP session along path: 'show rsvp session'\n3) Identify failure point: traceroute MPLS — where do MPLS labels stop?\n4) Check if bandwidth constraint can be satisfied: reduce BW constraint temporarily\n5) Check CSPF topology: is TE database current?\n6) Force re-signal: 'clear mpls traffic-eng tunnel' (use during maintenance)\n\n### Resolution\nFix broken link in path; reduce TE BW constraint; re-signal LSP; update CSPF topology; configure FRR (Fast Reroute) for protection.\n\n### Preventive Actions\nConfigure MPLS-TE FRR backup paths; monitor LSP state; CSPF topology consistency check; BW reservation monitoring.\n\n### Related Tools\nRSVP logs, MPLS-TE logs, SNMP, network topology tools",
-  "problem": "Physical link failure along LSP path",
-  "area": "MPLS",
-  "remedyItems": [
-    "Fix broken link in path",
-    "reduce TE BW constraint",
-    "re-signal LSP",
-    "update CSPF topology",
-    "configure FRR (Fast Reroute) for protection.",
-    "Configure MPLS-TE FRR backup paths"
-  ],
-  "tags": [
-    "mpls-te",
-    "lsp",
-    "rsvp",
-    "traffic-engineering",
-    "cspf",
-    "frr",
-    "label-switched-path"
-  ],
-  "linkedIntents": [
-    "mpls.lsp_broken"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-mpls-003",
-  "title": "MPLS L3VPN routes are missing at PE — VRF routing table incomplete. How to diagnose?",
-  "category": "Network",
-  "subcategory": "MPLS",
-  "content": "### Overview\nMPLS L3VPN routes are missing at PE — VRF routing table incomplete. How to diagnose?\n\n### Likely Causes\n- MP-BGP VPNv4 session not activated between PE routers\n- Route Target (RT) import/export mismatch — routes not imported to correct VRF\n- VRF not assigned to CE-facing interface\n- Route Distinguisher (RD) collision between different VPNs\n- CE not redistributing routes into VRF BGP/OSPF\n- Route reflector not propagating VPNv4 routes\n\n### Observability Signals\n- VRF routing table missing expected prefixes\n- MP-BGP VPNv4 table not showing CE routes\n- show bgp vpnv4 unicast all shows no routes from specific PE\n- CE cannot ping PE VRF interface\n- Traffic between sites black-holing\n\n### Recommended CLI Commands\nshow ip vrf\nshow bgp vpnv4 unicast all summary\nshow bgp vpnv4 unicast all neighbors <pe-peer> routes\nshow ip route vrf <name>\nshow ip vrf interfaces\nshow run | sec vrf\n\n### Step-by-Step RCA\n1) Check VRF exists and CE interface assigned: 'show ip vrf interfaces'\n2) Check CE is advertising routes into VRF: 'show ip route vrf <name>'\n3) Check MP-BGP: VPNv4 AFI active? 'show bgp vpnv4 unicast all summary'\n4) Check RT: does RT export on advertising PE match RT import on receiving PE?\n5) Check RR: is it propagating VPNv4 routes to all PEs?\n6) Check RD uniqueness: 'show bgp vpnv4 unicast all' for duplicate RDs\n\n### Resolution\nActivate VPNv4 AFI; align RT import/export; assign VRF to interface; fix CE redistribution; correct RD; fix RR propagation.\n\n### Preventive Actions\nDocument RT design; automate RT consistency checks; RD registry to prevent collisions; test VPN reachability post-provision.\n\n### Related Tools\nBGP logs, MPLS logs, SNMP, NMS VPN monitoring",
-  "problem": "MP-BGP VPNv4 session not activated between PE routers",
-  "area": "MPLS",
-  "remedyItems": [
-    "Activate VPNv4 AFI",
-    "align RT import/export",
-    "assign VRF to interface",
-    "fix CE redistribution",
-    "correct RD",
-    "fix RR propagation."
-  ],
-  "tags": [
-    "mpls-l3vpn",
-    "vrf",
-    "mp-bgp",
-    "vpnv4",
-    "route-target",
-    "route-distinguisher",
-    "route-reflector"
-  ],
-  "linkedIntents": [
-    "mpls.vpn_route_missing"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-db-006",
-  "title": "Database is refusing new connections — max connection limit reached. How to manage?",
-  "category": "Database",
-  "subcategory": "Connection Pool",
-  "content": "### Overview\nDatabase is refusing new connections — max connection limit reached. How to manage?\n\n### Likely Causes\n- Application not using connection pooler (PgBouncer, ProxySQL)\n- Connections not being closed — application connection leak\n- Connection storm on application restart — all instances connecting simultaneously\n- max_connections too low for number of application instances\n- Long idle connections consuming slots without work\n- Prepared statement cache holding extra connections\n\n### Observability Signals\n- db_connections_count == db_max_connections\n- 'FATAL: sorry, too many clients already' (PostgreSQL)\n- 'Too many connections' (MySQL)\n- Application errors when acquiring new DB connection\n- Many idle connections in pg_stat_activity\n\n### Recommended CLI Commands\nSELECT count(*), state FROM pg_stat_activity GROUP BY state; (PG)\nSHOW STATUS LIKE 'Threads_connected'; (MySQL)\nSELECT application_name, count(*) FROM pg_stat_activity GROUP BY 1; (PG)\nSELECT * FROM pg_stat_activity WHERE state='idle' ORDER BY state_change;\ncheck PgBouncer status: psql -p 6432 pgbouncer -c 'show pools'\n\n### Step-by-Step RCA\n1) Count connections by state: idle vs active vs idle in transaction\n2) High idle connections: configure pool idle timeout; kill idle > 10min\n3) High 'idle in transaction': find long-running uncommitted transactions and kill\n4) Is PgBouncer/ProxySQL in use? If not: implement immediately\n5) Connection storm on restart: stagger application instance restarts\n6) Increase max_connections as emergency (requires restart for PostgreSQL)\n\n### Resolution\nDeploy PgBouncer in transaction mode; kill idle connections; fix connection leak; stagger app restarts; increase max_connections.\n\n### Preventive Actions\nAlways use connection pooler at scale; monitor connection count vs max; alert at 80%; implement connection timeouts.\n\n### Related Tools\nPgBouncer, ProxySQL, pg_stat_activity, MySQL processlist, Prometheus",
-  "problem": "Application not using connection pooler (PgBouncer, ProxySQL)",
-  "area": "Connection Pool",
-  "remedyItems": [
-    "Deploy PgBouncer in transaction mode",
-    "kill idle connections",
-    "fix connection leak",
-    "stagger app restarts",
-    "increase max_connections.",
-    "Always use connection pooler at scale"
-  ],
-  "tags": [
-    "db-connections",
-    "max-connections",
-    "pgbouncer",
-    "connection-storm",
-    "idle-connections",
-    "postgresql",
-    "mysql"
-  ],
-  "linkedIntents": [
-    "db.connection_pool_exhausted"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-db-007",
-  "title": "Deadlock frequency has spiked — transactions being rolled back frequently. How to diagnose and prevent?",
-  "category": "Database",
-  "subcategory": "Locking",
-  "content": "### Overview\nDeadlock frequency has spiked — transactions being rolled back frequently. How to diagnose and prevent?\n\n### Likely Causes\n- Two transactions acquiring locks in different orders creating circular dependency\n- Long-running transaction holding locks and blocking newer transactions\n- Missing index causing full table scan acquiring too many row locks\n- Bulk insert/update locking entire table instead of row-level\n- Application retry logic not implementing backoff after deadlock\n- ORM generating lock-prone query patterns\n\n### Observability Signals\n- deadlock_count > 5 per minute\n- Application errors: 'Deadlock found when trying to get lock'\n- Transaction rollback rate increasing\n- Long-running transaction blocking others in pg_stat_activity\n- Lock wait timeout events in DB logs\n\n### Recommended CLI Commands\nSHOW ENGINE INNODB STATUS\\G (MySQL — shows last deadlock)\nSELECT * FROM pg_locks l JOIN pg_stat_activity a ON l.pid = a.pid; (PG blocking)\nSELECT * FROM information_schema.INNODB_TRX; (MySQL active transactions)\ncheck application logs for deadlock errors and transaction retry\nENABLE DEADLOCK LOGGING: log_lock_waits = on (PostgreSQL)\n\n### Step-by-Step RCA\n1) Extract deadlock details: MySQL InnoDB status or pg_locks\n2) Identify the two transactions and what locks they hold vs need\n3) Determine if lock ordering is inconsistent (Transaction A: row1 then row2; Transaction B: row2 then row1)\n4) Identify if missing index causing table-level locks\n5) Implement consistent lock ordering in application code\n6) Add retry with exponential backoff for deadlock errors\n\n### Resolution\nFix lock ordering; add missing index; break up bulk operations; implement retry with backoff; use SELECT FOR UPDATE SKIP LOCKED.\n\n### Preventive Actions\nReview transaction isolation level; add indexes before bulk operations; test for deadlocks in load testing; set lock timeout.\n\n### Related Tools\nMySQL InnoDB status, pg_locks, pg_stat_activity, APM, slow query log",
-  "problem": "Two transactions acquiring locks in different orders creating circular dependency",
-  "area": "Locking",
-  "remedyItems": [
-    "Fix lock ordering",
-    "add missing index",
-    "break up bulk operations",
-    "implement retry with backoff",
-    "use SELECT FOR UPDATE SKIP LOCKED.",
-    "Review transaction isolation level"
-  ],
-  "tags": [
-    "deadlock",
-    "locking",
-    "mysql",
-    "postgresql",
-    "transaction",
-    "lock-order",
-    "innodb",
-    "retry"
-  ],
-  "linkedIntents": [
-    "db.deadlock_spike"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-db-008",
-  "title": "Database indexes are bloated — queries becoming slow despite indexes existing. How to detect and remediate?",
-  "category": "Database",
-  "subcategory": "Performance",
-  "content": "### Overview\nDatabase indexes are bloated — queries becoming slow despite indexes existing. How to detect and remediate?\n\n### Likely Causes\n- High DELETE or UPDATE rate creating dead tuples (PostgreSQL) or fragmented pages\n- VACUUM/AUTOVACUUM not keeping up with dead tuple accumulation\n- Autovacuum scale factor too conservative for high-churn tables\n- MySQL InnoDB table fragmentation after large deletes\n- Index rebuild never scheduled on high-churn tables\n- Transaction ID wraparound forcing emergency VACUUM\n\n### Observability Signals\n- index_bloat_ratio > 50% on key indexes\n- Query performance degrading despite correct index usage\n- pg_stat_user_tables showing high n_dead_tup count\n- Table file size growing despite row count stable\n- Autovacuum running constantly but never catching up\n\n### Recommended CLI Commands\nSELECT schemaname, tablename, n_live_tup, n_dead_tup, last_autovacuum FROM pg_stat_user_tables ORDER BY n_dead_tup DESC; (PG)\nSELECT pg_size_pretty(pg_relation_size('<table>')); (PG)\nSELECT * FROM pgstattuple('<table>'); (pg_contrib)\nANALYZE VERBOSE <table>; (PG)\nOPTIMIZE TABLE <table>; (MySQL — rebuilds and defragments)\nSELECT * FROM information_schema.TABLES WHERE table_schema='<db>' ORDER BY data_free DESC;\n\n### Step-by-Step RCA\n1) Identify bloated tables: 'pg_stat_user_tables' — high n_dead_tup\n2) Check autovacuum: is it running on the table? When did it last run?\n3) Compare autovacuum_scale_factor to actual delete rate\n4) Run manual VACUUM ANALYZE as immediate relief\n5) Rebuild fragmented indexes: REINDEX CONCURRENTLY (PG) or OPTIMIZE TABLE (MySQL)\n6) For MySQL: check information_schema.TABLES.data_free for fragmented tables\n\n### Resolution\nRun VACUUM ANALYZE; REINDEX CONCURRENTLY; tune autovacuum per-table; OPTIMIZE TABLE (MySQL); schedule regular maintenance windows.\n\n### Preventive Actions\nMonitor n_dead_tup per table; tune autovacuum for high-churn tables; scheduled REINDEX for write-heavy indexes.\n\n### Related Tools\npg_stat_user_tables, pgstattuple, MySQL information_schema, Prometheus DB exporter",
-  "problem": "High DELETE or UPDATE rate creating dead tuples (PostgreSQL) or fragmented pages",
-  "area": "Performance",
-  "remedyItems": [
-    "Run VACUUM ANALYZE",
-    "REINDEX CONCURRENTLY",
-    "tune autovacuum per-table",
-    "OPTIMIZE TABLE (MySQL)",
-    "schedule regular maintenance windows.",
-    "Monitor n_dead_tup per table"
-  ],
-  "tags": [
-    "index-bloat",
-    "vacuum",
-    "autovacuum",
-    "dead-tuples",
-    "postgresql",
-    "mysql",
-    "fragmentation",
-    "reindex"
-  ],
-  "linkedIntents": [
-    "db.index_bloat"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-mq-003",
-  "title": "Kafka partition(s) are offline or under-replicated — producers and consumers failing. How to recover?",
-  "category": "Middleware",
-  "subcategory": "Queue Health",
-  "content": "### Overview\nKafka partition(s) are offline or under-replicated — producers and consumers failing. How to recover?\n\n### Likely Causes\n- Broker hosting partition leader has crashed or is offline\n- Insufficient ISR (In-Sync Replicas) — min.insync.replicas not met\n- Unclean leader election required but disabled\n- Broker JVM OOM causing partition leader loss\n- Zookeeper/KRaft session expiry causing controller failover\n- Replication lag causing follower to fall out of ISR\n\n### Observability Signals\n- kafka_offline_partitions_count > 0\n- kafka_under_replicated_partitions > 0\n- Producer getting NotLeaderForPartition or NotEnoughReplicas errors\n- Consumer getting UNKNOWN_TOPIC_OR_PARTITION errors\n- Broker logs showing 'Partition is offline'\n\n### Recommended CLI Commands\nkafka-topics.sh --describe --topic <topic> --bootstrap-server <broker>\nkafka-topics.sh --describe --unavailable-partitions --bootstrap-server <broker>\nkafka-reassign-partitions.sh (for rebalancing)\nkafka-leader-election.sh --election-type preferred\ncheck broker logs: journalctl -u kafka\ncheck ZooKeeper/KRaft logs\n\n### Step-by-Step RCA\n1) Identify offline partitions: 'kafka-topics.sh --describe --unavailable-partitions'\n2) Is the broker hosting the offline partition leader down?\n3) If broker down: restart it and wait for partition to re-elect leader\n4) Check ISR: is ISR count >= min.insync.replicas?\n5) If ISR too small: restore offline broker to increase ISR\n6) Trigger preferred leader election after broker restored\n\n### Resolution\nRestart offline broker; reassign partitions to healthy brokers; trigger leader election; restore replication; adjust min.insync.replicas.\n\n### Preventive Actions\nReplication factor >= 3; monitor under-replicated partitions; alert on offline partitions; balanced partition distribution across brokers.\n\n### Related Tools\nKafka CLI tools, Kafka Manager, Prometheus JMX exporter, Confluent Control Center",
-  "problem": "Broker hosting partition leader has crashed or is offline",
-  "area": "Queue Health",
-  "remedyItems": [
-    "Restart offline broker",
-    "reassign partitions to healthy brokers",
-    "trigger leader election",
-    "restore replication",
-    "adjust min.insync.replicas.",
-    "Replication factor >= 3"
-  ],
-  "tags": [
-    "kafka",
-    "partition-offline",
-    "under-replicated",
-    "isr",
-    "broker-down",
-    "leader-election",
-    "min-insync"
-  ],
-  "linkedIntents": [
-    "mq.partition_offline"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-mq-004",
-  "title": "Kafka consumer group lag is growing — messages accumulating in topic. How to reduce lag?",
-  "category": "Middleware",
-  "subcategory": "Queue Health",
-  "content": "### Overview\nKafka consumer group lag is growing — messages accumulating in topic. How to reduce lag?\n\n### Likely Causes\n- Consumer processing logic too slow for message production rate\n- Consumer group stuck in rebalancing loop (too many joins/leaves)\n- Producer surge generating messages faster than consumers can process\n- Consumer fetch timeout too short causing excessive rebalancing\n- Insufficient consumer instances for partition count\n- Consumer blocked on downstream dependency (DB, API call)\n\n### Observability Signals\n- consumer_group_lag > threshold and growing\n- Kafka consumer group in REBALANCING state frequently\n- Consumer lag not decreasing even with consumers healthy\n- Consumer poll interval exceeding max.poll.interval.ms\n- Consumer CPU and throughput normal (not a processing bottleneck)\n\n### Recommended CLI Commands\nkafka-consumer-groups.sh --describe --group <group> --bootstrap-server <broker>\nkafka-consumer-groups.sh --describe --group <group> --bootstrap-server <broker> --verbose\ncheck consumer application metrics: messages_processed_per_sec\ncheck consumer logs for rebalancing events\nkafka-topics.sh --describe --topic <topic> (check partition count vs consumer count)\n\n### Step-by-Step RCA\n1) Check lag per partition: 'kafka-consumer-groups.sh --describe' — which partitions lagging most?\n2) Is consumer in REBALANCING? Indicates consumer joins/leaves frequently\n3) Compare consumer throughput vs producer throughput\n4) Is consumer downstream slow? Check DB or API latency\n5) Is consumer count < partition count? Scale consumers to match partitions\n6) Check max.poll.interval.ms vs actual processing time\n\n### Resolution\nScale consumer instances (max = partition count); optimize processing; fix downstream dependency; increase max.poll.interval.ms; fix rebalancing.\n\n### Preventive Actions\nLag alerting at acceptable threshold; consumer count >= partition count; load test consumer throughput vs expected producer rate.\n\n### Related Tools\nkafka-consumer-groups.sh, Prometheus JMX exporter, Burrow (lag monitor), Confluent Control Center",
-  "problem": "Consumer processing logic too slow for message production rate",
-  "area": "Queue Health",
-  "remedyItems": [
-    "Scale consumer instances (max = partition count)",
-    "optimize processing",
-    "fix downstream dependency",
-    "increase max.poll.interval.ms",
-    "fix rebalancing.",
-    "Lag alerting at acceptable threshold"
-  ],
-  "tags": [
-    "kafka",
-    "consumer-lag",
-    "consumer-group",
-    "rebalancing",
-    "lag",
-    "throughput",
-    "max-poll-interval"
-  ],
-  "linkedIntents": [
-    "mq.consumer_group_lag"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-},
-  {
-  "id": "kb-mq-005",
-  "title": "Dead letter queue (DLQ) is accumulating messages — what is causing messages to be dead-lettered?",
-  "category": "Middleware",
-  "subcategory": "Queue Health",
-  "content": "### Overview\nDead letter queue (DLQ) is accumulating messages — what is causing messages to be dead-lettered?\n\n### Likely Causes\n- Poison message: malformed or unexpected payload crashing consumer\n- Schema change breaking consumer deserialization\n- Consumer bug throwing exception for valid messages\n- Max retry count exceeded — consumer repeatedly failing on message\n- Message TTL expired before consumer processed it\n- Authorization failure — consumer cannot access required resource\n\n### Observability Signals\n- dlq_message_count > threshold and growing\n- Consumer showing high rejection/nack rate\n- Consumer processing errors in application logs\n- Messages in DLQ with specific error type concentrated\n- Same consumer version started rejecting messages after deployment\n\n### Recommended CLI Commands\nrabbitmqctl list_queues name messages (check DLQ depth — RabbitMQ)\nkafka-console-consumer.sh --topic <dlq-topic> --from-beginning (sample DLQ messages)\naws sqs receive-message --queue-url <dlq-url> (AWS SQS DLQ)\ncheck consumer application error logs\ncompare DLQ message schema vs current consumer schema\ncheck message timestamps in DLQ (when were they sent?)\n\n### Step-by-Step RCA\n1) Sample DLQ messages: what is the payload? Any pattern?\n2) Check consumer error logs: what exception is thrown?\n3) Schema mismatch: is DLQ message in old format vs current consumer schema?\n4) Poison message: does one specific message format crash all consumers?\n5) Correlate DLQ accumulation start with deployments\n6) Move non-poison messages from DLQ to original queue after fix\n\n### Resolution\nFix consumer to handle message format; fix schema compatibility; fix consumer bug; replay DLQ messages after fix; purge true poison messages.\n\n### Preventive Actions\nAlert on DLQ depth > 0; schema registry with compatibility checks; test consumer with all historical message formats; DLQ message sampling.\n\n### Related Tools\nRabbitMQ management, Kafka CLI, AWS SQS, schema registry, consumer logs",
-  "problem": "Poison message: malformed or unexpected payload crashing consumer",
-  "area": "Queue Health",
-  "remedyItems": [
-    "Fix consumer to handle message format",
-    "fix schema compatibility",
-    "fix consumer bug",
-    "replay DLQ messages after fix",
-    "purge true poison messages.",
-    "Alert on DLQ depth > 0"
-  ],
-  "tags": [
-    "dlq",
-    "dead-letter-queue",
-    "poison-message",
-    "schema-mismatch",
-    "consumer-error",
-    "retry",
-    "deserialization"
-  ],
-  "linkedIntents": [
-    "mq.dead_letter_full"
-  ],
-  "lastUpdated": "2026-03-25T00:00:00Z",
-  "effectiveness": 85
-}
+    "id": "kb-gen-connectivity-reachability-0",
+    "title": "Why is a device showing 'Host Down' in NMS?",
+    "category": "Network",
+    "subcategory": "Reachability",
+    "content": "### Overview\nWhy is a device showing 'Host Down' in NMS?\n\n### Likely Causes\n- SNMP or ICMP blocked\n- Device/Interface down\n- ACL/Firewall drop\n- Routing not present\n- VRF mismatch\n- Power/Hardware issue\n\n### Observability Signals\n- Ping/ICMP status\n- SNMP poll result & sysUpTime\n- Interface status (admin/oper)\n- ARP/ND entries\n- Routing table path to device\n\n### Recommended CLI Commands\nping <ip>\ntraceroute <ip>\nshow ip route <ip>\nshow interface status\nshow access-lists | include <src/dst>\n\n### Step-by-Step RCA\n1) Verify management IP & VRF\n2) ICMP/SNMP reachability from poller\n3) Check link/neighbor state\n4) Validate routing path/ACLs\n5) Hardware/power checks\n\n### Resolution\nRestore upstream route/ACL; enable ICMP/SNMP to poller; bring up interface; replace faulty hardware/PSU.\n\n### Preventive Actions\nStandardize management VRF; allow-lists for NMS; dual power; path redundancy.\n\n### Related Tools\nPing, Traceroute, SNMP, Syslog",
+    "problem": "SNMP or ICMP blocked",
+    "area": "Reachability",
+    "remedyItems": [
+      "Restore upstream route/ACL",
+      "enable ICMP/SNMP to poller",
+      "bring up interface",
+      "replace faulty hardware/PSU.",
+      "Standardize management VRF",
+      "allow-lists for NMS"
+    ],
+    "tags": [
+      "host-down",
+      "snmp",
+      "icmp",
+      "vrf"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-connectivity-packet-loss-1",
+    "title": "Users report intermittent packet loss to a site—what should I check?",
+    "category": "Network",
+    "subcategory": "Packet Loss",
+    "content": "### Overview\nUsers report intermittent packet loss to a site—what should I check?\n\n### Likely Causes\n- Link errors (CRC, drops)\n- Duplex/Speed mismatch\n- Congestion/Queue drops\n- RF interference (Wi—˜Fi)\n- ISP/WAN degradation\n\n### Observability Signals\n- Interface error counters\n- QoS queue drops\n- Latency/Jitter trends\n- NetFlow/sFlow loss indicators\n\n### Recommended CLI Commands\nshow interface counters errors\nshow platform hardware qfp drops\nshow policy-map interface\nmtr <dst>\n\n### Step-by-Step RCA\n1) Baseline ping/mtr\n2) Inspect interface errors\n3) Check QoS & queue depths\n4) Validate duplex/speed\n5) Engage ISP if WAN\n\n### Resolution\nFix cabling/SFP; correct duplex/speed; tune QoS; open ISP ticket with evidence (latency/loss graphs).\n\n### Preventive Actions\nUse error-threshold alerting; pre—˜mark critical traffic; SLA probes on WAN.\n\n### Related Tools\nNetFlow/sFlow, IPSLA/TWAMP, SNMP, Wireshark",
+    "problem": "Link errors (CRC, drops)",
+    "area": "Packet Loss",
+    "remedyItems": [
+      "Fix cabling/SFP",
+      "correct duplex/speed",
+      "tune QoS",
+      "open ISP ticket with evidence (latency/loss graphs).",
+      "Use error-threshold alerting",
+      "pre—˜mark critical traffic"
+    ],
+    "tags": [
+      "packet-loss",
+      "qos",
+      "wan",
+      "crc"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-services-dns-2",
+    "title": "Clients see 'DNS server not responding'—how to triage?",
+    "category": "Network",
+    "subcategory": "DNS",
+    "content": "### Overview\nClients see 'DNS server not responding'—how to triage?\n\n### Likely Causes\n- DNS server down/restart\n- Firewall blocks 53/UDP\n- Anycast health failover\n- Split-horizon misconfig\n\n### Observability Signals\n- UDP 53 reachability\n- Server CPU/mem\n- Query success rate, NXDOMAIN spikes\n\n### Recommended CLI Commands\nnslookup <name> <dns>\ndig +trace <name>\ntelnet <dns> 53\nshow access-lists | inc 53\n\n### Step-by-Step RCA\n1) Check DNS reachability\n2) Validate server health\n3) Confirm views/split-horizon\n4) Inspect recent changes\n\n### Resolution\nRestore service; open 53/UDP; correct view/zone data; rollback bad changes.\n\n### Preventive Actions\nHealth probes for Anycast; change control; capacity headroom.\n\n### Related Tools\nDNS logs, Packet capture, Syslog",
+    "problem": "DNS server down/restart",
+    "area": "DNS",
+    "remedyItems": [
+      "Restore service",
+      "open 53/UDP",
+      "correct view/zone data",
+      "rollback bad changes.",
+      "Health probes for Anycast",
+      "change control"
+    ],
+    "tags": [
+      "dns",
+      "anycast",
+      "firewall"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-services-dhcp-3",
+    "title": "Why are clients failing to obtain IPs (DHCP timeouts)?",
+    "category": "Network",
+    "subcategory": "DHCP",
+    "content": "### Overview\nWhy are clients failing to obtain IPs (DHCP timeouts)?\n\n### Likely Causes\n- Scope exhaustion\n- Relay (ip helper) broken\n- VLAN trunk issue\n- ACL blocking UDP 67/68\n\n### Observability Signals\n- Pool utilization\n- Relay counters/logs\n- VLAN STP/Trunk state\n\n### Recommended CLI Commands\nshow ip dhcp binding\nshow ip dhcp pool\nshow ip helper\nshow vlan / show interfaces trunk\n\n### Step-by-Step RCA\n1) Verify VLAN reaches relay\n2) Check scope utilization\n3) Inspect ACLs\n4) Confirm server status\n\n### Resolution\nExpand scope; fix relay; correct VLAN tags; open ports 67/68.\n\n### Preventive Actions\nCapacity planning; IPAM alerts for pool thresholds.\n\n### Related Tools\nDHCP logs, NMS traps",
+    "problem": "Scope exhaustion",
+    "area": "DHCP",
+    "remedyItems": [
+      "Expand scope",
+      "fix relay",
+      "correct VLAN tags",
+      "open ports 67/68.",
+      "Capacity planning",
+      "IPAM alerts for pool thresholds."
+    ],
+    "tags": [
+      "dhcp",
+      "ip-helper",
+      "vlan"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-routing-bgp-4",
+    "title": "BGP session flapping with ISP—what causes and fixes?",
+    "category": "Network",
+    "subcategory": "BGP",
+    "content": "### Overview\nBGP session flapping with ISP—what causes and fixes?\n\n### Likely Causes\n- Physical link issues\n- Mismatched timers/MD5\n- Route churn/Max-prefix hit\n- MTU mismatch causing TCP resets\n\n### Observability Signals\n- BGP neighbor log\n- Hold/timer counters\n- Max-prefix alarms\n- Interface errors\n\n### Recommended CLI Commands\nshow bgp summary\nshow ip bgp neighbors\nshow interface counters\nshow logging | inc BGP\n\n### Step-by-Step RCA\n1) Confirm physical stability\n2) Validate auth/timers/MTU\n3) Check max—˜prefix & route leaks\n4) Coordinate with ISP\n\n### Resolution\nFix optics/cable; align timers/MD5; increase max—˜prefix with safeguards; correct MTU.\n\n### Preventive Actions\nBFD for fast detection; route-policy sanity; prefix-limit alerting.\n\n### Related Tools\nBGP logs, BFD, NetFlow",
+    "problem": "Physical link issues",
+    "area": "BGP",
+    "remedyItems": [
+      "Fix optics/cable",
+      "align timers/MD5",
+      "increase max—˜prefix with safeguards",
+      "correct MTU.",
+      "BFD for fast detection",
+      "route-policy sanity"
+    ],
+    "tags": [
+      "bgp",
+      "max-prefix",
+      "mtu",
+      "md5"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-routing-ospf-5",
+    "title": "OSPF neighbor stuck in EXSTART/EXCHANGE—what to check?",
+    "category": "Network",
+    "subcategory": "OSPF",
+    "content": "### Overview\nOSPF neighbor stuck in EXSTART/EXCHANGE—what to check?\n\n### Likely Causes\n- MTU mismatch\n- Duplicate router IDs\n- Network type mismatch\n- ACL blocking multicast\n\n### Observability Signals\n- OSPF neighbor state timeline\n- Interface MTU\n- RID uniqueness\n\n### Recommended CLI Commands\nshow ip ospf neighbor\nshow interface | inc MTU\nshow ip ospf interface\n\n### Step-by-Step RCA\n1) Verify MTU & adjust or set ip ospf mtu-ignore\n2) Ensure unique RIDs\n3) Check network type & multicast reachability\n\n### Resolution\nAlign MTU; fix RID; correct network type/ACLs.\n\n### Preventive Actions\nPre—˜deploy templates; health checks.\n\n### Related Tools\nOSPF logs",
+    "problem": "MTU mismatch",
+    "area": "OSPF",
+    "remedyItems": [
+      "Align MTU",
+      "fix RID",
+      "correct network type/ACLs.",
+      "Pre—˜deploy templates",
+      "health checks."
+    ],
+    "tags": [
+      "ospf",
+      "mtu",
+      "rid"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-switching-stp-6",
+    "title": "Random access outages—could this be STP?",
+    "category": "Network",
+    "subcategory": "STP",
+    "content": "### Overview\nRandom access outages—could this be STP?\n\n### Likely Causes\n- Root bridge change\n- Portfast missing Ã¢â€ â€™ TCN floods\n- Loop due to cabling\n- BPDU guard shutdown\n\n### Observability Signals\n- STP topology change count\n- Root bridge identity\n- BPDU guard logs\n\n### Recommended CLI Commands\nshow spanning-tree detail\nshow spanning-tree root\nshow log | inc STP|BPDU\n\n### Step-by-Step RCA\n1) Verify root placement\n2) Check TCN spikes\n3) Inspect access loops & err—˜disable\n4) Enable loop guard/BPDU guard\n\n### Resolution\nSet deterministic roots; enable Portfast+BPDU guard; fix loops.\n\n### Preventive Actions\nDesign standards; LLDP audits.\n\n### Related Tools\nSTP logs, LLDP",
+    "problem": "Root bridge change",
+    "area": "STP",
+    "remedyItems": [
+      "Set deterministic roots",
+      "enable Portfast+BPDU guard",
+      "fix loops.",
+      "Design standards",
+      "LLDP audits."
+    ],
+    "tags": [
+      "stp",
+      "tcn",
+      "loop-guard",
+      "bpdu"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-switching-vlan-trunk-7",
+    "title": "Hosts in VLAN cannot reach gateway—why?",
+    "category": "Network",
+    "subcategory": "VLAN/Trunk",
+    "content": "### Overview\nHosts in VLAN cannot reach gateway—why?\n\n### Likely Causes\n- Trunk missing VLAN tag\n- SVI down/admin down\n- HSRP/VRRP failover issue\n\n### Observability Signals\n- Trunk allowed list\n- SVI line-protocol\n- ARP table for gateway\n\n### Recommended CLI Commands\nshow interfaces trunk\nshow vlan brief\nshow standby / show vrrp\n\n### Step-by-Step RCA\n1) Validate VLAN allowed on trunks\n2) Confirm SVI up\n3) Verify HSRP/VRRP state & ARP\n\n### Resolution\nPermit VLAN on trunks; bring up SVI; fix FHRP priorities/preempt.\n\n### Preventive Actions\nChange control on trunk changes; monitoring for SVI down.\n\n### Related Tools\nSyslog, SNMP, ARP",
+    "problem": "Trunk missing VLAN tag",
+    "area": "VLAN/Trunk",
+    "remedyItems": [
+      "Permit VLAN on trunks",
+      "bring up SVI",
+      "fix FHRP priorities/preempt.",
+      "Change control on trunk changes",
+      "monitoring for SVI down."
+    ],
+    "tags": [
+      "vlan",
+      "trunk",
+      "svi",
+      "hsrp"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-interfaces-errors-8",
+    "title": "CRC errors increasing on uplink—what now?",
+    "category": "Network",
+    "subcategory": "Errors",
+    "content": "### Overview\nCRC errors increasing on uplink—what now?\n\n### Likely Causes\n- Bad cable/SFP\n- Duplex/speed mismatch\n- EMI interference\n\n### Observability Signals\n- CRC/giants/drops counters\n- Autoneg status\n- Optical levels\n\n### Recommended CLI Commands\nshow interface counters errors\nddm interface <port>\n\n### Step-by-Step RCA\n1) Swap patch/SFP\n2) Lock duplex/speed appropriately\n3) Test on alternate path/port\n\n### Resolution\nReplace faulty components; correct autoneg; reroute temporarily.\n\n### Preventive Actions\nUse certified optics/cables; keep spares.\n\n### Related Tools\nSNMP interface stats",
+    "problem": "Bad cable/SFP",
+    "area": "Errors",
+    "remedyItems": [
+      "Replace faulty components",
+      "correct autoneg",
+      "reroute temporarily.",
+      "Use certified optics/cables",
+      "keep spares."
+    ],
+    "tags": [
+      "crc",
+      "autoneg",
+      "sfp"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-interfaces-flaps-9",
+    "title": "Why does an access port keep going up/down frequently?",
+    "category": "Network",
+    "subcategory": "Flaps",
+    "content": "### Overview\nWhy does an access port keep going up/down frequently?\n\n### Likely Causes\n- Loose cable\n- Power-saving NIC\n- Loop detection\n- PoE power issues\n\n### Observability Signals\n- Link up/down logs\n- PoE power draw\n- Errdisable reasons\n\n### Recommended CLI Commands\nshow log | inc link\nshow power inline <port>\n\n### Step-by-Step RCA\n1) Inspect cabling & NIC power settings\n2) Check PoE budget & negotiate\n3) Review errdisable recovery\n\n### Resolution\nReplace cable/NIC; adjust PoE allocation; disable aggressive power-save.\n\n### Preventive Actions\nCable management; NIC driver updates.\n\n### Related Tools\nSyslog, SNMP traps",
+    "problem": "Loose cable",
+    "area": "Flaps",
+    "remedyItems": [
+      "Replace cable/NIC",
+      "adjust PoE allocation",
+      "disable aggressive power-save.",
+      "Cable management",
+      "NIC driver updates."
+    ],
+    "tags": [
+      "flap",
+      "poe",
+      "errdisable"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-performance-latency-jitter-10",
+    "title": "What causes high jitter on VoIP?",
+    "category": "Network",
+    "subcategory": "Latency/Jitter",
+    "content": "### Overview\nWhat causes high jitter on VoIP?\n\n### Likely Causes\n- Queue congestion\n- Wrong DSCP marking\n- WAN shaping mismatch\n- Clocking issues\n\n### Observability Signals\n- IPSLA MOS & jitter\n- Queue depth & drops\n- DSCP stats\n\n### Recommended CLI Commands\nshow policy-map interface\nip sla statistics\niperf3 -u -b ...\n\n### Step-by-Step RCA\n1) Verify end-to-end QoS trust/marking\n2) Ensure bandwidth/shape alignment\n3) Prioritize EF in queues\n\n### Resolution\nFix policy, adjust shaping/bandwidth, enable LLQ.\n\n### Preventive Actions\nBaseline QoS verification; synthetic probes.\n\n### Related Tools\nIPSLA/TWAMP, NetFlow",
+    "problem": "Queue congestion",
+    "area": "Latency/Jitter",
+    "remedyItems": [
+      "Fix policy, adjust shaping/bandwidth, enable LLQ.",
+      "Baseline QoS verification",
+      "synthetic probes."
+    ],
+    "tags": [
+      "qos",
+      "voip",
+      "jitter"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-security-acl-firewall-11",
+    "title": "Application reachable over Internet but API calls fail—why?",
+    "category": "Security",
+    "subcategory": "ACL/Firewall",
+    "content": "### Overview\nApplication reachable over Internet but API calls fail—why?\n\n### Likely Causes\n- ACL missing ephemeral return path\n- NAT misconfig\n- TLS inspection break\n\n### Observability Signals\n- Firewall deny logs\n- NAT table utilization\n- TLS handshake errors\n\n### Recommended CLI Commands\nshow access-group\nshow conn | i <src>\nshow xlate | i <ip>\n\n### Step-by-Step RCA\n1) Reproduce and capture\n2) Check NAT & ACL symmetry\n3) Bypass inspection to validate\n\n### Resolution\nAdd return rules; fix NAT; adjust inspection policy.\n\n### Preventive Actions\nChange review for firewall pushes; preflight tests.\n\n### Related Tools\nFirewall logs, PCAP",
+    "problem": "ACL missing ephemeral return path",
+    "area": "ACL/Firewall",
+    "remedyItems": [
+      "Add return rules",
+      "fix NAT",
+      "adjust inspection policy.",
+      "Change review for firewall pushes",
+      "preflight tests."
+    ],
+    "tags": [
+      "acl",
+      "nat",
+      "tls"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-vpn-ipsec-12",
+    "title": "Why does IPsec tunnel come up but traffic drops?",
+    "category": "Network",
+    "subcategory": "IPsec",
+    "content": "### Overview\nWhy does IPsec tunnel come up but traffic drops?\n\n### Likely Causes\n- Proxy-ID/Interesting traffic mismatch\n- MTU/MSS issues\n- Phase 2 lifetime mismatch\n\n### Observability Signals\n- SPI counters & rekeys\n- Drop/deny logs\n- Path MTU discovery\n\n### Recommended CLI Commands\nshow crypto isakmp/ikev2 sa\nshow crypto ipsec sa\nping df-bit size <n>\n\n### Step-by-Step RCA\n1) Validate proxy ACLs both sides\n2) Adjust MSS/MTU\n3) Align lifetimes and ciphers\n\n### Resolution\nCorrect selectors; set TCP MSS clamp; coordinate timers/ciphers.\n\n### Preventive Actions\nPredefined templates; PMTU testing.\n\n### Related Tools\nFirewall/VPN logs",
+    "problem": "Proxy-ID/Interesting traffic mismatch",
+    "area": "IPsec",
+    "remedyItems": [
+      "Correct selectors",
+      "set TCP MSS clamp",
+      "coordinate timers/ciphers.",
+      "Predefined templates",
+      "PMTU testing."
+    ],
+    "tags": [
+      "ipsec",
+      "mtu",
+      "proxy-id"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-monitoring-snmp-13",
+    "title": "SNMP polling failing intermittently—how to debug?",
+    "category": "Platform",
+    "subcategory": "SNMP",
+    "content": "### Overview\nSNMP polling failing intermittently—how to debug?\n\n### Likely Causes\n- EngineID changes (v3)\n- ACL/CoPP rate limit\n- Device CPU high\n- VRF/path flap\n\n### Observability Signals\n- Ping vs SNMP success ratio\n- SNMP error codes/timeouts\n- Device CPU/mem spikes\n\n### Recommended CLI Commands\nsnmpwalk -v2c -c <c> <ip> 1.3.6.1.2.1.1\nshow snmp engineid\nshow control-plane statistics\n\n### Step-by-Step RCA\n1) Compare ICMP vs SNMP reachability\n2) Check CoPP/ACLs to poller\n3) Validate creds/EngineID after RMA\n\n### Resolution\nFix CoPP policy; update creds/EngineID; reduce poll frequency on busy devices.\n\n### Preventive Actions\nSNMP allow-lists; staggered polling; distributed pollers.\n\n### Related Tools\nNMS logs, Syslog",
+    "problem": "EngineID changes (v3)",
+    "area": "SNMP",
+    "remedyItems": [
+      "Fix CoPP policy",
+      "update creds/EngineID",
+      "reduce poll frequency on busy devices.",
+      "SNMP allow-lists",
+      "staggered polling",
+      "distributed pollers."
+    ],
+    "tags": [
+      "snmp",
+      "copp",
+      "v3"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-monitoring-trap-alert-storm-14",
+    "title": "We received thousands of traps in minutes—what should we do?",
+    "category": "Platform",
+    "subcategory": "Trap/Alert Storm",
+    "content": "### Overview\nWe received thousands of traps in minutes—what should we do?\n\n### Likely Causes\n- Flapping event source\n- Misconfigured trap destination\n- Firmware bug\n- Broadcast/loop events\n\n### Observability Signals\n- Trap volume rate/min\n- Top talkers by source\n- Recent change logs\n\n### Recommended CLI Commands\ntcpdump udp port 162\nshow logging last 100\nshow spanning-tree detail\n\n### Step-by-Step RCA\n1) Identify noisy source\n2) Quarantine via ACL/Rate-limit\n3) Fix root cause (loop, flaps)\n4) Patch firmware\n\n### Resolution\nApply trap dampening; correct configs; vendor bugfix.\n\n### Preventive Actions\nPre-prod trap tests; enable storm control.\n\n### Related Tools\nSyslog, Packet capture",
+    "problem": "Flapping event source",
+    "area": "Trap/Alert Storm",
+    "remedyItems": [
+      "Apply trap dampening",
+      "correct configs",
+      "vendor bugfix.",
+      "Pre-prod trap tests",
+      "enable storm control."
+    ],
+    "tags": [
+      "trap-storm",
+      "loop",
+      "bug"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-monitoring-clock-ntp-15",
+    "title": "Graphs misaligned and logs out of order—time skew suspected. Next steps?",
+    "category": "Platform",
+    "subcategory": "Clock/NTP",
+    "content": "### Overview\nGraphs misaligned and logs out of order—time skew suspected. Next steps?\n\n### Likely Causes\n- NTP peer down\n- Wrong timezone/DST\n- Virtualization clock drift\n\n### Observability Signals\n- NTP sync state & offset\n- Device clock vs NMS\n- Log timestamps consistency\n\n### Recommended CLI Commands\nshow ntp associations\nshow clock detail\nntpq -p\n\n### Step-by-Step RCA\n1) Verify upstream NTP\n2) Fix ACLs to NTP servers\n3) Force sync and monitor offset\n\n### Resolution\nRestore NTP; standardize TZ; enable HA NTP.\n\n### Preventive Actions\nMultiple NTP sources; alerts on offset>100ms.\n\n### Related Tools\nNTP logs",
+    "problem": "NTP peer down",
+    "area": "Clock/NTP",
+    "remedyItems": [
+      "Restore NTP",
+      "standardize TZ",
+      "enable HA NTP.",
+      "Multiple NTP sources",
+      "alerts on offset>100ms."
+    ],
+    "tags": [
+      "ntp",
+      "time-skew"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-wireless-wlan-16",
+    "title": "Why do clients get frequent Wi—˜Fi disconnects?",
+    "category": "Network",
+    "subcategory": "WLAN",
+    "content": "### Overview\nWhy do clients get frequent Wi—˜Fi disconnects?\n\n### Likely Causes\n- Low SNR/Channel overlap\n- 2.4GHz congestion\n- Sticky clients/roaming issues\n- AP power imbalance\n\n### Observability Signals\n- SNR/RSSI heatmaps\n- Channel utilization\n- Client roam events\n\n### Recommended CLI Commands\nshow wlan client detail\nshow ap auto-rf\niw dev wlan0 link\n\n### Step-by-Step RCA\n1) Survey RF; set proper channels\n2) Enable band-steering & 802.11k/v/r\n3) Tune power and RRM\n\n### Resolution\nReassign channels; enable fast roam; adjust AP power.\n\n### Preventive Actions\nRegular RF surveys; capacity planning.\n\n### Related Tools\nWLC logs, RF tools",
+    "problem": "Low SNR/Channel overlap",
+    "area": "WLAN",
+    "remedyItems": [
+      "Reassign channels",
+      "enable fast roam",
+      "adjust AP power.",
+      "Regular RF surveys",
+      "capacity planning."
+    ],
+    "tags": [
+      "wifi",
+      "rf",
+      "roaming"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-wan-sd-wan-17",
+    "title": "App performance poor on one path only—how to isolate?",
+    "category": "Network",
+    "subcategory": "SD-WAN",
+    "content": "### Overview\nApp performance poor on one path only—how to isolate?\n\n### Likely Causes\n- SLA violation on underlay\n- DPI misclassification\n- Asymmetric routing\n\n### Observability Signals\n- Per-path loss/latency\n- App-ID mapping\n- Path health events\n\n### Recommended CLI Commands\nshow app-route stats\nshow sla-class\ntraceroute --as-path-lookups\n\n### Step-by-Step RCA\n1) Compare path KPIs\n2) Validate App-ID and policy\n3) Force pin to good path and observe\n\n### Resolution\nFix underlay with ISP; correct DPI signatures; adjust policy.\n\n### Preventive Actions\nContinuous path probes; anomaly alerts.\n\n### Related Tools\nController logs, NetFlow",
+    "problem": "SLA violation on underlay",
+    "area": "SD-WAN",
+    "remedyItems": [
+      "Fix underlay with ISP",
+      "correct DPI signatures",
+      "adjust policy.",
+      "Continuous path probes",
+      "anomaly alerts."
+    ],
+    "tags": [
+      "sd-wan",
+      "sla",
+      "dpi"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-device-cpu-memory-18",
+    "title": "NMS shows high CPU on core switch—what to check?",
+    "category": "Compute",
+    "subcategory": "CPU/Memory",
+    "content": "### Overview\nNMS shows high CPU on core switch—what to check?\n\n### Likely Causes\n- Control-plane attack or burst\n- Process leak/bug\n- Netflow/sFlow export overload\n\n### Observability Signals\n- CPU per process timeline\n- CoPP drops\n- SNMP poll rate\n\n### Recommended CLI Commands\nshow processes cpu sorted\nshow control-plane host open-ports\nshow flow exporter statistics\n\n### Step-by-Step RCA\n1) Identify top processes\n2) Rate-limit offenders/enable CoPP\n3) Patch or reload during window\n\n### Resolution\nMitigate traffic; upgrade firmware; tune telemetry rates.\n\n### Preventive Actions\nCapacity tests post-upgrade; monitor trendline.\n\n### Related Tools\nSyslog, SNMP, NetFlow",
+    "problem": "Control-plane attack or burst",
+    "area": "CPU/Memory",
+    "remedyItems": [
+      "Mitigate traffic",
+      "upgrade firmware",
+      "tune telemetry rates.",
+      "Capacity tests post-upgrade",
+      "monitor trendline."
+    ],
+    "tags": [
+      "cpu",
+      "copp"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-performance-internet-saas-19",
+    "title": "Latency spike to SaaS (Teams/Zoom)—what checks isolate the issue?",
+    "category": "Network",
+    "subcategory": "Internet/SaaS",
+    "content": "### Overview\nLatency spike to SaaS (Teams/Zoom)—what checks isolate the issue?\n\n### Likely Causes\n- Peering congestion\n- Middlebox inspection\n- Wrong DNS egress\n\n### Observability Signals\n- Loss/Latency to SaaS POP\n- TLS handshake times\n- DNS egress IP vs geo\n\n### Recommended CLI Commands\nUse standard ping/traceroute; device interface counters; NetFlow to SaaS prefixes.\n\n### Step-by-Step RCA\n1) Compare multiple egress paths\n2) Check middleboxes/inspection\n3) Validate DNS egress mapping\n\n### Resolution\nCompare loss/latency by egress; bypass inspection; test alternate DNS/egress.\n\n### Preventive Actions\nSet direct egress for SaaS; split—˜tunnel VPN; monitor SaaS status.\n\n### Related Tools\nIPSLA/TWAMP, NetFlow, Packet capture",
+    "problem": "Peering congestion",
+    "area": "Internet/SaaS",
+    "remedyItems": [
+      "Compare loss/latency by egress",
+      "bypass inspection",
+      "test alternate DNS/egress.",
+      "Set direct egress for SaaS",
+      "split—˜tunnel VPN",
+      "monitor SaaS status."
+    ],
+    "tags": [
+      "saas",
+      "latency",
+      "vpn"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-interfaces-uplink-20",
+    "title": "Interface down on access switch uplink—what checks isolate the issue?",
+    "category": "Network",
+    "subcategory": "Uplink",
+    "content": "### Overview\nInterface down on access switch uplink—what checks isolate the issue?\n\n### Likely Causes\n- Bad SFP/patch\n- Errdisable from BPDU guard/UDLD\n- Power loss upstream\n\n### Observability Signals\n- Link state logs\n- UDLD status\n- Optics light levels\n\n### Recommended CLI Commands\nUse standard ping/traceroute; device interface counters; NetFlow to SaaS prefixes.\n\n### Step-by-Step RCA\n1) Compare multiple egress paths\n2) Check middleboxes/inspection\n3) Validate DNS egress mapping\n\n### Resolution\nReplace SFP/cable; clear errdisable; restore power/UPLink.\n\n### Preventive Actions\nSpare optics; BPDU guard with intent.\n\n### Related Tools\nIPSLA/TWAMP, NetFlow, Packet capture",
+    "problem": "Bad SFP/patch",
+    "area": "Uplink",
+    "remedyItems": [
+      "Replace SFP/cable",
+      "clear errdisable",
+      "restore power/UPLink.",
+      "Spare optics",
+      "BPDU guard with intent."
+    ],
+    "tags": [
+      "uplink",
+      "errdisable",
+      "udld"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-connectivity-arp-v1-21",
+    "title": "ARP table shows incomplete/failed entries—Hosts can't reach gateway. (Case #1)",
+    "category": "Network",
+    "subcategory": "ARP v1",
+    "content": "### Overview\nARP table shows incomplete/failed entries—Hosts can't reach gateway. (Case #1)\n\n### Likely Causes\n- ARP suppression/Proxy ARP issue\n- Duplicate IP/MAC conflict\n- VLAN mismatch\n\n### Observability Signals\n- ARP cache entries & age\n- Gratuitous ARP events\n\n### Recommended CLI Commands\narp -a\nshow ip arp\nshow mac address-table\n\n### Step-by-Step RCA\n1) Confirm VLAN & gateway reachability\n2) Check IP conflicts\n3) Validate ARP suppression/Proxy\n\n### Resolution\nResolve IP conflict; fix VLAN; disable faulty features.\n\n### Preventive Actions\nIPAM governance; DHCP reservations.\n\n### Related Tools\nPacket capture, ARP logs",
+    "problem": "ARP suppression/Proxy ARP issue",
+    "area": "ARP v1",
+    "remedyItems": [
+      "Resolve IP conflict",
+      "fix VLAN",
+      "disable faulty features.",
+      "IPAM governance",
+      "DHCP reservations."
+    ],
+    "tags": [
+      "arp",
+      "ip-conflict",
+      "vlan"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-security-acl-v1-22",
+    "title": "New app blocked after change window—how to quickly verify? (Case #1)",
+    "category": "Security",
+    "subcategory": "ACL v1",
+    "content": "### Overview\nNew app blocked after change window—how to quickly verify? (Case #1)\n\n### Likely Causes\n- Missing rule or wrong order\n- Object-group not updated\n- Zone mismatch\n\n### Observability Signals\n- Hit counters per rule\n- Deny logs with 5—˜tuple\n\n### Recommended CLI Commands\nshow access-list | i <app>\nshow run object-group\npacket-tracer\n\n### Step-by-Step RCA\n1) Reproduce and capture denies\n2) Adjust rule order/object-group\n3) Change control review\n\n### Resolution\nInsert/modify rule carefully; rollback if needed.\n\n### Preventive Actions\nStaged pushes; shadow policies.\n\n### Related Tools\nFirewall logs",
+    "problem": "Missing rule or wrong order",
+    "area": "ACL v1",
+    "remedyItems": [
+      "Insert/modify rule carefully",
+      "rollback if needed.",
+      "Staged pushes",
+      "shadow policies."
+    ],
+    "tags": [
+      "acl",
+      "change"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-performance-high-latency-29",
+    "title": "Users experience high latency between sites or applications—what could be the reason?",
+    "category": "Network",
+    "subcategory": "High Latency",
+    "content": "### Overview\nUsers experience high latency between sites or applications—what could be the reason?\n\n### Likely Causes\n- Congested WAN/ISP path\n- Queuing delay due to QoS misclassification\n- Routing suboptimal path or asymmetric routing\n- Interface errors or retransmissions\n- Middlebox (firewall, proxy) inspection delay\n\n### Observability Signals\n- Ping RTT and jitter\n- NetFlow latency percentile\n- QoS queue utilization\n- Traceroute hop latency distribution\n\n### Recommended CLI Commands\nping <dst> repeat 100\ntraceroute <dst>\nshow policy-map interface\nshow interface counters\nshow ip route <dst>\n\n### Step-by-Step RCA\n1) Baseline latency across multiple hops\n2) Identify the congested or lossy hop\n3) Check QoS classification and queues\n4) Compare ISP/WAN paths and verify routing symmetry\n\n### Resolution\nOptimize routing path; adjust QoS marking; request ISP reroute; disable deep inspection on latency-sensitive traffic.\n\n### Preventive Actions\nDeploy IPSLA probes; enable QoS monitoring dashboards; use multiple ISPs or SD-WAN dynamic path selection.\n\n### Related Tools\nIPSLA, TWAMP, NetFlow, Ping, Traceroute",
+    "problem": "Congested WAN/ISP path",
+    "area": "High Latency",
+    "remedyItems": [
+      "Optimize routing path",
+      "adjust QoS marking",
+      "request ISP reroute",
+      "disable deep inspection on latency-sensitive traffic.",
+      "Deploy IPSLA probes",
+      "enable QoS monitoring dashboards"
+    ],
+    "tags": [
+      "latency",
+      "qos",
+      "wan",
+      "routing"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-configuration-config-drift-30",
+    "title": "Configuration drift detected between production and baseline—why does this occur?",
+    "category": "Configuration",
+    "subcategory": "Config Drift",
+    "content": "### Overview\nConfiguration drift detected between production and baseline—why does this occur?\n\n### Likely Causes\n- Manual CLI changes without change control\n- Failed or partial automation job\n- Rollback not applied post-maintenance\n- Unauthorized access or miscommit\n\n### Observability Signals\n- Baseline vs running config diff\n- GitOps or NCCM version mismatch\n- Recent user login history\n- Device config checksum alert\n\n### Recommended CLI Commands\nshow running-config | diff saved-config\nshow archive config differences\nshow users\ngit diff <branch>\n\n### Step-by-Step RCA\n1) Compare current config with golden baseline\n2) Identify unauthorized or untracked changes\n3) Validate automation pipeline logs\n4) Rollback to last known good configuration\n\n### Resolution\nRevert to baseline; restore via NCCM; correct automation pipeline; enforce config locks.\n\n### Preventive Actions\nImplement config compliance checks; enable GitOps workflow; automated drift detection with approval gate.\n\n### Related Tools\nNCCM, Git, Syslog, TACACS",
+    "problem": "Manual CLI changes without change control",
+    "area": "Config Drift",
+    "remedyItems": [
+      "Revert to baseline",
+      "restore via NCCM",
+      "correct automation pipeline",
+      "enforce config locks.",
+      "Implement config compliance checks",
+      "enable GitOps workflow"
+    ],
+    "tags": [
+      "config-drift",
+      "nccm",
+      "gitops",
+      "baseline"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-performance-memory-leak-31",
+    "title": "Router or application showing gradual memory increase leading to crash or reload.",
+    "category": "Network",
+    "subcategory": "Memory Leak",
+    "content": "### Overview\nRouter or application showing gradual memory increase leading to crash or reload.\n\n### Likely Causes\n- Firmware or software memory leak bug\n- Logging/debug buffer overflow\n- High SNMP/telemetry polling rate\n- Unreleased session/connection handles\n\n### Observability Signals\n- Memory usage trendline (increasing over time)\n- Process-level memory stats\n- System logs with malloc failures\n- Frequent restarts/reboots\n\n### Recommended CLI Commands\nshow processes memory sorted\nshow system resources\ndir crashinfo:\nshow logging | inc memory\n\n### Step-by-Step RCA\n1) Identify top memory-consuming process\n2) Check for firmware bugs or patches\n3) Reduce SNMP/telemetry frequency\n4) Reboot device during maintenance window if exhausted\n\n### Resolution\nUpgrade to fixed firmware; clean up debug/log settings; adjust polling intervals; apply vendor bug patch.\n\n### Preventive Actions\nMonitor memory trendlines; enable auto-restart policies; maintain software currency.\n\n### Related Tools\nSNMP, Syslog, Crashinfo, Telemetry",
+    "problem": "Firmware or software memory leak bug",
+    "area": "Memory Leak",
+    "remedyItems": [
+      "Upgrade to fixed firmware",
+      "clean up debug/log settings",
+      "adjust polling intervals",
+      "apply vendor bug patch.",
+      "Monitor memory trendlines",
+      "enable auto-restart policies"
+    ],
+    "tags": [
+      "memory-leak",
+      "firmware",
+      "telemetry",
+      "snmp"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-services-dns-failure-32",
+    "title": "Applications failing due to DNS lookup errors or high response time.",
+    "category": "Network",
+    "subcategory": "DNS Failure",
+    "content": "### Overview\nApplications failing due to DNS lookup errors or high response time.\n\n### Likely Causes\n- Primary DNS unreachable\n- Misconfigured resolver or search domain\n- Recursive query timeout\n- Firewall or inspection blocking UDP 53\n- Anycast DNS health degradation\n\n### Observability Signals\n- DNS response time metrics\n- NXDOMAIN and SERVFAIL rates\n- Resolver logs showing timeout/errors\n- Packet capture showing dropped UDP/53\n\n### Recommended CLI Commands\nnslookup <fqdn>\ndig +trace <fqdn>\ntcpdump -n udp port 53\nshow access-lists | inc 53\n\n### Step-by-Step RCA\n1) Test DNS from alternate resolver\n2) Validate forwarder and cache settings\n3) Check packet flow for DNS traffic\n4) Review firewall ACLs or inspection policy\n\n### Resolution\nRestore DNS reachability; correct DNS configuration; disable faulty inspection; failover to secondary resolver.\n\n### Preventive Actions\nDeploy redundant DNS servers; enable DNS SLA probes; automate Anycast health checks.\n\n### Related Tools\nDNS logs, Packet capture, Syslog, IPSLA",
+    "problem": "Primary DNS unreachable",
+    "area": "DNS Failure",
+    "remedyItems": [
+      "Restore DNS reachability",
+      "correct DNS configuration",
+      "disable faulty inspection",
+      "failover to secondary resolver.",
+      "Deploy redundant DNS servers",
+      "enable DNS SLA probes"
+    ],
+    "tags": [
+      "dns-failure",
+      "anycast",
+      "resolver",
+      "udp53"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-routing-bgp-flag-33",
+    "title": "BGP neighbor shows 'Idle', 'Active', or 'Connect' state with route instability.",
+    "category": "Network",
+    "subcategory": "BGP Flag",
+    "content": "### Overview\nBGP neighbor shows 'Idle', 'Active', or 'Connect' state with route instability.\n\n### Likely Causes\n- Incorrect neighbor IP or VRF mismatch\n- Authentication (MD5) mismatch\n- TCP port 179 blocked by firewall\n- Route reflector loop or dampening\n- Flapping link causing session reset\n\n### Observability Signals\n- BGP neighbor state transitions\n- BGP error code messages (FSM log)\n- TCP 179 connection failure\n- Interface flap logs\n\n### Recommended CLI Commands\nshow bgp summary\nshow ip bgp neighbors\nshow tcp brief | inc 179\nshow log | inc BGP\n\n### Step-by-Step RCA\n1) Check BGP neighbor configuration\n2) Validate MD5 authentication keys\n3) Verify reachability of TCP 179\n4) Check link and route stability\n\n### Resolution\nFix neighbor IP/VRF; correct MD5; open TCP 179; stabilize link; coordinate with ISP.\n\n### Preventive Actions\nEnable BFD for fast detection; periodic session stability checks; alert on BGP FSM changes.\n\n### Related Tools\nBGP logs, Syslog, BFD, NetFlow",
+    "problem": "Incorrect neighbor IP or VRF mismatch",
+    "area": "BGP Flag",
+    "remedyItems": [
+      "Fix neighbor IP/VRF",
+      "correct MD5",
+      "open TCP 179",
+      "stabilize link",
+      "coordinate with ISP.",
+      "Enable BFD for fast detection"
+    ],
+    "tags": [
+      "bgp-flag",
+      "fsm",
+      "tcp179",
+      "vrf"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-infrastructure-cpu-process-spike-34",
+    "title": "Device CPU spiked to 100%, affecting control-plane responsiveness.",
+    "category": "Compute",
+    "subcategory": "CPU/Process Spike",
+    "content": "### Overview\nDevice CPU spiked to 100%, affecting control-plane responsiveness.\n\n### Likely Causes\n- Control-plane attack (ICMP/ARP flood)\n- Bug causing runaway process\n- Telemetry or SNMP overload\n- High NetFlow export rate\n\n### Observability Signals\n- CPU per process\n- CoPP drop counters\n- NetFlow export rate\n- Process restart frequency\n\n### Recommended CLI Commands\nshow processes cpu sorted\nshow control-plane statistics\nshow flow exporter statistics\nshow log | inc CPU\n\n### Step-by-Step RCA\n1) Identify top CPU-consuming process\n2) Check for attack or burst traffic\n3) Reduce telemetry/export rates\n4) Upgrade or patch firmware\n\n### Resolution\nRate-limit control-plane; disable unnecessary processes; reboot during maintenance; apply firmware patch.\n\n### Preventive Actions\nEnable CoPP policies; monitor CPU trends; load test before upgrades.\n\n### Related Tools\nSNMP, Syslog, CoPP, Telemetry",
+    "problem": "Control-plane attack (ICMP/ARP flood)",
+    "area": "CPU/Process Spike",
+    "remedyItems": [
+      "Rate-limit control-plane",
+      "disable unnecessary processes",
+      "reboot during maintenance",
+      "apply firmware patch.",
+      "Enable CoPP policies",
+      "monitor CPU trends"
+    ],
+    "tags": [
+      "cpu",
+      "process",
+      "copp",
+      "telemetry"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-gen-uncategorized-general-35",
+    "title": "link loss",
+    "category": "Uncategorized",
+    "subcategory": "General",
+    "content": "### Overview\nlink loss\n\n### Likely Causes\n- physical disconnection\n- packet loss\n- use of low-quality materials\n\n### Observability Signals\n- link is not active more than some time\n- sudden disconnection\n\n### Recommended CLI Commands\nping<ip>\n\n### Step-by-Step RCA\n1) test for speed test\n2) tape or cover exposed part\n3) exchange for new\n\n### Resolution\ntest for speed test, tape or cover exposed part, exchange for new\n\n### Preventive Actions\nfrequent check of physical cables, and regular speed check\n\n### Related Tools\nping",
+    "problem": "physical disconnection",
+    "area": "General",
+    "remedyItems": [
+      "test for speed test, tape or cover exposed part, exchange for new",
+      "frequent check of physical cables, and regular speed check"
+    ],
+    "tags": [
+      "link"
+    ],
+    "linkedIntents": [],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 80
+  },
+  {
+    "id": "kb-link-006",
+    "title": "Optical interface Rx power is degrading — causing intermittent errors. What are the causes?",
+    "category": "Network",
+    "subcategory": "Link Layer",
+    "content": "### Overview\nOptical interface Rx power is degrading — causing intermittent errors. What are the causes?\n\n### Likely Causes\n- Dirty or contaminated fiber connector (most common cause)\n- Fiber bend radius violation causing signal attenuation\n- Aging SFP transceiver with declining Tx power\n- Fiber splice degradation or water ingress in outdoor plant\n- Incorrect fiber type (single-mode SFP on multi-mode fiber)\n- Long cable run exceeding SFP Rx sensitivity budget\n\n### Observability Signals\n- optical_rx_power_dbm dropping below -20 dBm\n- DDM Rx power alarms (low warning, low alarm thresholds)\n- CRC errors increasing as Rx power degrades\n- Intermittent link flaps near Rx power sensitivity limit\n- DDM Tx power normal (isolates to fiber/connector, not SFP Tx)\n\n### Recommended CLI Commands\nshow interface <int> transceiver\nddm interface <int>\nshow interface <int> counters errors\nshow environment (optical alarms)\notdr test interface <int> (where supported)\n\n### Step-by-Step RCA\n1) Pull DDM Rx power: compare to SFP minimum Rx sensitivity (-18 to -22 dBm typical)\n2) If Rx power marginal but Tx normal: fiber/connector is suspect, not SFP Tx\n3) Clean fiber connector with approved cleaning kit and re-seat\n4) Test with known-good short patch to isolate plant fiber vs connector\n5) If long-haul: run OTDR to identify splice loss or fiber bend\n6) Check fiber type compatibility: SMF vs MMF SFP mismatch\n\n### Resolution\nClean fiber connectors; replace damaged patch cable; correct fiber type mismatch; replace aging SFP; repair splice.\n\n### Preventive Actions\nSchedule quarterly fiber connector cleaning; baseline DDM Rx power per link at commissioning; alert when Rx drops 3 dB from baseline.\n\n### Related Tools\nDDM/DOM, OTDR, fiber inspection scope, SNMP",
+    "problem": "Dirty or contaminated fiber connector (most common cause)",
+    "area": "Link Layer",
+    "remedyItems": [
+      "Clean fiber connectors",
+      "replace damaged patch cable",
+      "correct fiber type mismatch",
+      "replace aging SFP",
+      "repair splice.",
+      "Schedule quarterly fiber connector cleaning"
+    ],
+    "tags": [
+      "optical",
+      "rx-power",
+      "ddm",
+      "fiber",
+      "sfp",
+      "connector",
+      "otdr"
+    ],
+    "linkedIntents": [
+      "link.optical_degraded"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-link-007",
+    "title": "Interface is in err-disable state — what triggered it and how to recover?",
+    "category": "Network",
+    "subcategory": "Link Layer",
+    "content": "### Overview\nInterface is in err-disable state — what triggered it and how to recover?\n\n### Likely Causes\n- BPDU Guard violation: STP BPDU received on PortFast-enabled access port\n- UDLD aggressive mode detecting unidirectional link\n- Port-security MAC address violation\n- Loop detection (UDLD, loop-guard, or vendor loop-detect)\n- PoE overload causing err-disable\n- Storm control threshold exceeded\n- DHCP snooping rate exceeded\n\n### Observability Signals\n- interface_oper_status == errdisable\n- Syslog: 'err-disabled' with reason code\n- show errdisable recovery showing reason\n- Interface in down state with errdisable reason\n- Port-security violation counter incrementing\n\n### Recommended CLI Commands\nshow interfaces status err-disabled\nshow errdisable recovery\nshow errdisable detect\nshow logging | inc err-disable|BPDU|UDLD|violation\nshow port-security interface <int>\nshow spanning-tree interface <int>\n\n### Step-by-Step RCA\n1) Identify err-disable reason: 'show interfaces status err-disabled'\n2) BPDU guard: unauthorized switch connected to access port?\n3) UDLD: unidirectional fiber issue? Enable UDLD neighbor check\n4) Port-security: MAC violation — unknown device or MAC spoofing?\n5) Loop-detect: physical loop in wiring closet?\n6) Resolve root cause before re-enabling port\n\n### Resolution\nRemove offending device or loop; fix fiber (UDLD); re-enable port after fix: 'shutdown/no shutdown' or configure err-disable recovery timer.\n\n### Preventive Actions\nConfigure err-disable recovery with appropriate timer per reason; alert on err-disable events; document allowed devices per port.\n\n### Related Tools\nSyslog, SNMP, port-security, UDLD, STP logs",
+    "problem": "BPDU Guard violation: STP BPDU received on PortFast-enabled access port",
+    "area": "Link Layer",
+    "remedyItems": [
+      "Remove offending device or loop",
+      "fix fiber (UDLD)",
+      "re-enable port after fix: 'shutdown/no shutdown' or configure err-disable recovery timer.",
+      "Configure err-disable recovery with appropriate timer per reason",
+      "alert on err-disable events",
+      "document allowed devices per port."
+    ],
+    "tags": [
+      "errdisable",
+      "bpdu-guard",
+      "udld",
+      "port-security",
+      "loop-detect",
+      "storm-control"
+    ],
+    "linkedIntents": [
+      "link.errdisable"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-routing-003",
+    "title": "IS-IS adjacency is not forming or has dropped — what should I check?",
+    "category": "Network",
+    "subcategory": "Routing",
+    "content": "### Overview\nIS-IS adjacency is not forming or has dropped — what should I check?\n\n### Likely Causes\n- IS-IS area ID mismatch between peers (Level-1 vs Level-2 boundary)\n- Authentication type or key mismatch\n- MTU mismatch causing LSP fragmentation\n- Duplicate System ID in the domain\n- Interface not enabled for IS-IS\n- Hello padding causing oversized frames on some media types\n- IP address missing on IS-IS enabled interface\n\n### Observability Signals\n- isis_neighbor_state != UP\n- ISIS adjacency change events in syslog\n- IS-IS hello PDU received but adjacency not forming\n- Syslog: 'IS-IS authentication failed', 'area mismatch'\n- isis_adj_changes > 3 in monitoring window\n\n### Recommended CLI Commands\nshow isis neighbors\nshow isis database\nshow clns interface\nshow run | sec router isis\nshow logging | inc ISIS|IS-IS\ndebug isis adj-packets (brief window)\n\n### Step-by-Step RCA\n1) Check neighbor state: 'show isis neighbors' — Init vs Full\n2) Verify area ID matches on both ends (Level-1 must share area)\n3) Validate auth type and key match (MD5 / plaintext)\n4) Check MTU: IS-IS hellos include padding by default to test MTU\n5) Confirm no duplicate System IDs: 'show isis database'\n6) Ensure interface has IP address and 'ip router isis' applied\n\n### Resolution\nAlign area IDs; match auth keys; set 'no isis hello padding' if MTU limited; fix duplicate SID; assign IP to interface.\n\n### Preventive Actions\nPre-validate IS-IS config with template comparison before deploy; monitor adjacency count per device; unique SID assignment process.\n\n### Related Tools\nIS-IS logs, Syslog, SNMP",
+    "problem": "IS-IS area ID mismatch between peers (Level-1 vs Level-2 boundary)",
+    "area": "Routing",
+    "remedyItems": [
+      "Align area IDs",
+      "match auth keys",
+      "set 'no isis hello padding' if MTU limited",
+      "fix duplicate SID",
+      "assign IP to interface.",
+      "Pre-validate IS-IS config with template comparison before deploy"
+    ],
+    "tags": [
+      "isis",
+      "adjacency",
+      "area-id",
+      "authentication",
+      "mtu",
+      "system-id"
+    ],
+    "linkedIntents": [
+      "routing.isis_down"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-routing-004",
+    "title": "EIGRP route is stuck in Active state — what causes SIA and how to recover?",
+    "category": "Network",
+    "subcategory": "Routing",
+    "content": "### Overview\nEIGRP route is stuck in Active state — what causes SIA and how to recover?\n\n### Likely Causes\n- Stuck-In-Active (SIA): query not replied by distant neighbor within active timer\n- Flapping link causing repeated DUAL reconvergence\n- Passive interface configured on link that should be active\n- EIGRP query scope too wide — query propagating across entire domain\n- Neighbor not responding to query due to CPU overload\n- Route summarization missing — queries leaking across domain boundary\n\n### Observability Signals\n- eigrp_sia_count > 0 in logs\n- Route stuck in Active state in topology table\n- Neighbor dropped after active timer expiry\n- Syslog: 'DUAL-3-SIA: Route stuck in active state'\n- Repeated route flaps in routing table\n\n### Recommended CLI Commands\nshow ip eigrp topology active\nshow ip eigrp neighbors\nshow logging | inc DUAL|SIA|EIGRP\nshow ip eigrp topology all-links\nshow ip eigrp interfaces\nshow ip eigrp traffic\n\n### Step-by-Step RCA\n1) Check for SIA routes: 'show ip eigrp topology active'\n2) Identify which neighbor failed to reply to query\n3) Check link quality to that neighbor — lossy link?\n4) Review EIGRP query scope: implement summarization to limit query propagation\n5) Check passive interface config — is a needed link passive?\n6) Check CPU on neighbor that went SIA — was it overwhelmed?\n\n### Resolution\nFix underlying link issue; implement EIGRP summarization at distribution/core; increase SIA timer if needed; add stub routing at edges.\n\n### Preventive Actions\nUse EIGRP stub on spoke/leaf routers to limit queries; implement summarization; monitor SIA count via SNMP.\n\n### Related Tools\nEIGRP logs, Syslog, SNMP",
+    "problem": "Stuck-In-Active (SIA): query not replied by distant neighbor within active timer",
+    "area": "Routing",
+    "remedyItems": [
+      "Fix underlying link issue",
+      "implement EIGRP summarization at distribution/core",
+      "increase SIA timer if needed",
+      "add stub routing at edges.",
+      "Use EIGRP stub on spoke/leaf routers to limit queries",
+      "implement summarization"
+    ],
+    "tags": [
+      "eigrp",
+      "stuck-in-active",
+      "sia",
+      "dual",
+      "query",
+      "summarization",
+      "stub"
+    ],
+    "linkedIntents": [
+      "routing.eigrp_stuck"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-routing-005",
+    "title": "Routes are leaking between routing domains or VRFs — how to detect and contain a route leak?",
+    "category": "Network",
+    "subcategory": "Routing",
+    "content": "### Overview\nRoutes are leaking between routing domains or VRFs — how to detect and contain a route leak?\n\n### Likely Causes\n- Missing or incorrect prefix-list/route-map on redistribution point\n- BGP community no-export not set on routes that should stay internal\n- Default route accidentally redistributed into IGP\n- VRF route-target import/export misconfiguration leaking routes across VPNs\n- Static route redistributed without tag-based loop prevention\n- Summarization suppressing specific routes but redistributing summary incorrectly\n\n### Observability Signals\n- Unexpected prefixes appearing in routing table\n- BGP peers receiving routes they should not see\n- Traffic taking unexpected path (traceroute anomaly)\n- Route metric/source incorrect (e.g., OSPF route in BGP domain)\n- Duplicate routes with different sources in RIB\n\n### Recommended CLI Commands\nshow ip route <leaked-prefix>\nshow bgp neighbors <peer> advertised-routes | inc <prefix>\nshow ip bgp <prefix> (check communities)\nshow route-map <n>\nshow ip prefix-list\nshow ip ospf database | inc <leaked-prefix>\n\n### Step-by-Step RCA\n1) Identify leaked prefix: where is it originating and where is it appearing?\n2) Trace the redistribution path — which device is injecting it?\n3) Check route-map on redistribution: is prefix-list applied inbound and outbound?\n4) For BGP: check community tags — is no-export missing?\n5) For VRF: check RT import policy — is it too broad?\n6) Apply deny rule for leaked prefix immediately, then fix root cause\n\n### Resolution\nApply prefix-list deny on redistribution; add BGP no-export community; fix RT import policy; add route tags for loop prevention.\n\n### Preventive Actions\nAlways use explicit permit prefix-lists on all redistribution points; peer review redistribution configs; lab test before production.\n\n### Related Tools\nBGP logs, routing table, Syslog, looking glass",
+    "problem": "Missing or incorrect prefix-list/route-map on redistribution point",
+    "area": "Routing",
+    "remedyItems": [
+      "Apply prefix-list deny on redistribution",
+      "add BGP no-export community",
+      "fix RT import policy",
+      "add route tags for loop prevention.",
+      "Always use explicit permit prefix-lists on all redistribution points",
+      "peer review redistribution configs"
+    ],
+    "tags": [
+      "route-leak",
+      "redistribution",
+      "bgp-community",
+      "prefix-list",
+      "vrf",
+      "no-export"
+    ],
+    "linkedIntents": [
+      "routing.route_leak"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-switching-001",
+    "title": "A Layer 2 loop is suspected — broadcast storm and MAC flapping occurring. How to detect and break it?",
+    "category": "Network",
+    "subcategory": "Switching",
+    "content": "### Overview\nA Layer 2 loop is suspected — broadcast storm and MAC flapping occurring. How to detect and break it?\n\n### Likely Causes\n- PortFast missing on access ports — TCN floods on every endpoint connect/disconnect\n- bpdu-filter applied incorrectly disabling STP on a port (loop undetected)\n- Unmanaged switch inserted creating loop with no BPDU awareness\n- STP accidentally disabled (no spanning-tree) on a VLAN\n- Incorrect cable creating physical loop in wiring closet\n- MST region boundary misconfiguration creating L2 loop\n\n### Observability Signals\n- broadcast_rate_pps spiking to wire rate\n- MAC address flapping (same MAC seen on multiple ports)\n- CPU at 100% on switch processing broadcasts\n- Interface utilization at 100% in both directions\n- Syslog: 'MAC_MOVE', 'topology change flood'\n\n### Recommended CLI Commands\nshow spanning-tree detail | inc ieee|occur|from\nshow mac address-table | inc <mac>\nshow interfaces counters (look for wire-rate utilization)\nshow logging | inc LOOP|MAC_MOVE|topology\nshow spanning-tree vlan <id>\nshow storm-control\n\n### Step-by-Step RCA\n1) Confirm loop: MAC address seen on 2+ ports simultaneously\n2) Identify affected VLAN via broadcast storm on specific VLAN\n3) Disconnect suspect links one at a time until storm stops\n4) Check for bpdu-filter on any port — if present, likely cause\n5) Check all access ports for PortFast + BPDU guard\n6) After storm cleared: enable storm-control as immediate protection\n\n### Resolution\nDisconnect looping cable; enable BPDU guard on access ports; remove bpdu-filter misuse; re-enable STP on affected VLAN.\n\n### Preventive Actions\nEnable BPDU guard on all access ports; deploy loop-guard on uplinks; enable storm control on all access ports; audit unmanaged switches.\n\n### Related Tools\nSTP logs, Syslog, MAC address table, SNMP",
+    "problem": "PortFast missing on access ports — TCN floods on every endpoint connect/disconnect",
+    "area": "Switching",
+    "remedyItems": [
+      "Disconnect looping cable",
+      "enable BPDU guard on access ports",
+      "remove bpdu-filter misuse",
+      "re-enable STP on affected VLAN.",
+      "Enable BPDU guard on all access ports",
+      "deploy loop-guard on uplinks"
+    ],
+    "tags": [
+      "stp-loop",
+      "broadcast-storm",
+      "mac-flap",
+      "bpdu-filter",
+      "portfast",
+      "loop-guard"
+    ],
+    "linkedIntents": [
+      "switching.stp_loop"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-switching-002",
+    "title": "Traffic not passing across trunk correctly — VLAN mismatch suspected. What should I check?",
+    "category": "Network",
+    "subcategory": "Switching",
+    "content": "### Overview\nTraffic not passing across trunk correctly — VLAN mismatch suspected. What should I check?\n\n### Likely Causes\n- Native VLAN mismatch on 802.1Q trunk (CDP warning visible)\n- VLAN not in allowed list on trunk interface\n- Access port assigned to wrong VLAN\n- VTP domain mismatch causing VLAN database inconsistency\n- Voice VLAN not configured on access port for IP phone\n- VLAN pruning removing needed VLAN from trunk\n\n### Observability Signals\n- Hosts in VLAN cannot reach each other across trunk\n- CDP/LLDP showing native VLAN mismatch warning\n- ARP requests not reaching hosts across trunk\n- Syslog: 'native VLAN mismatch'\n- show interfaces trunk shows VLAN not in 'VLANs allowed and active'\n\n### Recommended CLI Commands\nshow interfaces trunk\nshow vlan brief\nshow interfaces <int> switchport\nshow cdp neighbors <int> detail | inc VLAN\nshow run interface <int> | inc vlan\nshow vtp status\n\n### Step-by-Step RCA\n1) 'show interfaces trunk' — check 'VLANs allowed and active in management domain'\n2) Check native VLAN both ends match: 'show interfaces trunk'\n3) Verify VLAN is in allowed list on trunk: add if missing\n4) For access port: 'show interfaces <int> switchport' — correct access VLAN?\n5) Check VTP: if VTP, VLAN must exist in VTP database\n6) Confirm VLAN is active: 'show vlan brief' — is it active or suspended?\n\n### Resolution\nAdd VLAN to trunk allowed list; align native VLAN both ends; correct access VLAN assignment; fix VTP domain; activate VLAN.\n\n### Preventive Actions\nAlways explicitly define allowed VLANs on trunks; disable VTP (use VTP transparent or off); alert on native VLAN mismatch.\n\n### Related Tools\nSyslog, CDP/LLDP, SNMP, VTP logs",
+    "problem": "Native VLAN mismatch on 802.1Q trunk (CDP warning visible)",
+    "area": "Switching",
+    "remedyItems": [
+      "Add VLAN to trunk allowed list",
+      "align native VLAN both ends",
+      "correct access VLAN assignment",
+      "fix VTP domain",
+      "activate VLAN.",
+      "Always explicitly define allowed VLANs on trunks"
+    ],
+    "tags": [
+      "vlan-mismatch",
+      "native-vlan",
+      "trunk",
+      "vtp",
+      "vlan-allowed",
+      "access-vlan"
+    ],
+    "linkedIntents": [
+      "switching.vlan_mismatch"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-switching-003",
+    "title": "MAC address table overflow causing traffic flooding — how to diagnose and mitigate?",
+    "category": "Network",
+    "subcategory": "Switching",
+    "content": "### Overview\nMAC address table overflow causing traffic flooding — how to diagnose and mitigate?\n\n### Likely Causes\n- Malicious CAM table overflow attack (MAC flooding tool)\n- VM live migration causing MAC moves across physical hosts\n- MAC aging timer too short causing repeated relearning and flooding\n- MAC table exhausted — switch capacity reached\n- Spanning tree topology change resetting MAC aging to 15 seconds\n- High-density environment exceeding switch MAC table capacity\n\n### Observability Signals\n- mac_table_utilization_percent near 100%\n- High unicast flooding rate on all ports\n- MAC entries seen on multiple ports (MAC moves)\n- Syslog: 'MAC_MOVE', 'mac-address-table full'\n- Traffic visible on ports that should not receive unicast\n\n### Recommended CLI Commands\nshow mac address-table count\nshow mac address-table aging-time\nshow mac address-table | count\nshow logging | inc MAC_MOVE\nshow spanning-tree detail | inc topology\nshow port-security (if deployed)\n\n### Step-by-Step RCA\n1) Check MAC table utilization: 'show mac address-table count'\n2) Check for MAC flood attack: many random MACs from single port?\n3) Check for STP topology change resetting aging: 'show spanning-tree'\n4) For VM migration: is flooding expected during vMotion events?\n5) Check aging timer: if very short, relearning constantly\n6) Use port-security max MACs to limit CAM entries per port\n\n### Resolution\nEnable port-security to limit MACs per port; filter MAC flood source; increase MAC table; tune aging timer; fix STP topology changes.\n\n### Preventive Actions\nEnable port-security on access ports with max-mac limit; monitor MAC table utilization; alert on MAC move rate spikes.\n\n### Related Tools\nSyslog, SNMP, port-security, STP logs",
+    "problem": "Malicious CAM table overflow attack (MAC flooding tool)",
+    "area": "Switching",
+    "remedyItems": [
+      "Enable port-security to limit MACs per port",
+      "filter MAC flood source",
+      "increase MAC table",
+      "tune aging timer",
+      "fix STP topology changes.",
+      "Enable port-security on access ports with max-mac limit"
+    ],
+    "tags": [
+      "mac-flood",
+      "cam-overflow",
+      "mac-table",
+      "port-security",
+      "vm-migration",
+      "unicast-flooding"
+    ],
+    "linkedIntents": [
+      "switching.mac_flood"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-switching-004",
+    "title": "LACP port-channel has gone down or lost all members — how to restore?",
+    "category": "Network",
+    "subcategory": "Switching",
+    "content": "### Overview\nLACP port-channel has gone down or lost all members — how to restore?\n\n### Likely Causes\n- All physical member links failed simultaneously (upstream switch failure)\n- LACP partner system ID changed (switch replaced without config)\n- Min-links threshold not met — bundle went down when members fell below minimum\n- Member links failing due to physical/optical issues\n- LACP PDU exchange stopped — remote switch rebooting\n- Incorrect bundling — members distributed across different switches in stack\n\n### Observability Signals\n- portchannel_state == down\n- portchannel_active_members == 0\n- All member interfaces in down/err-disable state\n- LACP PDU counters stopped\n- Syslog: 'LINEPROTO-5-UPDOWN Port-channel down'\n- min-links threshold events in log\n\n### Recommended CLI Commands\nshow etherchannel summary\nshow interfaces port-channel <n>\nshow lacp neighbor\nshow lacp counters\nshow logging | inc Port-channel|LACP\nshow interfaces <member-int> status\n\n### Step-by-Step RCA\n1) Check member link states: 'show etherchannel summary' — any member in I (individual) or D (down)?\n2) Check physical links: all members down simultaneously suggests upstream device failure\n3) Verify LACP partner system MAC: 'show lacp neighbor' — did peer change?\n4) Check min-links config: how many members required?\n5) Restore member links or fix upstream device\n6) If partner changed (device replaced): reconfigure LACP on new device\n\n### Resolution\nRestore physical member links; fix upstream switch; reconfigure LACP partner; adjust min-links threshold; reseat cables.\n\n### Preventive Actions\nSet min-links below number of uplinks for graceful degradation; monitor member count; alert on member count reduction.\n\n### Related Tools\nSNMP, Syslog, LACP PDU counters",
+    "problem": "All physical member links failed simultaneously (upstream switch failure)",
+    "area": "Switching",
+    "remedyItems": [
+      "Restore physical member links",
+      "fix upstream switch",
+      "reconfigure LACP partner",
+      "adjust min-links threshold",
+      "reseat cables.",
+      "Set min-links below number of uplinks for graceful degradation"
+    ],
+    "tags": [
+      "lacp-down",
+      "port-channel",
+      "etherchannel",
+      "min-links",
+      "member-down",
+      "bundle"
+    ],
+    "linkedIntents": [
+      "switching.lacp_down"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-switching-005",
+    "title": "Private VLAN hosts cannot reach gateway or each other as expected — how to diagnose?",
+    "category": "Network",
+    "subcategory": "Switching",
+    "content": "### Overview\nPrivate VLAN hosts cannot reach gateway or each other as expected — how to diagnose?\n\n### Likely Causes\n- Gateway/router port not configured as promiscuous\n- Secondary VLAN not mapped to primary VLAN\n- Primary VLAN not allowed on uplink trunk\n- Community VLAN members cannot reach each other (isolated VLAN misassigned)\n- SVI not configured as PVLAN promiscuous for L3 routing\n- VTP propagation issue with PVLAN configuration\n\n### Observability Signals\n- Hosts in isolated PVLAN cannot reach gateway\n- Community VLAN hosts cannot communicate\n- ARP for gateway not resolving\n- show vlan private-vlan shows mapping missing\n- Trunk not carrying primary VLAN\n\n### Recommended CLI Commands\nshow vlan private-vlan\nshow interfaces switchport\nshow run interface <gateway-int>\nshow vlan brief\nshow interfaces trunk | inc <primary-vlan>\n\n### Step-by-Step RCA\n1) Check PVLAN config: 'show vlan private-vlan' — primary-secondary mapping correct?\n2) Verify gateway port is promiscuous: 'show interfaces <port> switchport'\n3) Confirm primary VLAN on uplink trunk\n4) Check SVI: 'ip address' and 'private-vlan mapping' configured?\n5) Test ARP from isolated host to gateway IP\n6) Verify community vs isolated assignment matches intended policy\n\n### Resolution\nSet gateway port to promiscuous; map secondary to primary VLAN; add primary to trunk; configure SVI PVLAN mapping.\n\n### Preventive Actions\nDocument PVLAN design; test all port types at deployment; avoid VTP for PVLAN (manual config preferred).\n\n### Related Tools\nSyslog, Packet capture, SNMP",
+    "problem": "Gateway/router port not configured as promiscuous",
+    "area": "Switching",
+    "remedyItems": [
+      "Set gateway port to promiscuous",
+      "map secondary to primary VLAN",
+      "add primary to trunk",
+      "configure SVI PVLAN mapping.",
+      "Document PVLAN design",
+      "test all port types at deployment"
+    ],
+    "tags": [
+      "pvlan",
+      "private-vlan",
+      "promiscuous",
+      "isolated",
+      "community",
+      "svi"
+    ],
+    "linkedIntents": [
+      "switching.pvlan_issue"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-perf-003",
+    "title": "End-to-end latency has spiked for specific flows — how to isolate the latency injection point?",
+    "category": "Network",
+    "subcategory": "Performance",
+    "content": "### Overview\nEnd-to-end latency has spiked for specific flows — how to isolate the latency injection point?\n\n### Likely Causes\n- Routing change adding hops (BGP path change, IGP reconvergence)\n- Serialization delay on low-bandwidth links with large frames\n- Device processing delay (high CPU, software switching instead of hardware)\n- ISP BGP routing table change increasing path length\n- Asymmetric routing through distant POP\n- Queuing delay from congestion on transit link\n\n### Observability Signals\n- latency_ms > baseline by > 20%\n- Traceroute showing new hops or increased RTT at specific hop\n- Routing table change coinciding with latency spike\n- IPSLA RTT probe elevated\n- Specific destination affected (not all-destinations = local issue)\n\n### Recommended CLI Commands\ntraceroute <dst> source <src>\nmtr <dst> (continuous traceroute)\nshow ip route <dst>\nping <dst> repeat 100 size 1400\nip sla statistics\nshow ip bgp <dst-prefix> (check path changes)\n\n### Step-by-Step RCA\n1) Run traceroute: identify which hop added latency\n2) Is hop inside your network or ISP network?\n3) Check routing table: did path change recently? When?\n4) Compare BGP path before and after latency increase\n5) If internal device: check CPU — is it software-switching?\n6) Check for serialization: packet_size / link_bps = serialization_delay\n\n### Resolution\nRestore optimal routing path; fix BGP preference; upgrade low-bandwidth link; fix software-switching to hardware CEF; engage ISP.\n\n### Preventive Actions\nDeploy continuous IPSLA RTT probes; alert on latency > 2x baseline; maintain routing change log.\n\n### Related Tools\nIPSLA, traceroute, MTR, BGP logs, SNMP",
+    "problem": "Routing change adding hops (BGP path change, IGP reconvergence)",
+    "area": "Performance",
+    "remedyItems": [
+      "Restore optimal routing path",
+      "fix BGP preference",
+      "upgrade low-bandwidth link",
+      "fix software-switching to hardware CEF",
+      "engage ISP.",
+      "Deploy continuous IPSLA RTT probes"
+    ],
+    "tags": [
+      "latency",
+      "traceroute",
+      "routing-change",
+      "bgp-path",
+      "serialization",
+      "ipsla"
+    ],
+    "linkedIntents": [
+      "performance.high_latency"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-perf-004",
+    "title": "Stateful firewall dropping established sessions — could asymmetric routing be the cause?",
+    "category": "Network",
+    "subcategory": "Performance",
+    "content": "### Overview\nStateful firewall dropping established sessions — could asymmetric routing be the cause?\n\n### Likely Causes\n- Forward and return traffic traversing different stateful devices\n- ECMP load balancing sending flows through different firewall instances\n- HA failover changing active firewall without state sync\n- PBR applied only one direction\n- Multi-homed host with different source IPs per interface\n- Route change causing return path to bypass firewall state table\n\n### Observability Signals\n- Established TCP sessions dropping mid-flow\n- Firewall showing half-open or asymmetric flow logs\n- Traceroute from source and destination showing different paths\n- Session table showing one-sided entries (SYN but no SYN-ACK)\n- Drops specifically on return traffic (outbound fine, inbound dropped)\n\n### Recommended CLI Commands\ntraceroute <dst> source <src>\ntraceroute <src> source <dst> (reverse path)\nshow conn detail (ASA/FTD)\nshow ip cef <prefix> detail (ECMP paths)\nshow ip route <src-prefix> (from fw perspective)\nshow failover (HA state sync check)\n\n### Step-by-Step RCA\n1) Traceroute both directions: do paths differ?\n2) Do both forward and return pass same firewall? Check ECMP hashing\n3) If ECMP: disable and force single path as test\n4) Check HA state sync: is state table synchronized between active/standby?\n5) Review PBR: is it applied on both inbound and return interfaces?\n6) Enable 'ip nat outside' / asymmetric routing compensation if supported\n\n### Resolution\nForce symmetric routing via static routes or PBR; enable firewall state sync; use active/standby HA; tune ECMP per-flow hashing.\n\n### Preventive Actions\nAudit routing symmetry before deploying stateful devices; test HA failover with live sessions; review ECMP paths after routing changes.\n\n### Related Tools\nFirewall logs, Traceroute, NetFlow, ECMP analysis",
+    "problem": "Forward and return traffic traversing different stateful devices",
+    "area": "Performance",
+    "remedyItems": [
+      "Force symmetric routing via static routes or PBR",
+      "enable firewall state sync",
+      "use active/standby HA",
+      "tune ECMP per-flow hashing.",
+      "Audit routing symmetry before deploying stateful devices",
+      "test HA failover with live sessions"
+    ],
+    "tags": [
+      "asymmetric-routing",
+      "stateful-firewall",
+      "ecmp",
+      "ha-failover",
+      "session-drop",
+      "pbr"
+    ],
+    "linkedIntents": [
+      "performance.asymmetric_routing"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-wan-002",
+    "title": "WAN circuit is completely down — how to isolate CPE fault vs carrier fault vs local loop?",
+    "category": "Network",
+    "subcategory": "WAN",
+    "content": "### Overview\nWAN circuit is completely down — how to isolate CPE fault vs carrier fault vs local loop?\n\n### Likely Causes\n- CPE hardware failure (router interface, SFP, WAN card)\n- Local loop fault between CPE and carrier demarc (cable, ONT, DSLAM)\n- Carrier backbone or aggregation network failure\n- Scheduled maintenance not communicated\n- Physical damage to outside plant (fiber cut, cable theft)\n- AC power failure at carrier POP\n\n### Observability Signals\n- WAN interface oper_status == down\n- LOS/LOF alarms on WAN interface\n- No keepalives from CE router to PE\n- BGP/routing protocol down on WAN link\n- Carrier NMS showing circuit alarm\n\n### Recommended CLI Commands\nshow interface <wan-int>\nshow interface <wan-int> | inc alarm|LOS|LOF\nshow controllers serial <int> (T1/E1)\nping <carrier-pe-ip> (loopback test)\nshow logging | inc LINK|down\ncheck carrier status portal\n\n### Step-by-Step RCA\n1) Check physical layer alarms: LOS, LOF, AIS — confirms carrier-side issue\n2) Test CPE: swap cable from CPE to demarc; test with different CPE port\n3) Request loopback test from carrier at demarc — if loopback passes = local loop OK\n4) Check carrier NOC/portal for active incidents on circuit\n5) Check power at both ends: CPE and carrier POP\n6) Escalate to carrier with MTTR SLA enforcement\n\n### Resolution\nReplace CPE hardware if at fault; carrier dispatches tech for local loop repair; carrier restores backbone; activate backup circuit.\n\n### Preventive Actions\nDual-carrier or backup circuit (LTE/SD-WAN); monitor circuit LOS/LOF alarms; carrier SLA with 4-hour MTTR.\n\n### Related Tools\nSNMP, Syslog, carrier portal, loopback test",
+    "problem": "CPE hardware failure (router interface, SFP, WAN card)",
+    "area": "WAN",
+    "remedyItems": [
+      "Replace CPE hardware if at fault",
+      "carrier dispatches tech for local loop repair",
+      "carrier restores backbone",
+      "activate backup circuit.",
+      "Dual-carrier or backup circuit (LTE/SD-WAN)",
+      "monitor circuit LOS/LOF alarms"
+    ],
+    "tags": [
+      "wan-circuit-down",
+      "los",
+      "carrier-fault",
+      "local-loop",
+      "cpe-failure",
+      "fiber-cut"
+    ],
+    "linkedIntents": [
+      "wan.circuit_down"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-wan-003",
+    "title": "Primary WAN failed but backup did not take over — WAN failover is stuck. What to check?",
+    "category": "Network",
+    "subcategory": "WAN",
+    "content": "### Overview\nPrimary WAN failed but backup did not take over — WAN failover is stuck. What to check?\n\n### Likely Causes\n- IP SLA probe target unreachable even on backup path (probe testing wrong target)\n- Track object not linked to static route or routing process\n- Backup interface (LTE/DSL) not dialing up or authenticating\n- Floating static route AD not higher than primary dynamic route\n- Both primary and backup circuits failed simultaneously\n- IP SLA probe itself failing due to firewall blocking probe packets\n\n### Observability Signals\n- Primary WAN down; backup WAN interface not active\n- IP SLA probe state showing down on both paths\n- Track object state not changing despite primary failure\n- Routing table still showing primary route (backup not installed)\n- Backup interface (dialer/cellular) in down/idle state\n\n### Recommended CLI Commands\nshow ip sla statistics\nshow track\nshow ip route\nshow interface dialer <n>\nshow interface cellular <n>\nshow logging | inc TRACK|IPSLA|route\n\n### Step-by-Step RCA\n1) 'show track' — is track object detecting primary failure?\n2) 'show ip sla statistics' — is probe succeeding or failing?\n3) Test probe target: can you reach the probe target from backup path?\n4) Check routing table: is floating static installed?\n5) Check backup interface: 'show interface cellular/dialer' — is it negotiating?\n6) Check cellular signal strength / DSL sync for backup circuit health\n\n### Resolution\nFix IP SLA probe target; link track object to route; fix backup interface auth/PPP; correct floating static AD; restore backup circuit.\n\n### Preventive Actions\nTest failover quarterly with controlled primary outage; monitor backup circuit health proactively; use dual probe targets.\n\n### Related Tools\nIPSLA, Syslog, SNMP, carrier portal",
+    "problem": "IP SLA probe target unreachable even on backup path (probe testing wrong target)",
+    "area": "WAN",
+    "remedyItems": [
+      "Fix IP SLA probe target",
+      "link track object to route",
+      "fix backup interface auth/PPP",
+      "correct floating static AD",
+      "restore backup circuit.",
+      "Test failover quarterly with controlled primary outage"
+    ],
+    "tags": [
+      "wan-failover",
+      "ipsla",
+      "track-object",
+      "floating-static",
+      "lte-backup",
+      "dialer",
+      "failover-stuck"
+    ],
+    "linkedIntents": [
+      "wan.failover_stuck"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-vpn-001",
+    "title": "IPsec tunnel is completely down — IKE/ISAKMP negotiation failing. How to diagnose?",
+    "category": "Network",
+    "subcategory": "VPN",
+    "content": "### Overview\nIPsec tunnel is completely down — IKE/ISAKMP negotiation failing. How to diagnose?\n\n### Likely Causes\n- IKE Phase 1 policy mismatch (encryption, hash, DH group, lifetime)\n- Pre-shared key mismatch\n- NAT-T not enabled when peers are behind NAT\n- Dead Peer Detection (DPD) timeout causing tunnel teardown\n- Certificate authentication failure (cert expired or CA not trusted)\n- Access control blocking IKE UDP 500/4500\n- Peer IP address changed (dynamic IP site)\n\n### Observability Signals\n- ipsec_tunnel_state == down\n- IKE SA not established (show crypto isakmp sa = blank)\n- Syslog: 'ISAKMP: no proposal chosen', 'MM_NO_STATE'\n- UDP 500/4500 not reaching peer\n- DPD R-U-THERE timeouts in log\n\n### Recommended CLI Commands\nshow crypto isakmp sa\nshow crypto ipsec sa\nshow logging | inc ISAKMP|IKE|IPsec\ndebug crypto isakmp (brief window)\nping <peer-ip> (underlay reachability)\ntelnet <peer-ip> 500 (UDP 500 reachability test — won't connect but tests ACL)\n\n### Step-by-Step RCA\n1) Check IKE SA: 'show crypto isakmp sa' — any SA in MM_NO_STATE or AM_ACTIVE?\n2) Check ISAKMP policy: match encryption, hash, DH group, auth method, lifetime on both peers\n3) Verify PSK matches exactly (case-sensitive)\n4) Check NAT-T: if behind NAT, ensure NAT-T enabled and UDP 4500 permitted\n5) Check ACL: UDP 500 and 4500 (NAT-T) must reach peer\n6) For cert auth: check cert expiry and CA chain on both peers\n\n### Resolution\nAlign IKE policy; fix PSK; enable NAT-T; open UDP 500/4500; renew certificate; update peer IP for dynamic sites.\n\n### Preventive Actions\nDocument IKE policy on both peers; test tunnel with 'clear crypto sa' after changes; monitor tunnel uptime.\n\n### Related Tools\nVPN logs, Packet capture, Syslog, certificate monitoring",
+    "problem": "IKE Phase 1 policy mismatch (encryption, hash, DH group, lifetime)",
+    "area": "VPN",
+    "remedyItems": [
+      "Align IKE policy",
+      "fix PSK",
+      "enable NAT-T",
+      "open UDP 500/4500",
+      "renew certificate",
+      "update peer IP for dynamic sites."
+    ],
+    "tags": [
+      "ipsec-down",
+      "ike-phase1",
+      "isakmp",
+      "psk",
+      "nat-t",
+      "dpd",
+      "certificate",
+      "udp-500"
+    ],
+    "linkedIntents": [
+      "vpn.ipsec_down"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-vpn-002",
+    "title": "Remote users cannot connect to SSL VPN gateway — how to diagnose?",
+    "category": "Network",
+    "subcategory": "VPN",
+    "content": "### Overview\nRemote users cannot connect to SSL VPN gateway — how to diagnose?\n\n### Likely Causes\n- SSL VPN gateway process crashed or not listening on HTTPS\n- Certificate on VPN gateway expired — clients rejecting TLS\n- VPN gateway IP/FQDN unreachable (firewall, routing)\n- IP address pool exhausted — no addresses to assign\n- MFA/RADIUS backend unreachable causing auth failure\n- Split-tunnel routing not configured — DNS not resolving after connect\n\n### Observability Signals\n- ssl_vpn_gateway_reachable == 0\n- TLS connection to gateway port 443/10443 refused or timing out\n- Certificate error in client browser/VPN client\n- Session table showing zero active SSL VPN sessions\n- RADIUS auth timeout events in VPN gateway logs\n\n### Recommended CLI Commands\ncurl -vI https://<vpn-gateway>:443\nopenssl s_client -connect <vpn-gateway>:443\nshow vpn-sessiondb summary\nshow ip local pool\nshow aaa servers\nping <vpn-gateway> from external host\n\n### Step-by-Step RCA\n1) Test gateway reachability: curl HTTPS, check TLS cert\n2) Check VPN service process on gateway: is it running?\n3) Check certificate expiry: 'openssl s_client' shows cert details\n4) Check IP pool: 'show ip local pool' — any addresses remaining?\n5) Test RADIUS: 'test aaa group radius' from gateway\n6) Check firewall: is inbound HTTPS to VPN gateway permitted?\n\n### Resolution\nRestart VPN service; renew certificate; expand IP pool; restore RADIUS connectivity; fix firewall rule; update DNS for gateway FQDN.\n\n### Preventive Actions\nMonitor gateway availability via synthetic HTTPS probe; cert expiry alert 30 days; pool utilization alert at 80%.\n\n### Related Tools\nopenssl, curl, VPN logs, RADIUS logs, SNMP",
+    "problem": "SSL VPN gateway process crashed or not listening on HTTPS",
+    "area": "VPN",
+    "remedyItems": [
+      "Restart VPN service",
+      "renew certificate",
+      "expand IP pool",
+      "restore RADIUS connectivity",
+      "fix firewall rule",
+      "update DNS for gateway FQDN."
+    ],
+    "tags": [
+      "ssl-vpn",
+      "remote-access",
+      "certificate",
+      "ip-pool",
+      "radius",
+      "anyconnect",
+      "gateway-down"
+    ],
+    "linkedIntents": [
+      "vpn.ssl_vpn_unreachable"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-vpn-003",
+    "title": "DMVPN spoke cannot register with hub — how to troubleshoot NHRP and IKE for DMVPN?",
+    "category": "Network",
+    "subcategory": "VPN",
+    "content": "### Overview\nDMVPN spoke cannot register with hub — how to troubleshoot NHRP and IKE for DMVPN?\n\n### Likely Causes\n- NHRP network ID mismatch between hub and spoke\n- IKE policy mismatch preventing spoke-hub tunnel establishment\n- NHS (hub) IP address unreachable from spoke underlay\n- CGNAT or carrier-side NAT changing spoke source IP\n- mGRE tunnel interface misconfiguration (wrong tunnel source)\n- NHRP authentication mismatch\n\n### Observability Signals\n- DMVPN spoke state: NHRP registration not in hub cache\n- IKE SA not established from spoke to hub\n- mGRE tunnel interface down on spoke\n- 'show dmvpn' showing spoke as DOWN at hub\n- Spoke cannot ping hub tunnel IP\n\n### Recommended CLI Commands\nshow dmvpn\nshow ip nhrp\nshow crypto isakmp sa\nshow interface tunnel <n>\nshow ip nhrp nhs\ndebug nhrp registration (brief window)\nping <hub-tunnel-ip> source tunnel <n>\n\n### Step-by-Step RCA\n1) Check hub NHRP cache: 'show ip nhrp' — is spoke registered?\n2) Check spoke tunnel interface: up/up? Tunnel source/destination correct?\n3) Test underlay: can spoke reach hub NBMA IP?\n4) Check IKE: is Phase 1 SA established spoke to hub?\n5) Verify NHRP network ID matches hub config\n6) Check if CGNAT is changing spoke source IP (NHRP maps wrong IP)\n\n### Resolution\nFix NHRP network ID; align IKE policy; restore underlay reachability; configure NAT-T for CGNAT; correct tunnel source.\n\n### Preventive Actions\nMonitor DMVPN spoke count at hub; alert on registration drops; test spoke failover on WAN redundancy.\n\n### Related Tools\nNHRP logs, IKE logs, DMVPN controller logs, Syslog",
+    "problem": "NHRP network ID mismatch between hub and spoke",
+    "area": "VPN",
+    "remedyItems": [
+      "Fix NHRP network ID",
+      "align IKE policy",
+      "restore underlay reachability",
+      "configure NAT-T for CGNAT",
+      "correct tunnel source.",
+      "Monitor DMVPN spoke count at hub"
+    ],
+    "tags": [
+      "dmvpn",
+      "nhrp",
+      "spoke-down",
+      "mGRE",
+      "nhs",
+      "cgnat",
+      "ike"
+    ],
+    "linkedIntents": [
+      "vpn.dmvpn_spoke_down"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-vpn-004",
+    "title": "GRE tunnel interface is down or traffic is not forwarding — what are the root causes?",
+    "category": "Network",
+    "subcategory": "VPN",
+    "content": "### Overview\nGRE tunnel interface is down or traffic is not forwarding — what are the root causes?\n\n### Likely Causes\n- Recursive routing: tunnel destination routed via tunnel itself\n- IP Protocol 47 (GRE) blocked by ACL or firewall\n- GRE keepalives failing (if configured) causing tunnel down\n- Tunnel source or destination IP unreachable\n- MTU mismatch causing large packets to be dropped inside GRE\n- IP address not configured on tunnel interface\n\n### Observability Signals\n- tunnel_oper_status == down\n- Recursive routing error in syslog\n- GRE traffic not seen at far end (capture shows GRE packets dropped)\n- Tunnel down with 'no keepalive responses' reason\n- Large pings fail through tunnel; small pings succeed\n\n### Recommended CLI Commands\nshow interface tunnel <n>\nshow ip route <tunnel-destination>\nping <far-end-tunnel-ip> source tunnel <n>\nping <far-end-tunnel-ip> df-bit size 1400\nshow ip traffic | inc GRE\ntraceroute <dst> source tunnel <n>\n\n### Step-by-Step RCA\n1) Check tunnel interface: 'show interface tunnel' — line protocol down or up?\n2) For recursive routing: 'show ip route <tunnel-dest>' — is it via the tunnel itself?\n3) If recursive: add static route for tunnel destination via physical interface\n4) Test proto 47: packet capture on underlay — are GRE packets visible?\n5) Check MTU: 'ping df-bit size 1452' — does it pass through tunnel?\n6) Verify keepalive configuration if used — disable and test\n\n### Resolution\nFix recursive routing with static route; permit proto 47 in ACL; set tunnel MTU minus 24 bytes; disable or fix keepalives.\n\n### Preventive Actions\nAlways use static route for tunnel destination to prevent recursive routing; document GRE MTU requirements.\n\n### Related Tools\nPacket capture, Syslog, SNMP, Ping/traceroute",
+    "problem": "Recursive routing: tunnel destination routed via tunnel itself",
+    "area": "VPN",
+    "remedyItems": [
+      "Fix recursive routing with static route",
+      "permit proto 47 in ACL",
+      "set tunnel MTU minus 24 bytes",
+      "disable or fix keepalives.",
+      "Always use static route for tunnel destination to prevent recursive routing",
+      "document GRE MTU requirements."
+    ],
+    "tags": [
+      "gre",
+      "tunnel-down",
+      "recursive-routing",
+      "proto-47",
+      "keepalive",
+      "mtu",
+      "blackhole"
+    ],
+    "linkedIntents": [
+      "vpn.gre_down"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-services-001",
+    "title": "NXDOMAIN response rate spiked — clients getting 'name not found' errors. What is causing this?",
+    "category": "Network",
+    "subcategory": "Services",
+    "content": "### Overview\nNXDOMAIN response rate spiked — clients getting 'name not found' errors. What is causing this?\n\n### Likely Causes\n- DNS zone data missing or zone transfer failure\n- DNS delegation broken — parent zone not pointing to authoritative server\n- Wrong search domain suffix causing FQDN resolution failure\n- DNS server cache poisoned with invalid NXDOMAIN responses\n- Recent DNS record deletion or TTL expiry\n- Split-horizon DNS serving wrong zone to clients\n\n### Observability Signals\n- nxdomain_rate > baseline by > 3x\n- Specific domain or subdomain generating NXDOMAIN\n- DNS zone transfer failures in authoritative server logs\n- Clients reporting specific application FQDNs not resolving\n- Recent DNS record changes correlating with spike\n\n### Recommended CLI Commands\ndig <failing-fqdn> +trace\nnslookup <fqdn> <dns-server>\ndig @<auth-server> <zone> AXFR (zone transfer test)\ndig <fqdn> SOA (check zone authority)\ncheck DNS server logs for NXDOMAIN volume\ntail -f /var/log/named/default (BIND)\n\n### Step-by-Step RCA\n1) Identify which FQDN(s) generating NXDOMAIN\n2) 'dig +trace' to follow delegation from root\n3) Is authoritative server responding? Is zone loaded?\n4) Check zone transfer: is secondary in sync with primary?\n5) Check for recent record deletions in DNS change log\n6) For split-horizon: is the correct view serving the client network?\n\n### Resolution\nRestore deleted record; fix zone transfer; correct delegation; fix search domain; flush poisoned cache; correct split-horizon view.\n\n### Preventive Actions\nMonitor zone transfer success rate; DNSSEC for cache poisoning protection; change control for DNS record deletions.\n\n### Related Tools\ndig, nslookup, DNS logs, DNSSEC validator",
+    "problem": "DNS zone data missing or zone transfer failure",
+    "area": "Services",
+    "remedyItems": [
+      "Restore deleted record",
+      "fix zone transfer",
+      "correct delegation",
+      "fix search domain",
+      "flush poisoned cache",
+      "correct split-horizon view."
+    ],
+    "tags": [
+      "dns-nxdomain",
+      "zone-transfer",
+      "delegation",
+      "search-domain",
+      "split-horizon",
+      "cache-poisoning"
+    ],
+    "linkedIntents": [
+      "services.dns_nxdomain_spike"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-services-002",
+    "title": "DHCP pool is exhausted — clients not getting IP addresses. How to recover and prevent recurrence?",
+    "category": "Network",
+    "subcategory": "Services",
+    "content": "### Overview\nDHCP pool is exhausted — clients not getting IP addresses. How to recover and prevent recurrence?\n\n### Likely Causes\n- DHCP starvation attack: attacker flooding DISCOVER with random MACs\n- Lease time too long — stale leases from departed devices\n- Scope undersized for current device count\n- Rogue DHCP server consuming part of pool\n- Ghost leases from improperly decommissioned devices\n- Rapid device turnover (hot-desking, guest access) exhausting leases\n\n### Observability Signals\n- dhcp_pool_utilization_percent == 100\n- DHCP DISCOVER with no OFFER in capture\n- New devices getting APIPA (169.254.x.x) addresses\n- DHCP server log: 'no free leases'\n- Unusually high number of active leases vs connected devices\n\n### Recommended CLI Commands\nshow ip dhcp binding | count\nshow ip dhcp pool\nshow ip dhcp conflict\nshow ip dhcp statistics\ntcpdump -i <int> port 67 or port 68\nclear ip dhcp binding * (emergency — use with caution)\n\n### Step-by-Step RCA\n1) Check utilization: 'show ip dhcp pool' — leased vs total\n2) Compare lease count vs known-connected device count (via ARP/MAC table)\n3) Look for starvation: many leases to sequential/random MACs from same port?\n4) Check lease time: if 8 days, old leases from gone devices still held\n5) For starvation attack: identify source port, enable DHCP snooping\n6) Emergency recovery: reduce lease time to reclaim expired leases faster\n\n### Resolution\nReduce lease time; clear stale bindings; expand pool; enable DHCP snooping; block starvation source; add exclusion ranges.\n\n### Preventive Actions\nAlert at 80% pool utilization; enable DHCP snooping; IPAM for pool capacity planning; use short lease times for guest/WiFi.\n\n### Related Tools\nDHCP logs, SNMP, IPAM, DHCP snooping",
+    "problem": "DHCP starvation attack: attacker flooding DISCOVER with random MACs",
+    "area": "Services",
+    "remedyItems": [
+      "Reduce lease time",
+      "clear stale bindings",
+      "expand pool",
+      "enable DHCP snooping",
+      "block starvation source",
+      "add exclusion ranges."
+    ],
+    "tags": [
+      "dhcp-exhausted",
+      "pool-full",
+      "stale-leases",
+      "dhcp-starvation",
+      "snooping",
+      "lease-time"
+    ],
+    "linkedIntents": [
+      "services.dhcp_exhausted"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-services-003",
+    "title": "Device showing high NTP stratum (16 = unsynchronized) — how to restore time sync?",
+    "category": "Network",
+    "subcategory": "Services",
+    "content": "### Overview\nDevice showing high NTP stratum (16 = unsynchronized) — how to restore time sync?\n\n### Likely Causes\n- Upstream NTP server unreachable (ACL, routing, NTP server down)\n- NTP authentication key mismatch\n- All configured NTP peers stratum 16 (upstream hierarchy broken)\n- Clock drift too large for NTP to step-correct (requires ntpdate force)\n- VRF not specified for NTP source interface\n- Firewall blocking UDP 123 between device and NTP server\n\n### Observability Signals\n- ntp_stratum == 16 (unsynchronized)\n- 'show ntp associations' showing no synced peer (*)\n- Time offset between device and NTP server > 1000ms\n- Syslog timestamps misaligned with actual events\n- Multiple correlation/forensic issues due to clock skew\n\n### Recommended CLI Commands\nshow ntp associations detail\nshow ntp status\nshow clock detail\nntpdate -q <ntp-server> (test sync)\ntelnet <ntp-server> (ACL test — NTP is UDP so use ping)\nping <ntp-server> vrf <mgmt>\n\n### Step-by-Step RCA\n1) 'show ntp associations' — is any server in synced state (*)?\n2) Test NTP server reachability from correct VRF: 'ping <ntp-ip> vrf mgmt'\n3) Check NTP auth: key configured on both device and server?\n4) Check offset: if > 128ms, ntp may need manual step-sync\n5) Trace NTP hierarchy upward — is upstream NTP server itself synchronized?\n6) Force sync: 'ntp update-calendar' or 'clock set' then 'ntp sync'\n\n### Resolution\nFix routing/ACL to NTP server; correct auth key; force time step if offset > 128ms; fix upstream NTP hierarchy; specify VRF.\n\n### Preventive Actions\nConfigure 3+ NTP sources; monitor stratum and offset continuously; alert on offset > 100ms; use internal NTP hierarchy.\n\n### Related Tools\nNTP logs, Syslog, SNMP, ntpdate",
+    "problem": "Upstream NTP server unreachable (ACL, routing, NTP server down)",
+    "area": "Services",
+    "remedyItems": [
+      "Fix routing/ACL to NTP server",
+      "correct auth key",
+      "force time step if offset > 128ms",
+      "fix upstream NTP hierarchy",
+      "specify VRF.",
+      "Configure 3+ NTP sources"
+    ],
+    "tags": [
+      "ntp",
+      "stratum-16",
+      "time-sync",
+      "clock-drift",
+      "udp-123",
+      "vrf",
+      "ntp-auth"
+    ],
+    "linkedIntents": [
+      "services.ntp_stratum_high"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-k8s-001",
+    "title": "Kubernetes node is in NotReady state — pods being evicted or not scheduled. How to diagnose?",
+    "category": "Compute",
+    "subcategory": "Node Health",
+    "content": "### Overview\nKubernetes node is in NotReady state — pods being evicted or not scheduled. How to diagnose?\n\n### Likely Causes\n- kubelet process crashed or OOM killed\n- Disk pressure: node disk full (/var/lib/docker or /var/lib/kubelet)\n- Memory pressure: node memory exhausted causing kubelet issues\n- CNI plugin failure (Calico, Flannel, Cilium) preventing pod networking\n- API server unreachable — kubelet cannot report status\n- containerd/docker daemon crashed\n- Clock skew causing TLS certificate validation failure\n\n### Observability Signals\n- node_ready_status == False\n- node_conditions showing DiskPressure, MemoryPressure, PIDPressure\n- Pods in Terminating or Evicted state on node\n- kubelet logs showing errors\n- API server showing node as not reporting\n\n### Recommended CLI Commands\nkubectl get nodes -o wide\nkubectl describe node <node>\nkubectl get events --field-selector involvedObject.name=<node>\nssh <node> systemctl status kubelet\nssh <node> journalctl -u kubelet -n 100\nssh <node> df -h\nssh <node> free -m\n\n### Step-by-Step RCA\n1) 'kubectl describe node <node>' — check conditions: DiskPressure, MemoryPressure\n2) SSH to node: is kubelet running? 'systemctl status kubelet'\n3) Check kubelet logs: 'journalctl -u kubelet -n 200'\n4) Check disk: 'df -h /var/lib/kubelet' and '/var/lib/containerd'\n5) Check memory: is kubelet OOM killed? 'dmesg | grep OOM'\n6) Check CNI: are pod network interfaces being created?\n\n### Resolution\nRestart kubelet; free disk space; increase node resources; reinstall CNI; fix API server reachability; sync clock.\n\n### Preventive Actions\nSet eviction thresholds before NotReady; monitor node conditions via Prometheus; set disk alert at 80% for kubelet paths.\n\n### Related Tools\nkubectl, Prometheus node-exporter, journalctl, k8s events",
+    "problem": "kubelet process crashed or OOM killed",
+    "area": "Node Health",
+    "remedyItems": [
+      "Restart kubelet",
+      "free disk space",
+      "increase node resources",
+      "reinstall CNI",
+      "fix API server reachability",
+      "sync clock."
+    ],
+    "tags": [
+      "k8s",
+      "node-not-ready",
+      "kubelet",
+      "disk-pressure",
+      "memory-pressure",
+      "cni",
+      "eviction"
+    ],
+    "linkedIntents": [
+      "k8s.node_not_ready"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-k8s-002",
+    "title": "Kubernetes pod is stuck in Pending state — it is not being scheduled. What are the causes?",
+    "category": "Compute",
+    "subcategory": "Pod Scheduling",
+    "content": "### Overview\nKubernetes pod is stuck in Pending state — it is not being scheduled. What are the causes?\n\n### Likely Causes\n- Insufficient CPU or memory resources across all nodes\n- Node selector or affinity rules with no matching node\n- Node taint with no matching toleration in pod spec\n- PVC not bound — pod waiting for persistent volume\n- Image pull failure (ImagePullBackOff before Pending)\n- Resource quota exceeded in namespace\n- Pod disruption budget preventing scheduling\n\n### Observability Signals\n- pod_status == Pending for > 5 minutes\n- kubectl events showing 'Insufficient cpu/memory'\n- 'FailedScheduling' event with specific reason\n- No nodes match node selector or affinity\n- PVC in Pending state (no available PV)\n\n### Recommended CLI Commands\nkubectl describe pod <pod> -n <ns>\nkubectl get events -n <ns> | grep FailedScheduling\nkubectl describe nodes | grep -A 5 'Allocated resources'\nkubectl get pvc -n <ns>\nkubectl get resourcequota -n <ns>\nkubectl get nodes -o json | jq '.items[].spec.taints'\n\n### Step-by-Step RCA\n1) 'kubectl describe pod' — check Events section at bottom for scheduling reason\n2) 'Insufficient cpu/memory': check node capacity vs requested resources\n3) 'No nodes match selector': check nodeSelector/affinity vs node labels\n4) 'Taints': add toleration or remove taint from target node\n5) PVC Pending: check StorageClass and available PVs\n6) Quota: 'kubectl describe resourcequota' — which resource is over limit?\n\n### Resolution\nAdd nodes or reduce resource requests; fix node labels/affinity; add toleration; bind PV; increase quota; adjust pod disruption budget.\n\n### Preventive Actions\nCapacity planning for resource requests; limit ranges to prevent over-requesting; monitor scheduling failure events.\n\n### Related Tools\nkubectl, Prometheus, k8s events, vertical pod autoscaler",
+    "problem": "Insufficient CPU or memory resources across all nodes",
+    "area": "Pod Scheduling",
+    "remedyItems": [
+      "Add nodes or reduce resource requests",
+      "fix node labels/affinity",
+      "add toleration",
+      "bind PV",
+      "increase quota",
+      "adjust pod disruption budget."
+    ],
+    "tags": [
+      "k8s",
+      "pod-pending",
+      "scheduling",
+      "resources",
+      "affinity",
+      "taint",
+      "pvc",
+      "quota"
+    ],
+    "linkedIntents": [
+      "k8s.pod_pending"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-k8s-003",
+    "title": "PersistentVolumeClaim is stuck in Pending state — pods cannot start. How to resolve?",
+    "category": "Compute",
+    "subcategory": "Storage",
+    "content": "### Overview\nPersistentVolumeClaim is stuck in Pending state — pods cannot start. How to resolve?\n\n### Likely Causes\n- No PersistentVolume matches the PVC request (size, access mode, StorageClass)\n- StorageClass dynamic provisioner (CSI driver) not running\n- Storage backend quota exhausted\n- Availability zone mismatch between PVC topology and available nodes\n- PVC requesting access mode not supported by StorageClass (ReadWriteMany on block storage)\n- Binding mode 'WaitForFirstConsumer' — PVC waits for pod to schedule first\n\n### Observability Signals\n- pvc_status == Pending\n- Events: 'no persistent volumes available' or 'storageclass not found'\n- CSI provisioner pod in CrashLoopBackOff or not running\n- Storage quota exceeded event\n- PV available but wrong StorageClass or access mode\n\n### Recommended CLI Commands\nkubectl describe pvc <pvc-name> -n <ns>\nkubectl get pv (check available PVs)\nkubectl get storageclass\nkubectl get pods -n kube-system | grep csi\nkubectl describe storageclass <class>\nkubectl get events -n <ns> | grep ProvisioningFailed\n\n### Step-by-Step RCA\n1) 'kubectl describe pvc' — Events show exact failure reason\n2) Check StorageClass: does it exist and is provisioner running?\n3) CSI driver: is provisioner pod healthy in kube-system?\n4) Check existing PVs: any available matching size and access mode?\n5) For WaitForFirstConsumer: PVC binds when pod is scheduled — is pod pending too?\n6) Check storage backend: quota, connectivity, CSI driver logs\n\n### Resolution\nCreate matching PV manually; restart CSI provisioner; expand storage backend quota; change StorageClass; fix zone topology.\n\n### Preventive Actions\nMonitor CSI provisioner health; set storage quota alerts; test dynamic provisioning in staging; document StorageClass capabilities.\n\n### Related Tools\nkubectl, CSI driver logs, Prometheus, storage backend console",
+    "problem": "No PersistentVolume matches the PVC request (size, access mode, StorageClass)",
+    "area": "Storage",
+    "remedyItems": [
+      "Create matching PV manually",
+      "restart CSI provisioner",
+      "expand storage backend quota",
+      "change StorageClass",
+      "fix zone topology.",
+      "Monitor CSI provisioner health"
+    ],
+    "tags": [
+      "k8s",
+      "pvc-pending",
+      "storageclass",
+      "csi",
+      "persistent-volume",
+      "provisioner",
+      "quota"
+    ],
+    "linkedIntents": [
+      "k8s.pvc_unbound"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-k8s-004",
+    "title": "Kubernetes Ingress is not routing traffic — HTTP 502/503 or connection refused. How to debug?",
+    "category": "Compute",
+    "subcategory": "Ingress",
+    "content": "### Overview\nKubernetes Ingress is not routing traffic — HTTP 502/503 or connection refused. How to debug?\n\n### Likely Causes\n- Ingress controller pod not running (nginx, traefik, etc.)\n- Backend service not found or endpoint not ready\n- TLS secret missing or certificate expired\n- Incorrect Ingress annotation causing misrouting\n- Service selector not matching pod labels\n- IngressClass not matching controller\n- Upstream pod not passing readiness probe\n\n### Observability Signals\n- HTTP 502 (bad gateway) or 503 (service unavailable) from ingress\n- Ingress controller pod in CrashLoopBackOff\n- 'No endpoints available' in ingress controller logs\n- TLS secret not found event\n- Service endpoints count == 0\n\n### Recommended CLI Commands\nkubectl get ingress -n <ns>\nkubectl describe ingress <name> -n <ns>\nkubectl get pods -n ingress-nginx (or traefik ns)\nkubectl get endpoints <service> -n <ns>\nkubectl get secret <tls-secret> -n <ns>\nkubectl logs -n ingress-nginx <controller-pod> | grep error\n\n### Step-by-Step RCA\n1) Check ingress controller pod: running and healthy?\n2) 'kubectl describe ingress' — any warning events?\n3) Check backend service: 'kubectl get endpoints <svc>' — any IPs listed?\n4) If endpoints empty: check service selector vs pod labels\n5) Check TLS secret: present in correct namespace? Cert valid?\n6) Review ingress annotations — any typo or incorrect value?\n\n### Resolution\nRestart ingress controller; fix service selector; create TLS secret; correct annotations; fix readiness probe on upstream pods.\n\n### Preventive Actions\nMonitor ingress controller health; synthetic HTTP probe per ingress; cert expiry monitoring for TLS secrets.\n\n### Related Tools\nkubectl, ingress controller logs, Prometheus, cert-manager",
+    "problem": "Ingress controller pod not running (nginx, traefik, etc.)",
+    "area": "Ingress",
+    "remedyItems": [
+      "Restart ingress controller",
+      "fix service selector",
+      "create TLS secret",
+      "correct annotations",
+      "fix readiness probe on upstream pods.",
+      "Monitor ingress controller health"
+    ],
+    "tags": [
+      "k8s",
+      "ingress",
+      "nginx",
+      "traefik",
+      "tls-secret",
+      "endpoints",
+      "502",
+      "503"
+    ],
+    "linkedIntents": [
+      "k8s.ingress_down"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-k8s-005",
+    "title": "etcd cluster is unhealthy — Kubernetes control plane is degraded. What to check?",
+    "category": "Compute",
+    "subcategory": "Control Plane",
+    "content": "### Overview\netcd cluster is unhealthy — Kubernetes control plane is degraded. What to check?\n\n### Likely Causes\n- etcd disk I/O too slow causing raft election timeouts\n- etcd quorum lost (majority of members down)\n- etcd database too large — compaction and defragmentation needed\n- etcd peer certificates expired\n- Network partition between etcd members\n- Memory pressure causing etcd OOM\n\n### Observability Signals\n- etcd_server_health_failures > 0\n- etcd request latency > 100ms (p99)\n- etcd quorum alerts\n- kubectl commands timing out or failing\n- etcd database size growing without compaction\n\n### Recommended CLI Commands\netcdctl endpoint health --cluster\netcdctl endpoint status --cluster --write-out=table\netcdctl alarm list\netcdctl defrag --cluster\niostat -x 1 (on etcd nodes)\netcdctl snapshot status <snapshot>\n\n### Step-by-Step RCA\n1) Check cluster health: 'etcdctl endpoint health --cluster'\n2) Check member list: quorum requires majority (3-node = 2 needed)\n3) Check disk I/O latency on etcd nodes — etcd needs < 10ms latency\n4) Check DB size: if > 6GB, compact and defrag needed\n5) Check certificate expiry: 'etcdctl endpoint status'\n6) Review etcd logs for leader election churn or network partition\n\n### Resolution\nRestore failed etcd member; compact/defrag database; move etcd to faster disk (NVMe); renew certificates; fix network partition.\n\n### Preventive Actions\nDedicated fast SSD for etcd; monitor etcd latency and DB size; automated compaction; certificate rotation automation.\n\n### Related Tools\netcdctl, Prometheus etcd metrics, iostat, journalctl",
+    "problem": "etcd disk I/O too slow causing raft election timeouts",
+    "area": "Control Plane",
+    "remedyItems": [
+      "Restore failed etcd member",
+      "compact/defrag database",
+      "move etcd to faster disk (NVMe)",
+      "renew certificates",
+      "fix network partition.",
+      "Dedicated fast SSD for etcd"
+    ],
+    "tags": [
+      "k8s",
+      "etcd",
+      "quorum",
+      "disk-latency",
+      "compaction",
+      "certificate",
+      "control-plane"
+    ],
+    "linkedIntents": [
+      "k8s.etcd_unhealthy"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-k8s-006",
+    "title": "Kubernetes API server is down or unreachable — all cluster operations failing. How to recover?",
+    "category": "Compute",
+    "subcategory": "Control Plane",
+    "content": "### Overview\nKubernetes API server is down or unreachable — all cluster operations failing. How to recover?\n\n### Likely Causes\n- API server OOM killed (large cluster with many objects)\n- etcd unreachable from API server\n- API server TLS certificates expired\n- API server overwhelmed by too many requests (e.g., controller storm)\n- kube-apiserver pod evicted from master node\n- Node hosting API server has failed\n\n### Observability Signals\n- kubectl commands fail with 'connection refused' or timeout\n- kube-apiserver pod not running or CrashLoopBackOff\n- etcd showing high error rate\n- API server audit logs not updating\n- Control plane node CPU/memory critically high\n\n### Recommended CLI Commands\nkubectl cluster-info\ncrictl ps | grep apiserver (on control plane node)\nsystemctl status kube-apiserver (kubeadm)\njournalctl -u kube-apiserver -n 200\nkubectl get --raw /healthz (if partially reachable)\ncurl https://<apiserver>:6443/healthz (from within cluster)\n\n### Step-by-Step RCA\n1) Test API reachability: 'kubectl cluster-info' or 'curl https://<apiserver>:6443/healthz'\n2) SSH to control plane: is kube-apiserver container/process running?\n3) Check API server logs for crash reason\n4) Check certificate expiry: kubeadm certs check-expiration\n5) Check etcd health — API server cannot function without etcd\n6) Check control plane node resources: memory, disk\n\n### Resolution\nRestart kube-apiserver; renew certificates (kubeadm certs renew); restore etcd; free control plane node resources; scale control plane.\n\n### Preventive Actions\nHA control plane (3 masters); cert expiry monitoring; API server request rate limits; dedicated control plane nodes.\n\n### Related Tools\nkubectl, crictl, journalctl, kubeadm, Prometheus",
+    "problem": "API server OOM killed (large cluster with many objects)",
+    "area": "Control Plane",
+    "remedyItems": [
+      "Restart kube-apiserver",
+      "renew certificates (kubeadm certs renew)",
+      "restore etcd",
+      "free control plane node resources",
+      "scale control plane.",
+      "HA control plane (3 masters)"
+    ],
+    "tags": [
+      "k8s",
+      "apiserver",
+      "control-plane",
+      "certificate-expired",
+      "etcd",
+      "oom",
+      "kubeadm"
+    ],
+    "linkedIntents": [
+      "k8s.apiserver_down"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-cloud-001",
+    "title": "Cloud VM/instance is not reachable — how to diagnose connectivity in cloud environments?",
+    "category": "Compute",
+    "subcategory": "Compute",
+    "content": "### Overview\nCloud VM/instance is not reachable — how to diagnose connectivity in cloud environments?\n\n### Likely Causes\n- Instance stopped or terminated (check state)\n- Security group blocking inbound traffic on required port\n- Route table missing route or incorrect default gateway\n- Instance status checks failing (hardware issue at cloud level)\n- SSH key pair mismatch — cannot authenticate\n- Public IP not associated or Elastic IP detached\n- VPC network ACL (stateless) blocking traffic\n\n### Observability Signals\n- instance_reachability_check == failed\n- EC2/GCE instance status check failed\n- Security group showing no inbound rule for management port\n- Route table missing 0.0.0.0/0 to Internet Gateway\n- Instance in stopped/terminated state\n\n### Recommended CLI Commands\naws ec2 describe-instances --instance-ids <id>\naws ec2 describe-instance-status --instance-ids <id>\naws ec2 describe-security-groups --group-ids <sg-id>\naws ec2 describe-route-tables\naws ec2 get-console-output --instance-id <id>\nVPC Flow Logs: filter for REJECT on instance ENI\n\n### Step-by-Step RCA\n1) Check instance state: running, stopped, or terminated?\n2) Check system/instance status checks in cloud console\n3) Check security group: inbound rules for SSH (22) / RDP (3389) from your IP?\n4) Check VPC routing: subnet route table has IGW or NAT route?\n5) Check VPC Network ACL: stateless, must have inbound AND outbound rules\n6) Use 'Get Console Output' for boot/crash logs without SSH\n\n### Resolution\nStart stopped instance; fix security group rule; add route to route table; associate Elastic IP; fix network ACL; restore from snapshot if status check fails.\n\n### Preventive Actions\nBaseline security group rules; monitor instance status checks; use AWS Systems Manager Session Manager for keyless access.\n\n### Related Tools\nAWS Console, AWS CLI, VPC Flow Logs, CloudWatch",
+    "problem": "Instance stopped or terminated (check state)",
+    "area": "Compute",
+    "remedyItems": [
+      "Start stopped instance",
+      "fix security group rule",
+      "add route to route table",
+      "associate Elastic IP",
+      "fix network ACL",
+      "restore from snapshot if status check fails."
+    ],
+    "tags": [
+      "cloud",
+      "ec2",
+      "instance-unreachable",
+      "security-group",
+      "route-table",
+      "vpc",
+      "status-check"
+    ],
+    "linkedIntents": [
+      "cloud.instance_unreachable"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-cloud-002",
+    "title": "Cloud security group is blocking application traffic — how to identify and fix the missing rule?",
+    "category": "Compute",
+    "subcategory": "Security",
+    "content": "### Overview\nCloud security group is blocking application traffic — how to identify and fix the missing rule?\n\n### Likely Causes\n- Missing inbound rule for required port or protocol\n- Port range too narrow (e.g., 8080 specified but app uses 8081)\n- Source CIDR too restrictive (specific IP but client has different IP)\n- Protocol wrong (TCP specified but app uses UDP)\n- Security group applied to wrong resource (ENI, instance, or load balancer)\n- Stateless NACL overriding security group (NACL denying return traffic)\n\n### Observability Signals\n- VPC Flow Logs showing REJECT on destination port\n- Connection timeout from client to application\n- Application reachable from within VPC but not from specific source\n- AWS Security Hub showing overly restrictive group\n- Cloud-native firewall audit showing drop\n\n### Recommended CLI Commands\naws ec2 describe-security-groups --group-ids <sg-id>\nVPC Flow Logs: filter srcaddr, dstaddr, dstport, action=REJECT\naws ec2 describe-network-acls (check stateless NACLs)\naws ec2 describe-instances (check which SG is attached)\ntelnet <instance-ip> <port> (from source host)\ncurl -v http://<instance-ip>:<port>\n\n### Step-by-Step RCA\n1) Enable VPC Flow Logs and filter for REJECT on target ENI\n2) Identify rejected destination port and source IP\n3) Check security group: is there an inbound rule matching that port and source?\n4) Check if NACL is also involved — stateless, needs both inbound and outbound\n5) Verify security group is actually attached to the correct instance/ENI\n6) Add missing rule with least-privilege (specific port and source CIDR)\n\n### Resolution\nAdd precise inbound rule; fix port range; correct source CIDR; check NACL outbound rules; attach correct security group.\n\n### Preventive Actions\nUse Infrastructure-as-Code for security groups; enforce change approval; VPC Flow Logs always enabled; security group drift detection.\n\n### Related Tools\nVPC Flow Logs, AWS Config, AWS Security Hub, CloudTrail",
+    "problem": "Missing inbound rule for required port or protocol",
+    "area": "Security",
+    "remedyItems": [
+      "Add precise inbound rule",
+      "fix port range",
+      "correct source CIDR",
+      "check NACL outbound rules",
+      "attach correct security group.",
+      "Use Infrastructure-as-Code for security groups"
+    ],
+    "tags": [
+      "cloud",
+      "security-group",
+      "vpc-flow-logs",
+      "nacl",
+      "inbound-rule",
+      "port-block",
+      "aws"
+    ],
+    "linkedIntents": [
+      "cloud.security_group_block"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-cloud-003",
+    "title": "Private subnet instances cannot reach the internet — NAT gateway suspected. How to diagnose?",
+    "category": "Compute",
+    "subcategory": "Networking",
+    "content": "### Overview\nPrivate subnet instances cannot reach the internet — NAT gateway suspected. How to diagnose?\n\n### Likely Causes\n- Route table in private subnet not pointing to NAT gateway\n- NAT gateway Elastic IP (EIP) not associated or detached\n- NAT gateway in wrong availability zone (instances in different AZ)\n- NAT gateway connections quota exhausted (55,000 simultaneous)\n- NAT gateway in failed state (cloud provider issue)\n- Outbound security group blocking egress traffic from instances\n\n### Observability Signals\n- private_subnet_outbound_reachability == 0\n- NAT gateway status != available in cloud console\n- CloudWatch: NAT gateway error count > 0\n- VPC Flow Logs showing traffic leaving instance but not returning\n- Route table for private subnet missing 0.0.0.0/0 Ã¢â€ â€™ NAT GW\n\n### Recommended CLI Commands\naws ec2 describe-nat-gateways\naws ec2 describe-route-tables --filters Name=association.subnet-id,Values=<private-subnet>\naws cloudwatch get-metric-data (NatGatewayErrorPortAllocation)\ncurl http://169.254.169.254 (instance metadata test)\ncurl https://checkip.amazonaws.com (outbound test from instance)\n\n### Step-by-Step RCA\n1) Check NAT GW state: 'aws ec2 describe-nat-gateways' — available or failed?\n2) Check route table: private subnet Ã¢â€ â€™ 0.0.0.0/0 Ã¢â€ â€™ NAT GW ID correct?\n3) Check NAT GW in correct AZ (each AZ should have own NAT GW for HA)\n4) Check CloudWatch: ErrorPortAllocation = connections quota hit?\n5) Test from instance: 'curl https://checkip.amazonaws.com'\n6) Check security group on instance: outbound rule to 0.0.0.0/0 exists?\n\n### Resolution\nFix route table; create NAT GW per AZ for HA; increase connection reuse to reduce port exhaustion; fix EIP association.\n\n### Preventive Actions\nNAT GW per AZ; monitor ErrorPortAllocation CloudWatch metric; alert on NAT GW state change; IaC for route table management.\n\n### Related Tools\nAWS Console, AWS CLI, VPC Flow Logs, CloudWatch",
+    "problem": "Route table in private subnet not pointing to NAT gateway",
+    "area": "Networking",
+    "remedyItems": [
+      "Fix route table",
+      "create NAT GW per AZ for HA",
+      "increase connection reuse to reduce port exhaustion",
+      "fix EIP association.",
+      "NAT GW per AZ",
+      "monitor ErrorPortAllocation CloudWatch metric"
+    ],
+    "tags": [
+      "cloud",
+      "nat-gateway",
+      "private-subnet",
+      "route-table",
+      "eip",
+      "az-failure",
+      "aws"
+    ],
+    "linkedIntents": [
+      "cloud.nat_gateway_down"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-cloud-004",
+    "title": "Cloud ELB/ALB showing all targets as unhealthy — traffic not being forwarded. What to investigate?",
+    "category": "Compute",
+    "subcategory": "Load Balancer",
+    "content": "### Overview\nCloud ELB/ALB showing all targets as unhealthy — traffic not being forwarded. What to investigate?\n\n### Likely Causes\n- Health check port or path configured incorrectly\n- Security group blocking health check traffic from LB to targets\n- Target group instances have wrong port open\n- Application returning non-200 on health check path\n- Instance in wrong state (stopped, terminated)\n- Target group protocol mismatch (HTTP health check on HTTPS endpoint)\n- IP target type — IPs removed from target group after deployment\n\n### Observability Signals\n- elb_healthy_host_count == 0\n- ALB access logs showing 502 Bad Gateway\n- Health check logs showing timeouts or connection refused\n- CloudWatch: UnHealthyHostCount == total targets\n- VPC Flow Logs: REJECT on health check port from LB CIDR\n\n### Recommended CLI Commands\naws elbv2 describe-target-health --target-group-arn <arn>\naws elbv2 describe-target-groups --target-group-arns <arn>\naws elbv2 describe-load-balancers\ncurl http://<target-ip>:<port>/<health-check-path> (test directly)\nVPC Flow Logs: filter for LB source CIDR to target port\n\n### Step-by-Step RCA\n1) 'describe-target-health' — get specific reason per target (timeout, unhealthy, unused)\n2) Test health check manually: curl from LB subnet or same AZ instance\n3) Check health check config: correct port, protocol (HTTP vs HTTPS), path, success codes\n4) Check target security group: does it allow traffic from LB security group?\n5) Check if application returns 200 on health check path\n6) For NLB: check target security group AND network ACL\n\n### Resolution\nFix health check path/port/protocol; update target security group; fix application health check endpoint; re-register targets.\n\n### Preventive Actions\nTest health check configuration at deploy time; monitor UnHealthyHostCount; alert on > 50% targets unhealthy.\n\n### Related Tools\nAWS Console, AWS CLI, ALB access logs, CloudWatch, VPC Flow Logs",
+    "problem": "Health check port or path configured incorrectly",
+    "area": "Load Balancer",
+    "remedyItems": [
+      "Fix health check path/port/protocol",
+      "update target security group",
+      "fix application health check endpoint",
+      "re-register targets.",
+      "Test health check configuration at deploy time",
+      "monitor UnHealthyHostCount"
+    ],
+    "tags": [
+      "cloud",
+      "elb",
+      "alb",
+      "target-unhealthy",
+      "health-check",
+      "security-group",
+      "502"
+    ],
+    "linkedIntents": [
+      "cloud.elb_unhealthy"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-cloud-005",
+    "title": "S3 access denied errors occurring — application cannot read/write objects. How to resolve?",
+    "category": "Compute",
+    "subcategory": "Storage",
+    "content": "### Overview\nS3 access denied errors occurring — application cannot read/write objects. How to resolve?\n\n### Likely Causes\n- IAM role/user policy missing s3:GetObject or s3:PutObject permission\n- S3 bucket policy explicitly denying access\n- S3 Block Public Access settings blocking access to public bucket\n- Cross-account: bucket policy not granting access to external account\n- KMS key policy not allowing IAM role to use encryption key\n- S3 VPC endpoint policy restrictive — blocking from specific instances\n- Incorrect bucket region — SDK not configured for correct region\n\n### Observability Signals\n- HTTP 403 AccessDenied from S3 API\n- CloudTrail: s3:GetObject showing AccessDenied for specific principal\n- Application error logs: 'AccessDeniedException'\n- AWS Config showing S3 block public access enabled on bucket\n- STS GetCallerIdentity returns different principal than expected\n\n### Recommended CLI Commands\naws s3 ls s3://<bucket>/ (test access)\naws s3api get-bucket-policy --bucket <name>\naws s3api get-bucket-acl --bucket <name>\naws iam simulate-principal-policy (test permissions)\naws sts get-caller-identity (confirm which principal is acting)\nCloudTrail: filter for ErrorCode=AccessDenied and eventSource=s3.amazonaws.com\n\n### Step-by-Step RCA\n1) Confirm which principal is getting 403: 'aws sts get-caller-identity'\n2) Simulate policy: 'aws iam simulate-principal-policy' for that principal\n3) Check bucket policy: any explicit Deny?\n4) Check S3 Block Public Access: enabled at account or bucket level?\n5) For KMS encrypted bucket: check KMS key policy allows principal\n6) Check VPC endpoint policy if accessing via VPC endpoint\n\n### Resolution\nAdd required S3 permissions to IAM policy; remove explicit Deny from bucket policy; fix KMS key policy; update VPC endpoint policy.\n\n### Preventive Actions\nLeast-privilege IAM policy testing before deploy; use AWS IAM Policy Simulator; CloudTrail alerting on S3 AccessDenied.\n\n### Related Tools\nAWS IAM Policy Simulator, CloudTrail, AWS Config, AWS CLI",
+    "problem": "IAM role/user policy missing s3:GetObject or s3:PutObject permission",
+    "area": "Storage",
+    "remedyItems": [
+      "Add required S3 permissions to IAM policy",
+      "remove explicit Deny from bucket policy",
+      "fix KMS key policy",
+      "update VPC endpoint policy.",
+      "Least-privilege IAM policy testing before deploy",
+      "use AWS IAM Policy Simulator"
+    ],
+    "tags": [
+      "cloud",
+      "s3",
+      "access-denied",
+      "iam-policy",
+      "bucket-policy",
+      "kms",
+      "cross-account",
+      "403"
+    ],
+    "linkedIntents": [
+      "cloud.s3_access_denied"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-cloud-006",
+    "title": "Cloud IAM denying actions despite policy appearing correct — how to debug permission issues?",
+    "category": "Compute",
+    "subcategory": "IAM",
+    "content": "### Overview\nCloud IAM denying actions despite policy appearing correct — how to debug permission issues?\n\n### Likely Causes\n- Explicit Deny in IAM policy overriding any Allow (Deny always wins)\n- Service Control Policy (SCP) at AWS Organization level blocking action\n- IAM Permission Boundary restricting effective permissions\n- Role not being assumed correctly — using wrong credentials\n- Condition in policy not being met (e.g., IP condition, MFA condition)\n- Resource ARN in policy not matching actual resource ARN\n- Session policy (assumed role) more restrictive than role policy\n\n### Observability Signals\n- HTTP 403 AccessDenied from AWS API\n- CloudTrail: errorCode=AccessDenied with requestParameters\n- IAM Policy Simulator showing Denied\n- AWS CLI: 'An error occurred (AccessDenied)'\n- SCP evaluation showing block at org level\n\n### Recommended CLI Commands\naws sts get-caller-identity\naws iam simulate-principal-policy --policy-source-arn <role-arn> --action-names <action>\nCloudTrail: filter errorCode=AccessDenied\naws organizations list-policies-for-target (check SCPs)\naws iam get-role --role-name <name> | jq .Role.PermissionsBoundary\n\n### Step-by-Step RCA\n1) 'sts get-caller-identity' — is application using correct role/identity?\n2) CloudTrail: what exact action, resource ARN, and condition was evaluated?\n3) IAM Policy Simulator: test specific action on specific resource\n4) Check for explicit Deny in any attached policy\n5) Check SCP: is org-level policy blocking this action in this account?\n6) Check Permission Boundary: is it set on role and restricting action?\n\n### Resolution\nRemove explicit Deny; update SCP (requires org admin); remove or expand Permission Boundary; fix role ARN; meet policy conditions.\n\n### Preventive Actions\nPolicy-as-code with automated testing; CloudTrail alerting on AccessDenied; regular IAM access reviews; least-privilege enforcement.\n\n### Related Tools\nCloudTrail, IAM Policy Simulator, AWS Organizations, AWS Config",
+    "problem": "Explicit Deny in IAM policy overriding any Allow (Deny always wins)",
+    "area": "IAM",
+    "remedyItems": [
+      "Remove explicit Deny",
+      "update SCP (requires org admin)",
+      "remove or expand Permission Boundary",
+      "fix role ARN",
+      "meet policy conditions.",
+      "Policy-as-code with automated testing"
+    ],
+    "tags": [
+      "cloud",
+      "iam",
+      "access-denied",
+      "scp",
+      "permission-boundary",
+      "explicit-deny",
+      "cloudtrail",
+      "403"
+    ],
+    "linkedIntents": [
+      "cloud.iam_deny"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-app-001",
+    "title": "Application error rate is elevated — how to determine root cause and recover quickly?",
+    "category": "Application",
+    "subcategory": "Error Rate",
+    "content": "### Overview\nApplication error rate is elevated — how to determine root cause and recover quickly?\n\n### Likely Causes\n- Recent code deployment with bug in new code path\n- Downstream dependency (DB, cache, third-party API) returning errors\n- Resource exhaustion (memory, connections, threads)\n- Bad data in request causing unhandled exception\n- Configuration change causing misconfigured application behavior\n- Traffic spike exceeding application capacity\n\n### Observability Signals\n- error_rate_percent > 5 for HTTP 5xx\n- Specific error type dominant: 500 (app), 503 (capacity), 504 (timeout)\n- Error rate correlated with deployment event\n- Downstream dependency latency or error rate also elevated\n- Thread pool or connection pool saturation metrics\n\n### Recommended CLI Commands\ngrep -c 'ERROR\\|Exception' app.log\ntail -f app.log | grep -v INFO\ncurl -o /dev/null -s -w '%{http_code}' https://<endpoint>/health\ncheck deployment history (git log / CI/CD)\ncheck APM transaction traces for error span\ncheck dependency health endpoints\n\n### Step-by-Step RCA\n1) Check deployment history — did error rate increase after deploy?\n2) If yes: rollback immediately, then investigate\n3) Identify error type: 500 vs 503 vs 504 — different root causes\n4) Check APM trace for failing span: which service call is throwing error?\n5) Check downstream dependencies: DB, cache, queue error rates\n6) Check resource utilization: thread pool, connection pool, memory\n\n### Resolution\nRollback bad deployment; fix dependency; scale application; fix error handling for bad input; apply hot-fix.\n\n### Preventive Actions\nCanary deployments; error rate SLO with burn rate alerts; circuit breakers; chaos engineering testing.\n\n### Related Tools\nAPM, error tracking (Sentry), CI/CD platform, Prometheus, logs",
+    "problem": "Recent code deployment with bug in new code path",
+    "area": "Error Rate",
+    "remedyItems": [
+      "Rollback bad deployment",
+      "fix dependency",
+      "scale application",
+      "fix error handling for bad input",
+      "apply hot-fix.",
+      "Canary deployments"
+    ],
+    "tags": [
+      "app-errors",
+      "5xx",
+      "deployment-rollback",
+      "dependency-failure",
+      "error-rate",
+      "canary"
+    ],
+    "linkedIntents": [
+      "app.high_error_rate"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-app-002",
+    "title": "Application process is being OOM-killed by the OS or container runtime — how to diagnose and prevent?",
+    "category": "Application",
+    "subcategory": "Memory",
+    "content": "### Overview\nApplication process is being OOM-killed by the OS or container runtime — how to diagnose and prevent?\n\n### Likely Causes\n- JVM heap limit too low for workload (Java -Xmx too small)\n- Memory leak triggered by specific request pattern\n- Large file or payload loaded entirely into memory\n- Unbounded in-memory cache growing without eviction\n- Concurrent request spike exhausting memory pool\n- Container memory limit too restrictive for application\n\n### Observability Signals\n- OOMKilled container exit code 137\n- Kernel OOM killer log in dmesg\n- Heap memory usage at 100% before crash\n- GC pressure very high (> 20% time in GC)\n- Process RSS growing monotonically until crash\n\n### Recommended CLI Commands\ndmesg | grep -i oom\nkubectl describe pod <pod> | grep -i oom\njournalctl -k | grep OOM\njstat -gcutil <pid> 1000 (JVM GC stats)\njmap -histo <pid> (JVM heap histogram)\ncat /sys/fs/cgroup/memory/docker/<id>/memory.oom_control\n\n### Step-by-Step RCA\n1) Confirm OOM: dmesg or kubectl events showing OOMKilled\n2) Check what triggered OOM: specific request pattern? Traffic spike?\n3) JVM: run heap dump before next OOM (add -XX:+HeapDumpOnOutOfMemoryError)\n4) Analyze heap dump: which objects consuming most memory?\n5) Check for unbounded cache: add eviction policy\n6) For containers: is memory limit too low vs actual need?\n\n### Resolution\nIncrease JVM heap or container memory limit; fix memory leak; add cache eviction; paginate large payloads; reduce concurrency limit.\n\n### Preventive Actions\nSet memory alerts at 80% heap; load test with production-like payloads; automatic heap dump on OOM; right-size container limits.\n\n### Related Tools\nJVM profiler, heapdump analyzer (Eclipse MAT), dmesg, Prometheus",
+    "problem": "JVM heap limit too low for workload (Java -Xmx too small)",
+    "area": "Memory",
+    "remedyItems": [
+      "Increase JVM heap or container memory limit",
+      "fix memory leak",
+      "add cache eviction",
+      "paginate large payloads",
+      "reduce concurrency limit.",
+      "Set memory alerts at 80% heap"
+    ],
+    "tags": [
+      "oom",
+      "memory",
+      "heap",
+      "jvm",
+      "container-limit",
+      "oomkilled",
+      "gc",
+      "cache"
+    ],
+    "linkedIntents": [
+      "app.memory_oom"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-app-003",
+    "title": "Application thread pool is exhausted — requests queuing or being rejected. How to resolve?",
+    "category": "Application",
+    "subcategory": "Concurrency",
+    "content": "### Overview\nApplication thread pool is exhausted — requests queuing or being rejected. How to resolve?\n\n### Likely Causes\n- Slow downstream dependency blocking threads (synchronous I/O waiting)\n- Thread leak — threads not returned to pool after use\n- Thread pool size too small for concurrency requirements\n- Deadlock causing threads to wait indefinitely\n- Long-running transactions holding threads\n- Synchronization bottleneck causing thread contention\n\n### Observability Signals\n- active_threads == max_pool_size sustained\n- Request queue depth growing\n- HTTP 503 Service Unavailable (thread pool rejection)\n- Thread pool wait time increasing in APM\n- JVM thread dump showing all threads WAITING or BLOCKED\n\n### Recommended CLI Commands\njstack <pid> > threaddump.txt (JVM thread dump)\nkill -3 <pid> (JVM thread dump to stdout)\ncat /proc/<pid>/status | grep Threads\nnetstat -an | grep ESTABLISHED | wc -l\ncheck APM: thread pool metrics (active, queued, rejected)\nkubectl exec <pod> -- jstack 1\n\n### Step-by-Step RCA\n1) Capture thread dump: 'jstack <pid>' — what are most threads waiting on?\n2) If all threads WAITING on DB/HTTP call: downstream is the bottleneck\n3) Check for deadlock: jstack output shows 'deadlock' section\n4) Check downstream response times — are they much slower than normal?\n5) Count active threads vs pool size — is pool truly exhausted or misconfigured?\n6) Set timeout on all downstream calls — threads must not wait indefinitely\n\n### Resolution\nSet timeouts on downstream calls; increase pool size (with caution); fix deadlock; implement async I/O; use circuit breaker for slow dependency.\n\n### Preventive Actions\nAlways set timeouts on network calls; monitor thread pool utilization; configure circuit breakers; load test with upstream dependencies slow.\n\n### Related Tools\njstack, APM, Prometheus JVM metrics, thread dump analyzer",
+    "problem": "Slow downstream dependency blocking threads (synchronous I/O waiting)",
+    "area": "Concurrency",
+    "remedyItems": [
+      "Set timeouts on downstream calls",
+      "increase pool size (with caution)",
+      "fix deadlock",
+      "implement async I/O",
+      "use circuit breaker for slow dependency.",
+      "Always set timeouts on network calls"
+    ],
+    "tags": [
+      "thread-pool",
+      "exhausted",
+      "503",
+      "deadlock",
+      "blocking-io",
+      "jvm",
+      "timeout",
+      "circuit-breaker"
+    ],
+    "linkedIntents": [
+      "app.thread_pool_exhausted"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-app-004",
+    "title": "Database or service connection pool is exhausted — new requests failing to acquire connections. How to fix?",
+    "category": "Application",
+    "subcategory": "Concurrency",
+    "content": "### Overview\nDatabase or service connection pool is exhausted — new requests failing to acquire connections. How to fix?\n\n### Likely Causes\n- Slow database queries holding connections for extended periods\n- Connection leak — connections not returned to pool after use\n- Pool size too small for concurrent request rate\n- Long-running transactions blocking connection release\n- Database restarted — pool holding stale closed connections\n- Thundering herd on startup exhausting pool before warmup\n\n### Observability Signals\n- connection_pool_active == connection_pool_max sustained\n- 'Cannot get connection from pool' errors in app logs\n- Connection pool wait time increasing in APM\n- DB showing max_connections near limit\n- Requests timing out waiting for connection (not from query)\n\n### Recommended CLI Commands\nSHOW STATUS LIKE 'Threads_connected'; (MySQL)\nSELECT count(*) FROM pg_stat_activity; (PostgreSQL)\nSELECT * FROM pg_stat_activity WHERE wait_event_type='Lock'; (blocking queries)\ncheck connection pool library metrics (HikariCP, c3p0)\ncheck APM pool dashboard\nnetstat -an | grep :5432 | wc -l (active DB connections)\n\n### Step-by-Step RCA\n1) Check pool utilization: active vs max from pool library metrics (HikariCP JMX)\n2) Check DB: active connections vs max_connections allowed\n3) Look for long-running transactions: 'pg_stat_activity' or MySQL processlist\n4) Kill long-running idle connections: set pool idle timeout\n5) Check for connection leaks: pool grow without release pattern\n6) Enable pool timeout with exception to find code paths not returning connections\n\n### Resolution\nKill long transactions; increase pool size (with DB capacity check); fix connection leak; set connection max lifetime; fix slow queries.\n\n### Preventive Actions\nSet pool connection timeout and max lifetime; use connection pool leak detection; monitor pool utilization via APM.\n\n### Related Tools\nHikariCP metrics, pg_stat_activity, MySQL processlist, APM, Prometheus",
+    "problem": "Slow database queries holding connections for extended periods",
+    "area": "Concurrency",
+    "remedyItems": [
+      "Kill long transactions",
+      "increase pool size (with DB capacity check)",
+      "fix connection leak",
+      "set connection max lifetime",
+      "fix slow queries.",
+      "Set pool connection timeout and max lifetime"
+    ],
+    "tags": [
+      "connection-pool",
+      "exhausted",
+      "db-pool",
+      "connection-leak",
+      "long-transaction",
+      "hikaricp",
+      "max-connections"
+    ],
+    "linkedIntents": [
+      "app.connection_pool_exhausted"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-app-005",
+    "title": "Application TLS certificate has expired or is about to expire — causing SSL errors for clients. How to renew?",
+    "category": "Application",
+    "subcategory": "Security",
+    "content": "### Overview\nApplication TLS certificate has expired or is about to expire — causing SSL errors for clients. How to renew?\n\n### Likely Causes\n- Leaf certificate expired (most common — renewal process failed)\n- Intermediate CA certificate expired (affects all leaf certs under it)\n- Auto-renewal (ACME/Let's Encrypt) failed silently\n- Certificate chain incomplete — intermediate not bundled\n- Wildcard certificate not covering the specific subdomain\n- Certificate deployed to wrong server/load balancer instance\n\n### Observability Signals\n- SSL handshake errors increasing\n- Browser showing certificate expired or invalid warning\n- Monitoring alert for cert expiry < 14 days\n- openssl showing 'Verify return code: 10 (certificate has expired)'\n- Synthetic HTTPS probe failing with SSL error\n\n### Recommended CLI Commands\nopenssl s_client -connect <host>:443 -servername <hostname>\necho | openssl s_client -connect <host>:443 2>/dev/null | openssl x509 -noout -dates\ncurl -vI https://<host> 2>&1 | grep -i expire\ncertbot renew --dry-run (Let's Encrypt)\ncheck certificate management platform (cert-manager, Venafi, DigiCert)\n\n### Step-by-Step RCA\n1) Confirm expiry: 'openssl x509 -noout -dates' — is notAfter in the past?\n2) Check chain: is intermediate CA certificate included and valid?\n3) Check auto-renewal: did ACME challenge succeed? Check certbot/cert-manager logs\n4) Verify certificate deployed to all serving endpoints (multiple LB instances)\n5) Test with new cert before cutover: 'openssl verify'\n6) For wildcard: does *.domain.com cover the failing subdomain?\n\n### Resolution\nRenew certificate immediately; fix ACME renewal process; deploy to all endpoints; add intermediate to chain; expand wildcard or issue SAN cert.\n\n### Preventive Actions\nAutomated renewal (ACME); alerts at 30/14/7 days before expiry; certificate inventory in CMDB; synthetic SSL probe monitoring.\n\n### Related Tools\nopenssl, certbot, cert-manager, certificate monitoring platform, Prometheus",
+    "problem": "Leaf certificate expired (most common — renewal process failed)",
+    "area": "Security",
+    "remedyItems": [
+      "Renew certificate immediately",
+      "fix ACME renewal process",
+      "deploy to all endpoints",
+      "add intermediate to chain",
+      "expand wildcard or issue SAN cert.",
+      "Automated renewal (ACME)"
+    ],
+    "tags": [
+      "certificate",
+      "tls",
+      "ssl-expiry",
+      "acme",
+      "lets-encrypt",
+      "intermediate-ca",
+      "wildcard",
+      "renewal"
+    ],
+    "linkedIntents": [
+      "app.cert_expiry"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-app-006",
+    "title": "Application behaviour changed without code deployment — configuration drift suspected. How to detect and recover?",
+    "category": "Application",
+    "subcategory": "Configuration",
+    "content": "### Overview\nApplication behaviour changed without code deployment — configuration drift suspected. How to detect and recover?\n\n### Likely Causes\n- Environment variable changed in deployment platform (K8s ConfigMap, ECS env)\n- Config file overwritten by automation or manual change\n- Secret rotated in vault but application not updated with new value\n- Feature flag toggled accidentally in feature flag platform\n- A/B test configuration changed affecting production percentage\n- Infrastructure config change (instance type, memory) changing runtime behavior\n\n### Observability Signals\n- Application behavior change without code deployment\n- Specific feature suddenly broken or enabled unexpectedly\n- Authentication failures after secret rotation\n- Configuration-sensitive metric (cache TTL, timeout) changed\n- Audit log showing config change event\n\n### Recommended CLI Commands\nkubectl describe configmap <name> -n <ns>\nkubectl get secret <name> -n <ns> -o yaml\ngit diff HEAD~1 <config-file> (if git-managed)\ncheck feature flag platform audit log\ncheck secret manager version history (Vault, AWS Secrets Manager)\nenv (from inside running container)\n\n### Step-by-Step RCA\n1) Compare current config with last known-good config: what changed?\n2) Check change audit logs: who changed what and when?\n3) For secrets: has secret been rotated? Is app using old cached value?\n4) For feature flags: check flag platform for recent toggles\n5) Roll back config change to known-good state\n6) Understand why drift occurred — manual change? Automation?\n\n### Resolution\nRevert config to known-good state; update application with new secret; restore feature flag; fix automation causing drift.\n\n### Preventive Actions\nGitOps for all config (config-as-code); audit logging on all config changes; configuration drift detection tools; immutable ConfigMaps.\n\n### Related Tools\nGitOps (ArgoCD/Flux), AWS Config, Vault audit logs, feature flag audit, kubectl",
+    "problem": "Environment variable changed in deployment platform (K8s ConfigMap, ECS env)",
+    "area": "Configuration",
+    "remedyItems": [
+      "Revert config to known-good state",
+      "update application with new secret",
+      "restore feature flag",
+      "fix automation causing drift.",
+      "GitOps for all config (config-as-code)",
+      "audit logging on all config changes"
+    ],
+    "tags": [
+      "config-drift",
+      "configmap",
+      "secret-rotation",
+      "feature-flag",
+      "environment-variable",
+      "gitops"
+    ],
+    "linkedIntents": [
+      "app.config_drift"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-obs-001",
+    "title": "Thousands of alerts firing in minutes — alert storm overwhelming the team. How to triage and suppress?",
+    "category": "Platform",
+    "subcategory": "Alerting",
+    "content": "### Overview\nThousands of alerts firing in minutes — alert storm overwhelming the team. How to triage and suppress?\n\n### Likely Causes\n- Single root cause generating hundreds of symptom alerts (no deduplication)\n- Alert threshold too sensitive (transient spike triggering alert)\n- No alert dampening or evaluation period\n- Flapping event source generating repeated state changes\n- Monitoring system not suppressing child alerts when parent is alerting\n- Mass device event (power outage, network split) generating flood\n\n### Observability Signals\n- alert_rate_per_minute > 100\n- Multiple alerts with same root cause device or component\n- Alert IDs all within same short time window\n- Repeated FIRING Ã¢â€ â€™ RESOLVED Ã¢â€ â€™ FIRING cycling (flap)\n- On-call team unable to identify the root cause alert\n\n### Recommended CLI Commands\nCheck alertmanager silence rules (Prometheus)\nCheck alert correlation / grouping rules\nReview alert history for top firing alert names\nCheck root cause device for primary alarm\nCheck alert inhibition rules\n\n### Step-by-Step RCA\n1) Identify single highest-priority alert that could be root cause\n2) Group by source device/component — is one device generating most alerts?\n3) Silence downstream symptom alerts while investigating root cause\n4) Fix underlying issue first, then clear symptom alerts\n5) Post-incident: add inhibition rules to suppress child alerts\n6) Add dampening (evaluate for period before firing) for flapping alerts\n\n### Resolution\nSilence symptom alerts; fix root cause device; add alert inhibition rules; increase evaluation period for sensitive thresholds; implement alert correlation.\n\n### Preventive Actions\nAlert hierarchy with inhibition; parent/child alert relationships; dampening/evaluation periods on all threshold alerts; test alert volume in staging.\n\n### Related Tools\nAlertmanager, PagerDuty, OpsGenie, alert correlation engine",
+    "problem": "Single root cause generating hundreds of symptom alerts (no deduplication)",
+    "area": "Alerting",
+    "remedyItems": [
+      "Silence symptom alerts",
+      "fix root cause device",
+      "add alert inhibition rules",
+      "increase evaluation period for sensitive thresholds",
+      "implement alert correlation.",
+      "Alert hierarchy with inhibition"
+    ],
+    "tags": [
+      "alert-storm",
+      "alert-flood",
+      "inhibition",
+      "dampening",
+      "deduplication",
+      "correlation",
+      "flapping-alert"
+    ],
+    "linkedIntents": [
+      "obs.alert_storm"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-obs-002",
+    "title": "Logs not appearing in centralized logging system — log pipeline has broken. How to diagnose?",
+    "category": "Platform",
+    "subcategory": "Logging",
+    "content": "### Overview\nLogs not appearing in centralized logging system — log pipeline has broken. How to diagnose?\n\n### Likely Causes\n- Log shipper (Fluentd, Logstash, Vector, Filebeat) crashed or stopped\n- Elasticsearch/OpenSearch disk full — refusing new documents\n- Log pipeline backpressure causing log drop\n- Parse error in pipeline: log format change breaking parser\n- Network path from log shipper to aggregator blocked\n- Log index rotation/ILM policy failing causing full index\n\n### Observability Signals\n- log_ingestion_rate drops to zero\n- Log shipper process not running\n- Elasticsearch cluster status RED or disk full\n- Pipeline error rate in Logstash/Vector metrics\n- Logs visible on source host but not in Kibana/Grafana Loki\n\n### Recommended CLI Commands\nsystemctl status filebeat|fluentd|vector\njournalctl -u filebeat -n 100\ncurl http://<elasticsearch>:9200/_cluster/health\ncurl http://<elasticsearch>:9200/_cat/indices?v (check index status)\ncheck log shipper metrics endpoint (Prometheus scrape)\ntail -f /var/log/filebeat/filebeat (shipper own logs)\n\n### Step-by-Step RCA\n1) Check log shipper process on source hosts\n2) Check shipper own logs for errors (parse errors, connection refused)\n3) Test network: can shipper reach aggregator port (5044, 9200)?\n4) Check Elasticsearch cluster health and disk usage\n5) Check parse pipeline: did log format change recently?\n6) Check ILM policy: is old index blocking new writes?\n\n### Resolution\nRestart log shipper; free Elasticsearch disk (ILM policy, delete old indices); fix parse error; restore network path; fix index policy.\n\n### Preventive Actions\nMonitor log shipper health as meta-metric; Elasticsearch disk alert at 80%; test pipeline after log format changes.\n\n### Related Tools\nFilebeat, Fluentd, Logstash, Elasticsearch, Kibana, Prometheus",
+    "problem": "Log shipper (Fluentd, Logstash, Vector, Filebeat) crashed or stopped",
+    "area": "Logging",
+    "remedyItems": [
+      "Restart log shipper",
+      "free Elasticsearch disk (ILM policy, delete old indices)",
+      "fix parse error",
+      "restore network path",
+      "fix index policy.",
+      "Monitor log shipper health as meta-metric"
+    ],
+    "tags": [
+      "log-pipeline",
+      "log-shipper",
+      "elasticsearch-full",
+      "fluentd",
+      "filebeat",
+      "parse-error",
+      "ilm"
+    ],
+    "linkedIntents": [
+      "obs.log_pipeline_down"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-obs-003",
+    "title": "Distributed traces are incomplete or missing spans — how to diagnose trace coverage gaps?",
+    "category": "Platform",
+    "subcategory": "Tracing",
+    "content": "### Overview\nDistributed traces are incomplete or missing spans — how to diagnose trace coverage gaps?\n\n### Likely Causes\n- Trace sampler set too low (e.g., 0.01%) losing most traces\n- Service not instrumented with tracing library\n- Trace context headers not propagated between services (broken trace chain)\n- Trace exporter (OTLP, Jaeger, Zipkin) connectivity failing\n- New service deployment without adding tracing agent\n- W3C TraceContext vs B3 header format mismatch between services\n\n### Observability Signals\n- trace_completeness_percent < 90\n- Missing spans in traces (gaps in service call chain)\n- Specific service always showing as external (not instrumented)\n- Trace exporter error count > 0\n- New deployments not appearing in service map\n\n### Recommended CLI Commands\ncheck OTLP exporter metrics (otelcol: grpc_exporter_sent_spans)\ncurl http://<service>:8080/actuator/metrics | grep trace (Spring)\ncheck trace sampling config: OTEL_TRACES_SAMPLER env var\ncheck W3C trace context header: 'traceparent' in HTTP requests\ncheck Jaeger/Zipkin UI for missing service\ncheck service mesh sidecar (Istio/Envoy) tracing config\n\n### Step-by-Step RCA\n1) Identify missing service in trace waterfall\n2) Is that service instrumented? Check for OTEL agent/SDK in deployment\n3) Check trace context propagation: is traceparent header forwarded in HTTP calls?\n4) Check sampling rate: is it too low to capture this trace?\n5) Check exporter connectivity: OTLP endpoint reachable from service?\n6) For service mesh: is Envoy sidecar trace propagation enabled?\n\n### Resolution\nAdd tracing instrumentation; fix context propagation; increase sampling rate; fix exporter connectivity; align header formats.\n\n### Preventive Actions\nRequire tracing in service deployment checklist; validate trace coverage in staging; set sampling to 100% for errors and slow traces.\n\n### Related Tools\nJaeger, Zipkin, Tempo, OpenTelemetry Collector, service mesh",
+    "problem": "Trace sampler set too low (e.g., 0.01%) losing most traces",
+    "area": "Tracing",
+    "remedyItems": [
+      "Add tracing instrumentation",
+      "fix context propagation",
+      "increase sampling rate",
+      "fix exporter connectivity",
+      "align header formats.",
+      "Require tracing in service deployment checklist"
+    ],
+    "tags": [
+      "tracing",
+      "opentelemetry",
+      "spans",
+      "sampling",
+      "trace-context",
+      "jaeger",
+      "otlp",
+      "instrumentation"
+    ],
+    "linkedIntents": [
+      "obs.trace_gap"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-obs-004",
+    "title": "Grafana/monitoring dashboard showing 'No Data' — how to find the cause?",
+    "category": "Platform",
+    "subcategory": "Dashboards",
+    "content": "### Overview\nGrafana/monitoring dashboard showing 'No Data' — how to find the cause?\n\n### Likely Causes\n- Datasource connection broken (Prometheus URL changed, credentials expired)\n- Metric name changed after application update (breaking dashboard query)\n- Time range too long causing query timeout on data source\n- Metric cardinality explosion causing Prometheus OOM Ã¢â€ â€™ no metrics\n- Data source query returning empty result set (wrong label filter)\n- Clock skew between dashboard host and data source\n\n### Observability Signals\n- dashboard panels showing 'No Data'\n- Grafana data source connection test failing\n- Prometheus queries returning empty set\n- Prometheus target showing as DOWN\n- Grafana error: 'datasource timeout' or 'connection refused'\n\n### Recommended CLI Commands\ncurl http://<prometheus>:9090/api/v1/query?query=up\ncurl http://<prometheus>:9090/-/ready\ncheck Grafana data source settings: connection test\nrun PromQL directly in Prometheus UI\ncheck label names and values changed: 'label_values()'\ncheck Prometheus target health: /targets page\n\n### Step-by-Step RCA\n1) Test data source connection in Grafana settings\n2) Run query directly in Prometheus/data source UI\n3) Is metric name exactly correct? Check for underscores vs dots changes\n4) Check label filters in query: do label values still exist?\n5) Reduce time range — is it a timeout issue on long queries?\n6) Check Prometheus health: is it up and ingesting targets correctly?\n\n### Resolution\nFix data source connection; update query for new metric name; fix label filters; add recording rule for expensive queries; fix Prometheus health.\n\n### Preventive Actions\nVersion control dashboard JSON; test queries after metric changes; alert on Prometheus target DOWN; data source health checks.\n\n### Related Tools\nGrafana, Prometheus, Loki, InfluxDB, dashboard-as-code",
+    "problem": "Datasource connection broken (Prometheus URL changed, credentials expired)",
+    "area": "Dashboards",
+    "remedyItems": [
+      "Fix data source connection",
+      "update query for new metric name",
+      "fix label filters",
+      "add recording rule for expensive queries",
+      "fix Prometheus health.",
+      "Version control dashboard JSON"
+    ],
+    "tags": [
+      "dashboard",
+      "no-data",
+      "grafana",
+      "prometheus",
+      "datasource",
+      "metric-name-change",
+      "query-timeout"
+    ],
+    "linkedIntents": [
+      "obs.dashboard_no_data"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-obs-005",
+    "title": "Alert is firing but there is no real problem — false positive alert eroding team trust. How to tune?",
+    "category": "Platform",
+    "subcategory": "Alerting",
+    "content": "### Overview\nAlert is firing but there is no real problem — false positive alert eroding team trust. How to tune?\n\n### Likely Causes\n- Alert threshold set without considering normal traffic patterns\n- Seasonal or daily traffic variation exceeding static threshold\n- Very short evaluation window capturing transient spikes\n- Wrong aggregation function (max vs avg on bursty metric)\n- Alert based on single data point, not sustained condition\n- Metric cardinality issue giving misleading aggregate value\n\n### Observability Signals\n- Alert firing frequently with no user-visible impact\n- Alert resolves within minutes without any action\n- Alert fires at same time daily (cron, business hours)\n- Alert ack rate very high — team suppressing without investigating\n- On-call burnout from low signal-to-noise ratio\n\n### Recommended CLI Commands\nQuery Prometheus for historical trend: query_range for 7 days\nCheck alert evaluation period: for duration\nCheck aggregation function in alert expression\nReview alert firing history in Alertmanager\nCompare alert firing pattern with traffic pattern\n\n### Step-by-Step RCA\n1) Plot metric over 7 days — is threshold exceeded regularly without incidents?\n2) Check evaluation period: is 'for' clause too short?\n3) Identify if metric is bursty: use avg or p95 instead of max\n4) Check for daily pattern: does it fire at 9am every day (business hours)?\n5) Consider dynamic threshold based on time-of-day or day-of-week\n6) Raise threshold or extend evaluation window as immediate fix\n\n### Resolution\nIncrease threshold or 'for' duration; switch to percentile-based threshold; implement dynamic/seasonal thresholds; add business-hours filter.\n\n### Preventive Actions\nAlert on SLO burn rate (more robust than threshold); test alerts with historical data before deploying; review false positive rate monthly.\n\n### Related Tools\nPrometheus, Alertmanager, Grafana, SLO platform",
+    "problem": "Alert threshold set without considering normal traffic patterns",
+    "area": "Alerting",
+    "remedyItems": [
+      "Increase threshold or 'for' duration",
+      "switch to percentile-based threshold",
+      "implement dynamic/seasonal thresholds",
+      "add business-hours filter.",
+      "Alert on SLO burn rate (more robust than threshold)",
+      "test alerts with historical data before deploying"
+    ],
+    "tags": [
+      "false-positive",
+      "alert-tuning",
+      "threshold",
+      "seasonality",
+      "evaluation-window",
+      "slo",
+      "signal-to-noise"
+    ],
+    "linkedIntents": [
+      "obs.false_positive_alert"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-mpls-001",
+    "title": "LDP session is down — MPLS label distribution has stopped. How to restore?",
+    "category": "Network",
+    "subcategory": "MPLS",
+    "content": "### Overview\nLDP session is down — MPLS label distribution has stopped. How to restore?\n\n### Likely Causes\n- TCP session failure between LDP peers (transport connectivity)\n- LDP MD5 authentication mismatch\n- LDP hellos not reaching peer (multicast 224.0.0.2 blocked)\n- LDP router-ID not reachable (loopback not advertised in IGP)\n- Interface not LDP-enabled\n- Access list blocking TCP 646 (LDP)\n\n### Observability Signals\n- ldp_session_state != OPERATIONAL\n- LDP bindings missing for expected prefixes\n- MPLS forwarding table gaps\n- Syslog: 'LDP session DOWN', 'MPLS-LDP-5-NBRCHANGE'\n- Traffic black-holing on MPLS paths\n\n### Recommended CLI Commands\nshow mpls ldp neighbor\nshow mpls ldp bindings\nshow mpls forwarding-table\nshow logging | inc LDP|MPLS\nshow run | inc mpls ldp\ntelnet <peer-loopback> 646\n\n### Step-by-Step RCA\n1) Check LDP neighbor state: 'show mpls ldp neighbor'\n2) Test TCP 646 to peer loopback: 'telnet <peer-loopback> 646'\n3) Is peer loopback reachable (IGP route exists)?\n4) Check LDP interface: 'show mpls ldp interface' — all P-PE interfaces LDP-enabled?\n5) Check auth: 'show mpls ldp neighbor detail' shows auth info\n6) Check multicast: can LDP hello (multicast) reach all neighbors?\n\n### Resolution\nFix TCP 646 ACL; restore loopback reachability; enable LDP on interface; fix MD5 auth; restore multicast reachability for hellos.\n\n### Preventive Actions\nMonitor LDP session count via SNMP; alert on session drops; enable LDP session protection to survive brief link failures.\n\n### Related Tools\nMPLS logs, Syslog, SNMP",
+    "problem": "TCP session failure between LDP peers (transport connectivity)",
+    "area": "MPLS",
+    "remedyItems": [
+      "Fix TCP 646 ACL",
+      "restore loopback reachability",
+      "enable LDP on interface",
+      "fix MD5 auth",
+      "restore multicast reachability for hellos.",
+      "Monitor LDP session count via SNMP"
+    ],
+    "tags": [
+      "mpls",
+      "ldp",
+      "label-distribution",
+      "tcp-646",
+      "mpls-forwarding",
+      "authentication"
+    ],
+    "linkedIntents": [
+      "mpls.ldp_down"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-mpls-002",
+    "title": "MPLS LSP (Label Switched Path) is broken — traffic not following the engineered path. How to diagnose?",
+    "category": "Network",
+    "subcategory": "MPLS",
+    "content": "### Overview\nMPLS LSP (Label Switched Path) is broken — traffic not following the engineered path. How to diagnose?\n\n### Likely Causes\n- Physical link failure along LSP path\n- RSVP session timeout due to missed refresh messages\n- TE bandwidth constraint no longer satisfiable (link used by higher priority)\n- Midpoint router dropping packets due to label mismatch\n- LSP head-end not re-signaling after failure (make-before-break not working)\n- CSPF computation failure due to stale TE topology database\n\n### Observability Signals\n- mpls_lsp_state != UP\n- RSVP session not established along path\n- Traffic falling back to IP path (no longer MPLS)\n- Traceroute showing IP hops instead of MPLS labels\n- TE tunnel state down in NMS\n\n### Recommended CLI Commands\nshow mpls traffic-eng tunnels\nshow rsvp session\nshow mpls traffic-eng tunnels detail\ntraceroute mpls ip <lsp-endpoint>\nshow mpls traffic-eng topology\nshow ip rsvp interface\n\n### Step-by-Step RCA\n1) Check tunnel state: 'show mpls traffic-eng tunnels' — is it up or down?\n2) Check RSVP session along path: 'show rsvp session'\n3) Identify failure point: traceroute MPLS — where do MPLS labels stop?\n4) Check if bandwidth constraint can be satisfied: reduce BW constraint temporarily\n5) Check CSPF topology: is TE database current?\n6) Force re-signal: 'clear mpls traffic-eng tunnel' (use during maintenance)\n\n### Resolution\nFix broken link in path; reduce TE BW constraint; re-signal LSP; update CSPF topology; configure FRR (Fast Reroute) for protection.\n\n### Preventive Actions\nConfigure MPLS-TE FRR backup paths; monitor LSP state; CSPF topology consistency check; BW reservation monitoring.\n\n### Related Tools\nRSVP logs, MPLS-TE logs, SNMP, network topology tools",
+    "problem": "Physical link failure along LSP path",
+    "area": "MPLS",
+    "remedyItems": [
+      "Fix broken link in path",
+      "reduce TE BW constraint",
+      "re-signal LSP",
+      "update CSPF topology",
+      "configure FRR (Fast Reroute) for protection.",
+      "Configure MPLS-TE FRR backup paths"
+    ],
+    "tags": [
+      "mpls-te",
+      "lsp",
+      "rsvp",
+      "traffic-engineering",
+      "cspf",
+      "frr",
+      "label-switched-path"
+    ],
+    "linkedIntents": [
+      "mpls.lsp_broken"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-mpls-003",
+    "title": "MPLS L3VPN routes are missing at PE — VRF routing table incomplete. How to diagnose?",
+    "category": "Network",
+    "subcategory": "MPLS",
+    "content": "### Overview\nMPLS L3VPN routes are missing at PE — VRF routing table incomplete. How to diagnose?\n\n### Likely Causes\n- MP-BGP VPNv4 session not activated between PE routers\n- Route Target (RT) import/export mismatch — routes not imported to correct VRF\n- VRF not assigned to CE-facing interface\n- Route Distinguisher (RD) collision between different VPNs\n- CE not redistributing routes into VRF BGP/OSPF\n- Route reflector not propagating VPNv4 routes\n\n### Observability Signals\n- VRF routing table missing expected prefixes\n- MP-BGP VPNv4 table not showing CE routes\n- show bgp vpnv4 unicast all shows no routes from specific PE\n- CE cannot ping PE VRF interface\n- Traffic between sites black-holing\n\n### Recommended CLI Commands\nshow ip vrf\nshow bgp vpnv4 unicast all summary\nshow bgp vpnv4 unicast all neighbors <pe-peer> routes\nshow ip route vrf <name>\nshow ip vrf interfaces\nshow run | sec vrf\n\n### Step-by-Step RCA\n1) Check VRF exists and CE interface assigned: 'show ip vrf interfaces'\n2) Check CE is advertising routes into VRF: 'show ip route vrf <name>'\n3) Check MP-BGP: VPNv4 AFI active? 'show bgp vpnv4 unicast all summary'\n4) Check RT: does RT export on advertising PE match RT import on receiving PE?\n5) Check RR: is it propagating VPNv4 routes to all PEs?\n6) Check RD uniqueness: 'show bgp vpnv4 unicast all' for duplicate RDs\n\n### Resolution\nActivate VPNv4 AFI; align RT import/export; assign VRF to interface; fix CE redistribution; correct RD; fix RR propagation.\n\n### Preventive Actions\nDocument RT design; automate RT consistency checks; RD registry to prevent collisions; test VPN reachability post-provision.\n\n### Related Tools\nBGP logs, MPLS logs, SNMP, NMS VPN monitoring",
+    "problem": "MP-BGP VPNv4 session not activated between PE routers",
+    "area": "MPLS",
+    "remedyItems": [
+      "Activate VPNv4 AFI",
+      "align RT import/export",
+      "assign VRF to interface",
+      "fix CE redistribution",
+      "correct RD",
+      "fix RR propagation."
+    ],
+    "tags": [
+      "mpls-l3vpn",
+      "vrf",
+      "mp-bgp",
+      "vpnv4",
+      "route-target",
+      "route-distinguisher",
+      "route-reflector"
+    ],
+    "linkedIntents": [
+      "mpls.vpn_route_missing"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-db-006",
+    "title": "Database is refusing new connections — max connection limit reached. How to manage?",
+    "category": "Database",
+    "subcategory": "Connection Pool",
+    "content": "### Overview\nDatabase is refusing new connections — max connection limit reached. How to manage?\n\n### Likely Causes\n- Application not using connection pooler (PgBouncer, ProxySQL)\n- Connections not being closed — application connection leak\n- Connection storm on application restart — all instances connecting simultaneously\n- max_connections too low for number of application instances\n- Long idle connections consuming slots without work\n- Prepared statement cache holding extra connections\n\n### Observability Signals\n- db_connections_count == db_max_connections\n- 'FATAL: sorry, too many clients already' (PostgreSQL)\n- 'Too many connections' (MySQL)\n- Application errors when acquiring new DB connection\n- Many idle connections in pg_stat_activity\n\n### Recommended CLI Commands\nSELECT count(*), state FROM pg_stat_activity GROUP BY state; (PG)\nSHOW STATUS LIKE 'Threads_connected'; (MySQL)\nSELECT application_name, count(*) FROM pg_stat_activity GROUP BY 1; (PG)\nSELECT * FROM pg_stat_activity WHERE state='idle' ORDER BY state_change;\ncheck PgBouncer status: psql -p 6432 pgbouncer -c 'show pools'\n\n### Step-by-Step RCA\n1) Count connections by state: idle vs active vs idle in transaction\n2) High idle connections: configure pool idle timeout; kill idle > 10min\n3) High 'idle in transaction': find long-running uncommitted transactions and kill\n4) Is PgBouncer/ProxySQL in use? If not: implement immediately\n5) Connection storm on restart: stagger application instance restarts\n6) Increase max_connections as emergency (requires restart for PostgreSQL)\n\n### Resolution\nDeploy PgBouncer in transaction mode; kill idle connections; fix connection leak; stagger app restarts; increase max_connections.\n\n### Preventive Actions\nAlways use connection pooler at scale; monitor connection count vs max; alert at 80%; implement connection timeouts.\n\n### Related Tools\nPgBouncer, ProxySQL, pg_stat_activity, MySQL processlist, Prometheus",
+    "problem": "Application not using connection pooler (PgBouncer, ProxySQL)",
+    "area": "Connection Pool",
+    "remedyItems": [
+      "Deploy PgBouncer in transaction mode",
+      "kill idle connections",
+      "fix connection leak",
+      "stagger app restarts",
+      "increase max_connections.",
+      "Always use connection pooler at scale"
+    ],
+    "tags": [
+      "db-connections",
+      "max-connections",
+      "pgbouncer",
+      "connection-storm",
+      "idle-connections",
+      "postgresql",
+      "mysql"
+    ],
+    "linkedIntents": [
+      "db.connection_pool_exhausted"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-db-007",
+    "title": "Deadlock frequency has spiked — transactions being rolled back frequently. How to diagnose and prevent?",
+    "category": "Database",
+    "subcategory": "Locking",
+    "content": "### Overview\nDeadlock frequency has spiked — transactions being rolled back frequently. How to diagnose and prevent?\n\n### Likely Causes\n- Two transactions acquiring locks in different orders creating circular dependency\n- Long-running transaction holding locks and blocking newer transactions\n- Missing index causing full table scan acquiring too many row locks\n- Bulk insert/update locking entire table instead of row-level\n- Application retry logic not implementing backoff after deadlock\n- ORM generating lock-prone query patterns\n\n### Observability Signals\n- deadlock_count > 5 per minute\n- Application errors: 'Deadlock found when trying to get lock'\n- Transaction rollback rate increasing\n- Long-running transaction blocking others in pg_stat_activity\n- Lock wait timeout events in DB logs\n\n### Recommended CLI Commands\nSHOW ENGINE INNODB STATUS\\G (MySQL — shows last deadlock)\nSELECT * FROM pg_locks l JOIN pg_stat_activity a ON l.pid = a.pid; (PG blocking)\nSELECT * FROM information_schema.INNODB_TRX; (MySQL active transactions)\ncheck application logs for deadlock errors and transaction retry\nENABLE DEADLOCK LOGGING: log_lock_waits = on (PostgreSQL)\n\n### Step-by-Step RCA\n1) Extract deadlock details: MySQL InnoDB status or pg_locks\n2) Identify the two transactions and what locks they hold vs need\n3) Determine if lock ordering is inconsistent (Transaction A: row1 then row2; Transaction B: row2 then row1)\n4) Identify if missing index causing table-level locks\n5) Implement consistent lock ordering in application code\n6) Add retry with exponential backoff for deadlock errors\n\n### Resolution\nFix lock ordering; add missing index; break up bulk operations; implement retry with backoff; use SELECT FOR UPDATE SKIP LOCKED.\n\n### Preventive Actions\nReview transaction isolation level; add indexes before bulk operations; test for deadlocks in load testing; set lock timeout.\n\n### Related Tools\nMySQL InnoDB status, pg_locks, pg_stat_activity, APM, slow query log",
+    "problem": "Two transactions acquiring locks in different orders creating circular dependency",
+    "area": "Locking",
+    "remedyItems": [
+      "Fix lock ordering",
+      "add missing index",
+      "break up bulk operations",
+      "implement retry with backoff",
+      "use SELECT FOR UPDATE SKIP LOCKED.",
+      "Review transaction isolation level"
+    ],
+    "tags": [
+      "deadlock",
+      "locking",
+      "mysql",
+      "postgresql",
+      "transaction",
+      "lock-order",
+      "innodb",
+      "retry"
+    ],
+    "linkedIntents": [
+      "db.deadlock_spike"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-db-008",
+    "title": "Database indexes are bloated — queries becoming slow despite indexes existing. How to detect and remediate?",
+    "category": "Database",
+    "subcategory": "Performance",
+    "content": "### Overview\nDatabase indexes are bloated — queries becoming slow despite indexes existing. How to detect and remediate?\n\n### Likely Causes\n- High DELETE or UPDATE rate creating dead tuples (PostgreSQL) or fragmented pages\n- VACUUM/AUTOVACUUM not keeping up with dead tuple accumulation\n- Autovacuum scale factor too conservative for high-churn tables\n- MySQL InnoDB table fragmentation after large deletes\n- Index rebuild never scheduled on high-churn tables\n- Transaction ID wraparound forcing emergency VACUUM\n\n### Observability Signals\n- index_bloat_ratio > 50% on key indexes\n- Query performance degrading despite correct index usage\n- pg_stat_user_tables showing high n_dead_tup count\n- Table file size growing despite row count stable\n- Autovacuum running constantly but never catching up\n\n### Recommended CLI Commands\nSELECT schemaname, tablename, n_live_tup, n_dead_tup, last_autovacuum FROM pg_stat_user_tables ORDER BY n_dead_tup DESC; (PG)\nSELECT pg_size_pretty(pg_relation_size('<table>')); (PG)\nSELECT * FROM pgstattuple('<table>'); (pg_contrib)\nANALYZE VERBOSE <table>; (PG)\nOPTIMIZE TABLE <table>; (MySQL — rebuilds and defragments)\nSELECT * FROM information_schema.TABLES WHERE table_schema='<db>' ORDER BY data_free DESC;\n\n### Step-by-Step RCA\n1) Identify bloated tables: 'pg_stat_user_tables' — high n_dead_tup\n2) Check autovacuum: is it running on the table? When did it last run?\n3) Compare autovacuum_scale_factor to actual delete rate\n4) Run manual VACUUM ANALYZE as immediate relief\n5) Rebuild fragmented indexes: REINDEX CONCURRENTLY (PG) or OPTIMIZE TABLE (MySQL)\n6) For MySQL: check information_schema.TABLES.data_free for fragmented tables\n\n### Resolution\nRun VACUUM ANALYZE; REINDEX CONCURRENTLY; tune autovacuum per-table; OPTIMIZE TABLE (MySQL); schedule regular maintenance windows.\n\n### Preventive Actions\nMonitor n_dead_tup per table; tune autovacuum for high-churn tables; scheduled REINDEX for write-heavy indexes.\n\n### Related Tools\npg_stat_user_tables, pgstattuple, MySQL information_schema, Prometheus DB exporter",
+    "problem": "High DELETE or UPDATE rate creating dead tuples (PostgreSQL) or fragmented pages",
+    "area": "Performance",
+    "remedyItems": [
+      "Run VACUUM ANALYZE",
+      "REINDEX CONCURRENTLY",
+      "tune autovacuum per-table",
+      "OPTIMIZE TABLE (MySQL)",
+      "schedule regular maintenance windows.",
+      "Monitor n_dead_tup per table"
+    ],
+    "tags": [
+      "index-bloat",
+      "vacuum",
+      "autovacuum",
+      "dead-tuples",
+      "postgresql",
+      "mysql",
+      "fragmentation",
+      "reindex"
+    ],
+    "linkedIntents": [
+      "db.index_bloat"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-mq-003",
+    "title": "Kafka partition(s) are offline or under-replicated — producers and consumers failing. How to recover?",
+    "category": "Middleware",
+    "subcategory": "Queue Health",
+    "content": "### Overview\nKafka partition(s) are offline or under-replicated — producers and consumers failing. How to recover?\n\n### Likely Causes\n- Broker hosting partition leader has crashed or is offline\n- Insufficient ISR (In-Sync Replicas) — min.insync.replicas not met\n- Unclean leader election required but disabled\n- Broker JVM OOM causing partition leader loss\n- Zookeeper/KRaft session expiry causing controller failover\n- Replication lag causing follower to fall out of ISR\n\n### Observability Signals\n- kafka_offline_partitions_count > 0\n- kafka_under_replicated_partitions > 0\n- Producer getting NotLeaderForPartition or NotEnoughReplicas errors\n- Consumer getting UNKNOWN_TOPIC_OR_PARTITION errors\n- Broker logs showing 'Partition is offline'\n\n### Recommended CLI Commands\nkafka-topics.sh --describe --topic <topic> --bootstrap-server <broker>\nkafka-topics.sh --describe --unavailable-partitions --bootstrap-server <broker>\nkafka-reassign-partitions.sh (for rebalancing)\nkafka-leader-election.sh --election-type preferred\ncheck broker logs: journalctl -u kafka\ncheck ZooKeeper/KRaft logs\n\n### Step-by-Step RCA\n1) Identify offline partitions: 'kafka-topics.sh --describe --unavailable-partitions'\n2) Is the broker hosting the offline partition leader down?\n3) If broker down: restart it and wait for partition to re-elect leader\n4) Check ISR: is ISR count >= min.insync.replicas?\n5) If ISR too small: restore offline broker to increase ISR\n6) Trigger preferred leader election after broker restored\n\n### Resolution\nRestart offline broker; reassign partitions to healthy brokers; trigger leader election; restore replication; adjust min.insync.replicas.\n\n### Preventive Actions\nReplication factor >= 3; monitor under-replicated partitions; alert on offline partitions; balanced partition distribution across brokers.\n\n### Related Tools\nKafka CLI tools, Kafka Manager, Prometheus JMX exporter, Confluent Control Center",
+    "problem": "Broker hosting partition leader has crashed or is offline",
+    "area": "Queue Health",
+    "remedyItems": [
+      "Restart offline broker",
+      "reassign partitions to healthy brokers",
+      "trigger leader election",
+      "restore replication",
+      "adjust min.insync.replicas.",
+      "Replication factor >= 3"
+    ],
+    "tags": [
+      "kafka",
+      "partition-offline",
+      "under-replicated",
+      "isr",
+      "broker-down",
+      "leader-election",
+      "min-insync"
+    ],
+    "linkedIntents": [
+      "mq.partition_offline"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-mq-004",
+    "title": "Kafka consumer group lag is growing — messages accumulating in topic. How to reduce lag?",
+    "category": "Middleware",
+    "subcategory": "Queue Health",
+    "content": "### Overview\nKafka consumer group lag is growing — messages accumulating in topic. How to reduce lag?\n\n### Likely Causes\n- Consumer processing logic too slow for message production rate\n- Consumer group stuck in rebalancing loop (too many joins/leaves)\n- Producer surge generating messages faster than consumers can process\n- Consumer fetch timeout too short causing excessive rebalancing\n- Insufficient consumer instances for partition count\n- Consumer blocked on downstream dependency (DB, API call)\n\n### Observability Signals\n- consumer_group_lag > threshold and growing\n- Kafka consumer group in REBALANCING state frequently\n- Consumer lag not decreasing even with consumers healthy\n- Consumer poll interval exceeding max.poll.interval.ms\n- Consumer CPU and throughput normal (not a processing bottleneck)\n\n### Recommended CLI Commands\nkafka-consumer-groups.sh --describe --group <group> --bootstrap-server <broker>\nkafka-consumer-groups.sh --describe --group <group> --bootstrap-server <broker> --verbose\ncheck consumer application metrics: messages_processed_per_sec\ncheck consumer logs for rebalancing events\nkafka-topics.sh --describe --topic <topic> (check partition count vs consumer count)\n\n### Step-by-Step RCA\n1) Check lag per partition: 'kafka-consumer-groups.sh --describe' — which partitions lagging most?\n2) Is consumer in REBALANCING? Indicates consumer joins/leaves frequently\n3) Compare consumer throughput vs producer throughput\n4) Is consumer downstream slow? Check DB or API latency\n5) Is consumer count < partition count? Scale consumers to match partitions\n6) Check max.poll.interval.ms vs actual processing time\n\n### Resolution\nScale consumer instances (max = partition count); optimize processing; fix downstream dependency; increase max.poll.interval.ms; fix rebalancing.\n\n### Preventive Actions\nLag alerting at acceptable threshold; consumer count >= partition count; load test consumer throughput vs expected producer rate.\n\n### Related Tools\nkafka-consumer-groups.sh, Prometheus JMX exporter, Burrow (lag monitor), Confluent Control Center",
+    "problem": "Consumer processing logic too slow for message production rate",
+    "area": "Queue Health",
+    "remedyItems": [
+      "Scale consumer instances (max = partition count)",
+      "optimize processing",
+      "fix downstream dependency",
+      "increase max.poll.interval.ms",
+      "fix rebalancing.",
+      "Lag alerting at acceptable threshold"
+    ],
+    "tags": [
+      "kafka",
+      "consumer-lag",
+      "consumer-group",
+      "rebalancing",
+      "lag",
+      "throughput",
+      "max-poll-interval"
+    ],
+    "linkedIntents": [
+      "mq.consumer_group_lag"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  },
+  {
+    "id": "kb-mq-005",
+    "title": "Dead letter queue (DLQ) is accumulating messages — what is causing messages to be dead-lettered?",
+    "category": "Middleware",
+    "subcategory": "Queue Health",
+    "content": "### Overview\nDead letter queue (DLQ) is accumulating messages — what is causing messages to be dead-lettered?\n\n### Likely Causes\n- Poison message: malformed or unexpected payload crashing consumer\n- Schema change breaking consumer deserialization\n- Consumer bug throwing exception for valid messages\n- Max retry count exceeded — consumer repeatedly failing on message\n- Message TTL expired before consumer processed it\n- Authorization failure — consumer cannot access required resource\n\n### Observability Signals\n- dlq_message_count > threshold and growing\n- Consumer showing high rejection/nack rate\n- Consumer processing errors in application logs\n- Messages in DLQ with specific error type concentrated\n- Same consumer version started rejecting messages after deployment\n\n### Recommended CLI Commands\nrabbitmqctl list_queues name messages (check DLQ depth — RabbitMQ)\nkafka-console-consumer.sh --topic <dlq-topic> --from-beginning (sample DLQ messages)\naws sqs receive-message --queue-url <dlq-url> (AWS SQS DLQ)\ncheck consumer application error logs\ncompare DLQ message schema vs current consumer schema\ncheck message timestamps in DLQ (when were they sent?)\n\n### Step-by-Step RCA\n1) Sample DLQ messages: what is the payload? Any pattern?\n2) Check consumer error logs: what exception is thrown?\n3) Schema mismatch: is DLQ message in old format vs current consumer schema?\n4) Poison message: does one specific message format crash all consumers?\n5) Correlate DLQ accumulation start with deployments\n6) Move non-poison messages from DLQ to original queue after fix\n\n### Resolution\nFix consumer to handle message format; fix schema compatibility; fix consumer bug; replay DLQ messages after fix; purge true poison messages.\n\n### Preventive Actions\nAlert on DLQ depth > 0; schema registry with compatibility checks; test consumer with all historical message formats; DLQ message sampling.\n\n### Related Tools\nRabbitMQ management, Kafka CLI, AWS SQS, schema registry, consumer logs",
+    "problem": "Poison message: malformed or unexpected payload crashing consumer",
+    "area": "Queue Health",
+    "remedyItems": [
+      "Fix consumer to handle message format",
+      "fix schema compatibility",
+      "fix consumer bug",
+      "replay DLQ messages after fix",
+      "purge true poison messages.",
+      "Alert on DLQ depth > 0"
+    ],
+    "tags": [
+      "dlq",
+      "dead-letter-queue",
+      "poison-message",
+      "schema-mismatch",
+      "consumer-error",
+      "retry",
+      "deserialization"
+    ],
+    "linkedIntents": [
+      "mq.dead_letter_full"
+    ],
+    "lastUpdated": "2026-03-25T00:00:00Z",
+    "effectiveness": 85
+  }
 ];
 
 // Auto Remediation Permissions
 export const mockRemediationPermissions: RemediationPermission[] = [
   {
     id: 'perm-001',
-    name: 'AutoRestartFailedServices',
+    name: 'Auto Restart Failed Services',
     description: 'Allow automatic restart of failed services after detection',
-    category: 'ServiceManagement',
+    category: 'Service Management',
     riskLevel: 'low',
     approved: true,
     approvedBy: 'admin@company.com',
@@ -10108,7 +10108,7 @@ export const mockRemediationPermissions: RemediationPermission[] = [
   },
   {
     id: 'perm-002',
-    name: 'ClearConnectionPools',
+    name: 'Clear Connection Pools',
     description: 'Automatically clear and reset database connection pools when exhausted',
     category: 'Database',
     riskLevel: 'medium',
@@ -10118,17 +10118,17 @@ export const mockRemediationPermissions: RemediationPermission[] = [
   },
   {
     id: 'perm-003',
-    name: 'FailoverToSecondary',
+    name: 'Failover To Secondary',
     description: 'Trigger automatic failover to secondary systems during primary outages',
-    category: 'HighAvailability',
+    category: 'High Availability',
     riskLevel: 'high',
     approved: false
   },
   {
     id: 'perm-004',
-    name: 'ScaleUpResources',
+    name: 'Scale Up Resources',
     description: 'Automatically scale compute resources during high load',
-    category: 'AutoScaling',
+    category: 'Auto Scaling',
     riskLevel: 'medium',
     approved: true,
     approvedBy: 'ops@company.com',
@@ -10136,7 +10136,7 @@ export const mockRemediationPermissions: RemediationPermission[] = [
   },
   {
     id: 'perm-005',
-    name: 'ExecutePlaybooks',
+    name: 'Execute Playbooks',
     description: 'Allow execution of pre-defined remediation playbooks',
     category: 'Automation',
     riskLevel: 'medium',
@@ -10144,7 +10144,7 @@ export const mockRemediationPermissions: RemediationPermission[] = [
   },
   {
     id: 'perm-006',
-    name: 'NetworkFailover',
+    name: 'Network Failover',
     description: 'Trigger network path failover during connectivity issues',
     category: 'Network',
     riskLevel: 'high',
@@ -10152,9 +10152,9 @@ export const mockRemediationPermissions: RemediationPermission[] = [
   },
   {
     id: 'perm-007',
-    name: 'KillRunawayProcesses',
+    name: 'Kill Runaway Processes',
     description: 'Automatically terminate processes consuming excessive resources',
-    category: 'ProcessManagement',
+    category: 'Process Management',
     riskLevel: 'medium',
     approved: true,
     approvedBy: 'ops@company.com',
@@ -10162,7 +10162,7 @@ export const mockRemediationPermissions: RemediationPermission[] = [
   },
   {
     id: 'perm-008',
-    name: 'RollbackDeployments',
+    name: 'Rollback Deployments',
     description: 'Automatically rollback to previous deployment on failure detection',
     category: 'Deployment',
     riskLevel: 'high',
