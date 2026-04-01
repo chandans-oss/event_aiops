@@ -60,6 +60,40 @@ const getConfidenceColor = (score: number) => {
   return "text-emerald-500 border-emerald-500/20 bg-emerald-500/10";
 };
 
+const formatLabel = (str: string) => {
+  if (!str) return '';
+  const map: Record<string, string> = {
+    'cpu_pct': 'CPU Util',
+    'cpu_percent': 'CPU Util',
+    'cpu': 'CPU Util',
+    'crc_errors': 'CRC Errors',
+    'crc': 'CRC Errors',
+    'queue_depth': 'Buffer Util',
+    'buffer_util': 'Buffer Util',
+    'latency_ms': 'Latency',
+    'lat': 'Latency',
+    'util_pct': 'B/W Util',
+    'utilization_percent': 'B/W Util',
+    'mem_util_pct': 'Mem Util',
+    'men_util_pct': 'Mem Util',
+    'mem_percent': 'Mem Util',
+    'bw_util': 'B/W Util'
+  };
+  if (map[str.toLowerCase()]) return map[str.toLowerCase()];
+  return str
+    .replace(/_/g, ' ')
+    .toLowerCase()
+    .replace(/(^|[^a-zA-Z0-9])([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase())
+    .replace(/Cpu/g, 'CPU')
+    .replace(/Crc/g, 'CRC')
+    .replace(/Queue Depth/g, 'Buffer Util')
+    .replace(/Latency Ms/g, 'Latency')
+    .replace(/Util Pct/g, 'B/W Util')
+    .replace(/Cpu Pct/g, 'CPU Util')
+    .replace(/Mem Util Pct/g, 'Mem Util')
+    .replace(/Men Util Pct/g, 'Mem Util');
+};
+
 const DonutProgress = ({ value, size = 32, strokeWidth = 3 }: { value: number, size?: number, strokeWidth?: number }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -125,7 +159,7 @@ const TERMINAL_LOGS = {
   Loading data ...
   metrics.csv    : 8,640 rows | 30 entities | 2 device types
   events.csv     : 2,129 rows | 6 event types
-  Interface cols : ['util_pct', 'queue_depth', 'crc_errors', 'latency_ms']
+  Interface cols : ['B/W Util', 'Buffer Util', 'CRC Errors', 'Latency']
   Event types    : ['DEVICE_REBOOT', 'HIGH_LATENCY', 'HIGH_UTIL_WARNING', 'INTERFACE_FLAP', 'LINK_DOWN', 'PACKET_DROP']
   Device types   : ['router', 'switch']
   Time range     : 2025-12-31 23:59:33 -> 2026-01-01 23:55:27
@@ -139,7 +173,7 @@ const TERMINAL_LOGS = {
 
   Device dedup: 2,880 -> 2,173 rows (707 bucket collisions collapsed)
   Device metrics join: 8,636/8,636 rows matched (100.0%)
-  Device metric columns added: ['cpu_pct', 'mem_util_pct', 'temp_c', 'fan_speed_rpm', 'power_supply_status', 'reboot_delta']
+  Device metric columns added: ['CPU Util', 'Mem Util', 'temp_c', 'fan_speed_rpm', 'power_supply_status', 'reboot_delta']
 
   Device types: ['router', 'switch']
     router          entities=15  events=1533
@@ -960,7 +994,7 @@ export function PatternPredictionContent({ onSectionChange }: { onSectionChange?
         <div className="flex flex-wrap items-center gap-1 max-w-[400px]">
           {item.details.map((m: any, idx: number) => (
             <span key={idx} className="flex items-center gap-0.5 whitespace-nowrap">
-              <span className="text-[10px] text-primary/80 font-mono">{m.metric}</span>
+              <span className="text-[10px] text-primary/80 font-mono">{formatLabel(m.metric)}</span>
               <span className={cn(
                 "text-[10px]",
                 m.trend === "increase" ? "text-rose-500" : "text-blue-500"

@@ -74,14 +74,52 @@ export const trainingSummaryReport: ReportSummaryItem[] = [
 
 export const storedReports = [
   {
-    id: 'report-20260317-183002',
-    name: 'analytical_report_1710682800000.json',
-    date: '2026-03-17 18:30:02',
+    id: 'report-topo-001',
+    name: 'Network Topology Health Analysis',
+    date: '2026-04-01 10:44:03',
     duration: '1 Month',
-    dataPeriod: 'Device',
+    dataPeriod: 'Core Topology',
+    windows: '12,450',
+    status: 'completed',
+    execTime: '67.7s',
+    description: 'Comprehensive audit of core routing paths and neighbor adjacency stability over a 30-day window.',
+    type: 'Topology'
+  },
+  {
+    id: 'report-congestion-002',
+    name: 'Predictive Congestion Modeling',
+    date: '2026-03-28 14:22:15',
+    duration: '2 Weeks',
+    dataPeriod: 'Edge Devices',
     windows: '8,156',
     status: 'completed',
-    execTime: '68.4s'
+    execTime: '42.1s',
+    description: 'ML-driven forecasting of link saturation points and buffer exhaust behavior in high-traffic corridors.',
+    type: 'Predictive'
+  },
+  {
+    id: 'report-stability-003',
+    name: 'Interface Stability & Flap Audit',
+    date: '2026-03-25 09:12:44',
+    duration: '7 Days',
+    dataPeriod: 'Aggregation',
+    windows: '4,220',
+    status: 'completed',
+    execTime: '28.5s',
+    description: 'Correlation report between CRC error rise and physical layer interface state transitions.',
+    type: 'Stability'
+  },
+  {
+    id: 'report-perf-004',
+    name: 'Device Performance Benchmark',
+    date: '2026-03-20 16:05:30',
+    duration: '1 Month',
+    dataPeriod: 'Global Fleet',
+    windows: '24,800',
+    status: 'completed',
+    execTime: '114.2s',
+    description: 'Historical performance baseline comparison across diverse device families and firmware versions.',
+    type: 'Performance'
   }
 ];
 

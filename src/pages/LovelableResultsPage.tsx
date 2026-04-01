@@ -19,10 +19,39 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { storedReports } from "@/data/trainingReportData";
 
-const formatLabel = (str: string) =>
-  str.replace(/_/g, ' ')
+const formatLabel = (str: string) => {
+  if (!str) return '';
+  const map: Record<string, string> = {
+    'cpu_pct': 'CPU Util',
+    'cpu_percent': 'CPU Util',
+    'cpu': 'CPU Util',
+    'crc_errors': 'CRC Errors',
+    'crc': 'CRC Errors',
+    'queue_depth': 'Buffer Util',
+    'buffer_util': 'Buffer Util',
+    'latency_ms': 'Latency',
+    'lat': 'Latency',
+    'util_pct': 'B/W Util',
+    'utilization_percent': 'B/W Util',
+    'mem_util_pct': 'Mem Util',
+    'men_util_pct': 'Mem Util',
+    'mem_percent': 'Mem Util',
+    'bw_util': 'B/W Util'
+  };
+  if (map[str.toLowerCase()]) return map[str.toLowerCase()];
+  return str
+    .replace(/_/g, ' ')
     .toLowerCase()
-    .replace(/(^\w|\s\w|\(\w)/g, m => m.toUpperCase());
+    .replace(/(^|[^a-zA-Z0-9])([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase())
+    .replace(/Cpu/g, 'CPU')
+    .replace(/Crc/g, 'CRC')
+    .replace(/Queue Depth/g, 'Buffer Util')
+    .replace(/Latency Ms/g, 'Latency')
+    .replace(/Util Pct/g, 'B/W Util')
+    .replace(/Cpu Pct/g, 'CPU Util')
+    .replace(/Mem Util Pct/g, 'Mem Util')
+    .replace(/Men Util Pct/g, 'Mem Util');
+};
 
 export default function LovelableResultsPage() {
   const navigate = useNavigate();
@@ -160,26 +189,45 @@ export default function LovelableResultsPage() {
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-secondary/50 border-b border-border">
-                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-muted-foreground">Report Metadata</th>
-                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-muted-foreground">Scope</th>
-                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-muted-foreground">Windows</th>
-                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-muted-foreground">Latency</th>
-                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-muted-foreground text-right">Actions</th>
+                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase">Report Breakdown & Metadata</th>
+                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase">Domain Scope</th>
+                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase">Windows</th>
+                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase">Latency</th>
+                      <th className="px-6 py-4 text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase text-right">Analytical Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border font-['IBM_Plex_Mono',monospace]">
                     {reports.map((report) => (
                       <tr key={report.id} className="hover:bg-primary/5 transition-colors group">
-                        <td className="px-6 py-5">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 text-primary">
+                        <td className="px-6 py-5 min-w-[400px]">
+                          <div className="flex items-start gap-4">
+                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20 text-primary shrink-0 mt-1">
                               <FileText className="w-5 h-5" />
                             </div>
-                            <div className="flex flex-col">
-                              <span className="text-[13px] font-bold text-foreground group-hover:text-primary transition-colors">{formatLabel(report.name)}</span>
-                              <div className="flex items-center gap-2 mt-1">
-                                <Calendar className="w-3 h-3 text-[#55848B]" />
-                                <span className="text-[10px] text-[#55848B] font-bold">{report.date}</span>
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[14px] font-bold text-foreground group-hover:text-primary transition-colors">{formatLabel(report.name)}</span>
+                                {report.type && (
+                                  <span className="text-[8px] font-black tracking-widest uppercase px-1.5 py-0.5 bg-primary/10 text-primary rounded border border-primary/20">
+                                    {report.type}
+                                  </span>
+                                )}
+                              </div>
+                              {report.description && (
+                                <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2 max-w-[320px]">
+                                  {report.description}
+                                </p>
+                              )}
+                              <div className="flex items-center gap-3 mt-1.5 opacity-60">
+                                <div className="flex items-center gap-1.5">
+                                  <Calendar className="w-3 h-3 text-[#55848B]" />
+                                  <span className="text-[10px] text-[#55848B] font-bold">{report.date}</span>
+                                </div>
+                                <div className="w-[1.5px] h-2.5 bg-border" />
+                                <div className="flex items-center gap-1.5">
+                                  <Clock className="w-3 h-3 text-[#55848B]" />
+                                  <span className="text-[10px] text-[#55848B] font-bold">{report.status || 'Ready'}</span>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -203,21 +251,22 @@ export default function LovelableResultsPage() {
                           </div>
                         </td>
                         <td className="px-6 py-5 text-right">
-                          <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex items-center justify-end gap-2 transition-opacity">
                             <button
                               onClick={() => navigate(`/pattern-prediction/report/${report.id}`)}
-                              className="w-9 h-9 rounded-lg bg-secondary/50 border border-border flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all"
-                              title="Open Report"
+                              className="h-9 px-3 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center gap-2 text-primary hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all font-bold text-[11px]"
+                              title="Full Insight Breakdown"
                             >
                               <Eye className="w-4 h-4" />
+                              <span>View Insights</span>
                             </button>
-                            <button className="w-9 h-9 rounded-lg bg-secondary/50 border border-border flex items-center justify-center hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all" title="Download JSON">
+                            <button className="w-9 h-9 rounded-lg bg-secondary/50 border border-border flex items-center justify-center hover:bg-emerald-500 hover:text-white hover:border-emerald-500 transition-all" title="Download Schema">
                               <Download className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDelete(report.id)}
                               className="w-9 h-9 rounded-lg bg-secondary/50 border border-border flex items-center justify-center hover:bg-destructive hover:text-destructive-foreground hover:border-destructive transition-all"
-                              title="Delete"
+                              title="Purge Registry Item"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>

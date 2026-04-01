@@ -72,18 +72,40 @@ const DonutChart = ({ val, size = 30 }: { val: number, size?: number }) => {
   );
 };
 
-const formatLabel = (str: string) =>
-  str.replace(/_/g, ' ')
+const formatLabel = (str: string) => {
+  const map: Record<string, string> = {
+    'cpu_pct': 'CPU Util',
+    'cpu_percent': 'CPU Util',
+    'crc_errors': 'CRC Errors',
+    'queue_depth': 'Buffer Util',
+    'latency_ms': 'Latency',
+    'util_pct': 'B/W Util',
+    'utilization_percent': 'B/W Util',
+    'mem_util_pct': 'Mem Util',
+    'men_util_pct': 'Mem Util',
+    'mem_percent': 'Mem Util'
+  };
+  if (map[str]) return map[str];
+  return str.replace(/_/g, ' ')
     .toLowerCase()
-    .replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase());
+    .replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase())
+    .replace(/Cpu/g, 'CPU')
+    .replace(/Crc/g, 'CRC')
+    .replace(/Queue Depth/g, 'Buffer Util')
+    .replace(/Latency Ms/g, 'Latency')
+    .replace(/Util Pct/g, 'B/W Util')
+    .replace(/Cpu Pct/g, 'CPU Util')
+    .replace(/Mem Util Pct/g, 'Mem Util')
+    .replace(/Men Util Pct/g, 'Mem Util');
+};
 
 const AnomalyHeatMap = ({ data }: { data: any[] }) => {
   const metrics = [
-    { key: 'cpu', label: 'Cpu' },
+    { key: 'cpu', label: 'CPU' },
     { key: 'mem', label: 'Mem Util' },
     { key: 'lat', label: 'Latency' },
-    { key: 'qd', label: 'Queue Depth' },
-    { key: 'crc', label: 'Crc Errors' }
+    { key: 'qd', label: 'Buffer Util' },
+    { key: 'crc', label: 'CRC Errors' }
   ];
 
   return (
@@ -240,7 +262,32 @@ const LiftMatrixHeatMap = ({ dataR, dataS }: { dataR: any[], dataS: any[] }) => 
 
 const CorrelationVennDiagram = ({ a, b, r, dev, lag }: { a: string, b: string, r: number, dev: string, lag: string }) => {
   const distance = 100 - (Math.abs(r) * 80);
-  const formatLabel = (str: string) => str.replace(/_/g, ' ').toLowerCase().replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase());
+  const formatLabel = (str: string) => {
+    const map: Record<string, string> = {
+      'cpu_pct': 'CPU Util',
+      'cpu_percent': 'CPU Util',
+      'crc_errors': 'CRC Errors',
+      'queue_depth': 'Buffer Util',
+      'latency_ms': 'Latency',
+      'util_pct': 'B/W Util',
+      'utilization_percent': 'B/W Util',
+      'mem_util_pct': 'Mem Util',
+      'men_util_pct': 'Mem Util',
+      'mem_percent': 'Mem Util'
+    };
+    if (map[str]) return map[str];
+    return str.replace(/_/g, ' ')
+      .toLowerCase()
+      .replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase())
+      .replace(/Cpu/g, 'CPU')
+      .replace(/Crc/g, 'CRC')
+      .replace(/Queue Depth/g, 'Buffer Util')
+      .replace(/Latency Ms/g, 'Latency')
+      .replace(/Util Pct/g, 'B/W Util')
+      .replace(/Cpu Pct/g, 'CPU Util')
+      .replace(/Mem Util Pct/g, 'Mem Util')
+      .replace(/Men Util Pct/g, 'Mem Util');
+  };
   const labelA = formatLabel(a);
   const labelB = formatLabel(b);
   const isNegativeLag = lag.includes('-');
@@ -323,7 +370,32 @@ const CorrelationVennDiagram = ({ a, b, r, dev, lag }: { a: string, b: string, r
 
 const CausalVennDiagram = ({ cause, effect, fstat, p, lag, dev }: { cause: string, effect: string, fstat: number, p: string, lag: string, dev: string }) => {
   const prob = Math.min(99.9, 100 * (1 - Math.exp(-fstat / 35))).toFixed(1);
-  const formatLabel = (str: string) => str.replace(/_/g, ' ').toLowerCase().replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase());
+  const formatLabel = (str: string) => {
+    const map: Record<string, string> = {
+      'cpu_pct': 'CPU Util',
+      'cpu_percent': 'CPU Util',
+      'crc_errors': 'CRC Errors',
+      'queue_depth': 'Buffer Util',
+      'latency_ms': 'Latency',
+      'util_pct': 'B/W Util',
+      'utilization_percent': 'B/W Util',
+      'mem_util_pct': 'Mem Util',
+      'men_util_pct': 'Mem Util',
+      'mem_percent': 'Mem Util'
+    };
+    if (map[str]) return map[str];
+    return str.replace(/_/g, ' ')
+      .toLowerCase()
+      .replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase())
+      .replace(/Cpu/g, 'CPU')
+      .replace(/Crc/g, 'CRC')
+      .replace(/Queue Depth/g, 'Buffer Util')
+      .replace(/Latency Ms/g, 'Latency')
+      .replace(/Util Pct/g, 'B/W Util')
+      .replace(/Cpu Pct/g, 'CPU Util')
+      .replace(/Mem Util Pct/g, 'Mem Util')
+      .replace(/Men Util Pct/g, 'Mem Util');
+  };
   const labelC = formatLabel(cause);
   const labelE = formatLabel(effect);
   const isNegativeLag = lag.includes('-');
@@ -427,7 +499,7 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
     { key: 'cpu', label: 'CPU' },
     { key: 'mem', label: 'MEM_UTIL' },
     { key: 'lat', label: 'LATENCY' },
-    { key: 'qd', label: 'QUEUE_DEPTH' },
+    { key: 'qd', label: 'BUFFER_UTIL' },
     { key: 'crc', label: 'CRC_ERRORS' }
   ];
 
@@ -585,7 +657,32 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
                 <div className="bg-popover/80 border border-border px-2 py-0.5 rounded-[4px] backdrop-blur-sm shadow-2xl flex items-center gap-2 whitespace-nowrap">
                   <div className="w-1.5 h-1.5 rounded-full" style={{ background: c.c }} />
                   {(() => {
-                    const formatLabel = (str: string) => str.replace(/_/g, ' ').toLowerCase().replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase());
+                    const formatLabel = (str: string) => {
+                      const map: Record<string, string> = {
+                        'cpu_pct': 'CPU Util',
+                        'cpu_percent': 'CPU Util',
+                        'crc_errors': 'CRC Errors',
+                        'queue_depth': 'Buffer Util',
+                        'latency_ms': 'Latency',
+                        'util_pct': 'B/W Util',
+                        'utilization_percent': 'B/W Util',
+                        'mem_util_pct': 'Mem Util',
+                        'men_util_pct': 'Mem Util',
+                        'mem_percent': 'Mem Util'
+                      };
+                      if (map[str]) return map[str];
+                      return str.replace(/_/g, ' ')
+                        .toLowerCase()
+                        .replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase())
+                        .replace(/Cpu/g, 'CPU')
+                        .replace(/Crc/g, 'CRC')
+                        .replace(/Queue Depth/g, 'Buffer Util')
+                        .replace(/Latency Ms/g, 'Latency')
+                        .replace(/Util Pct/g, 'B/W Util')
+                        .replace(/Cpu Pct/g, 'CPU Util')
+                        .replace(/Mem Util Pct/g, 'Mem Util')
+                        .replace(/Men Util Pct/g, 'Mem Util');
+                    };
                     return <span className="text-[12px] font-black text-foreground/90 font-['IBM_Plex_Mono',monospace] tracking-widest leading-none mt-0.5">{formatLabel(c.n)}</span>;
                   })()}
                 </div>
@@ -595,7 +692,32 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
               {isHovered && (
                 <div className="absolute top-1/2 left-full ml-4 -translate-y-1/2 bg-popover/95 border border-primary/40 p-3 rounded-lg shadow-2xl z-[100] min-w-[140px] backdrop-blur-md animate-in fade-in zoom-in duration-200">
                   {(() => {
-                    const formatLabel = (str: string) => str.replace(/_/g, ' ').toLowerCase().replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase());
+                    const formatLabel = (str: string) => {
+                      const map: Record<string, string> = {
+                        'cpu_pct': 'CPU Util',
+                        'cpu_percent': 'CPU Util',
+                        'crc_errors': 'CRC Errors',
+                        'queue_depth': 'Buffer Util',
+                        'latency_ms': 'Latency',
+                        'util_pct': 'B/W Util',
+                        'utilization_percent': 'B/W Util',
+                        'mem_util_pct': 'Mem Util',
+                        'men_util_pct': 'Mem Util',
+                        'mem_percent': 'Mem Util'
+                      };
+                      if (map[str]) return map[str];
+                      return str.replace(/_/g, ' ')
+                        .toLowerCase()
+                        .replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase())
+                        .replace(/Cpu/g, 'CPU')
+                        .replace(/Crc/g, 'CRC')
+                        .replace(/Queue Depth/g, 'Buffer Util')
+                        .replace(/Latency Ms/g, 'Latency')
+                        .replace(/Util Pct/g, 'B/W Util')
+                        .replace(/Cpu Pct/g, 'CPU Util')
+                        .replace(/Mem Util Pct/g, 'Mem Util')
+                        .replace(/Men Util Pct/g, 'Mem Util');
+                    };
                     return <div className="text-[14px] font-bold text-foreground mb-1 whitespace-nowrap tracking-wider" style={{ color: c.c }}>{formatLabel(c.n)}</div>;
                   })()}
                   <div className="space-y-1">
@@ -604,7 +726,7 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
                       <span className="text-foreground">{cent.util_pct}%</span>
                     </div>
                     <div className="flex justify-between text-[13px] font-['IBM_Plex_Mono',monospace]">
-                      <span className="text-muted-foreground">Queue D.</span>
+                      <span className="text-muted-foreground">Buffer Util</span>
                       <span className="text-foreground">{cent.queue_depth.toFixed(1)}</span>
                     </div>
                     <div className="pt-1 mt-1 border-t border-border/10 flex justify-between text-[13px] font-['IBM_Plex_Mono',monospace]">
@@ -638,7 +760,7 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
       </div>
 
       <div className="absolute left-1.5 top-1/2 -translate-y-1/2 -rotate-90 text-[11px] text-muted-foreground font-['IBM_Plex_Mono',monospace] tracking-[0.25em] font-bold opacity-80">
-        Queue Depth Norm
+        Buffer Util Norm
       </div>
       <div className="absolute left-1/2 bottom-2 -translate-x-1/2 text-[11px] text-muted-foreground font-['IBM_Plex_Mono',monospace] tracking-[0.25em] font-bold opacity-80">
         Network Utilization
@@ -725,7 +847,32 @@ const ClusterDonutPlot = ({ clusters, deviceFilter }: { clusters: any[], deviceF
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full" style={{ background: c.c }} />
                 {(() => {
-                  const formatLabel = (str: string) => str.replace(/_/g, ' ').toLowerCase().replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase());
+                  const formatLabel = (str: string) => {
+                    const map: Record<string, string> = {
+                      'cpu_pct': 'CPU Util',
+                      'cpu_percent': 'CPU Util',
+                      'crc_errors': 'CRC Errors',
+                      'queue_depth': 'Buffer Util',
+                      'latency_ms': 'Latency',
+                      'util_pct': 'B/W Util',
+                      'utilization_percent': 'B/W Util',
+                      'mem_util_pct': 'Mem Util',
+                      'men_util_pct': 'Mem Util',
+                      'mem_percent': 'Mem Util'
+                    };
+                    if (map[str]) return map[str];
+                    return str.replace(/_/g, ' ')
+                      .toLowerCase()
+                      .replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase())
+                      .replace(/Cpu/g, 'CPU')
+                      .replace(/Crc/g, 'CRC')
+                      .replace(/Queue Depth/g, 'Buffer Util')
+                      .replace(/Latency Ms/g, 'Latency')
+                      .replace(/Util Pct/g, 'B/W Util')
+                      .replace(/Cpu Pct/g, 'CPU Util')
+                      .replace(/Mem Util Pct/g, 'Mem Util')
+                      .replace(/Men Util Pct/g, 'Mem Util');
+                  };
                   return <span className="text-[13px] font-bold text-muted-foreground group-hover:text-foreground truncate max-w-[150px] tracking-tighter">{formatLabel(c.n)}</span>;
                 })()}
               </div>
@@ -741,7 +888,32 @@ const ClusterDonutPlot = ({ clusters, deviceFilter }: { clusters: any[], deviceF
 
 const PreEventComparisonPlot = ({ data }: { data: any[] }) => {
   const displayEvents = data.slice(0, 4);
-  const formatLabel = (str: string) => str.replace(/_/g, ' ').toLowerCase().replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase());
+  const formatLabel = (str: string) => {
+    const map: Record<string, string> = {
+      'cpu_pct': 'CPU Util',
+      'cpu_percent': 'CPU Util',
+      'crc_errors': 'CRC Errors',
+      'queue_depth': 'Buffer Util',
+      'latency_ms': 'Latency',
+      'util_pct': 'B/W Util',
+      'utilization_percent': 'B/W Util',
+      'mem_util_pct': 'Mem Util',
+      'men_util_pct': 'Mem Util',
+      'mem_percent': 'Mem Util'
+    };
+    if (map[str]) return map[str];
+    return str.replace(/_/g, ' ')
+      .toLowerCase()
+      .replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase())
+      .replace(/Cpu/g, 'CPU')
+      .replace(/Crc/g, 'CRC')
+      .replace(/Queue Depth/g, 'Buffer Util')
+      .replace(/Latency Ms/g, 'Latency')
+      .replace(/Util Pct/g, 'B/W Util')
+      .replace(/Cpu Pct/g, 'CPU Util')
+      .replace(/Mem Util Pct/g, 'Mem Util')
+      .replace(/Men Util Pct/g, 'Mem Util');
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-visible">
@@ -2028,9 +2200,9 @@ const TERMINAL_LOG = `==========================================================
 const CATEGORIES = [
   { name: 'Data Prep', steps: [3] },
   { name: 'Supervised ML', steps: [8] },
+  { name: 'Time-Series Analysis', steps: [6] },
   { name: 'Clustering', steps: [7] },
   // { name: 'Anomaly Detection', steps: [11] },
-  { name: 'Time-Series Analysis', steps: [6] },
   { name: 'Time-Lag Correlation', steps: [4] },
   { name: 'Causal Correlation', steps: [5] },
   { name: 'Sequence Mining', steps: [9] },
@@ -2254,8 +2426,11 @@ export default function TrainingLovelablePage() {
     return started && currentStep >= 3;
   };
 
+  // Prevent multiple auto-starts
+  const autoStartedRef = useRef(false);
   useEffect(() => {
-    if (location.state?.autoStart) {
+    if (location.state?.autoStart && !autoStartedRef.current) {
+      autoStartedRef.current = true;
       handleStart();
     }
   }, [location.state]);
@@ -2264,8 +2439,6 @@ export default function TrainingLovelablePage() {
   useEffect(() => {
     if (!started || isComplete) return;
 
-    let subItemTimer: NodeJS.Timeout;
-
     // 1. Rapid Ingestion Phase (Steps 0, 1, 2)
     const ingestionInterval = setInterval(() => {
       setCurrentStep(prev => {
@@ -2273,14 +2446,9 @@ export default function TrainingLovelablePage() {
         clearInterval(ingestionInterval);
         return 11; // Unlock all analytical tabs after data ingestion
       });
-    }, 600);
+    }, 800); // Slower ingestion for stability
 
-    // 2. Global Discovery Logic (Affects all tabs)
-    // Discovery intervals removed to prevent flickering/phased loading
     setItemLimit(100);
-
-    // 3. Overall Completion Logic removed from here 
-    // It is now handled by the terminal log completion to stay in sync.
 
     return () => {
       clearInterval(ingestionInterval);
@@ -2298,7 +2466,7 @@ export default function TrainingLovelablePage() {
     const totalLines = allLogLines.length;
 
     // Initial burst of headers
-    const initialBurst = 15;
+    const initialBurst = 25;
     setVisibleLogLines(allLogLines.slice(0, initialBurst));
     currentLine = initialBurst;
 
@@ -2310,11 +2478,11 @@ export default function TrainingLovelablePage() {
         return;
       }
 
-      // Constant speed for smoother flow without flicker
-      let chunk = 2;
-      setVisibleLogLines(allLogLines.slice(0, currentLine + chunk));
+      // Batching lines for performance - avoids flicker and heavy re-renders
+      let chunk = 20;
+      setVisibleLogLines(allLogLines.slice(0, Math.min(currentLine + chunk, totalLines)));
       currentLine += chunk;
-    }, 80); // Increased frequency for smoother flow
+    }, 250); // Balanced frequency for visual flow and system stability
 
     return () => clearInterval(logInterval);
   }, [started]);

@@ -244,13 +244,46 @@ const generateQoeData = (variation: number = 1) => {
     return data;
 };
 
+const generateOccurrences = (patternName: string, count: number, severity: string, metrics: any[]) => {
+    const occs = [];
+    const devices = ['R1-Edge-01', 'Sw1-Core-02', 'Fw1-Trust-01', 'R2-Border-02', 'Sw2-Dist-01'];
+    for (let i = 0; i < count; i++) {
+        const timeAgo = (i + 1) * 4 * 3600000 + Math.random() * 3600000; // staggered by 4 hours
+        const ts = new Date(Date.now() - timeAgo).toISOString();
+        const dev = devices[Math.floor(Math.random() * devices.length)];
+        occs.push({
+            id: `OCC-${patternName.slice(0, 3)}-${100 + i}`,
+            timestamp: ts,
+            severity: severity,
+            summary: `${patternName} matched on ${dev}`,
+            outcomes: ['Service Degradation', 'High Latency'],
+            metricData: metrics,
+            events: [
+                {
+                    id: `E-${Math.floor(Math.random() * 1000000)}`,
+                    timestamp: new Date(new Date(ts).getTime() - 600000).toISOString(),
+                    title: 'Precursor Detected',
+                    subtitle: 'Anomalous shift',
+                    severity: 'Warning',
+                    nodeName: dev,
+                    nodeIp: `10.0.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`,
+                    resource: 'Interface-1',
+                    alertValue: 'Threshold breach',
+                    threshold: 'Standard correlation'
+                }
+            ]
+        });
+    }
+    return occs;
+};
+
 export const MOCK_PATTERNS: Pattern[] = [
     {
         id: 'P-Con-01',
         name: 'Interface Flap Pattern',
-        description: 'Link Util ↑ | Buffer Util ↑ | CRC Errors ↑ |\n PACKET_LOSS / INTERFACE_FLAP ',
-        confidence: 0.99,
-        seenCount: 7,
+        description: 'R1:B/W Util | Sw1:Buffer Util | Sw1:CRC Errors | Sw1:Packet Loss',
+        confidence: 0.92,
+        seenCount: 48,
         lastSeen: '2 hours ago',
         domain: 'Network',
         appliesTo: ['Routers', 'Switches'],
@@ -259,77 +292,59 @@ export const MOCK_PATTERNS: Pattern[] = [
         ruleCreationDate: 'Jan 10, 2025',
         tags: ['Congestion', 'Predictive', 'Interface', 'Pattern Match'],
         steps: [
-            { id: 'S1', name: 'Link Util', description: '50% -> 90%', icon: TrendingUp, delay: '0m' },
-            { id: 'S2', name: 'Buffer Util', description: '20% -> 85%', icon: Database, delay: '+4m' },
-            { id: 'S3', name: 'CRC Errors', description: '0 -> 70', icon: AlertTriangle, delay: '+2m' },
-            { id: 'S4', name: 'Packet Loss', description: '0% -> 5%', icon: Activity, delay: '+5m' },
-            { id: 'S5', name: 'Critical Breach', description: 'INTERFACE_FLAP', icon: ShieldCheck, delay: '(FINAL)' }
+            { id: 'S1', name: 'R1:B/W Util', description: '50% -> 95%', icon: TrendingUp, delay: '0m' },
+            { id: 'S2', name: 'Sw1:Buffer Util', description: '20% -> 90%', icon: Database, delay: '+4m' },
+            { id: 'S3', name: 'Sw1:CRC Errors', description: '0 -> 85', icon: AlertTriangle, delay: '+2m' },
+            { id: 'S4', name: 'Sw1:Packet Loss', description: '0% -> 8%', icon: Activity, delay: '+5m' },
+            { id: 'S5', name: 'Interface Flap', description: '', icon: ShieldCheck, delay: '(Final)' }
         ],
         logicSummary: 'Saturation-to-Failure Sequence:',
         logicSteps: [
-            { order: 1, title: 'Traffic Overload', description: 'Util ↑', color: 'blue' },
-            { order: 2, title: 'Buffer Saturation', description: 'Buffer Util ↑', color: 'amber' },
-            { order: 3, title: 'Physical Layer Errors', description: 'CRC Errors ↑', color: 'amber' },
-            { order: 4, title: 'Packet Loss', description: 'Loss ↑', color: 'amber' },
+            { order: 1, title: 'Traffic Overload', description: 'B/W Util', color: 'blue' },
+            { order: 2, title: 'Buffer Saturation', description: 'Buffer Util', color: 'amber' },
+            { order: 3, title: 'Physical Layer Errors', description: 'CRC Errors', color: 'amber' },
+            { order: 4, title: 'Packet Loss', description: 'Packet Loss', color: 'amber' },
             { order: 5, title: 'Connection Collapse', description: 'Link Flap', color: 'red' }
         ],
         predictedEvents: [
-            { name: 'PACKET_LOSS', probability: 0.92, severity: 'Major', title: '', subtitle: 'Edge congestion detected' },
-            { name: 'INTERFACE_FLAP', probability: 0.99, severity: 'Critical', title: '', subtitle: 'Interface stability failure' }
+            { name: 'Packet Loss', probability: 0.92, severity: 'Major', title: '', subtitle: 'Edge congestion detected' },
+            { name: 'Interface Flap', probability: 0.99, severity: 'Critical', title: '', subtitle: 'Interface stability failure' }
         ],
         drillDownMetrics: [
-            { label: 'Utilization', value: 'Gradual rise from ~50% → ~90%', icon: 'trending', color: 'blue' },
-            { label: 'Buffer Utilization', value: 'Starts increasing after util crosses ~80%', icon: 'database', color: 'amber' },
-            { label: 'CRC / Drop errors', value: 'Begin to appear when queue > ~70% (Total Discards)', icon: 'alert', color: 'red' }
+            { label: 'B/W Util', value: 'Gradual rise from ~50% → ~95%', icon: 'trending', color: 'blue' },
+            { label: 'Buffer Util', value: 'Starts increasing after util crosses ~80%', icon: 'database', color: 'amber' },
+            { label: 'CRC Errors', value: 'Begin to appear when queue > ~75% (Total Discards)', icon: 'alert', color: 'red' }
         ],
         occurrences: [
             {
                 id: 'OCC-2026-001',
                 timestamp: new Date(Date.now() - 3600000).toISOString(),
-                severity: 'Major',
-                summary: 'Full Sequence: Congestion to Flap',
+                severity: 'Critical',
+                summary: 'Edge Router Congestion to Flap',
                 outcomes: ['Packet Loss', 'Interface Flap'],
                 metricData: generateCongestionData('High', 1),
                 events: [
                     {
-                        id: '260501197808', timestamp: new Date('2026-02-25T14:40:00Z').toISOString(),
-                        title: 'High Utilization', subtitle: 'Traffic burst detected', severity: 'Warning',
-                        nodeName: '111004203', nodeIp: '10.0.4.203', resource: 'Gi1/0/1',
-                        alertValue: '85%', threshold: '> 80%'
-                    },
-                    {
-                        id: '260501197809', timestamp: new Date('2026-02-25T14:41:00Z').toISOString(),
-                        title: 'Buffer Overflow', subtitle: 'Output queue drops', severity: 'Major',
-                        nodeName: '111004203', nodeIp: '10.0.4.203', resource: 'Gi1/0/1',
-                        alertValue: '1450', threshold: '> 1000'
-                    },
-                    {
-                        id: '260501197810', timestamp: new Date('2026-02-25T14:43:00Z').toISOString(),
-                        title: 'Availability', subtitle: 'Interface Reset', severity: 'Critical',
-                        nodeName: '111004203', nodeIp: '10.0.4.203', resource: 'Gi1/0/1',
-                        alertValue: 'Down', threshold: 'State'
+                        id: 'E-2605011', timestamp: new Date(Date.now() - 3600000 - 600000).toISOString(),
+                        title: 'Link Overload', subtitle: '92% Utilization', severity: 'Warning',
+                        nodeName: 'R1-Edge-01', nodeIp: '10.0.4.203', resource: 'Gi1/0/1',
+                        alertValue: '92%', threshold: '> 80%'
                     }
                 ]
             },
             {
                 id: 'OCC-2026-002',
                 timestamp: new Date(Date.now() - 86400000).toISOString(),
-                severity: 'Warning',
-                summary: 'Partial: Saturation',
-                outcomes: ['Packet Loss', 'Interface Flap'],
+                severity: 'Major',
+                summary: 'Partial Sequence: High Drops',
+                outcomes: ['Packet Loss'],
                 metricData: generateCongestionData('Med', 2),
                 events: [
                     {
-                        id: '260501197748', timestamp: new Date('2026-02-18T11:28:00Z').toISOString(),
-                        title: 'High Utilization', subtitle: 'Approaching saturation', severity: 'Warning',
-                        nodeName: 'R2-Backbone', nodeIp: '192.168.1.1', resource: 'Gi0/1',
-                        alertValue: '92%', threshold: '> 90%'
-                    },
-                    {
-                        id: '260501197750', timestamp: new Date('2026-02-18T11:30:00Z').toISOString(),
-                        title: 'Error Rate', subtitle: 'Input errors increasing', severity: 'Major',
-                        nodeName: 'R2-Backbone', nodeIp: '192.168.1.1', resource: 'Gi0/1',
-                        alertValue: '1.5%', threshold: '> 1%'
+                        id: 'E-2605012', timestamp: new Date(Date.now() - 86400000 - 1200000).toISOString(),
+                        title: 'Buffer Overflow', subtitle: 'Queue Exhausted', severity: 'Major',
+                        nodeName: 'R1-Edge-01', nodeIp: '10.0.4.203', resource: 'Gi1/0/1',
+                        alertValue: '1450', threshold: '> 1000'
                     }
                 ]
             },
@@ -337,509 +352,250 @@ export const MOCK_PATTERNS: Pattern[] = [
                 id: 'OCC-2026-003',
                 timestamp: new Date(Date.now() - 172800000).toISOString(),
                 severity: 'Critical',
-                summary: 'Critical Failure: Buffer Overflow',
+                summary: 'DC Backbone Flap Sequence',
                 outcomes: ['Packet Loss', 'Interface Flap'],
                 metricData: generateCongestionData('High', 3),
                 events: [
                     {
-                        id: '260501196590', timestamp: new Date('2026-02-17T09:12:00Z').toISOString(),
-                        title: 'QoS Drop', subtitle: 'Policy policer drops', severity: 'Warning',
-                        nodeName: 'Core-Sw-01', nodeIp: '10.0.0.1', resource: 'Gi1/0/1',
-                        alertValue: '500pps', threshold: '> 0'
-                    },
-                    {
-                        id: '260501196600', timestamp: new Date('2026-02-17T09:15:00Z').toISOString(),
-                        title: 'Buffer Miss', subtitle: 'Hardware buffer exhaustion', severity: 'Critical',
-                        nodeName: 'Core-Sw-01', nodeIp: '10.0.0.1', resource: 'Gi1/0/1',
-                        alertValue: '1200', threshold: '> 0'
+                        id: 'E-2605013', timestamp: new Date(Date.now() - 172800000 - 300000).toISOString(),
+                        title: 'Interface Reset', subtitle: 'Flap Detected', severity: 'Critical',
+                        nodeName: 'R2-Core', nodeIp: '10.0.1.1', resource: 'Te0/1/1',
+                        alertValue: 'Down', threshold: 'State'
                     }
                 ]
             },
-            {
-                id: 'OCC-2026-004',
-                timestamp: new Date(Date.now() - 3 * 86400000).toISOString(),
-                severity: 'Major',
-                summary: 'Sequence: Congestion Spike',
-                outcomes: ['Packet Loss', 'Interface Flap'],
-                metricData: generateCongestionData('Med', 4),
-                events: [
-                    {
-                        id: '260501197820', timestamp: new Date(Date.now() - 3 * 86400000 - 120000).toISOString(),
-                        title: 'High Utilization', subtitle: 'Traffic burst', severity: 'Warning',
-                        nodeName: 'Dist-01', nodeIp: '10.0.1.1', resource: 'Gi1/0',
-                        alertValue: '88%', threshold: '> 80%'
-                    }
-                ]
-            },
-            {
-                id: 'OCC-2026-005',
-                timestamp: new Date(Date.now() - 10 * 86400000).toISOString(),
-                severity: 'Major',
-                summary: 'Chronic Congestion Pattern',
-                outcomes: ['Packet Loss', 'Interface Flap'],
-                metricData: generateCongestionData('Med', 5),
-                events: [
-                    {
-                        id: '260501197830', timestamp: new Date(Date.now() - 10 * 86400000 - 180000).toISOString(),
-                        title: 'High Utilization', subtitle: 'Traffic burst', severity: 'Warning',
-                        nodeName: 'Dist-01', nodeIp: '10.0.1.1', resource: 'Gi1/0',
-                        alertValue: '85%', threshold: '> 80%'
-                    }
-                ]
-            },
-            {
-                id: 'OCC-2025-006',
-                timestamp: new Date(Date.now() - 60 * 86400000).toISOString(),
-                severity: 'Warning',
-                summary: 'Early Signs of Saturation',
-                outcomes: ['Packet Loss', 'Interface Flap'],
-                metricData: generateCongestionData('Low', 6),
-                events: [
-                    {
-                        id: '260501197840', timestamp: new Date(Date.now() - 60 * 86400000 - 60000).toISOString(),
-                        title: 'Moderate Utilization', subtitle: 'Traffic rising', severity: 'Warning',
-                        nodeName: 'Core-Sw', nodeIp: '10.0.0.1', resource: 'Gi0/1',
-                        alertValue: '75%', threshold: '> 70%'
-                    }
-                ]
-            },
-            {
-                id: 'OCC-2025-007',
-                timestamp: new Date(Date.now() - 120 * 86400000).toISOString(),
-                severity: 'Critical',
-                summary: 'Legacy Switch Link Failure',
-                outcomes: ['Packet Loss', 'Interface Flap'],
-                metricData: generateCongestionData('High', 7),
-                events: [
-                    {
-                        id: '260501197850', timestamp: new Date(Date.now() - 120 * 86400000 - 300000).toISOString(),
-                        title: 'Buffer Miss', subtitle: 'Drops seen', severity: 'Critical',
-                        nodeName: 'Old-Sw-05', nodeIp: '10.0.5.5', resource: 'Fa0/1',
-                        alertValue: '550', threshold: '> 0'
-                    }
-                ]
-            }
+            ...generateOccurrences('Flap', 15, 'Critical', generateCongestionData('High', 1.1))
         ],
         simulationType: 'congestion'
     },
     {
-        id: 'PAT-NET-002',
-        name: 'BGP Connection Loss pattern',
-        description: 'CPU UTIL↑ | BGP_STATE ↓ | ROUTE_WITHDRAWAL',
-        confidence: 0.87,
-        seenCount: 14,
-        lastSeen: 'Yesterday',
-        domain: 'Network',
-        appliesTo: ['Core Routers'],
-        status: 'Enabled',
-        severity: 'Critical',
-        ruleCreationDate: 'Feb 05, 2025',
-        tags: ['BGP', 'Control Plane', 'CPU'],
-        steps: [
-            { id: 'S1', name: 'CPU Util', description: '20% -> 98%', icon: Cpu, delay: '0s' },
-            { id: 'S2', name: 'Keep-alive Missed', description: 'Active -> Timeout', icon: Activity, delay: '+60s' },
-            { id: 'S3', name: 'BGP Down', description: 'Established -> IDLE', icon: Network, delay: '+30s' }
-        ],
-        logicSummary: 'Resource Starvation Pattern:',
-        logicSteps: [
-            { order: 1, title: 'CPU Starvation', description: 'CPU ↑', color: 'blue' },
-            { order: 2, title: 'Protocol Block', description: 'BGP_STATE ↓', color: 'amber' },
-            { order: 3, title: 'Session Timeout', description: 'ROUTE_WITHDRAWAL', color: 'red' }
-        ],
-        predictedEvents: [
-            { name: 'ROUTE_WITHDRAWAL', probability: 0.88, severity: 'High', title: 'Route Withdrawal', subtitle: 'Prefixes Withdrawn' }
-        ],
-        drillDownMetrics: [
-            { label: 'CPU Utilization', value: 'Sustained spike > 95%', icon: 'trending', color: 'blue' },
-            { label: 'Control Plane Latency', value: 'Increases after CPU crosses 90%', icon: 'database', color: 'amber' },
-            { label: 'BGP Keep-alive Missed', value: 'Detected after 60s of starvation', icon: 'alert', color: 'red' }
-        ],
-        occurrences: [
-            {
-                id: 'OCC-2026-050',
-                timestamp: new Date(Date.now() - 259200000).toISOString(),
-                severity: 'Critical',
-                summary: 'Outage: Core-01 BGP Failure',
-                outcomes: ['BGP Session Down', 'Route Withdrawals'],
-                metricData: generateCpuData(95, 1),
-                events: [
-                    {
-                        id: '260501199001', timestamp: new Date(Date.now() - 259200000 - 600000).toISOString(),
-                        title: 'BGP Neighbor Change', subtitle: 'Neighbor 10.10.10.5 Down', severity: 'Critical',
-                        nodeName: 'Core-01', nodeIp: '10.10.10.1', resource: 'bgp-100',
-                        alertValue: 'Down', threshold: 'State != Established'
-                    }
-                ]
-            },
-            {
-                id: 'OCC-2026-042',
-                timestamp: new Date(Date.now() - 604800000).toISOString(),
-                severity: 'Critical',
-                summary: 'Repeated Flap: Core-02',
-                outcomes: ['BGP Flap', 'High CPU'],
-                metricData: generateCpuData(92, 2),
-                events: [
-                    {
-                        id: '260501199042', timestamp: new Date(Date.now() - 604800000 - 300000).toISOString(),
-                        title: 'CPU Spike', subtitle: 'CPU 92%', severity: 'Critical',
-                        nodeName: 'Core-02', nodeIp: '10.10.10.2', resource: 'CPU',
-                        alertValue: '92%', threshold: '> 90%'
-                    }
-                ]
-            },
-            {
-                id: 'OCC-2026-039',
-                timestamp: new Date(Date.now() - 1209600000).toISOString(),
-                severity: 'Major',
-                summary: 'Transient CPU Spike',
-                outcomes: ['High CPU'],
-                metricData: generateCpuData(85, 3),
-                events: [
-                    {
-                        id: '260501199043', timestamp: new Date(Date.now() - 1209600000 - 180000).toISOString(),
-                        title: 'CPU Warning', subtitle: 'CPU 85%', severity: 'Major',
-                        nodeName: 'Core-03', nodeIp: '10.10.10.3', resource: 'CPU',
-                        alertValue: '85%', threshold: '> 80%'
-                    }
-                ]
-            },
-            {
-                id: 'OCC-2025-045',
-                timestamp: new Date(Date.now() - 2592000000).toISOString(),
-                severity: 'Major',
-                summary: 'Previous CPU Anomaly',
-                outcomes: ['High CPU'],
-                metricData: generateCpuData(80, 4),
-                events: [
-                    {
-                        id: '260501199045', timestamp: new Date(Date.now() - 2592000000 - 120000).toISOString(),
-                        title: 'CPU Warning', subtitle: 'CPU 80%', severity: 'Warning',
-                        nodeName: 'Core-01', nodeIp: '10.10.10.1', resource: 'CPU',
-                        alertValue: '80%', threshold: '> 75%'
-                    }
-                ]
-            },
-            {
-                id: 'OCC-2025-032',
-                timestamp: new Date(Date.now() - 3456000000).toISOString(),
-                severity: 'Warning',
-                summary: 'Minor BGP Fluctuation',
-                outcomes: ['High CPU'],
-                metricData: generateCpuData(75, 5),
-                events: [
-                    {
-                        id: '260501199052', timestamp: new Date(Date.now() - 3456000000 - 60000).toISOString(),
-                        title: 'CPU Warning', subtitle: 'CPU 75%', severity: 'Warning',
-                        nodeName: 'Core-04', nodeIp: '10.10.10.4', resource: 'CPU',
-                        alertValue: '75%', threshold: '> 70%'
-                    }
-                ]
-            },
-            ...Array.from({ length: 9 }).map((_, i) => ({
-                id: `OCC-BGP-${i}`,
-                timestamp: new Date(Date.now() - (i + 15) * 86400000).toISOString(),
-                severity: 'Major' as const,
-                summary: `Historic BGP Fluctuation #${i + 1}`,
-                outcomes: ['High CPU'],
-                metricData: generateCpuData(82 + (Math.random() * 10), i + 6),
-                events: [
-                    {
-                        id: `BGP_EV_1${i}`, timestamp: new Date(Date.now() - (i + 15) * 86400000 - 60000).toISOString(),
-                        title: 'CPU Warning', subtitle: 'CPU High', severity: 'Warning' as const,
-                        nodeName: `Core-0${(i % 4) + 1}`, nodeIp: `10.10.10.${(i % 4) + 1}`, resource: 'CPU',
-                        alertValue: '85%', threshold: '> 80%'
-                    }
-                ]
-            }))
-        ],
-        simulationType: 'cpu_spike'
-    },
-    {
-        id: 'P-Dev-CPU-01',
-        name: 'Device Reboot Pattern',
-        description: 'CPU ↑ | STATUS_CHANGE | PING_LOSS ↑ | AVAILABILITY ↓',
-        confidence: 0.88,
-        seenCount: 9,
-        lastSeen: '12 hours ago',
+        id: 'P-CPU-01',
+        name: 'CPU Exhaustion Chain',
+        description: 'R1:CPU Util | Sw1:CRC Errors | Sw2:Buffer Util | Fw1:Latency',
+        confidence: 0.89,
+        seenCount: 34,
+        lastSeen: '45 mins ago',
         domain: 'Data Center',
-        appliesTo: ['Core Routers', 'Aggregation Switches'],
+        appliesTo: ['Core Routers', 'Firewalls'],
         status: 'Enabled',
         severity: 'Critical',
-        ruleCreationDate: 'Mar 15, 2025',
-        tags: ['CPU Saturation', 'Reboot Prediction', 'Unreachable'],
+        ruleCreationDate: 'Mar 12, 2025',
+        tags: ['Compute', 'Latency', 'Cascading Failure'],
         steps: [
-            { id: 'S1', name: 'CPU Utilization Rise', description: '40% -> 95%', icon: TrendingUp, delay: '0m' },
-            { id: 'S2', name: 'Status Code Change', description: '200 -> 503', icon: ShieldCheck, delay: '+5m' },
-            { id: 'S3', name: 'Ping Intermittent', description: '0% -> 15% Loss', icon: Activity, delay: '+5m' },
-            { id: 'S4', name: 'Availability Drops', description: '100% -> 0%', icon: AlertTriangle, delay: '+2m' },
+            { id: 'S1', name: 'R1:CPU Util', description: '20% -> 98%', icon: Cpu, delay: '0s' },
+            { id: 'S2', name: 'Sw1:CRC Errors', description: 'Rising CRC rate', icon: Activity, delay: '+45s' },
+            { id: 'S3', name: 'Sw2:Buffer Util', description: 'Backlog in Sw2', icon: Database, delay: '+2m' },
+            { id: 'S4', name: 'Fw1:Latency', description: 'Critical latency threshold breach', icon: Clock, delay: 'Final' }
         ],
-        logicSummary: 'CPU Exhaustion to OS Failure:',
+        logicSummary: 'Resource Starvation Propagation:',
         logicSteps: [
-            { order: 1, title: 'Compute Starvation', description: 'CPU ↑', color: 'blue' },
-            { order: 2, title: 'ICMP Packet Loss', description: 'PING_LOSS ↑', color: 'amber' },
-            { order: 3, title: 'System Hang/Reboot', description: 'AVAILABILITY ↓', color: 'red' }
+            { order: 1, title: 'Control Plane Stress', description: 'R1:CPU Util', color: 'blue' },
+            { order: 2, title: 'Interconnect Errors', description: 'Sw1:CRC Errors', color: 'amber' },
+            { order: 3, title: 'Switch Congestion', description: 'Sw2:Buffer Util', color: 'amber' },
+            { order: 4, title: 'Service Slowdown', description: 'Fw1:Latency', color: 'red' }
         ],
         predictedEvents: [
-            { name: 'DEVICE_REBOOT', probability: 0.50, severity: 'Major', title: 'Predicted Reboot', subtitle: 'Watchdog trigger likely' }
+            { name: 'High Latency', probability: 0.94, severity: 'Major', title: 'Predicted Latency Spike', subtitle: 'Service degradation likely' }
         ],
         drillDownMetrics: [
-            { label: 'CPU Saturation', value: 'Continuous rise to 100%', icon: 'trending', color: 'blue' },
-            { label: 'ICMP Response Time', value: 'Increases linearly with CPU load', icon: 'database', color: 'amber' },
-            { label: 'Watchdog Timeout', value: 'Likely after 5m of 100% CPU', icon: 'alert', color: 'red' }
+            { label: 'CPU Util', value: 'Sustained > 95% in DC East', icon: 'trending', color: 'blue' },
+            { label: 'CRC Errors', value: 'High rate on Sw1 backplane', icon: 'alert', color: 'amber' },
+            { label: 'Buffer Util', value: 'Sw2 saturation observed', icon: 'database', color: 'red' }
         ],
         occurrences: [
             {
-                id: 'OCC-2026-101',
-                timestamp: new Date(Date.now() - 345600000).toISOString(),
+                id: 'OCC-CPU-01',
+                timestamp: new Date(Date.now() - 3600000 * 2).toISOString(),
                 severity: 'Critical',
-                summary: 'Core Router R3 Crash',
-                outcomes: ['Device Unreachable', 'Device Reboot'],
+                summary: 'DC East Cascading Latency Spike',
+                outcomes: ['High Latency', 'Packet Retries'],
                 metricData: generateCpuSaturation(1),
                 events: [
                     {
-                        id: '99011X10', timestamp: new Date('2026-02-12T11:10:00Z').toISOString(),
-                        title: 'CPU Warning', subtitle: 'CPU 83%', severity: 'Warning',
-                        nodeName: 'R3-Core', nodeIp: '10.0.0.3', resource: 'Control Plane',
-                        alertValue: '83%', threshold: '> 80%'
-                    },
-                    {
-                        id: '99011X11', timestamp: new Date('2026-02-12T11:13:00Z').toISOString(),
-                        title: 'Device Unreachable', subtitle: 'Ping Timeout', severity: 'Critical',
-                        nodeName: 'R3-Core', nodeIp: '10.0.0.3', resource: 'ICMP',
-                        alertValue: '100% Loss', threshold: 'Reachability'
+                        id: 'E-C-01', timestamp: new Date(Date.now() - 3600000 * 2 - 600000).toISOString(),
+                        title: 'CPU Critical', subtitle: 'Process Starvation', severity: 'Critical',
+                        nodeName: 'R1-DC-East', nodeIp: '10.50.1.1', resource: 'ControlPlane',
+                        alertValue: '98%', threshold: '> 90%'
                     }
                 ]
             },
-            ...Array.from({ length: 8 }).map((_, i) => ({
-                id: `OCC-2026-10${i + 2}`,
-                timestamp: new Date(Date.now() - (i + 5) * 86400000).toISOString(),
-                severity: 'Critical' as const,
-                summary: `Historical CPU Crash #${i + 1}`,
-                outcomes: ['Device Unreachable'],
-                metricData: generateCpuSaturation(1.1 + (i * 0.1)),
+            {
+                id: 'OCC-CPU-02',
+                timestamp: new Date(Date.now() - 3600000 * 12).toISOString(),
+                severity: 'Major',
+                summary: 'Mid-night Sync CPU Spike',
+                outcomes: ['High Latency'],
+                metricData: generateCpuSaturation(2),
                 events: [
                     {
-                        id: `HYST_${i}1`, timestamp: new Date(Date.now() - (i + 5) * 86400000 - 3600000).toISOString(),
-                        title: 'CPU Warning', subtitle: 'CPU > 80%', severity: 'Warning' as const,
-                        nodeName: `Agg-Sw-0${i + 1}`, nodeIp: `10.1.${i}.1`, resource: 'System',
-                        alertValue: '88%', threshold: '> 80%'
+                        id: 'E-C-02', timestamp: new Date(Date.now() - 3600000 * 12 - 300000).toISOString(),
+                        title: 'CPU Warning', subtitle: 'Batch Process High', severity: 'Warning',
+                        nodeName: 'R1-DC-East', nodeIp: '10.50.1.1', resource: 'Management',
+                        alertValue: '88%', threshold: '> 85%'
                     }
                 ]
-            }))
+            },
+            {
+                id: 'OCC-CPU-03',
+                timestamp: new Date(Date.now() - 172800000).toISOString(),
+                severity: 'Critical',
+                summary: 'BGP Table Recalculation Surge',
+                outcomes: ['High Latency', 'BGP Flap'],
+                metricData: generateCpuSaturation(3),
+                events: [
+                    {
+                        id: 'E-C-03', timestamp: new Date(Date.now() - 172800000 - 900000).toISOString(),
+                        title: 'CPU Lock', subtitle: 'BGP Scanner High', severity: 'Critical',
+                        nodeName: 'R1-DC-East', nodeIp: '10.50.1.1', resource: 'Routing',
+                        alertValue: '100%', threshold: '> 95%'
+                    }
+                ]
+            },
+            ...generateOccurrences('CPU', 12, 'Major', generateCpuSaturation(1.1))
         ],
         simulationType: 'device_cpu_saturation'
     },
     {
-        id: 'P-Link-Phys-01',
-        name: 'Link Degradation pattern',
-        description: 'ERRORS ↑ | DISCARDS ↑ | INTERFACE_FLAP | LINK_DOWN',
-        confidence: 0.90,
-        seenCount: 14,
-        lastSeen: '4 days ago',
+        id: 'P-DIS-01',
+        name: 'Congestion Discard Chain',
+        description: 'R1:Buffer Util | Sw1:CRC Errors | Sw2:Latency | Fw1:Packet Drop',
+        confidence: 0.87,
+        seenCount: 52,
+        lastSeen: '1 hour ago',
         domain: 'Network',
-        appliesTo: ['Optical Links', 'WAN Interfaces'],
+        appliesTo: ['Switches', 'Firewalls'],
         status: 'Enabled',
         severity: 'Major',
-        ruleCreationDate: 'Apr 20, 2025',
-        tags: ['CRC Errors', 'Link Flap', 'Physical Layer'],
+        ruleCreationDate: 'Feb 10, 2025',
+        tags: ['Congestion', 'Packet Loss', 'Queue'],
         steps: [
-            { id: 'S1', name: 'In Errors Gradual Rise', description: '0 -> 120 cps', icon: Activity, delay: '0m' },
-            { id: 'S2', name: 'Out Errors / Discards Rise', description: '5 -> 50 discards', icon: AlertTriangle, delay: '+5m' },
-            { id: 'S3', name: 'Duplex Mismatch (Optional)', description: 'Full -> Half', icon: Database, delay: '+2m' },
-            { id: 'S4', name: 'Interface Flapping', description: 'Up -> Down / Flap', icon: Zap, delay: '+5m' },
+            { id: 'S1', name: 'R1:Buffer Util', description: 'Queue depth > 1200', icon: Database, delay: '0s' },
+            { id: 'S2', name: 'Sw1:CRC Errors', description: 'Rising input errors', icon: Activity, delay: '+1m' },
+            { id: 'S3', name: 'Sw2:Latency', description: 'Jitter > 50ms', icon: Clock, delay: '+2m' },
+            { id: 'S4', name: 'Fw1:Packet Drop', description: 'Terminal egress discard', icon: AlertTriangle, delay: 'Final' }
         ],
-        logicSummary: 'Physical Layer Decay:',
+        logicSummary: 'Queue-induced Decay Sequence:',
         logicSteps: [
-            { order: 1, title: 'Signal Degradation', description: 'ERRORS ↑', color: 'blue' },
-            { order: 2, title: 'Frame Discards', description: 'DISCARDS ↑', color: 'amber' },
-            { order: 3, title: 'Carrier Loss', description: 'INTERFACE_FLAP', color: 'red' }
+            { order: 1, title: 'Upstream Backlog', description: 'R1:Buffer Util', color: 'blue' },
+            { order: 2, title: 'Inter-site Fluctuations', description: 'Sw1:CRC Errors', color: 'amber' },
+            { order: 3, title: 'Transit Delay', description: 'Sw2:Latency', color: 'amber' },
+            { order: 4, title: 'Ingress Discards', description: 'Fw1:Packet Drop', color: 'red' }
         ],
         predictedEvents: [
-            { name: 'LINK_DOWN', probability: 0.60, severity: 'High', title: 'Predicted Outage', subtitle: 'Link failure imminent' }
+            { name: 'Packet Drop', probability: 0.91, severity: 'Major', title: 'Data Loss Expected', subtitle: 'TCP throttled' }
         ],
         drillDownMetrics: [
-            { label: 'CRC Errors', value: 'Increasing at > 50 cps', icon: 'trending', color: 'blue' },
-            { label: 'Output Discards', value: 'Follows CRC error growth', icon: 'database', color: 'amber' },
-            { label: 'Link State Stability', value: 'FLAP expected when drops > 2%', icon: 'alert', color: 'red' }
+            { label: 'Buffer Util', value: 'R1 overflowing on 10G link', icon: 'database', color: 'blue' },
+            { label: 'Latency', value: 'Sw2 transit jitter > 80ms', icon: 'trending', color: 'amber' },
+            { label: 'CRC Errors', value: 'FCS failures appearing', icon: 'alert', color: 'red' }
         ],
         occurrences: [
             {
-                id: 'OCC-2026-102',
-                timestamp: new Date(Date.now() - 432000000).toISOString(),
+                id: 'OCC-DIS-01',
+                timestamp: new Date(Date.now() - 3600000 * 5).toISOString(),
                 severity: 'Major',
-                summary: 'S1-Eth2 Optics Failure',
-                outcomes: ['Interface Flap', 'Link Down'],
-                metricData: generateLinkPhysData(1.5),
+                summary: 'Regional Traffic Spike Congestion',
+                outcomes: ['Packet Drop', 'Latency Spike'],
+                metricData: generateCongestionData('High', 2),
                 events: [
                     {
-                        id: '99011X11', timestamp: new Date(Date.now() - 432000000 - 600000).toISOString(),
-                        title: 'CRC Errors Rise', subtitle: 'Input Errors Spike', severity: 'Warning',
-                        nodeName: 'Sw-Aggregation-01', nodeIp: '10.5.2.1', resource: 'Eth2',
-                        alertValue: '120 cps', threshold: '> 50 cps'
-                    },
-                    {
-                        id: '99011X12', timestamp: new Date(Date.now() - 432000000 - 120000).toISOString(),
-                        title: 'Interface Flapping', subtitle: 'Link state changing', severity: 'Major',
-                        nodeName: 'Sw-Aggregation-01', nodeIp: '10.5.2.1', resource: 'Eth2',
-                        alertValue: 'Flap', threshold: 'State Stability'
+                        id: 'E-D-01', timestamp: new Date(Date.now() - 3600000 * 5 - 300000).toISOString(),
+                        title: 'Queue Depth', subtitle: 'R1 Output Drops', severity: 'Major',
+                        nodeName: 'R1-DC-East', nodeIp: '10.50.1.1', resource: 'Gi0/1',
+                        alertValue: '1250', threshold: '> 1000'
                     }
                 ]
             },
-            ...Array.from({ length: 13 }).map((_, i) => ({
-                id: `OCC-OPTICS-${i}`,
-                timestamp: new Date(Date.now() - (i + 10) * 86400000).toISOString(),
-                severity: 'Major' as const,
-                summary: `Transceiver Decay #${i + 1}`,
-                outcomes: ['Interface Flap'],
-                metricData: generateLinkPhysData(1.2 + (i * 0.05)),
+            {
+                id: 'OCC-DIS-02',
+                timestamp: new Date(Date.now() - 86400000 * 3).toISOString(),
+                severity: 'Major',
+                summary: 'Inter-DC Replication Burst',
+                outcomes: ['Packet Drop'],
+                metricData: generateCongestionData('High', 4),
                 events: [
                     {
-                        id: `HYST_OPT_${i}1`, timestamp: new Date(Date.now() - (i + 10) * 86400000 - 900000).toISOString(),
-                        title: 'CRC Errors', subtitle: 'Physical degradation', severity: 'Warning' as const,
-                        nodeName: `PE-Router-0${(i % 5) + 1}`, nodeIp: `10.20.${i}.1`, resource: `xe-0/0/${i}`,
-                        alertValue: 'Rising', threshold: '> 0 cps'
+                        id: 'E-D-02', timestamp: new Date(Date.now() - 86400000 * 3 - 600000).toISOString(),
+                        title: 'CRC Spike', subtitle: 'Physical error burst', severity: 'Major',
+                        nodeName: 'Sw1-Fabric', nodeIp: '10.50.2.1', resource: 'HundredGi1/0/1',
+                        alertValue: '85/sec', threshold: '> 10/sec'
                     }
                 ]
-            }))
-        ],
-        simulationType: 'link_physical_degradation'
-    },
-    {
-        id: 'P-FW-Load-01',
-        name: 'Firewall Load pattern',
-        description: 'SESSIONS ↑ | CPU ↑ | LATENCY ↑ | PACKET_LOSS',
-        confidence: 0.86,
-        seenCount: 6,
-        lastSeen: '1 week ago',
-        domain: 'Security',
-        appliesTo: ['Edge Firewalls', 'Datacenter Firewalls'],
-        status: 'Enabled',
-        severity: 'Critical',
-        ruleCreationDate: 'May 12, 2025',
-        tags: ['Firewall', 'Packet Loss', 'Session Exhaustion'],
-        steps: [
-            { id: 'S1', name: 'Total Sessions Spike', description: '10k -> 80k', icon: Grid, delay: '0m' },
-            { id: 'S2', name: 'CPU Utilization Rise', description: '30% -> 99%', icon: Cpu, delay: '+2m' },
-            { id: 'S3', name: 'Latency Increases', description: '10ms -> 150ms', icon: Clock, delay: '+3m' },
-            { id: 'S4', name: 'Packet Loss', description: '0% -> 2%', icon: AlertTriangle, delay: '+3m' },
-        ],
-        logicSummary: 'Session Table Exhaustion:',
-        logicSteps: [
-            { order: 1, title: 'Connection Flood', description: 'SESSIONS ↑', color: 'blue' },
-            { order: 2, title: 'Processing Bottleneck', description: 'CPU ↑', color: 'amber' },
-            { order: 3, title: 'Tail Drop Failures', description: 'PACKET_LOSS', color: 'red' }
-        ],
-        predictedEvents: [
-            { name: 'FIREWALL_UNRESPONSIVE', probability: 0.55, severity: 'Critical', title: 'Predicted Isolation', subtitle: 'Total control plane freeze' }
-        ],
-        drillDownMetrics: [
-            { label: 'Session Count', value: 'Approaching max connection limit', icon: 'trending', color: 'blue' },
-            { label: 'Packet Processing Latency', value: 'Rises above 50ms', icon: 'database', color: 'amber' },
-            { label: 'Policy Drop Rate', value: 'Active when session table is full', icon: 'alert', color: 'red' }
-        ],
-        occurrences: [
+            },
             {
-                id: 'OCC-2026-103',
-                timestamp: new Date(Date.now() - 1296000000).toISOString(),
+                id: 'OCC-DIS-03',
+                timestamp: new Date(Date.now() - 86400000 * 5).toISOString(),
                 severity: 'Critical',
-                summary: 'Edge FW Session Exhaustion',
-                outcomes: ['Packet Loss', 'High Latency'],
-                metricData: generateFwLoadData(1.2),
+                summary: 'Micro-burst Congestion Chain',
+                outcomes: ['Packet Drop', 'Voice Lag'],
+                metricData: generateCongestionData('High', 6),
                 events: [
                     {
-                        id: 'FW_EV_01', timestamp: new Date(Date.now() - 1296000000 - 120000).toISOString(),
-                        title: 'Packet Drop', subtitle: 'Buffer Exhaustion', severity: 'Critical' as const,
-                        nodeName: 'Edge-FW-01', nodeIp: '192.168.254.1', resource: 'DataPlane',
-                        alertValue: '1500 pps', threshold: '> 0 pps'
+                        id: 'E-D-03', timestamp: new Date(Date.now() - 86400000 * 5 - 1200000).toISOString(),
+                        title: 'Latency Trigger', subtitle: 'Real-time delay major', severity: 'Critical',
+                        nodeName: 'Fw1-Edge', nodeIp: '10.50.0.1', resource: 'External',
+                        alertValue: '150ms', threshold: '> 50ms'
                     }
                 ]
             },
-            ...Array.from({ length: 5 }).map((_, i) => ({
-                id: `OCC-FW-${i}`,
-                timestamp: new Date(Date.now() - (i + 15) * 86400000).toISOString(),
-                severity: 'Critical' as const,
-                summary: `Firewall Overload #${i + 1}`,
-                outcomes: ['Packet Loss'],
-                metricData: generateFwLoadData(1.0 + (i * 0.2)),
-                events: [
-                    {
-                        id: `FW_EV_1${i}`, timestamp: new Date(Date.now() - (i + 15) * 86400000 - 300000).toISOString(),
-                        title: 'High CPU', subtitle: 'Data Plane 99%', severity: 'Critical' as const,
-                        nodeName: `DC-FW-0${i % 2 + 1}`, nodeIp: `172.16.0.${i}`, resource: 'CPU1',
-                        alertValue: '99%', threshold: '> 90%'
-                    }
-                ]
-            }))
+            ...generateOccurrences('Discard', 11, 'Major', generateCongestionData('High', 1.0))
         ],
-        simulationType: 'firewall_overload'
+        simulationType: 'congestion'
     },
     {
-        id: 'P-QoE-01',
-        name: 'QoE Degradation pattern',
-        description: 'JITTER ↑ | LATENCY_VAR ↑ | UTIL ↑ | PACKET_LOSS',
-        confidence: 0.75,
-        seenCount: 22,
-        lastSeen: '2 days ago',
-        domain: 'Application',
-        appliesTo: ['VoIP Gateways', 'SD-WAN Tunnels'],
+        id: 'P-CFG-01',
+        name: 'Configuration Drift Chain',
+        description: 'R2:Config Change | R2:Peer Down | Sw1:CRC Errors | Fw1:Latency',
+        confidence: 0.85,
+        seenCount: 18,
+        lastSeen: 'Yesterday',
+        domain: 'Data Center',
+        appliesTo: ['BGP Peers', 'Core Switches'],
         status: 'Learning',
-        severity: 'Warning',
-        ruleCreationDate: 'Jun 01, 2025',
-        tags: ['Jitter', 'QoE', 'SLA', 'VoIP'],
+        severity: 'Critical',
+        ruleCreationDate: 'Jan 28, 2025',
+        tags: ['Config Drift', 'BGP', 'Control Plane'],
         steps: [
-            { id: 'S1', name: 'Utilization Near Threshold', description: '60% -> 85%', icon: Database, delay: '0m' },
-            { id: 'S2', name: 'Latency Variance Rise', description: '5ms -> 45ms', icon: Clock, delay: '+1m' },
-            { id: 'S3', name: 'Jitter Increases', description: '2ms -> 35ms', icon: Activity, delay: '+2m' }
+            { id: 'S1', name: 'R2:Config Change', description: 'MTU/Interface update', icon: Grid, delay: '0s' },
+            { id: 'S2', name: 'R2:Peer Down', description: 'BGP Protocol timeout', icon: Zap, delay: '+5s' },
+            { id: 'S3', name: 'Sw1:CRC Errors', description: 'PFE misconfig signals', icon: Activity, delay: '+1m' },
+            { id: 'S4', name: 'Fw1:Latency', description: 'Network re-convergence delay', icon: Clock, delay: 'Final' }
         ],
-        logicSummary: 'Micro-burst Congestion:',
+        logicSummary: 'Operational Drift Impact:',
         logicSteps: [
-            { order: 1, title: 'Traffic Burst', description: 'UTIL ↑', color: 'blue' },
-            { order: 2, title: 'Queuing Delays', description: 'LATENCY ↑', color: 'amber' },
-            { order: 3, title: 'Jitter Saturation', description: 'JITTER ↑', color: 'amber' }
+            { order: 1, title: 'Ad-hoc Modifier', description: 'R2:Config Change', color: 'blue' },
+            { order: 2, title: 'Connectivity Break', description: 'R2:Peer Down', color: 'red' },
+            { order: 3, title: 'Platform Instability', description: 'Sw1:CRC Errors', color: 'amber' },
+            { order: 4, title: 'User Experience Drop', description: 'Fw1:Latency', color: 'red' }
         ],
         predictedEvents: [
-            { name: 'PACKET_LOSS', probability: 0.80, severity: 'Medium', title: 'Predicted Loss', subtitle: 'Shaping drop incoming' },
-            { name: 'SLA_BREACH', probability: 0.75, severity: 'Medium', title: 'Predicted SLA Breach', subtitle: 'Voice quality degraded' }
+            { name: 'High Latency', probability: 0.88, severity: 'Major', title: 'Slow Convergence', subtitle: 'Peers flapping' },
+            { name: 'BGP Down', probability: 0.75, severity: 'Critical', title: 'Neighbor Isolation', subtitle: 'Routing table purged' }
         ],
         drillDownMetrics: [
-            { label: 'Packet Jitter', value: 'Variance exceeding 30ms', icon: 'trending', color: 'blue' },
-            { label: 'Link Utilization', value: 'Over 85% sustained', icon: 'database', color: 'amber' },
-            { label: 'QoS Queue Length', value: 'Near overflow on voice priority', icon: 'alert', color: 'red' }
+            { label: 'Config Changes', value: '5 changes in last 24h', icon: 'alert', color: 'blue' },
+            { label: 'Peer Status', value: 'Established -> Connect', icon: 'trending', color: 'red' },
+            { label: 'CRC Errors', value: 'L2 Mismatch Detected', icon: 'database', color: 'amber' }
         ],
         occurrences: [
             {
-                id: 'OCC-2026-104',
-                timestamp: new Date(Date.now() - 518400000).toISOString(),
-                severity: 'Warning',
-                summary: 'SD-WAN Voice Degradation',
-                outcomes: ['SLA Breach', 'RTP Loss'],
-                metricData: generateQoeData(1),
+                id: 'OCC-CFG-01',
+                timestamp: new Date(Date.now() - 86400000).toISOString(),
+                severity: 'Critical',
+                summary: 'Unplanned MTU Change Outage',
+                outcomes: ['Peer Down', 'High Latency'],
+                metricData: generateCpuData(85, 4),
                 events: [
                     {
-                        id: 'QOE_EV_01', timestamp: new Date(Date.now() - 518400000 - 120000).toISOString(),
-                        title: 'SLA Breach', subtitle: 'Jitter > 30ms', severity: 'Warning' as const,
-                        nodeName: 'SDWAN-Branch-5', nodeIp: '10.50.1.1', resource: 'Tunnel-01',
-                        alertValue: '35ms', threshold: '< 30ms'
+                        id: 'E-CF-01', timestamp: new Date(Date.now() - 86400000 - 300000).toISOString(),
+                        title: 'Config Change', subtitle: 'Admin "MTU" update', severity: 'Warning',
+                        nodeName: 'R2-West', nodeIp: '10.20.1.5', resource: 'Gi1/0/2',
+                        alertValue: '9000', threshold: 'Mismatch'
                     }
                 ]
             },
-            ...Array.from({ length: 21 }).map((_, i) => ({
-                id: `OCC-QOE-${i}`,
-                timestamp: new Date(Date.now() - (i + 1) * 43200000).toISOString(),
-                severity: 'Warning' as const,
-                summary: `Microburst Degradation #${i + 1}`,
-                outcomes: ['Jitter Spike'],
-                metricData: generateQoeData(0.8 + (Math.random() * 0.5)),
-                events: [
-                    {
-                        id: `QOE_EV_1${i}`, timestamp: new Date(Date.now() - (i + 1) * 43200000 - 60000).toISOString(),
-                        title: 'Jitter Warning', subtitle: 'Jitter high', severity: 'Warning' as const,
-                        nodeName: `SDWAN-Branch-${(i % 5) + 1}`, nodeIp: `10.50.${(i % 5) + 1}.1`, resource: `Tunnel-0${(i % 3) + 1}`,
-                        alertValue: '25ms', threshold: '> 20ms'
-                    }
-                ]
-            }))
+            ...generateOccurrences('Config Drift', 13, 'Major', generateCpuSaturation(1.0))
         ],
-        simulationType: 'qoe_jitter'
+        simulationType: 'cpu_spike'
     }
 ];

@@ -29,10 +29,36 @@ import { ScrollArea } from "@/shared/components/ui/scroll-area";
 
 const formatLabel = (str: string) => {
   if (!str) return '';
+  const map: Record<string, string> = {
+    'cpu_pct': 'CPU Util',
+    'cpu_percent': 'CPU Util',
+    'cpu': 'CPU Util',
+    'crc_errors': 'CRC Errors',
+    'crc': 'CRC Errors',
+    'queue_depth': 'Buffer Util',
+    'buffer_util': 'Buffer Util',
+    'latency_ms': 'Latency',
+    'lat': 'Latency',
+    'util_pct': 'B/W Util',
+    'utilization_percent': 'B/W Util',
+    'mem_util_pct': 'Mem Util',
+    'men_util_pct': 'Mem Util',
+    'mem_percent': 'Mem Util',
+    'bw_util': 'B/W Util'
+  };
+  if (map[str.toLowerCase()]) return map[str.toLowerCase()];
   return str
     .replace(/_/g, ' ')
     .toLowerCase()
-    .replace(/(^\w|\s\w|\(\w)/g, m => m.toUpperCase());
+    .replace(/(^|[^a-zA-Z0-9])([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase())
+    .replace(/Cpu/g, 'CPU')
+    .replace(/Crc/g, 'CRC')
+    .replace(/Queue Depth/g, 'Buffer Util')
+    .replace(/Latency Ms/g, 'Latency')
+    .replace(/Util Pct/g, 'B/W Util')
+    .replace(/Cpu Pct/g, 'CPU Util')
+    .replace(/Mem Util Pct/g, 'Mem Util')
+    .replace(/Men Util Pct/g, 'Mem Util');
 };
 
 // --- MOCK DATA & CONSTANTS ---
@@ -90,7 +116,7 @@ const CHAIN_TEMPLATES: Record<string, { label: string, meta: string, steps: any[
     label: 'Device Reboot',
     meta: '(seen 2x | 6 pre-event windows)',
     steps: [
-      { label: 'Queue Depth Fall', subLabel: 'metric poll', description: 'Significant reduction in processing queue depth' },
+      { label: 'Buffer Util Fall', subLabel: 'metric poll', description: 'Significant reduction in processing queue depth' },
       { label: 'CRC Errors Cleared', subLabel: 'metric poll', description: 'Zero-state CRC stability reached' },
       { label: 'Latency Drop', subLabel: 'metric poll', description: 'Minimum baseline latency reached' },
       { label: 'Util Baseline', subLabel: 'metric poll', description: 'Traffic through interface stopped' },
@@ -102,11 +128,11 @@ const CHAIN_TEMPLATES: Record<string, { label: string, meta: string, steps: any[
     label: 'High Util Warning',
     meta: '(observed in 532 sessions)',
     steps: [
-      { label: 'CPU Pct Rise', subLabel: '3m lag', description: 'Initial CPU load increase detected' },
+      { label: 'CPU Util Rise', subLabel: '3m lag', description: 'Initial CPU load increase detected' },
       { label: 'CRC Errors Rise', subLabel: '4m lag', description: 'Link layer retransmissions peaking' },
-      { label: 'Latency Ms Rise', subLabel: '6m lag', description: 'Application response delay confirmed' },
-      { label: 'Queue Depth Rise', subLabel: '2m lag', description: 'Hardware buffer pressure building' },
-      { label: 'Util Pct Rise', subLabel: '1m lag', description: 'Link capacity threshold breach' }
+      { label: 'Latency Rise', subLabel: '6m lag', description: 'Application response delay confirmed' },
+      { label: 'Buffer Util Rise', subLabel: '2m lag', description: 'Hardware buffer pressure building' },
+      { label: 'B/W Util Rise', subLabel: '1m lag', description: 'Link capacity threshold breach' }
     ]
   },
   'InterfaceFlap': {
@@ -124,11 +150,11 @@ const CHAIN_TEMPLATES: Record<string, { label: string, meta: string, steps: any[
     label: 'Packet Drop',
     meta: '(observed in 493 sessions)',
     steps: [
-      { label: 'CPU Pct Rise', subLabel: '4m lag', description: 'Processing pressure detected' },
+      { label: 'CPU Util Rise', subLabel: '4m lag', description: 'Processing pressure detected' },
       { label: 'CRC Errors Rise', subLabel: '2m lag', description: 'Checksum failure increase' },
-      { label: 'Queue Depth Rise', subLabel: '1m lag', description: 'Tail-drop threshold likely' },
-      { label: 'Latency Ms Rise', subLabel: '5m lag', description: 'Sequential delay drift' },
-      { label: 'Util Pct Rise', subLabel: '3m lag', description: 'Active packet discard impact' }
+      { label: 'Buffer Util Rise', subLabel: '1m lag', description: 'Tail-drop threshold likely' },
+      { label: 'Latency Rise', subLabel: '5m lag', description: 'Sequential delay drift' },
+      { label: 'B/W Util Rise', subLabel: '3m lag', description: 'Active packet discard impact' }
     ]
   }
 };
@@ -786,7 +812,7 @@ export default function LiveInferencePage() {
                                             "text-[9px] font-black tracking-tighter truncate",
                                             isMatched ? "text-emerald-500" : isNext ? "text-amber-500" : "text-muted-foreground"
                                           )}>
-                                            {stepIdx === 1 ? 'CPU Spike' : stepIdx === 2 ? 'CRC Errors' : stepIdx === 3 ? 'Buffer Util' : 'Latency MS'}
+                                            {stepIdx === 1 ? 'CPU Spike' : stepIdx === 2 ? 'CRC Errors' : stepIdx === 3 ? 'Buffer Util' : 'Latency'}
                                           </div>
                                           {isMatched && (
                                             <div className="text-[8px] text-muted-foreground font-bold mt-0.5">CONFIRMED</div>

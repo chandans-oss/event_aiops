@@ -141,7 +141,7 @@ const PATTERNS: Pattern[] = [
                 severity: 'Critical'
             },
             {
-                name: 'Queue Depth',
+                name: 'Buffer Util',
                 baseline: 10,
                 baselineLabel: '5-12',
                 current: 45,
@@ -163,7 +163,7 @@ const PATTERNS: Pattern[] = [
         ],
         flow: [
             { label: 'Baseline Deviation > 30%', type: 'metric', delay: '-5 min' },
-            { label: 'Queue Depth Spike', type: 'metric', delay: '-30s' },
+            { label: 'Buffer Util Spike', type: 'metric', delay: '-30s' },
             { label: 'PREDICTED: Packet Loss', type: 'event', delay: 'Now' }
         ],
         variations: [
@@ -376,7 +376,7 @@ const PATTERNS: Pattern[] = [
                 timestamp: '2023-05-20 09:00',
                 events: [
                     { event_id: 'EVT-TRAD-043', timestamp: '2023-05-20 09:00', device: 'spine-switch-04', severity: 'Major', message: 'Egress Port Util > 90%' },
-                    { event_id: 'EVT-TRAD-044', timestamp: '2023-05-20 09:00', device: 'spine-switch-04', severity: 'Critical', message: 'VoIP Queue Depth > 10ms' },
+                    { event_id: 'EVT-TRAD-044', timestamp: '2023-05-20 09:00', device: 'spine-switch-04', severity: 'Critical', message: 'VoIP Buffer Util > 10ms' },
                     { event_id: 'EVT-TRAD-045', timestamp: '2023-05-20 09:00', device: 'spine-switch-04', severity: 'Major', message: 'Tail Drop on Voice Class' }
                 ]
             }
@@ -393,7 +393,7 @@ const PATTERNS: Pattern[] = [
                 severity: 'Critical'
             },
             {
-                name: 'Queue Depth',
+                name: 'Buffer Util',
                 baseline: 0,
                 baselineLabel: 'N/A',
                 current: 75,
@@ -405,11 +405,11 @@ const PATTERNS: Pattern[] = [
         ],
         flow: [
             { label: 'Utilization > 90%', type: 'metric', delay: 'Now' },
-            { label: 'Queue Depth > 70%', type: 'metric', delay: 'Concurrent' },
+            { label: 'Buffer Util > 70%', type: 'metric', delay: 'Concurrent' },
             { label: 'ALERT: Congestion Risk', type: 'event', delay: 'Immediate' }
         ],
         variations: [],
-        explanation: 'Hard threshold rule: Interface Utilization (92%) and Queue Depth (75%) have both exceeded their critical static thresholds defined for Core Links.',
+        explanation: 'Hard threshold rule: Interface Utilization (92%) and Buffer Util (75%) have both exceeded their critical static thresholds defined for Core Links.',
         technicalLogic: 'IF Util > 90 AND Queue > 70 THEN Raise_Alert(Congestion)'
     },
     {

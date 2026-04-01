@@ -14,6 +14,48 @@ import {
 } from "@/shared/components/ui/table";
 import { Pattern, MOCK_PATTERNS } from './PatternData';
 
+const formatLabel = (str: string) => {
+    if (!str) return '';
+    const map: Record<string, string> = {
+        'cpu_pct': 'CPU Util',
+        'cpu_util': 'CPU Util',
+        'cpu_percent': 'CPU Util',
+        'cpu': 'CPU Util',
+        'cpu util': 'CPU Util',
+        'util_pct': 'B/W Util',
+        'util': 'B/W Util',
+        'bw_util': 'B/W Util',
+        'utilization_percent': 'B/W Util',
+        'mem_util_pct': 'Mem Util',
+        'mem_util': 'Mem Util',
+        'queue_depth': 'Buffer Util',
+        'buffer_util': 'Buffer Util',
+        'latency_ms': 'Latency',
+        'lat': 'Latency',
+        'lat_ms': 'Latency',
+        'latency': 'Latency',
+        'crc_errors': 'CRC Errors',
+        'crc': 'CRC Errors',
+        'men_util_pct': 'Mem Util'
+    };
+
+    const lower = str.toLowerCase();
+    if (map[lower]) return map[lower];
+
+    return str
+        .replace(/_/g, ' ')
+        .toLowerCase()
+        .replace(/(^|[^a-zA-Z0-9])([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase())
+        .replace(/Cpu/g, 'CPU')
+        .replace(/Crc/g, 'CRC')
+        .replace(/Queue Depth/g, 'Buffer Util')
+        .replace(/Latency Ms/g, 'Latency')
+        .replace(/Util Pct/g, 'B/W Util')
+        .replace(/Cpu Pct/g, 'CPU Util')
+        .replace(/Mem Util Pct/g, 'Mem Util')
+        .replace(/Men Util Pct/g, 'Mem Util');
+};
+
 interface PatternGalleryProps {
     onSelectPattern: (pattern: Pattern) => void;
 }
@@ -98,15 +140,11 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                                         <div className="flex flex-wrap items-center gap-y-1.5 gap-x-2 px-3 py-1.5 font-mono text-[12px]">
                                             {(() => {
                                                 const visibleSteps = pattern.steps.filter(s => s.name !== 'Critical Breach');
-                                                const visibleOutcomes = pattern.predictedEvents.filter(evt =>
-                                                    !pattern.steps.some(s => s.name.toLowerCase() === evt.name.replace('_', ' ').toLowerCase())
-                                                );
 
                                                 return (
                                                     <>
                                                         {/* Behavioral Steps */}
                                                         {visibleSteps.map((step, idx) => {
-                                                            const isRising = /util|rise|spike|up|cross|error|discard|drop|loss|mismatch|flapping/i.test(step.name + step.description);
                                                             const isFailure = /flap|down|reboot|withdrawal|collapse|breach|outage|unresponsive|sla/i.test(step.name) && !/flapping/i.test(step.name);
                                                             const isCritical = /loss|drop|jitter|latency|timeout|intermittent|missed|flapping|mismatch/i.test(step.name);
 
@@ -114,37 +152,14 @@ export function PatternGallery({ onSelectPattern }: PatternGalleryProps) {
                                                             if (isFailure) textColor = 'text-rose-400 font-bold';
                                                             else if (isCritical) textColor = 'text-orange-400 font-bold';
 
-                                                            const isAbsoluteLast = idx === visibleSteps.length - 1 && visibleOutcomes.length === 0;
+                                                            const isAbsoluteLast = idx === visibleSteps.length - 1;
 
                                                             return (
                                                                 <div key={`step-${idx}`} className="flex items-center gap-1.5">
-                                                                    <span className={`${textColor} lowercase`}>
-                                                                        {step.name.replace(' ', '_')}
-                                                                        {isRising && <span className="text-rose-500 font-bold ml-0.5">↑</span>}
+                                                                    <span className={`${textColor}`}>
+                                                                        {formatLabel(step.name)}
                                                                     </span>
                                                                     {!isAbsoluteLast && (
-                                                                        <span className="text-primary/50 font-bold">{'->'}</span>
-                                                                    )}
-                                                                </div>
-                                                            );
-                                                        })}
-
-                                                        {/* Predicted Outcomes */}
-                                                        {visibleOutcomes.map((evt, idx) => {
-                                                            const isLastOutcome = idx === visibleOutcomes.length - 1;
-                                                            const isFailure = /flap|down|reboot|withdrawal|collapse|breach|outage|unresponsive|sla/i.test(evt.name) && !/flapping/i.test(evt.name);
-                                                            const isCritical = /loss|drop|jitter|latency|timeout|intermittent|missed|flapping|mismatch/i.test(evt.name);
-
-                                                            let textColor = 'text-indigo-200/90';
-                                                            if (isFailure || isLastOutcome) textColor = 'text-rose-400 font-bold';
-                                                            else if (isCritical) textColor = 'text-orange-400 font-bold';
-
-                                                            return (
-                                                                <div key={`out-${idx}`} className="flex items-center gap-1.5">
-                                                                    <span className={`font-bold lowercase ${textColor}`}>
-                                                                        {evt.name.replace(' ', '_')}
-                                                                    </span>
-                                                                    {!isLastOutcome && (
                                                                         <span className="text-primary/50 font-bold">{'->'}</span>
                                                                     )}
                                                                 </div>

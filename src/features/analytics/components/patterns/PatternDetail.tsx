@@ -64,6 +64,45 @@ import { Pattern, PatternOccurrence, EvidenceItem } from './PatternData';
 import { useState, useEffect, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const formatLabel = (str: string) => {
+    if (!str) return '';
+    const map: Record<string, string> = {
+        'cpu_pct': 'CPU Util',
+        'cpu_util': 'CPU Util',
+        'cpu': 'CPU Util',
+        'cpu util': 'CPU Util',
+        'util_pct': 'B/W Util',
+        'util': 'B/W Util',
+        'bw_util': 'B/W Util',
+        'mem_util_pct': 'Mem Util',
+        'mem_util': 'Mem Util',
+        'queue_depth': 'Buffer Util',
+        'buffer_util': 'Buffer Util',
+        'latency_ms': 'Latency',
+        'lat': 'Latency',
+        'lat_ms': 'Latency',
+        'crc_errors': 'CRC Errors',
+        'crc': 'CRC Errors',
+        'men_util_pct': 'Mem Util'
+    };
+
+    const lower = str.toLowerCase();
+    if (map[lower]) return map[lower];
+
+    return str
+        .replace(/_/g, ' ')
+        .toLowerCase()
+        .replace(/(^|[^a-zA-Z0-9])([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase())
+        .replace(/Cpu/g, 'CPU')
+        .replace(/Crc/g, 'CRC')
+        .replace(/Queue Depth/g, 'Buffer Util')
+        .replace(/Latency Ms/g, 'Latency')
+        .replace(/Util Pct/g, 'B/W Util')
+        .replace(/Cpu Pct/g, 'CPU Util')
+        .replace(/Mem Util Pct/g, 'Mem Util')
+        .replace(/Men Util Pct/g, 'Mem Util');
+};
+
 // --- Module-level store: persists custom occurrences across re-mounts ---
 const _patternCustomOccurrences: Record<string, PatternOccurrence[]> = {};
 
@@ -174,30 +213,30 @@ const generateSimulationData = (type: 'congestion' | 'cpu_spike' | 'device_cpu_s
 
 const SIM_METRICS: Record<string, { key: string, name: string, color: string }[]> = {
     'congestion': [
-        { key: 'utilization', name: 'Util %', color: '#3b82f6' },
+        { key: 'utilization', name: 'B/W Util', color: '#3b82f6' },
         { key: 'drops', name: 'Drops', color: '#ef4444' },
         { key: 'errors', name: 'CRC Errors', color: '#f59e0b' }
     ],
     'cpu_spike': [
-        { key: 'cpu', name: 'CPU %', color: '#ef4444' },
-        { key: 'bgpState', name: 'BGP', color: '#3b82f6' }
+        { key: 'cpu', name: 'CPU Util', color: '#ef4444' },
+        { key: 'bgpState', name: 'BGP State', color: '#3b82f6' }
     ],
     'device_cpu_saturation': [
-        { key: 'cpuUtil', name: 'CPU %', color: '#ef4444' },
+        { key: 'cpuUtil', name: 'CPU Util', color: '#ef4444' },
         { key: 'pingLoss', name: 'Ping Loss', color: '#f59e0b' }
     ],
     'link_physical_degradation': [
-        { key: 'inErrors', name: 'Errors', color: '#f59e0b' },
+        { key: 'inErrors', name: 'CRC Errors', color: '#f59e0b' },
         { key: 'discards', name: 'Discards', color: '#ef4444' }
     ],
     'firewall_overload': [
         { key: 'sessions', name: 'Sessions', color: '#3b82f6' },
-        { key: 'fwCpu', name: 'FW CPU', color: '#ef4444' },
-        { key: 'latency', name: 'Lat(ms)', color: '#f59e0b' }
+        { key: 'fwCpu', name: 'CPU Util', color: '#ef4444' },
+        { key: 'latency', name: 'Latency', color: '#f59e0b' }
     ],
     'qoe_jitter': [
         { key: 'jitter', name: 'Jitter', color: '#3b82f6' },
-        { key: 'latencyVar', name: 'Lat Var', color: '#f59e0b' }
+        { key: 'latencyVar', name: 'Latency Var', color: '#f59e0b' }
     ]
 };
 
@@ -372,7 +411,7 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                         {occ.outcomes?.map((out, i) => (
                             <div key={i} className="flex items-center gap-2 group/item">
                                 <div className="w-[3px] h-3 bg-red-500/60 rounded-full" />
-                                <span className="text-[10px] font-black text-red-400 tracking-widest">{out}</span>
+                                <span className="text-[10px] font-black text-red-400 tracking-widest">{formatLabel(out)}</span>
                             </div>
                         ))}
                     </div>
@@ -723,7 +762,7 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                             <div key={idx} className={`relative bg-background/80 p-4 rounded-xl border border-emerald-500/20 shadow-sm transition-all duration-300 ${idx === 0 ? 'ring-1 ring-emerald-500/30' : 'opacity-90'}`}>
                                                 <div className="flex justify-between items-start mb-3">
                                                     <Badge variant="outline" className={`text-[10px] px-2 py-0.5 h-5 ${getEventBadgeStyles(event.severity)}`}>
-                                                        {event.name}
+                                                        {formatLabel(event.name)}
                                                     </Badge>
                                                     <div className="text-right">
                                                         <span className={`text-2xl font-bold leading-none ${getPredictionValueColor(event.probability)}`}>
@@ -884,14 +923,14 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                     <div className="p-6 bg-background/20">
                                         {/* Header with styled line */}
                                         <div className="flex items-center gap-4 mb-5 w-full">
-                                            <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest whitespace-nowrap">
+                                            <div className="text-[10px] font-bold text-muted-foreground tracking-widest whitespace-nowrap">
                                                 Incident Progression Lifecycle
                                             </div>
                                             <div className="h-[1px] flex-grow bg-muted-foreground/10" />
                                             <Button
                                                 variant="outline"
                                                 size="sm"
-                                                className="h-6 text-[10px] font-bold tracking-widest uppercase border-primary/30 text-primary hover:bg-primary/10 gap-1"
+                                                className="h-6 text-[10px] font-bold tracking-widest border-primary/30 text-primary hover:bg-primary/10 gap-1"
                                                 onClick={() => navigate(`/events?correlation=${encodeURIComponent(pattern.name)}`)}
                                             >
                                                 Related events
@@ -906,10 +945,16 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                     description: s.description.replace('cross', '>').replace('->', '->')
                                                 }));
                                                 const outcomeSteps = pattern.predictedEvents
-                                                    .filter(evt => !behavioralSteps.some(bs => bs.name.toLowerCase() === evt.name.replace('_', ' ').toLowerCase()))
+                                                    .filter(evt => {
+                                                        const evtLower = evt.name.toLowerCase();
+                                                        return !behavioralSteps.some(bs => {
+                                                            const bsLower = bs.name.toLowerCase();
+                                                            return bsLower.includes(evtLower) || evtLower.includes(bsLower);
+                                                        });
+                                                    })
                                                     .map(evt => ({
                                                         name: evt.name,
-                                                        description: '', // Removing probability values
+                                                        description: '', 
                                                         delay: '(EVENT)'
                                                     }));
 
@@ -924,7 +969,7 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                             <div className="flex-1 flex flex-col items-center">
                                                                 {/* The Block Div */}
                                                                 <div className={`w-full border border-border/40 rounded-lg p-3 min-h-[60px] flex flex-col justify-center transition-all hover:bg-muted/5 group ${isOutcome ? 'bg-primary/5 border-primary/20' : 'bg-card/30'}`}>
-                                                                    <div className={`text-[13px] font-bold uppercase tracking-tight text-center truncate w-full ${(() => {
+                                                                    <div className={`text-[13px] font-bold tracking-tight text-center truncate w-full ${(() => {
                                                                         const isFailure = /flap|down|reboot|withdrawal|collapse|breach|outage|unresponsive|sla/i.test(item.name) && !/flapping/i.test(item.name);
                                                                         const isCritical = /loss|drop|jitter|latency|timeout|intermittent|missed|flapping|mismatch/i.test(item.name);
 
@@ -938,7 +983,7 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                                         return 'text-foreground';
                                                                     })()}`}>
                                                                         <span className="opacity-50 mr-1">{idx + 1}.</span>
-                                                                        {item.name.replace(' ', '_').toLowerCase()}
+                                                                        {formatLabel(item.name)}
                                                                         {!isOutcome && /util|rise|spike|up|cross|error|discard|drop|loss|mismatch|flapping/i.test(item.name + item.description) && (
                                                                             <span className="text-rose-500 ml-1">↑</span>
                                                                         )}
@@ -954,15 +999,20 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                                                 </div>
 
                                                                 {/* Timing Pill & Connection at Bottom */}
-                                                                {idx < allFlowItems.length - 1 && (
+                                                                {idx < allFlowItems.length - 1 && allFlowItems[idx + 1].delay !== '(EVENT)' && (
                                                                     <div className="relative w-full h-10 flex items-center mt-2">
-                                                                        <div className={`absolute left-[85%] translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full border backdrop-blur-sm whitespace-nowrap z-10 ${allFlowItems[idx + 1].delay === '(EVENT)' ? 'border-red-500/40 bg-red-500/10' : 'border-primary/30 bg-primary/5'}`}>
-                                                                            <Clock className={`h-3 w-3 ${allFlowItems[idx + 1].delay === '(EVENT)' ? 'text-red-500/60' : 'text-primary/50'}`} />
-                                                                            <span className={`text-[10px] font-bold uppercase ${allFlowItems[idx + 1].delay === '(EVENT)' ? 'text-red-400' : 'text-primary/80'}`}>
+                                                                        <div className={`absolute left-[85%] translate-x-1/2 flex items-center gap-1.5 px-3 py-1 rounded-full border backdrop-blur-sm whitespace-nowrap z-10 border-primary/30 bg-primary/5`}>
+                                                                            <Clock className={`h-3 w-3 text-primary/50`} />
+                                                                            <span className={`text-[10px] font-bold uppercase text-primary/80`}>
                                                                                 {allFlowItems[idx + 1].delay}
                                                                             </span>
                                                                         </div>
                                                                         {/* Joining line */}
+                                                                        <div className="w-[120%] h-[1px] bg-primary/10" />
+                                                                    </div>
+                                                                )}
+                                                                {idx < allFlowItems.length - 1 && allFlowItems[idx + 1].delay === '(EVENT)' && (
+                                                                    <div className="relative w-full h-10 flex items-center mt-2">
                                                                         <div className="w-[120%] h-[1px] bg-primary/10" />
                                                                     </div>
                                                                 )}
@@ -992,7 +1042,7 @@ export function PatternDetail({ pattern, onClose }: PatternDetailProps) {
                                     <TabsList className="bg-transparent gap-8 h-auto p-0 justify-start">
                                         <TabsTrigger
                                             value="occurrence"
-                                            className="px-0 py-2 bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary rounded-none font-bold uppercase text-[11px] tracking-widest transition-all"
+                                            className="px-0 py-2 bg-transparent data-[state=active]:bg-transparent data-[state=active]:text-primary border-b-2 border-transparent data-[state=active]:border-primary rounded-none font-bold text-[11px] tracking-widest transition-all"
                                         >
                                             Result / Accuracy ({Math.min(5, pattern.occurrences.length)})
                                         </TabsTrigger>
