@@ -102,7 +102,7 @@ const RCA_STEP_CONFIG = [
         "mini": "Hypothesis Scorer process completed.",
     },
     {
-        "title": "Step4: SituationCardGeneration",
+        "title": "Step 4: Situation Card Generation",
         "icon": "📋",
         "sub": "• Create Situation Card <br>• Dump to current vector DB.",
         "data": {
@@ -145,7 +145,7 @@ const RCA_STEP_CONFIG = [
         "mini": "Historical Data Retriever process completed.",
     },
     {
-        "title": "Step 7: RCA Correlator LLM",
+        "title": "Step 6: RCA Correlator Engine",
         "icon": "🔗",
         "sub": "• Final RCA. <br>• Remedy.",
         "data": {
@@ -307,7 +307,7 @@ const RCAPlaygroundPage = () => {
                 });
 
                 formattedData = {
-                    "Slected Intent": incident.intent || "N/A",
+                    "Selected Intent": incident.intent || "N/A",
                     "Top Hypothesis": `${topHypo.description || ''} (score: ${topP}%)`,
                     "Hypothesis Scores": (
                         <div style={{ maxHeight: '150px', overflowY: 'auto' }}>
@@ -361,24 +361,7 @@ const RCAPlaygroundPage = () => {
             //     tl_desc = "Planner LLM process completed";
             //     break;
 
-            case 5:
-            // const p = incident.planner_llm_output || {};
-            // formattedData = {
-            //     "Plan ID": p.plan_id || "N/A",
-            //     "Tools": (p.tools_recommended || p.tools_reccomended || []).join(' | '),
-            //     "Plan Steps": (
-            //         <Box sx={{ fontSize: '0.8rem' }}>
-            //             {(p.plan_steps || []).map((s: string, i: number) => (
-            //                 <div key={i}>{i + 1}. {s}</div>
-            //             ))}
-            //         </Box>
-            //     ),
-            //     "Stop Condition": p.stop_when || "N/A"
-            // };
-            // tl_desc = "Planner LLM process completed";
-            // break;
-
-            case 6:
+            case 5: {
                 const hCases = incident.historical?.retrieved_cases || [];
                 formattedData = {
                     "Query": incident.situation_card?.situation_text || "N/A",
@@ -400,8 +383,9 @@ const RCAPlaygroundPage = () => {
                 };
                 tl_desc = "Historical Data Retriever process completed";
                 break;
+            }
 
-            case 7:
+            case 6: {
                 const rcaOut = incident.correlator_llm_output || {};
                 formattedData = {
                     "Final RCA": rcaOut.rca || "No Prediction",
@@ -411,12 +395,13 @@ const RCAPlaygroundPage = () => {
                 };
                 tl_desc = "Correlator LLM process completed";
                 break;
+            }
 
             default:
                 formattedData = { "Status": "Processing..." };
         }
 
-        return { ...config, step: stepIdx, data: formattedData, tl_desc, mini, is_final: stepIdx === 7 };
+        return { ...config, step: stepIdx, data: formattedData, tl_desc, mini, is_final: stepIdx === 6 };
     };
 
     const runAnimation = (fullSteps: any[]) => {
