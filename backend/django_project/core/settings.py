@@ -1,6 +1,12 @@
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Load environment variables from the workspace root .env file
+env_path = BASE_DIR.parent.parent / '.env'
+load_dotenv(dotenv_path=env_path)
 
 SECRET_KEY = 'django-insecure-test-key-do-not-use-in-prod'
 DEBUG = True
@@ -68,9 +74,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 
 # PostgreSQL Configuration for RCA Historical Engine
-POSTGRES_HOST = "10.0.4.89"
-POSTGRES_PORT = "5432"
-POSTGRES_DB = "infraondb"
-POSTGRES_USER = "postgres"
-POSTGRES_PASSWORD = "Infraon@123"
-EMBEDING_MODEL = "intfloat/e5-base-v2"
+POSTGRES_HOST = os.environ.get("POSTGRES_HOST", "10.0.4.89")
+POSTGRES_PORT = os.environ.get("POSTGRES_PORT", "5432")
+POSTGRES_DB = os.environ.get("POSTGRES_DB", "infraondb")
+POSTGRES_USER = os.environ.get("POSTGRES_USER", "postgres")
+POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "InfraonPostgres321")
+EMBEDING_MODEL = os.environ.get("EMBEDING_MODEL", "intfloat/e5-base-v2")

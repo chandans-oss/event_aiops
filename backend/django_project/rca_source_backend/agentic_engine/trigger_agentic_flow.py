@@ -12,22 +12,27 @@ from pprint import pprint
 GREEN = '\033[92m'
 RESET = '\033[0m'
 
+import os
+from dotenv import load_dotenv, find_dotenv
+
+load_dotenv(find_dotenv(usecwd=True))
+
 # Load environment variables
 try:
     from django.conf import settings
-    POSTGRES_HOST = getattr(settings, 'POSTGRES_HOST', "10.0.4.89")
-    POSTGRES_PORT = getattr(settings, 'POSTGRES_PORT', "5432")
-    POSTGRES_DB = getattr(settings, 'POSTGRES_DB', "infraondb")
-    POSTGRES_USER = getattr(settings, 'POSTGRES_USER', "postgres")
-    POSTGRES_PASSWORD = getattr(settings, 'POSTGRES_PASSWORD', "Infraon@123")
-    EMBEDING_MODEL = getattr(settings, 'EMBEDING_MODEL', "intfloat/e5-base-v2")
+    POSTGRES_HOST = getattr(settings, 'POSTGRES_HOST', os.environ.get("POSTGRES_HOST", "10.0.4.89"))
+    POSTGRES_PORT = getattr(settings, 'POSTGRES_PORT', os.environ.get("POSTGRES_PORT", "5432"))
+    POSTGRES_DB = getattr(settings, 'POSTGRES_DB', os.environ.get("POSTGRES_DB", "infraondb"))
+    POSTGRES_USER = getattr(settings, 'POSTGRES_USER', os.environ.get("POSTGRES_USER", "postgres"))
+    POSTGRES_PASSWORD = getattr(settings, 'POSTGRES_PASSWORD', os.environ.get("POSTGRES_PASSWORD", ""))
+    EMBEDING_MODEL = getattr(settings, 'EMBEDING_MODEL', os.environ.get("EMBEDING_MODEL", "intfloat/e5-base-v2"))
 except (ImportError, Exception):
-    POSTGRES_HOST = "10.0.4.89"
-    POSTGRES_PORT = "5432"
-    POSTGRES_DB = "infraondb"
-    POSTGRES_USER = "postgres"
-    POSTGRES_PASSWORD = "Infraon@123"
-    EMBEDING_MODEL = "intfloat/e5-base-v2"
+    POSTGRES_HOST = os.environ.get("POSTGRES_HOST", "10.0.4.89")
+    POSTGRES_PORT = os.environ.get("POSTGRES_PORT", "5432")
+    POSTGRES_DB = os.environ.get("POSTGRES_DB", "infraondb")
+    POSTGRES_USER = os.environ.get("POSTGRES_USER", "postgres")
+    POSTGRES_PASSWORD = os.environ.get("POSTGRES_PASSWORD", "")
+    EMBEDING_MODEL = os.environ.get("EMBEDING_MODEL", "intfloat/e5-base-v2")
 
 # ----------------------- Load Intents -----------------------
 def load_intents(file_path):
