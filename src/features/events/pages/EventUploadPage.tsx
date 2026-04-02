@@ -4,7 +4,7 @@ import { Button } from '@/shared/components/ui/button';
 import { Progress } from '@/shared/components/ui/progress';
 import { Badge } from '@/shared/components/ui/badge';
 import { MainLayout } from '@/shared/components/layout/MainLayout';
-import { ProcessingPipelineStepper, PipelineStage } from '@/components/upload/ProcessingPipelineStepper';
+import { ProcessingPipelineStepper, PipelineStage } from '@/components/upload/ProcessingPipelineStepper.tsx';
 import { ClusterCard } from '@/components/dashboard/ClusterCard';
 import { mockClusters, processingStats } from '@/data/mock/mockData';
 import { cn } from '@/shared/lib/utils';

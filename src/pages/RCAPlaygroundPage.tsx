@@ -13,22 +13,22 @@ import '@/styles/rcaPlayground.css';
 
 
 const KPI_MAP: Record<string, [string, string]> = {
-    "utilization_percent": ["B/W Util", "%"],
-    "util_pct": ["B/W Util", "%"],
-    "cpu_percent": ["CPU Util", "%"],
-    "cpu_pct": ["CPU Util", "%"],
-    "mem_percent": ["Mem Util", "%"],
-    "mem_util_pct": ["Mem Util", "%"],
-    "men_util_pct": ["Mem Util", "%"],
-    "temp_c": ["Device Temp", " ℃"],
+    "utilization_percent": ["Bandwidth Utilization", "%"],
+    "util_pct": ["Bandwidth Utilization", "%"],
+    "cpu_percent": ["CPU Utilization", "%"],
+    "cpu_pct": ["CPU Utilization", "%"],
+    "mem_percent": ["Memory Utilization", "%"],
+    "mem_util_pct": ["Memory Utilization", "%"],
+    "men_util_pct": ["Memory Utilization", "%"],
+    "temp_c": ["Device Temperature", " ℃"],
     "latency_ms": ["Latency", " ms"],
     "packet_loss_percent": ["Packet Loss", "%"],
     "traffic_dscp0_percent": ["DSCP0 Traffic", "%"],
     "in_errors": ["Input Errors", " pkts"],
     "crc_errors": ["CRC Errors", " pkts"],
     "out_discards": ["Output Errors", " pkts"],
-    "queue_depth": ["Buffer Util", " pkts"],
-    "buffer_util": ["Buffer Util", " pkts"],
+    "queue_depth": ["Buffer Utilization", " pkts"],
+    "buffer_util": ["Buffer Utilization", " pkts"],
     "fan_speed": ["Fan Speed", " rpm"],
     "power_watt": ["Power Supply", " watt"]
 };
@@ -40,13 +40,12 @@ const LOADING_MESSAGES = [
     "Hypothesis Scorer: Scoring hypotheses using metrics and logs...",
     "Situation Builder: Building semantic situation card...",
     // "Planner LLM: Planning diagnostic steps for backup analysis...",
-    "Data Correlation Engine: Executes Plans and Fetches from history...",
+    "Historical Data Retriever: Executes Plans and Fetches from history...",
     "RCA Correlator Engine: Finalizing RCA...",
 ];
-
 const RCA_STEP_CONFIG = [
     {
-        "title": "Step0: EventPreProcessingAndCorrelation",
+        "title": "Step 0: Event Pre-processing / Correlation",
         "icon": "🚨",
         "sub": "• Event Deduplication / Suppression / Normalization.  <br>• Event Correlation.",
         "data": {},
@@ -74,7 +73,7 @@ const RCA_STEP_CONFIG = [
         "mini": "Orchestration process completed.",
     },
     {
-        "title": "Step2: IntentRouting",
+        "title": "Step 2: Intent Routing",
         "icon": "🎯",
         "sub": "• Identify Intent.",
         "data": {
@@ -89,11 +88,11 @@ const RCA_STEP_CONFIG = [
         "mini": "Intent Router process completed.",
     },
     {
-        "title": "Step3: HypothesisScoring",
+        "title": "Step 3: Hypothesis Scoring",
         "icon": "🔍",
         "sub": "• Identify possible hypothesis.",
         "data": {
-            "Slected Intent": "", // Matching typo in reference for 1:1 logic
+            "Selected Intent": "",
             "Top Hypothesis": "",
             "Hypothesis Scores": "",
             "Log Evidence": "",
@@ -132,21 +131,21 @@ const RCA_STEP_CONFIG = [
     //     "mini": "Planner LLM process completed",
     // },
     {
-        "title": "Step 5: Data Correlation Engine",
+        "title": "Step 5: Historical Data Retriever",
         "icon": "📚",
-        "sub": " • Fetches Data from system (Base on PlannerLLM reccomendations). <br>• Updates latest values in current vector DB. <br>• And Retrives similar historical cases from vector DB.",
+        "sub": " • Fetches Data from system (Base on PlannerLLM recommendations). <br>• Updates latest values in current vector DB. <br>• And Retrives similar historical cases from vector DB.",
         "data": {
             "Query": "",
             "Top Match": "",
             "Retrieved Cases": "",
             "Confidence Boost": "",
         },
-        "tl_title": "Data Correlation Engine",
+        "tl_title": "Historical Data Retriever",
         "tl_desc": "",
-        "mini": "Data Correlation Engine process completed.",
+        "mini": "Historical Data Retriever process completed.",
     },
     {
-        "title": "Step6: RcaCorrelatorLlm",
+        "title": "Step 7: RCA Correlator LLM",
         "icon": "🔗",
         "sub": "• Final RCA. <br>• Remedy.",
         "data": {
@@ -363,6 +362,23 @@ const RCAPlaygroundPage = () => {
             //     break;
 
             case 5:
+            // const p = incident.planner_llm_output || {};
+            // formattedData = {
+            //     "Plan ID": p.plan_id || "N/A",
+            //     "Tools": (p.tools_recommended || p.tools_reccomended || []).join(' | '),
+            //     "Plan Steps": (
+            //         <Box sx={{ fontSize: '0.8rem' }}>
+            //             {(p.plan_steps || []).map((s: string, i: number) => (
+            //                 <div key={i}>{i + 1}. {s}</div>
+            //             ))}
+            //         </Box>
+            //     ),
+            //     "Stop Condition": p.stop_when || "N/A"
+            // };
+            // tl_desc = "Planner LLM process completed";
+            // break;
+
+            case 6:
                 const hCases = incident.historical?.retrieved_cases || [];
                 formattedData = {
                     "Query": incident.situation_card?.situation_text || "N/A",
@@ -382,10 +398,10 @@ const RCAPlaygroundPage = () => {
                     ),
                     "Confidence Boost": "+0.15"
                 };
-                tl_desc = "Data Correlation Engine completed";
+                tl_desc = "Historical Data Retriever process completed";
                 break;
 
-            case 6:
+            case 7:
                 const rcaOut = incident.correlator_llm_output || {};
                 formattedData = {
                     "Final RCA": rcaOut.rca || "No Prediction",
@@ -400,7 +416,7 @@ const RCAPlaygroundPage = () => {
                 formattedData = { "Status": "Processing..." };
         }
 
-        return { ...config, step: stepIdx, data: formattedData, tl_desc, mini, is_final: stepIdx === 6 };
+        return { ...config, step: stepIdx, data: formattedData, tl_desc, mini, is_final: stepIdx === 7 };
     };
 
     const runAnimation = (fullSteps: any[]) => {

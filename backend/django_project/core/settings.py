@@ -66,3 +66,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+# PostgreSQL Configuration for RCA Historical Engine
+POSTGRES_HOST = "10.0.4.89"
+POSTGRES_PORT = "5432"
+POSTGRES_DB = "infraondb"
+POSTGRES_USER = "postgres"
+POSTGRES_PASSWORD = "Infraon@123"
+EMBEDING_MODEL = "intfloat/e5-base-v2"

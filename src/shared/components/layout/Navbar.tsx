@@ -117,7 +117,7 @@ export function Navbar() {
             <div className="p-6 border-b border-white/10 flex items-center justify-between bg-black/40">
               <div className="flex items-center gap-3">
                 <Bell className="w-5 h-5 text-blue-400" />
-                <h2 className="text-sm font-black uppercase tracking-[0.2em] text-white">Notifications</h2>
+                <h2 className="text-sm font-black tracking-tight text-white">Notifications</h2>
               </div>
               <Button
                 variant="ghost"
@@ -132,7 +132,7 @@ export function Navbar() {
             <div className="flex-1 p-4 space-y-6 overflow-y-auto custom-scrollbar bg-[#090e1a]" style={{ backgroundColor: '#090e1a' }}>
               <div className="space-y-4">
                 <div className="flex items-center justify-between px-2">
-                  <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Unread Strategic Alerts</h3>
+                  <h3 className="text-[10px] font-black text-slate-400 tracking-wider">Unread Strategic Alerts</h3>
                   <span className="text-[9px] font-bold text-blue-400">{notifications.filter(n => !n.read).length} Alerts</span>
                 </div>
                 {notifications.filter(n => !n.read).map(n => (
@@ -143,16 +143,16 @@ export function Navbar() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-[11px] font-black text-white uppercase tracking-wider">{n.title}</span>
+                          <span className="text-[12px] font-bold text-white tracking-normal">{n.title}</span>
                           <span className="text-[9px] font-bold text-slate-500">{n.time}</span>
                         </div>
-                        <p className="text-xs text-white uppercase font-black leading-relaxed">{n.desc}</p>
+                        <p className="text-xs text-white/80 font-medium leading-relaxed">{n.desc}</p>
                         <div className="mt-5">
                           <Button
                             onClick={() => markAsRead(n.id)}
-                            className="h-8 px-5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold uppercase tracking-widest rounded-lg shadow-lg active:scale-95 transition-all"
+                            className="h-8 px-5 bg-blue-600 hover:bg-blue-700 text-white text-[10px] font-bold tracking-widest rounded-lg shadow-lg active:scale-95 transition-all"
                           >
-                            Mark as Read
+                            Mark as read
                           </Button>
                         </div>
                       </div>
@@ -162,13 +162,13 @@ export function Navbar() {
                 {notifications.filter(n => !n.read).length === 0 && (
                   <div className="py-20 text-center text-slate-600">
                     <Sparkles className="w-10 h-10 mx-auto mb-4 opacity-50" />
-                    <p className="text-[10px] font-black uppercase tracking-widest">All caught up</p>
+                    <p className="text-[10px] font-bold tracking-widest">All caught up</p>
                   </div>
                 )}
               </div>
 
               <div className="pt-6 border-t border-white/5 space-y-4">
-                <h3 className="text-[10px] font-black text-slate-600 uppercase tracking-widest px-2">Processed History</h3>
+                <h3 className="text-[10px] font-black text-slate-600 tracking-wider px-2">Processed History</h3>
                 {notifications.filter(n => n.read).map(n => (
                   <div key={n.id} className="p-4 rounded-xl bg-slate-900 border border-white/10 opacity-50">
                     <div className="flex items-start gap-4">
@@ -177,7 +177,7 @@ export function Navbar() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-[11px] font-black text-slate-500 uppercase tracking-wider">{n.title}</span>
+                          <span className="text-[11px] font-bold text-slate-500 tracking-normal">{n.title}</span>
                         </div>
                         <p className="text-[10px] text-slate-600 leading-relaxed">{n.desc}</p>
                       </div>

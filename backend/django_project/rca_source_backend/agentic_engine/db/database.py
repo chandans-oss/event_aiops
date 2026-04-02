@@ -1,12 +1,21 @@
 import psycopg2
 from sentence_transformers import SentenceTransformer
 
-POSTGRES_HOST = "10.0.4.89"
-POSTGRES_PORT = "5432"
-POSTGRES_DB =  "infraondb"
-POSTGRES_USER =  "postgres"
-POSTGRES_PASSWORD = "Infraon@123"
-EMBEDING_MODEL = "intfloat/e5-base-v2"
+try:
+    from django.conf import settings
+    POSTGRES_HOST = getattr(settings, 'POSTGRES_HOST', "10.0.4.89")
+    POSTGRES_PORT = getattr(settings, 'POSTGRES_PORT', "5432")
+    POSTGRES_DB = getattr(settings, 'POSTGRES_DB', "infraondb")
+    POSTGRES_USER = getattr(settings, 'POSTGRES_USER', "postgres")
+    POSTGRES_PASSWORD = getattr(settings, 'POSTGRES_PASSWORD', "Infraon@123")
+    EMBEDING_MODEL = getattr(settings, 'EMBEDING_MODEL', "intfloat/e5-base-v2")
+except (ImportError, Exception):
+    POSTGRES_HOST = "10.0.4.89"
+    POSTGRES_PORT = "5432"
+    POSTGRES_DB = "infraondb"
+    POSTGRES_USER = "postgres"
+    POSTGRES_PASSWORD = "Infraon@123"
+    EMBEDING_MODEL = "intfloat/e5-base-v2"
 
 def get_db_connection():
     return psycopg2.connect(
