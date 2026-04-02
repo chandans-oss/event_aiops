@@ -29,6 +29,8 @@ import { ScrollArea } from "@/shared/components/ui/scroll-area";
 
 const formatLabel = (str: string) => {
   if (!str) return '';
+  
+  // Specific mappings for common technical terms
   const map: Record<string, string> = {
     'cpu_pct': 'CPU Util',
     'cpu_percent': 'CPU Util',
@@ -37,28 +39,36 @@ const formatLabel = (str: string) => {
     'crc': 'CRC Errors',
     'queue_depth': 'Buffer Util',
     'buffer_util': 'Buffer Util',
-    'latency_ms': 'Latency',
-    'lat': 'Latency',
+    'bandwidth_util': 'B/W Util',
     'util_pct': 'B/W Util',
     'utilization_percent': 'B/W Util',
     'mem_util_pct': 'Mem Util',
     'men_util_pct': 'Mem Util',
     'mem_percent': 'Mem Util',
-    'bw_util': 'B/W Util'
+    'latency_ms': 'Latency',
+    'packet_drop': 'Packet Drop',
+    'packet_loss': 'Packet Loss',
+    'interface_flap': 'Interface Flap'
   };
-  if (map[str.toLowerCase()]) return map[str.toLowerCase()];
+
+  const key = str.toLowerCase().replace(/\s+/g, '_');
+  if (map[key]) return map[key];
+
+  // Fallback for unknown strings: Pascal Case with spacing
   return str
     .replace(/_/g, ' ')
-    .toLowerCase()
-    .replace(/(^|[^a-zA-Z0-9])([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase())
-    .replace(/Cpu/g, 'CPU')
-    .replace(/Crc/g, 'CRC')
-    .replace(/Queue Depth/g, 'Buffer Util')
-    .replace(/Latency Ms/g, 'Latency')
-    .replace(/Util Pct/g, 'B/W Util')
-    .replace(/Cpu Pct/g, 'CPU Util')
-    .replace(/Mem Util Pct/g, 'Mem Util')
-    .replace(/Men Util Pct/g, 'Mem Util');
+    // Only add space between lowercase and uppercase (camelCase)
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .trim()
+    .split(/\s+/)
+    .map(word => {
+      const upper = word.toUpperCase();
+      if (['CPU', 'CRC', 'BW', 'B/W', 'MEM', 'SLA', 'API', 'NMS'].includes(upper)) return upper;
+      // Maintain existing casing if it's already all caps or already mixed
+      if (word === word.toUpperCase() && word.length > 1) return word;
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join(' ');
 };
 
 // --- MOCK DATA & CONSTANTS ---
@@ -106,55 +116,40 @@ const CHAIN_TEMPLATES: Record<string, { label: string, meta: string, steps: any[
     label: 'High Latency',
     meta: '(seen 289x | confidence: 0.72)',
     steps: [
-      { label: 'CPU Spike', subLabel: 'R1:router', description: 'Root cause: Router CPU rising above 0.01%/min' },
-      { label: 'CRC Errors', subLabel: 'SW1:access', description: 'Sequence check: CRC errors jump 10min later' },
-      { label: 'Buffer Util', subLabel: 'SW2:dist', description: 'Cascade: Distribution buffer filling' },
-      { label: 'Latency Rise', subLabel: 'FW1:firewall', description: 'Result: Edge latency breach' }
+      { label: 'CPU Util Rise', p: 'R1', subLabel: 'R1:router', description: 'Root cause: Router CPU rising' },
+      { label: 'CRC Errors', p: 'SW1', d: '10m', subLabel: 'SW1:access', description: 'CRC errors jump 10min later' },
+      { label: 'Buffer Util Rise', p: 'SW2', d: '10m', subLabel: 'SW2:dist', description: 'Distribution buffer filling' },
+      { label: 'Latency Rise', p: 'FW1', d: '10m', subLabel: 'FW1:firewall', description: 'Edge latency breach' }
     ]
   },
-  'DeviceReboot': {
-    label: 'Device Reboot',
-    meta: '(seen 2x | 6 pre-event windows)',
-    steps: [
-      { label: 'Buffer Util Fall', subLabel: 'metric poll', description: 'Significant reduction in processing queue depth' },
-      { label: 'CRC Errors Cleared', subLabel: 'metric poll', description: 'Zero-state CRC stability reached' },
-      { label: 'Latency Drop', subLabel: 'metric poll', description: 'Minimum baseline latency reached' },
-      { label: 'Util Baseline', subLabel: 'metric poll', description: 'Traffic through interface stopped' },
-      { label: 'CPU Idle', subLabel: 'metric poll', description: 'Control plane processing at minimum' },
-      { label: 'Reboot Trap', subLabel: 'SNMP TRAP', description: 'Warm reboot signal detected in stream' }
-    ]
-  },
-  'HighUtilWarning': {
-    label: 'High Util Warning',
-    meta: '(observed in 532 sessions)',
-    steps: [
-      { label: 'CPU Util Rise', subLabel: '3m lag', description: 'Initial CPU load increase detected' },
-      { label: 'CRC Errors Rise', subLabel: '4m lag', description: 'Link layer retransmissions peaking' },
-      { label: 'Latency Rise', subLabel: '6m lag', description: 'Application response delay confirmed' },
-      { label: 'Buffer Util Rise', subLabel: '2m lag', description: 'Hardware buffer pressure building' },
-      { label: 'B/W Util Rise', subLabel: '1m lag', description: 'Link capacity threshold breach' }
-    ]
-  },
-  'InterfaceFlap': {
-    label: 'Interface Flap',
-    meta: '(observed in 146 sessions)',
-    steps: [
-      { label: 'Link Util Rise', subLabel: 'root cause', description: 'Burst traffic on physical link' },
-      { label: 'Buffer Util Rise', subLabel: 'sequence 02', description: 'Queue occupancy rise' },
-      { label: 'CRC Errors Rise', subLabel: 'sequence 03', description: 'Incremental CRC error count' },
-      { label: 'Packet Loss Rise', subLabel: 'sequence 04', description: 'Inbound packet discard detected' },
-      { label: 'Flap Event', subLabel: 'impact', description: 'Oscillation imminent - link down/up' }
-    ]
-  },
-  'PacketDrop': {
+  'PACKET_DROP_CASCADE': {
     label: 'Packet Drop',
-    meta: '(observed in 493 sessions)',
+    meta: '(seen 412x | confidence: 0.81)',
     steps: [
-      { label: 'CPU Util Rise', subLabel: '4m lag', description: 'Processing pressure detected' },
-      { label: 'CRC Errors Rise', subLabel: '2m lag', description: 'Checksum failure increase' },
-      { label: 'Buffer Util Rise', subLabel: '1m lag', description: 'Tail-drop threshold likely' },
-      { label: 'Latency Rise', subLabel: '5m lag', description: 'Sequential delay drift' },
-      { label: 'B/W Util Rise', subLabel: '3m lag', description: 'Active packet discard impact' }
+      { label: 'Buffer Util Rise', p: 'R1', subLabel: 'R1:router', description: 'Initial buffer pressure' },
+      { label: 'CRC Errors Rise', p: 'SW1', d: '5m', subLabel: 'SW1:access', description: 'Link errors at 5m' },
+      { label: 'Latency Rise', p: 'SW2', d: '10m', subLabel: 'SW2:dist', description: 'Sequential delay at 10m' },
+      { label: 'Packet Drop Rise', p: 'FW1', d: '5m', subLabel: 'FW1:firewall', description: 'Final packet loss' }
+    ]
+  },
+  'CONFIG_DRIFT_CHAIN': {
+    label: 'High Latency (Config)',
+    meta: '(seen 156x | confidence: 0.68)',
+    steps: [
+      { label: 'Config Change', p: 'R2', subLabel: 'R2:core', description: 'Manual config change detected' },
+      { label: 'Peer Down', p: 'R2', d: '5m', subLabel: 'R2:core', description: 'BGP neighborship lost at 5m' },
+      { label: 'CRC Errors', p: 'SW1', d: '10m', subLabel: 'SW1:access', description: 'Physical errors on backup path' },
+      { label: 'Latency Rise', p: 'FW1', d: '10m', subLabel: 'FW1:firewall', description: 'Application delay spike' }
+    ]
+  },
+  'INTERFACE_FLAP_STORM': {
+    label: 'Interface Flap',
+    meta: '(seen 532x | confidence: 0.82)',
+    steps: [
+      { label: 'B/W Util Rise', p: 'R1', subLabel: 'R1:router', description: 'Router bandwidth saturation — root cause' },
+      { label: 'Buffer Util Rise', p: 'SW1', d: '4m', subLabel: 'SW1:access', description: 'Switch buffer fills 4m after BW spike' },
+      { label: 'CRC Errors Rise', p: 'SW1', d: '2m', subLabel: 'SW1:access', description: 'CRC errors escalate 2m later on same switch' },
+      { label: 'Packet Loss Rise', p: 'SW1', d: '5m', subLabel: 'SW1:access', description: 'Interface flap storm causes packet loss on SW1' }
     ]
   }
 };
@@ -163,11 +158,11 @@ const CONFIDENCE_JUMPS = [0.32, 0.55, 0.74, 0.89, 1.0, 1.0];
 const GAP_PENALTY = 0.12;
 
 const DEVICES = [
-  { n: "router-01", i: "Gi0/1/0", t: 'ROUTER', p: 'NXS', ip: '10.10.1.2', m: 'Nexus 9336C' },
-  { n: "router-02", i: "Gi0/3/0", t: 'ROUTER', p: 'ARI', ip: '10.20.3.5', m: '7050CX3-32S' },
-  { n: "router-03", i: "Gi0/1/0", t: 'ROUTER', p: 'ISR', ip: '172.16.0.1', m: '4451-X' },
-  { n: "switch-01", i: "Eth1/1", t: 'SWITCH', p: 'JNX', ip: '10.20.2.1', m: 'MX204' },
-  { n: "switch-02", i: "Eth1/2", t: 'SWITCH', p: 'CSW', ip: '10.10.1.1', m: 'Catalyst 9300' },
+  { n: "router-01", i: "Gi0/1/0", t: 'ROUTER', p: 'R1', ip: '10.10.1.2', m: 'Nexus 9336C' },
+  { n: "router-02", i: "Gi0/3/0", t: 'ROUTER', p: 'R2', ip: '10.20.3.5', m: '7050CX3-32S' },
+  { n: "router-03", i: "Gi0/1/0", t: 'ROUTER', p: 'R3', ip: '172.16.0.1', m: '4451-X' },
+  { n: "switch-01", i: "Eth1/1", t: 'SWITCH', p: 'SW1', ip: '10.20.2.1', m: 'MX204' },
+  { n: "switch-02", i: "Eth1/2", t: 'SWITCH', p: 'SW2', ip: '10.10.1.1', m: 'Catalyst 9300' },
   { n: "firewall-01", i: "Eth1/1", t: 'FIREWALL', p: 'FW1', ip: '10.50.1.5', m: 'Firepower 4110' },
 ];
 
@@ -396,11 +391,10 @@ export default function LiveInferencePage() {
 
     addLog(`ENGINE: Sending telemetry batch to ${MODELS.length} models in parallel...`);
 
-    // Simulate some delay for "processing"
     setTimeout(() => {
       const newInferences: InferenceItem[] = [];
 
-      // Randomly generate results for some devices
+      // 1. Generate Random Predictions/Anomalies (Top Grid)
       const count = Math.floor(Math.random() * 3) + 1;
       let pCount = 0;
       let aCount = 0;
@@ -411,7 +405,7 @@ export default function LiveInferencePage() {
         const rand = Math.random();
 
         let item: InferenceItem;
-        if (rand > 0.5) { // Prediction: Forecasting using Device-Specific Chains
+        if (rand > 0.5) { // Prediction Case
           const chains = dev.t === 'ROUTER' ? ROUTER_CHAINS : SWITCH_CHAINS;
           const chain = chains[Math.floor(Math.random() * chains.length)];
           const waitMinutes = [5, 10, 15, 20, 30, 45, 60, 90][Math.floor(Math.random() * 8)];
@@ -431,8 +425,7 @@ export default function LiveInferencePage() {
             predictedTime: pTime.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
           };
           pCount++;
-          addLog(`RF_MODEL [${dev.t}]: Predicted ${item.event} on ${item.device} (${item.estimatedWait})`);
-        } else { // Anomaly: Isolation Forest Discovery
+        } else { // Anomaly Case
           const triggerMetric = ['cpu_pct', 'util_pct', 'queue_depth', 'latency_ms', 'crc_errors'][Math.floor(Math.random() * 5)];
           const description = `${formatLabel(triggerMetric)} Spike Detected`;
           item = {
@@ -447,120 +440,128 @@ export default function LiveInferencePage() {
             status: 'CRITICAL'
           };
           aCount++;
-          addLog(`ISO_FOREST [${dev.t}]: Anomalous ${triggerMetric} detected on ${item.device} (Confidence: ${item.confidence})`);
         }
-
-        // Push all inferences to the grid (Predictions, Anomalies, and Analyzed Patterns)
         newInferences.push(item);
       }
 
       // Handle Pattern Matches
       const activePatterns: PatternMatchItem[] = [...patternMatches];
 
-      // Ensure our asked pattern is always present as a 6th row row for demonstration
-      const rootPatternExist = activePatterns.find(p => p.id === 'PAT-LATENCY-ROOT');
-      if (!rootPatternExist && currentPollCount >= 15) {
-          const fwDev = DEVICES.find(d => d.p === 'FW1') || DEVICES[0];
-          const template = CHAIN_TEMPLATES['HIGH_LATENCY_VALIDATED'];
-          const nowTime = new Date().toLocaleTimeString();
-          
-          const staticPattern: PatternMatchItem = {
-            id: 'PAT-LATENCY-ROOT',
-            device: fwDev.n,
-            deviceType: fwDev.t,
-            prefix: (fwDev as any).p,
-            ip: (fwDev as any).ip,
-            model: (fwDev as any).m,
-            templateId: 'HIGH_LATENCY_VALIDATED',
-            topology: 'DC_EAST_TOPOLOGY',
-            interface: fwDev.i,
+      // On first inference cycle (poll 15), seed all 4 chain templates as live mock patterns
+      // across different affected devices so the table shows variety from the start.
+      if (currentPollCount === 15 && activePatterns.length === 0) {
+        const nowTime = new Date().toLocaleTimeString();
+
+        // 1. HIGH_LATENCY → FW1 (firewall-01), all steps confirmed
+        const hlTpl = CHAIN_TEMPLATES['HIGH_LATENCY_VALIDATED'];
+        const fwDev = DEVICES.find(d => d.p === 'FW1') || DEVICES[5];
+        activePatterns.push({
+          id: 'PAT-LATENCY-ROOT',
+          device: fwDev.n, deviceType: fwDev.t, prefix: fwDev.p,
+          ip: fwDev.ip, model: fwDev.m, templateId: 'HIGH_LATENCY_VALIDATED',
+          topology: 'DC_EAST_TOPOLOGY', interface: fwDev.i,
+          timestamp: nowTime, currentStep: hlTpl.steps.length - 1, confidence: 0.89,
+          steps: hlTpl.steps.map((_, i) => ({
+            status: 'arrived',
             timestamp: nowTime,
-            currentStep: 2, // At Step 3 (BUFFER_UTIL)
-            confidence: 0.72,
-            steps: template.steps.map((_, i) => ({
-              status: i <= 2 ? 'arrived' : 'pending',
-              timestamp: i <= 2 ? nowTime : undefined,
-              confValue: i <= 2 ? 0.72 : undefined
-            }))
-          };
-          activePatterns.push(staticPattern);
+            confValue: 0.89
+          }))
+        });
+
+        // 2. PACKET_DROP → SW2 (switch-02), all steps confirmed
+        const pdTpl = CHAIN_TEMPLATES['PACKET_DROP_CASCADE'];
+        const sw2Dev = DEVICES.find(d => d.p === 'SW2') || DEVICES[4];
+        activePatterns.push({
+          id: 'PAT-PACKET-ROOT',
+          device: sw2Dev.n, deviceType: sw2Dev.t, prefix: sw2Dev.p,
+          ip: sw2Dev.ip, model: sw2Dev.m, templateId: 'PACKET_DROP_CASCADE',
+          topology: 'DC_WEST_TOPOLOGY', interface: sw2Dev.i,
+          timestamp: nowTime, currentStep: pdTpl.steps.length - 1, confidence: 0.89,
+          steps: pdTpl.steps.map((_, i) => ({
+            status: 'arrived',
+            timestamp: nowTime,
+            confValue: 0.89
+          }))
+        });
+
+        // 3. CONFIG_DRIFT → router-02 (R2), all steps confirmed
+        const cdTpl = CHAIN_TEMPLATES['CONFIG_DRIFT_CHAIN'];
+        const r2Dev = DEVICES.find(d => d.p === 'R2') || DEVICES[1];
+        activePatterns.push({
+          id: 'PAT-CONFIG-ROOT',
+          device: r2Dev.n, deviceType: r2Dev.t, prefix: r2Dev.p,
+          ip: r2Dev.ip, model: r2Dev.m, templateId: 'CONFIG_DRIFT_CHAIN',
+          topology: 'DC_EAST_TOPOLOGY', interface: r2Dev.i,
+          timestamp: nowTime, currentStep: cdTpl.steps.length - 1, confidence: 0.89,
+          steps: cdTpl.steps.map((_, i) => ({
+            status: 'arrived',
+            timestamp: nowTime,
+            confValue: 0.89
+          }))
+        });
+
+        // 4. INTERFACE_FLAP → switch-01 (SW1), all steps confirmed
+        const ifTpl = CHAIN_TEMPLATES['INTERFACE_FLAP_STORM'];
+        const sw1Dev = DEVICES.find(d => d.p === 'SW1') || DEVICES[3];
+        activePatterns.push({
+          id: 'PAT-FLAP-ROOT',
+          device: sw1Dev.n, deviceType: sw1Dev.t, prefix: sw1Dev.p,
+          ip: sw1Dev.ip, model: sw1Dev.m, templateId: 'INTERFACE_FLAP_STORM',
+          topology: 'DC_WEST_TOPOLOGY', interface: sw1Dev.i,
+          timestamp: nowTime, currentStep: ifTpl.steps.length - 1, confidence: 0.89,
+          steps: ifTpl.steps.map((_, i) => ({
+            status: 'arrived',
+            timestamp: nowTime,
+            confValue: 0.89
+          }))
+        });
+
+        patCount += 4;
+        addLog('KMEANS: Initial pattern seeds loaded — 4 active chains detected across topology.');
       }
 
-      // Randomly start a new pattern or progress existing ones
-      if (Math.random() > 0.4) {
-          const dev = DEVICES[Math.floor(Math.random() * (DEVICES.length - 1))]; // Exclude FW1 from random churn to keep row stable
-          const existingIdx = activePatterns.findIndex(p => p.device === dev.n && p.id !== 'PAT-LATENCY-ROOT');
+      // Randomly progress one of the existing seeded patterns each cycle
+      if (currentPollCount > 15 && activePatterns.length > 0 && Math.random() > 0.4) {
+        // Pick a random existing pattern to progress
+        const progIdx = Math.floor(Math.random() * activePatterns.length);
+        const p = activePatterns[progIdx];
+        const temp = CHAIN_TEMPLATES[p.templateId];
+        if (p.currentStep < temp.steps.length - 1) {
+          const targetStep = p.currentStep + 1;
+          p.currentStep = targetStep;
+          p.steps[targetStep] = { status: 'arrived', timestamp: now.toLocaleTimeString(), confValue: 0.4 + (Math.random() * 0.5) };
+          const baseConf = CONFIDENCE_JUMPS[targetStep] || p.confidence;
+          p.confidence = Math.min(0.99, baseConf);
+          addLog(`KMEANS: Chain progression on ${p.device} [Step ${targetStep + 1}/${temp.steps.length}: ${temp.steps[targetStep].label}]`);
+          patCount++;
+        }
+      }
 
-        if (existingIdx === -1) {
-          // New Pattern
-          const templates = Object.keys(CHAIN_TEMPLATES);
-          const tId = templates[Math.floor(Math.random() * templates.length)];
-          const template = CHAIN_TEMPLATES[tId];
-
-          const newPattern: PatternMatchItem = {
+      // Also occasionally spawn a brand new random chain
+      if (currentPollCount > 15 && Math.random() > 0.7) {
+        const templates = Object.keys(CHAIN_TEMPLATES);
+        const tId = templates[Math.floor(Math.random() * templates.length)];
+        const template = CHAIN_TEMPLATES[tId];
+        // Pick a device not already active
+        const usedDevices = new Set(activePatterns.map(p => p.device));
+        const freeDev = DEVICES.find(d => !usedDevices.has(d.n));
+        if (freeDev) {
+          activePatterns.unshift({
             id: `PAT-${Date.now()}`,
-            device: dev.n,
-            deviceType: dev.t,
-            prefix: (dev as any).p,
-            ip: (dev as any).ip,
-            model: (dev as any).m,
-            templateId: tId,
-            topology: dev.t === 'ROUTER' ? 'DC_EAST_TOPOLOGY' : 'DC_WEST_TOPOLOGY',
-            interface: dev.i,
-            timestamp: now.toLocaleTimeString(),
-            currentStep: 0,
-            confidence: CONFIDENCE_JUMPS[0],
+            device: freeDev.n, deviceType: freeDev.t, prefix: freeDev.p,
+            ip: freeDev.ip, model: freeDev.m, templateId: tId,
+            topology: freeDev.t === 'ROUTER' ? 'DC_EAST_TOPOLOGY' : 'DC_WEST_TOPOLOGY',
+            interface: freeDev.i, timestamp: now.toLocaleTimeString(),
+            currentStep: 0, confidence: CONFIDENCE_JUMPS[0],
             steps: template.steps.map((_, i) => ({
               status: i === 0 ? 'arrived' : 'pending',
               timestamp: i === 0 ? now.toLocaleTimeString() : undefined,
               confValue: i === 0 ? 0.32 + (Math.random() * 0.05) : undefined
             }))
-          };
-          activePatterns.unshift(newPattern);
+          });
           patCount++;
-          addLog(`KMEANS: New sequential pattern matching started on ${dev.n} [Sequence: ${tId}]`);
-        } else {
-          // Progress existing
-          const p = activePatterns[existingIdx];
-          const template = CHAIN_TEMPLATES[p.templateId];
-          if (p.currentStep < template.steps.length - 1) {
-            // Support skipping steps (out of order arrival)
-            const maxJump = Math.min(2, template.steps.length - 1 - p.currentStep);
-            const jump = Math.random() > 0.85 ? maxJump : 1; // 15% chance to jump
-            const targetStep = p.currentStep + jump;
-
-            // Mark intermediate steps as gap if we jumped
-            for (let i = p.currentStep + 1; i < targetStep; i++) {
-              p.steps[i] = {
-                status: 'gap',
-                timestamp: now.toLocaleTimeString(),
-                confValue: 0
-              };
-            }
-
-            // Mark target step as arrived
-            p.currentStep = targetStep;
-            p.steps[targetStep] = {
-              status: 'arrived',
-              timestamp: now.toLocaleTimeString(),
-              confValue: 0.4 + (Math.random() * 0.5)
-            };
-
-            const baseConf = CONFIDENCE_JUMPS[targetStep] || p.confidence;
-            const gaps = p.steps.filter(s => s?.status === 'gap').length;
-            p.confidence = Math.max(0, baseConf - (gaps * GAP_PENALTY));
-
-            addLog(`KMEANS: Pattern ${jump > 1 ? 'JUMP' : 'progression'} detected on ${p.device} [Step ${targetStep + 1}: ${template.steps[targetStep].label}]`);
-          }
+          addLog(`KMEANS: New chain detected on ${freeDev.n} [Sequence: ${tId}]`);
         }
-      }
-
-      let currentProgressions = patCount; // Start with the new patterns created this cycle
-      // If we progressed existing patterns, count those too
-      if (Math.random() > 0.4 && activePatterns.length > 0) {
-        // In the current logic, we only potentially do ONE progression or ONE new pattern per cycle.
-        // Let's make it more realistic by allowing multiple matches per cycle if polls are high.
-        currentProgressions += Math.floor(Math.random() * 2);
       }
 
       setPatternMatches(activePatterns.slice(0, 10));
@@ -569,7 +570,7 @@ export default function LiveInferencePage() {
         ...prev,
         predictions: prev.predictions + pCount,
         anomalies: prev.anomalies + aCount,
-        patterns: prev.patterns + currentProgressions,
+        patterns: activePatterns.slice(0, 10).length,
         polls: currentPollCount
       }));
       setInferences(prev => [...newInferences, ...prev].slice(0, 20));
@@ -905,16 +906,25 @@ export default function LiveInferencePage() {
                           </div>
 
                           {/* chain pills */}
-                          <div className="flex-1 overflow-hidden flex items-center gap-[2px]">
+                          <div className="flex-1 overflow-hidden flex items-center gap-[0px]">
                             {CHAIN_TEMPLATES[pat.templateId].steps.map((step, i) => {
                               const stepData = pat.steps[i];
                               const st = i <= pat.currentStep ? (stepData?.status || 'arrived') : (i === pat.currentStep + 1 ? 'nxt' : 'fut');
                               const cls = `mp mp-${st === 'arrived' ? 'ok' : st}`;
-                              const lbl = step.label.replace(/_BREACH|_TRAP|_EVENT/g, '');
+                              const lbl = formatLabel(step.label);
+                              const prefix = step.p ? `${step.p}: ` : '';
                               return (
                                 <span key={i} className="flex items-center">
-                                  <span className={cls}>{lbl}</span>
-                                  {i < CHAIN_TEMPLATES[pat.templateId].steps.length - 1 && <span className="marr text-border text-[8px] px-0.5">›</span>}
+                                  {i > 0 && (
+                                    <span className="text-[10px] text-muted-foreground/40 font-['IBM_Plex_Mono',monospace] px-1 whitespace-nowrap">
+                                      {`--${step.d || '5min'}-->`}
+                                    </span>
+                                  )}
+                                  <span className={cls}>
+                                    <span className="opacity-70 mr-1">{prefix}</span>
+                                    {lbl}
+                                    <span className="ml-1 opacity-80">↑</span>
+                                  </span>
                                 </span>
                               );
                             })}
@@ -949,10 +959,9 @@ export default function LiveInferencePage() {
                               <div className="stpr-h text-[9px] text-muted-foreground font-['IBM_Plex_Mono',monospace] mb-8 flex items-center gap-2 sticky left-0">
                                 <div className="stpr-dot w-1 h-1 rounded-full" style={{ background: bclr }}></div>
                                 <span className="bg-primary/20 text-primary px-1.5 py-0.5 rounded mr-1">TOPOLOGY: {pat.topology || 'GLOBAL'}</span>
-                                {isCf ? 'full pattern matched — sequence confirmed' : `predicting ${pat.templateId.toLowerCase()} · ${CHAIN_TEMPLATES[pat.templateId].steps.length - (pat.currentStep + 1)} steps remaining`}
                               </div>
 
-                              <div className="flex items-start">
+                              <div className="flex items-start justify-center w-full">
                                 {CHAIN_TEMPLATES[pat.templateId].steps.map((step, i) => {
                                   const stepState = pat.steps[i];
                                   const st = i <= pat.currentStep ? (stepState?.status || 'arrived') : (i === pat.currentStep + 1 ? 'nxt' : 'fut');
@@ -973,8 +982,15 @@ export default function LiveInferencePage() {
                                   return (
                                     <div key={i} className="flex flex-col items-center min-w-[170px] flex-shrink-0 group">
                                       {/* Node & Lines Row */}
-                                      <div className="w-full flex items-center h-[24px] mb-4">
+                                      <div className="w-full flex items-center h-[24px] mb-4 relative">
                                         <div className={cn("h-[2px] flex-1", cLeft)}></div>
+                                        {i > 0 && (
+                                          <div className="absolute left-0 top-[-10px] -translate-x-1/2 flex justify-center pointer-events-none">
+                                            <span className="text-[8px] font-black text-muted-foreground/50 font-['IBM_Plex_Mono',monospace] bg-card px-1">
+                                              {`--${step.d || '5m'}-->`}
+                                            </span>
+                                          </div>
+                                        )}
                                         <div className={cn("sn w-[20px] h-[20px] rounded-full flex items-center justify-center text-[8px] font-bold border-2 mx-2 flex-shrink-0 transition-transform group-hover:scale-110",
                                           isCfN ? "sn-cf" : isArrived ? "sn-ok" : isGap ? "sn-gap" : isNxt ? "sn-nxt" : "sn-fut")}>
                                           {isArrived ? '✓' : isGap ? '' : i + 1}
@@ -992,7 +1008,7 @@ export default function LiveInferencePage() {
                                         )}
                                         <div className={cn("sl text-[10px] font-bold font-['IBM_Plex_Mono',monospace] tracking-tight mb-2 h-[24px] flex items-center justify-center leading-tight line-clamp-2",
                                           isCfN ? "sl-cf" : isArrived ? "sl-ok" : isGap ? "sl-gap" : isNxt ? "sl-nxt" : "sl-fut")}>
-                                          {step.label.split('_').join(' ')}
+                                          {step.p ? `${step.p}: ` : ''}{formatLabel(step.label)} ↑
                                         </div>
 
                                         {isArrived && (
@@ -1010,14 +1026,11 @@ export default function LiveInferencePage() {
                                           </div>
                                         )}
 
-                                        {isNxt && (
-                                          <div className="flex flex-col items-center gap-1.5 animate-pulse duration-1000 group/model">
-                                            <div className="text-[10px] font-bold text-foreground/80 group-hover/model:text-primary transition-colors">
-                                              {formatLabel((pat.deviceType === 'ROUTER' ? MODELS[2] : MODELS[3]).name.replace('.pkl', ''))}
-                                            </div>
-                                            <span className="px-1.5 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-[2px] text-[8px] font-bold uppercase tracking-widest">NEXT EVENT</span>
-                                          </div>
-                                        )}
+{isNxt && (
+  <div className="flex flex-col items-center gap-1.5 animate-pulse duration-1000 group/model">
+    <span className="px-1.5 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-[2px] text-[8px] font-bold uppercase tracking-widest">NEXT EVENT</span>
+  </div>
+)}
 
                                         {isGap && (
                                           <div className="flex flex-col items-center opacity-30">

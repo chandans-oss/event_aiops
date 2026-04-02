@@ -2738,10 +2738,14 @@ export default function TrainingLovelablePage() {
 
           {/* SECTION 01: SLIDING WINDOWS */}
           <section className={cn("animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(3) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8]"></span>
-              <span className="text-[16px] font-semibold tracking-[-0.01em]">Data Prep {displayTargetLabel && `- ${displayTargetLabel}`}</span>
-              <span className="text-[13px] text-[#94A3B8] ml-auto">8,156 document windows integrated</span>
+            <div className="flex flex-col gap-1 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+              {displayTargetLabel && (
+                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#3B82F6]/80">{displayTargetLabel}</span>
+              )}
+              <div className="flex items-baseline gap-2.5">
+                <span className="text-[16px] font-semibold tracking-[-0.01em]">Data Prep</span>
+                <span className="text-[13px] text-[#94A3B8] ml-auto">8,156 document windows integrated</span>
+              </div>
             </div>
 
             {!isStepReady(3) ? <LoadingState title="Time Series" /> : (
@@ -2774,16 +2778,20 @@ export default function TrainingLovelablePage() {
           </section>
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(4) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#94A3B8]"></span>
-              <span className="text-[16px] font-semibold tracking-[-0.01em]">Cross Correlation (Pearson / Spearman) {displayTargetLabel && `- ${displayTargetLabel}`}</span>
-              <button
+            <div className="flex flex-col gap-1 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+              {displayTargetLabel && (
+                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#3B82F6]/80">{displayTargetLabel}</span>
+              )}
+              <div className="flex items-baseline gap-2.5">
+                <span className="text-[16px] font-semibold tracking-[-0.01em]">Cross Correlation (Pearson / Spearman)</span>
+                <button
                 onClick={() => setShowTimeLagVenn(!showTimeLagVenn)}
                 className={cn("ml-2 p-1 rounded-full transition-all", showTimeLagVenn ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#94A3B8] hover:text-white")}
               >
                 <Info className="w-4 h-4" />
               </button>
             </div>
+          </div>
             {!isStepReady(4) ? <LoadingState title="Statistical Correlation" /> : (
               <div className="animate-in fade-in duration-700">
                 {showTimeLagVenn ? (
@@ -2855,26 +2863,30 @@ export default function TrainingLovelablePage() {
           </section>
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(5) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#F8FAFC]"></span>
-              <span className="text-[16px] font-semibold tracking-[-0.01em] text-[#F8FAFC]">Granger Causality {displayTargetLabel && `- ${displayTargetLabel}`}</span>
-              <div className="flex items-center gap-4 ml-8 px-3 py-1 bg-[#1e293b]/60 border border-[#334155] rounded-lg">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-[#F59E0B] shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
-                  <span className="text-[10px] text-[#F8FAFC] font-black uppercase tracking-widest">Cause</span>
+            <div className="flex flex-col gap-1 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+              {displayTargetLabel && (
+                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#3B82F6]/80">{displayTargetLabel}</span>
+              )}
+              <div className="flex items-baseline gap-2.5">
+                <span className="text-[16px] font-semibold tracking-[-0.01em] text-[#F8FAFC]">Granger Causality</span>
+                <div className="flex items-center gap-4 ml-8 px-3 py-1 bg-[#1e293b]/60 border border-[#334155] rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-[#F59E0B] shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+                    <span className="text-[10px] text-[#F8FAFC] font-black uppercase tracking-widest">Cause</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-[#3B82F6] shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                    <span className="text-[11px] text-[#F8FAFC] font-black uppercase tracking-widest">Effect</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-[#3B82F6] shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
-                  <span className="text-[11px] text-[#F8FAFC] font-black uppercase tracking-widest">Effect</span>
-                </div>
-              </div>
-              <button
+                <button
                 onClick={() => setShowCausalVenn(!showCausalVenn)}
                 className={cn("ml-2 p-1 rounded-full transition-all", showCausalVenn ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#F8FAFC] hover:text-white")}
               >
                 <Info className="w-4 h-4" />
               </button>
             </div>
+          </div>
             {!isStepReady(5) ? <LoadingState title="Granger Causality" /> : (
               <div className="animate-in fade-in duration-700">
                 {showCausalVenn ? (
@@ -2943,16 +2955,20 @@ export default function TrainingLovelablePage() {
           </section>
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(6) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#F8FAFC]"></span>
-              <span className="text-[16px] font-semibold tracking-[-0.01em]">Pre-Event Behavior {displayTargetLabel && `- ${displayTargetLabel}`}</span>
-              <button
+            <div className="flex flex-col gap-1 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+              {displayTargetLabel && (
+                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#3B82F6]/80">{displayTargetLabel}</span>
+              )}
+              <div className="flex items-baseline gap-2.5">
+                <span className="text-[16px] font-semibold tracking-[-0.01em]">Pre-Event Behavior</span>
+                <button
                 onClick={() => setShowPreEvtTable(!showPreEvtTable)}
                 className={cn("ml-2 p-1 rounded-full transition-all", showPreEvtTable ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#F8FAFC] hover:text-white")}
               >
                 <Info className="w-4 h-4" />
               </button>
             </div>
+          </div>
             {!isStepReady(6) ? <LoadingState title="Pre-Event Behavior" /> : (
               <div className="animate-in fade-in duration-700">
                 {!showPreEvtTable ? (
@@ -3015,9 +3031,13 @@ export default function TrainingLovelablePage() {
           </section>
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(7) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#F8FAFC]"></span>
-              <span className="text-[16px] font-semibold tracking-[-0.01em]">KMeans Clustering Patterns {displayTargetLabel && `- ${displayTargetLabel}`}</span>
+            <div className="flex flex-col gap-1 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+              {displayTargetLabel && (
+                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#3B82F6]/80">{displayTargetLabel}</span>
+              )}
+              <div className="flex items-baseline gap-2.5">
+                <span className="text-[16px] font-semibold tracking-[-0.01em]">KMeans Clustering Patterns</span>
+              </div>
             </div>
             {!isStepReady(7) ? <LoadingState title="K-Means Clustering" /> : (
               <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden">
@@ -3052,16 +3072,20 @@ export default function TrainingLovelablePage() {
           </section>
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(8) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#F8FAFC]"></span>
-              <span className="text-[16px] font-semibold tracking-[-0.01em]">Random Forest {displayTargetLabel && `- ${displayTargetLabel}`}</span>
-              <button
+            <div className="flex flex-col gap-1 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+              {displayTargetLabel && (
+                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#3B82F6]/80">{displayTargetLabel}</span>
+              )}
+              <div className="flex items-baseline gap-2.5">
+                <span className="text-[16px] font-semibold tracking-[-0.01em]">Random Forest</span>
+                <button
                 onClick={() => setShowRFTable(!showRFTable)}
                 className={cn("ml-2 p-1 rounded-full transition-all", showRFTable ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#F8FAFC] hover:text-white")}
               >
                 <Info className="w-4 h-4" />
               </button>
             </div>
+          </div>
             {!isStepReady(8) ? <LoadingState title="Random Forest" /> : (
               <div>
                 {!showRFTable ? (
@@ -3140,9 +3164,13 @@ export default function TrainingLovelablePage() {
             )}
           </section>
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(9) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[12px] text-[#F8FAFC]"></span>
-              <span className="text-[16px] font-semibold tracking-[-0.01em]">Sequential Pattern Mining {displayTargetLabel && `- ${displayTargetLabel}`}</span>
+            <div className="flex flex-col gap-1 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+              {displayTargetLabel && (
+                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#3B82F6]/80">{displayTargetLabel}</span>
+              )}
+              <div className="flex items-baseline gap-2.5">
+                <span className="text-[16px] font-semibold tracking-[-0.01em]">Sequential Pattern Mining</span>
+              </div>
             </div>
             {!isStepReady(9) ? <LoadingState title="Sequence Mining" /> : (
               <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden shadow-xl">
@@ -3200,10 +3228,13 @@ export default function TrainingLovelablePage() {
           </section>
 
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500", !shouldShow(12) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#94A3B8]"></span>
-              <span className="text-[16px] font-semibold tracking-[-0.01em]">Event Co-occurrence {displayTargetLabel && `- ${displayTargetLabel}`}</span>
-              <button
+            <div className="flex flex-col gap-1 pb-2.5 border-b-[1.5px] border-[#3B82F6]/50 mb-3.5">
+              {displayTargetLabel && (
+                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#3B82F6]/80">{displayTargetLabel}</span>
+              )}
+              <div className="flex items-baseline gap-2.5">
+                <span className="text-[16px] font-semibold tracking-[-0.01em]">Event Co-occurrence</span>
+                <button
                 onClick={() => setShowCoocHeatMap(!showCoocHeatMap)}
                 className={cn("ml-2 p-1 rounded-full transition-all", showCoocHeatMap ? "bg-[#3B82F6] text-white" : "bg-[#1E293B] text-[#94A3B8] hover:text-white")}
               >
@@ -3211,6 +3242,7 @@ export default function TrainingLovelablePage() {
               </button>
               <span className="text-[12px] text-[#94A3B8] ml-auto uppercase font-black tracking-widest">{showCoocHeatMap ? 'Heatmap View' : 'Table View'}</span>
             </div>
+          </div>
             {!isStepReady(12) ? <LoadingState title="Co-occurrence Analysis" /> : (
               <div className="animate-in fade-in duration-700">
                 {showCoocHeatMap ? (
@@ -3256,9 +3288,13 @@ export default function TrainingLovelablePage() {
 
           {/* SECTION 10: FAILURE CHAINS */}
           <section className={cn("mt-8 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-12", !shouldShow(10) && "hidden")}>
-            <div className="flex items-baseline gap-2.5 pb-2.5 border-b-[1.5px] border-[#F59E0B]/50 mb-6">
-              <span className="font-['IBM_Plex_Mono',monospace] text-[11px] text-[#F59E0B]"></span>
-              <span className="text-[16px] font-semibold tracking-[-0.01em] text-[#F59E0B]">Failure Chains {displayTargetLabel && `- ${displayTargetLabel}`}</span>
+            <div className="flex flex-col gap-1 pb-2.5 border-b-[1.5px] border-[#F59E0B]/50 mb-6">
+              {displayTargetLabel && (
+                <span className="font-['IBM_Plex_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#F59E0B]/80">{displayTargetLabel}</span>
+              )}
+              <div className="flex items-baseline gap-2.5">
+                <span className="text-[16px] font-semibold tracking-[-0.01em] text-[#F59E0B]">Failure Chains</span>
+              </div>
             </div>
             {!isStepReady(10) ? <LoadingState title="Failure Chains" /> : (
               <div className="bg-[#1e293b]/40 border border-[#334155] rounded-[10px] overflow-hidden shadow-xl">
