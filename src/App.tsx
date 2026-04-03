@@ -62,7 +62,7 @@ const App = () => (
         <BrowserRouter>
           <ErrorBoundary>
             <Routes>
-              {/* Pattern Prediction - Results first to avoid any shadowing */}
+              <Route path="/" element={<AnalyticsDashboard />} />
               <Route path="/pattern-prediction/results" element={<LovelableResultsPage />} />
               <Route path="/pattern-prediction/report/:reportId" element={<TrainingReportPage />} />
               <Route path="/pattern-prediction/training" element={<TrainingLovelablePage />} />
@@ -80,7 +80,7 @@ const App = () => (
               <Route path="/algo-training/training" element={<AlgoTrainingPage />} />
               <Route path="/algo-training/results" element={<AlgoResultsPage />} />
               
-              <Route path="/" element={<AnalyticsDashboard />} />
+
               <Route path="/events" element={<Events />} />
               <Route path="/events/predicted" element={<PredictedEvents />} />
               <Route path="/rca/detail/:id" element={<RCADetailPage />} />
