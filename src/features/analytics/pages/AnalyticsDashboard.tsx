@@ -18,6 +18,7 @@ import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
 import { RCASidebar } from '@/features/rca/sidebars/RcaSidebar';
+import { RemediationSidebar } from '@/features/remediation/sidebars/RemediationSidebar';
 import { mockClusters } from '@/data/mock/mockData';
 import { Cluster } from '@/shared/types';
 
@@ -69,7 +70,7 @@ const baseOptions = {
 export default function AnalyticsDashboard() {
   const assetGaugeRef = useRef<HTMLCanvasElement>(null);
   const [selectedCluster, setSelectedCluster] = useState<Cluster | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeSidebar, setActiveSidebar] = useState<'rca' | 'remediation' | null>(null);
 
   // Map Root Cause Insights directly from mockClusters to display real data
   const rcaInsightsData = useMemo(() => {
@@ -109,7 +110,7 @@ export default function AnalyticsDashboard() {
   const handleAnalyze = (item: any) => {
     const cluster = mockClusters.find(c => c.id === item.id) || item.originalCluster;
     setSelectedCluster(cluster as any);
-    setIsSidebarOpen(true);
+    setActiveSidebar('rca');
   };
 
 
@@ -646,8 +647,29 @@ export default function AnalyticsDashboard() {
 
         </div>
       </div>
-      {isSidebarOpen && selectedCluster && (
-        <RCASidebar onClose={() => setIsSidebarOpen(false)} cluster={selectedCluster as any} />
+      {activeSidebar && selectedCluster && (
+        <>
+          <div
+            className="fixed inset-0 bg-background/50 backdrop-blur-sm z-40"
+            onClick={() => { setActiveSidebar(null); setSelectedCluster(null); }}
+          />
+
+          {activeSidebar === 'rca' && (
+            <RCASidebar
+              onClose={() => { setActiveSidebar(null); setSelectedCluster(null); }}
+              cluster={selectedCluster as any}
+              onOpenRemediation={() => setActiveSidebar('remediation')}
+            />
+          )}
+
+          {activeSidebar === 'remediation' && (
+            <RemediationSidebar
+              cluster={selectedCluster as any}
+              onClose={() => { setActiveSidebar(null); setSelectedCluster(null); }}
+              onBack={() => setActiveSidebar('rca')}
+            />
+          )}
+        </>
       )}
     </MainLayout>
   );
