@@ -22,7 +22,7 @@ const KPI_MAP: Record<string, [string, string]> = {
     "mem_percent": ["Mem Util", "%"],
     "mem_util_pct": ["Mem Util", "%"],
     "men_util_pct": ["Mem Util", "%"],
-    "temp_c": ["Device Temp", " ℃"],
+    "temp_c": ["Device Temperature", " ℃"],
     "latency_ms": ["Latency", " ms"],
     "packet_loss_percent": ["Packet Loss", "%"],
     "traffic_dscp0_percent": ["DSCP0 Traffic", "%"],

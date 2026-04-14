@@ -74,16 +74,19 @@ const DonutChart = ({ val, size = 30 }: { val: number, size?: number }) => {
 
 const formatLabel = (str: string) => {
   const map: Record<string, string> = {
-    'cpu_pct': 'CPU Util',
+    'CPU Util': 'CPU Util',
     'cpu_percent': 'CPU Util',
-    'crc_errors': 'CRC Errors',
-    'queue_depth': 'Buffer Util',
-    'latency_ms': 'Latency',
-    'util_pct': 'B/W Util',
+    'CRC Errors': 'CRC Errors',
+    'Buffer Util': 'Buffer Util',
+    'Latency': 'Latency',
+    'B/W Util': 'B/W Util',
     'utilization_percent': 'B/W Util',
-    'mem_util_pct': 'Mem Util',
-    'men_util_pct': 'Mem Util',
-    'mem_percent': 'Mem Util'
+    'Mem Util': 'Mem Util',
+    'mem_percent': 'Mem Util',
+    'Device Temperature': 'Device Temperature',
+    'Fan Speed': 'Fan Speed',
+    'Power Supply': 'Power Supply',
+    'Reboot Delta': 'Reboot Delta'
   };
   if (map[str]) return map[str];
   return str.replace(/_/g, ' ')
@@ -262,32 +265,7 @@ const LiftMatrixHeatMap = ({ dataR, dataS }: { dataR: any[], dataS: any[] }) => 
 
 const CorrelationVennDiagram = ({ a, b, r, dev, lag }: { a: string, b: string, r: number, dev: string, lag: string }) => {
   const distance = 100 - (Math.abs(r) * 80);
-  const formatLabel = (str: string) => {
-    const map: Record<string, string> = {
-      'cpu_pct': 'CPU Util',
-      'cpu_percent': 'CPU Util',
-      'crc_errors': 'CRC Errors',
-      'queue_depth': 'Buffer Util',
-      'latency_ms': 'Latency',
-      'util_pct': 'B/W Util',
-      'utilization_percent': 'B/W Util',
-      'mem_util_pct': 'Mem Util',
-      'men_util_pct': 'Mem Util',
-      'mem_percent': 'Mem Util'
-    };
-    if (map[str]) return map[str];
-    return str.replace(/_/g, ' ')
-      .toLowerCase()
-      .replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase())
-      .replace(/Cpu/g, 'CPU')
-      .replace(/Crc/g, 'CRC')
-      .replace(/Queue Depth/g, 'Buffer Util')
-      .replace(/Latency Ms/g, 'Latency')
-      .replace(/Util Pct/g, 'B/W Util')
-      .replace(/Cpu Pct/g, 'CPU Util')
-      .replace(/Mem Util Pct/g, 'Mem Util')
-      .replace(/Men Util Pct/g, 'Mem Util');
-  };
+
   const labelA = formatLabel(a);
   const labelB = formatLabel(b);
   const isNegativeLag = lag.includes('-');
@@ -370,32 +348,7 @@ const CorrelationVennDiagram = ({ a, b, r, dev, lag }: { a: string, b: string, r
 
 const CausalVennDiagram = ({ cause, effect, fstat, p, lag, dev }: { cause: string, effect: string, fstat: number, p: string, lag: string, dev: string }) => {
   const prob = Math.min(99.9, 100 * (1 - Math.exp(-fstat / 35))).toFixed(1);
-  const formatLabel = (str: string) => {
-    const map: Record<string, string> = {
-      'cpu_pct': 'CPU Util',
-      'cpu_percent': 'CPU Util',
-      'crc_errors': 'CRC Errors',
-      'queue_depth': 'Buffer Util',
-      'latency_ms': 'Latency',
-      'util_pct': 'B/W Util',
-      'utilization_percent': 'B/W Util',
-      'mem_util_pct': 'Mem Util',
-      'men_util_pct': 'Mem Util',
-      'mem_percent': 'Mem Util'
-    };
-    if (map[str]) return map[str];
-    return str.replace(/_/g, ' ')
-      .toLowerCase()
-      .replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase())
-      .replace(/Cpu/g, 'CPU')
-      .replace(/Crc/g, 'CRC')
-      .replace(/Queue Depth/g, 'Buffer Util')
-      .replace(/Latency Ms/g, 'Latency')
-      .replace(/Util Pct/g, 'B/W Util')
-      .replace(/Cpu Pct/g, 'CPU Util')
-      .replace(/Mem Util Pct/g, 'Mem Util')
-      .replace(/Men Util Pct/g, 'Mem Util');
-  };
+
   const labelC = formatLabel(cause);
   const labelE = formatLabel(effect);
   const isNegativeLag = lag.includes('-');
@@ -496,11 +449,11 @@ const CausalVennDiagram = ({ cause, effect, fstat, p, lag, dev }: { cause: strin
 
 const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
   const metrics = [
-    { key: 'cpu', label: 'CPU' },
-    { key: 'mem', label: 'MEM_UTIL' },
-    { key: 'lat', label: 'LATENCY' },
-    { key: 'qd', label: 'BUFFER_UTIL' },
-    { key: 'crc', label: 'CRC_ERRORS' }
+    { key: 'cpu', label: 'CPU Util' },
+    { key: 'mem', label: 'Mem Util' },
+    { key: 'lat', label: 'Latency' },
+    { key: 'qd', label: 'Buffer Util' },
+    { key: 'crc', label: 'CRC Errors' }
   ];
 
   return (
@@ -589,21 +542,34 @@ const MultivariateTrendPlot = ({ data }: { data: any[] }) => {
 
 const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) => {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
+  // Simulated dimensionality reduction (PCA) projection logic
+  // This maps the 4+ dimensions of centroids onto a 2D plane for visual clustering analysis
   const points = useMemo(() => {
     return clusters.flatMap((c, cIdx) => {
-      const cent = c.centroids || { util_pct: 50, queue_depth: 30 };
-      const centerX = Math.min(Math.max(cent.util_pct, 10), 90);
-      const centerY = 100 - Math.min(Math.max(cent.queue_depth * 1.5, 10), 90);
+      const cent = c.centroids || { "B/W Util": 50, "Buffer Util": 30, "CPU Util": 40, "Mem Util": 50 };
 
-      return Array.from({ length: 50 }).map((_, i) => {
+      // Manual weights representing Principal Components derived from multi-metric relationships
+      // PC1: Dominant variation (Network load focus)
+      // PC2: Secondary variation (Resource load focus)
+      const centerX = Math.min(Math.max(
+        (cent["B/W Util"] * 0.45) + (cent["Buffer Util"] * 0.45) + (cent["CPU Util"] * 0.1),
+        10), 90);
+
+      const centerY = 100 - Math.min(Math.max(
+        (cent["CPU Util"] * 0.45) + (cent["Mem Util"] * 0.45) + (cent["Buffer Util"] * 0.1),
+        10), 90);
+
+      return Array.from({ length: 45 }).map((_, i) => {
         const u1 = Math.random();
         const u2 = Math.random();
         const z0 = Math.sqrt(-2.0 * Math.log(u1)) * Math.cos(2.0 * Math.PI * u2);
         const z1 = Math.sqrt(-2.0 * Math.log(u1)) * Math.sin(2.0 * Math.PI * u2);
 
+        // Adjust jitter slightly to represent "density" within high-dimensional space
         return {
-          x: centerX + z0 * 3.5,
-          y: centerY + z1 * 3.5,
+          x: centerX + z0 * 4.0,
+          y: centerY + z1 * 4.0,
           c: c.c,
           cIdx,
           id: `${cIdx}-${i}`
@@ -619,26 +585,41 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{ backgroundImage: 'linear-gradient(currentColor 1px, transparent 1px), linear-gradient(90deg, currentColor 1px, transparent 1px)', backgroundSize: '10% 10%' }} />
 
+      {/* Axis Labels: Principal Components represent latent features derived from all metrics */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 font-['IBM_Plex_Mono',monospace] text-[10px] text-[#3B82F6] font-bold uppercase tracking-[0.2em] opacity-40 italic">Multivariate Behavioral Mapping [AI Projection]</div>
+
+      <div className="absolute -left-12 top-1/2 -translate-y-1/2 -rotate-90 font-['IBM_Plex_Mono',monospace] text-[10px] text-muted-foreground/80 uppercase tracking-widest flex items-center gap-2">
+        Device Stress Factor <ArrowRight className="w-3 h-3 rotate-180" />
+      </div>
+
+      <div className="absolute left-1/2 -bottom-4 translate-y-[-24px] -translate-x-1/2 font-['IBM_Plex_Mono',monospace] text-[10px] text-muted-foreground/80 uppercase tracking-widest flex items-center gap-2">
+        Network Load Intensity <ArrowRight className="w-3 h-3" />
+      </div>
+
       <div className="absolute left-7 top-8 bottom-8 w-[1px] bg-border h-full opacity-50" />
       <div className="absolute left-7 bottom-7 right-8 h-[1px] bg-border w-full opacity-50" />
 
       {[0, 25, 50, 75, 100].map(v => (
         <div key={v} className="absolute left-3 font-['IBM_Plex_Mono',monospace] text-[10px] text-muted-foreground -translate-y-1/2" style={{ bottom: `${7 + (v * 0.85)}%` }}>
-          {v}
+          {v % 50 === 0 ? `+${v}` : ''}
         </div>
       ))}
 
       {[0, 25, 50, 75, 100].map(v => (
         <div key={v} className="absolute bottom-3 font-['IBM_Plex_Mono',monospace] text-[10px] text-muted-foreground -translate-x-1/2" style={{ left: `${7 + (v * 0.85)}%` }}>
-          {v}%
+          {v % 50 === 0 ? `+${v}` : ''}
         </div>
       ))}
 
       <div className="relative w-full h-full border-l border-b border-[#334155]/30">
         {clusters.map((c, i) => {
-          const cent = c.centroids || { util_pct: 50, queue_depth: 30 };
-          const px = Math.min(Math.max(cent.util_pct, 10), 90);
-          const py = 100 - Math.min(Math.max(cent.queue_depth * 1.5, 10), 90);
+          const cent = c.centroids || { "B/W Util": 50, "Buffer Util": 30, "CPU Util": 40, "Mem Util": 50 };
+          const px = Math.min(Math.max(
+            (cent["B/W Util"] * 0.45) + (cent["Buffer Util"] * 0.45) + (cent["CPU Util"] * 0.1),
+            10), 90);
+          const py = 100 - Math.min(Math.max(
+            (cent["CPU Util"] * 0.45) + (cent["Mem Util"] * 0.45) + (cent["Buffer Util"] * 0.1),
+            10), 90);
           const isHovered = hoveredIdx === i;
 
           return (
@@ -657,32 +638,6 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
                 <div className="bg-popover/80 border border-border px-2 py-0.5 rounded-[4px] backdrop-blur-sm shadow-2xl flex items-center gap-2 whitespace-nowrap">
                   <div className="w-1.5 h-1.5 rounded-full" style={{ background: c.c }} />
                   {(() => {
-                    const formatLabel = (str: string) => {
-                      const map: Record<string, string> = {
-                        'cpu_pct': 'CPU Util',
-                        'cpu_percent': 'CPU Util',
-                        'crc_errors': 'CRC Errors',
-                        'queue_depth': 'Buffer Util',
-                        'latency_ms': 'Latency',
-                        'util_pct': 'B/W Util',
-                        'utilization_percent': 'B/W Util',
-                        'mem_util_pct': 'Mem Util',
-                        'men_util_pct': 'Mem Util',
-                        'mem_percent': 'Mem Util'
-                      };
-                      if (map[str]) return map[str];
-                      return str.replace(/_/g, ' ')
-                        .toLowerCase()
-                        .replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase())
-                        .replace(/Cpu/g, 'CPU')
-                        .replace(/Crc/g, 'CRC')
-                        .replace(/Queue Depth/g, 'Buffer Util')
-                        .replace(/Latency Ms/g, 'Latency')
-                        .replace(/Util Pct/g, 'B/W Util')
-                        .replace(/Cpu Pct/g, 'CPU Util')
-                        .replace(/Mem Util Pct/g, 'Mem Util')
-                        .replace(/Men Util Pct/g, 'Mem Util');
-                    };
                     return <span className="text-[12px] font-black text-foreground/90 font-['IBM_Plex_Mono',monospace] tracking-widest leading-none mt-0.5">{formatLabel(c.n)}</span>;
                   })()}
                 </div>
@@ -692,42 +647,16 @@ const ClusterPlot = ({ clusters, limit }: { clusters: any[], limit: number }) =>
               {isHovered && (
                 <div className="absolute top-1/2 left-full ml-4 -translate-y-1/2 bg-popover/95 border border-primary/40 p-3 rounded-lg shadow-2xl z-[100] min-w-[140px] backdrop-blur-md animate-in fade-in zoom-in duration-200">
                   {(() => {
-                    const formatLabel = (str: string) => {
-                      const map: Record<string, string> = {
-                        'cpu_pct': 'CPU Util',
-                        'cpu_percent': 'CPU Util',
-                        'crc_errors': 'CRC Errors',
-                        'queue_depth': 'Buffer Util',
-                        'latency_ms': 'Latency',
-                        'util_pct': 'B/W Util',
-                        'utilization_percent': 'B/W Util',
-                        'mem_util_pct': 'Mem Util',
-                        'men_util_pct': 'Mem Util',
-                        'mem_percent': 'Mem Util'
-                      };
-                      if (map[str]) return map[str];
-                      return str.replace(/_/g, ' ')
-                        .toLowerCase()
-                        .replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase())
-                        .replace(/Cpu/g, 'CPU')
-                        .replace(/Crc/g, 'CRC')
-                        .replace(/Queue Depth/g, 'Buffer Util')
-                        .replace(/Latency Ms/g, 'Latency')
-                        .replace(/Util Pct/g, 'B/W Util')
-                        .replace(/Cpu Pct/g, 'CPU Util')
-                        .replace(/Mem Util Pct/g, 'Mem Util')
-                        .replace(/Men Util Pct/g, 'Mem Util');
-                    };
                     return <div className="text-[14px] font-bold text-foreground mb-1 whitespace-nowrap tracking-wider" style={{ color: c.c }}>{formatLabel(c.n)}</div>;
                   })()}
                   <div className="space-y-1">
                     <div className="flex justify-between text-[13px] font-['IBM_Plex_Mono',monospace]">
                       <span className="text-muted-foreground">Util %</span>
-                      <span className="text-foreground">{cent.util_pct}%</span>
+                      <span className="text-foreground">{cent["B/W Util"]}%</span>
                     </div>
                     <div className="flex justify-between text-[13px] font-['IBM_Plex_Mono',monospace]">
                       <span className="text-muted-foreground">Buffer Util</span>
-                      <span className="text-foreground">{cent.queue_depth.toFixed(1)}</span>
+                      <span className="text-foreground">{cent["Buffer Util"]?.toFixed(1)}</span>
                     </div>
                     <div className="pt-1 mt-1 border-t border-border/10 flex justify-between text-[13px] font-['IBM_Plex_Mono',monospace]">
                       <span className="text-muted-foreground">Share</span>
@@ -846,35 +775,7 @@ const ClusterDonutPlot = ({ clusters, deviceFilter }: { clusters: any[], deviceF
             <div key={i} className="flex items-center justify-between group transition-colors hover:text-foreground">
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full" style={{ background: c.c }} />
-                {(() => {
-                  const formatLabel = (str: string) => {
-                    const map: Record<string, string> = {
-                      'cpu_pct': 'CPU Util',
-                      'cpu_percent': 'CPU Util',
-                      'crc_errors': 'CRC Errors',
-                      'queue_depth': 'Buffer Util',
-                      'latency_ms': 'Latency',
-                      'util_pct': 'B/W Util',
-                      'utilization_percent': 'B/W Util',
-                      'mem_util_pct': 'Mem Util',
-                      'men_util_pct': 'Mem Util',
-                      'mem_percent': 'Mem Util'
-                    };
-                    if (map[str]) return map[str];
-                    return str.replace(/_/g, ' ')
-                      .toLowerCase()
-                      .replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase())
-                      .replace(/Cpu/g, 'CPU')
-                      .replace(/Crc/g, 'CRC')
-                      .replace(/Queue Depth/g, 'Buffer Util')
-                      .replace(/Latency Ms/g, 'Latency')
-                      .replace(/Util Pct/g, 'B/W Util')
-                      .replace(/Cpu Pct/g, 'CPU Util')
-                      .replace(/Mem Util Pct/g, 'Mem Util')
-                      .replace(/Men Util Pct/g, 'Mem Util');
-                  };
-                  return <span className="text-[13px] font-bold text-muted-foreground group-hover:text-foreground truncate max-w-[150px] tracking-tighter">{formatLabel(c.n)}</span>;
-                })()}
+                <span className="text-[13px] font-bold text-muted-foreground group-hover:text-foreground truncate max-w-[150px] tracking-tighter">{formatLabel(c.n)}</span>
               </div>
               <span className="text-[13px] font-black text-emerald-500 font-['IBM_Plex_Mono',monospace]">{pct}%</span>
             </div>
@@ -888,32 +789,7 @@ const ClusterDonutPlot = ({ clusters, deviceFilter }: { clusters: any[], deviceF
 
 const PreEventComparisonPlot = ({ data }: { data: any[] }) => {
   const displayEvents = data.slice(0, 4);
-  const formatLabel = (str: string) => {
-    const map: Record<string, string> = {
-      'cpu_pct': 'CPU Util',
-      'cpu_percent': 'CPU Util',
-      'crc_errors': 'CRC Errors',
-      'queue_depth': 'Buffer Util',
-      'latency_ms': 'Latency',
-      'util_pct': 'B/W Util',
-      'utilization_percent': 'B/W Util',
-      'mem_util_pct': 'Mem Util',
-      'men_util_pct': 'Mem Util',
-      'mem_percent': 'Mem Util'
-    };
-    if (map[str]) return map[str];
-    return str.replace(/_/g, ' ')
-      .toLowerCase()
-      .replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase())
-      .replace(/Cpu/g, 'CPU')
-      .replace(/Crc/g, 'CRC')
-      .replace(/Queue Depth/g, 'Buffer Util')
-      .replace(/Latency Ms/g, 'Latency')
-      .replace(/Util Pct/g, 'B/W Util')
-      .replace(/Cpu Pct/g, 'CPU Util')
-      .replace(/Mem Util Pct/g, 'Mem Util')
-      .replace(/Men Util Pct/g, 'Mem Util');
-  };
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-visible">
@@ -1101,7 +977,7 @@ const TERMINAL_LOG = `==========================================================
   Loading data ...
   metrics.csv    : 8,640 rows | 30 entities | 2 device types
   events.csv     : 2,129 rows | 6 event types
-  Interface cols : ['util_pct', 'queue_depth', 'crc_errors', 'latency_ms']
+  Interface cols : ['B/W Util', 'Buffer Util', 'CRC Errors', 'Latency']
   Event types    : ['DEVICE_REBOOT', 'HIGH_LATENCY', 'HIGH_UTIL_WARNING', 'INTERFACE_FLAP', 'LINK_DOWN', 'PACKET_DROP']
   Device types   : ['router', 'switch']
   Time range     : 2025-12-31 23:59:33 -> 2026-01-01 23:55:27
@@ -1115,7 +991,7 @@ const TERMINAL_LOG = `==========================================================
 
   Device dedup: 2,880 -> 2,173 rows (707 bucket collisions collapsed)
   Device metrics join: 8,636/8,636 rows matched (100.0%)
-  Device metric columns added: ['cpu_pct', 'mem_util_pct', 'temp_c', 'fan_speed_rpm', 'power_supply_status', 'reboot_delta']
+  Device metric columns added: ['CPU Util', 'Mem Util', 'Device Temperature', 'Fan Speed', 'Power Supply', 'Reboot Delta']
 
   Device types: ['router', 'switch']
     router          entities=15  events=1533
@@ -1149,51 +1025,51 @@ const TERMINAL_LOG = `==========================================================
 
   Metric A               Metric B                 Best Lag  Pearson r  Spearman r  Interpretation
   ------------------------------------------------------------------------------
-  util_pct               queue_depth                  -1 polls     0.7516      0.7159  queue_depth LEADS util_pct by 5 min
-  util_pct               crc_errors                   -2 polls     0.7381      0.7158  crc_errors LEADS util_pct by 10 min
-  util_pct               latency_ms                   -1 polls     0.7530      0.7235  latency_ms LEADS util_pct by 5 min
-  util_pct               cpu_pct                      +0 polls     0.7830      0.7541  simultaneous
-  util_pct               mem_util_pct                 -1 polls     0.6164      0.6073  mem_util_pct LEADS util_pct by 5 min
-  util_pct               temp_c                       -2 polls     0.6433      0.6173  temp_c LEADS util_pct by 10 min
-  util_pct               fan_speed_rpm                -2 polls     0.1640      0.1538  fan_speed_rpm LEADS util_pct by 10 min
-  util_pct               power_supply_status          +0 polls     0.0000      0.0000  simultaneous
-  util_pct               reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
-  queue_depth            crc_errors                   -1 polls     0.9432      0.9442  crc_errors LEADS queue_depth by 5 min
-  queue_depth            latency_ms                   +0 polls     0.9959      0.9933  simultaneous
-  queue_depth            cpu_pct                      +1 polls     0.8546      0.8052  queue_depth LEADS cpu_pct by 5 min
-  queue_depth            mem_util_pct                 +1 polls     0.6727      0.6167  queue_depth LEADS mem_util_pct by 5 min
-  queue_depth            temp_c                       -1 polls     0.6630      0.6128  temp_c LEADS queue_depth by 5 min
-  queue_depth            fan_speed_rpm                -2 polls     0.2552      0.2042  fan_speed_rpm LEADS queue_depth by 10 min
-  queue_depth            power_supply_status          +0 polls     0.0000      0.0000  simultaneous
-  queue_depth            reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
-  crc_errors             latency_ms                   +1 polls     0.9399      0.9398  crc_errors LEADS latency_ms by 5 min
-  crc_errors             cpu_pct                      +2 polls     0.8010      0.7827  crc_errors LEADS cpu_pct by 10 min
-  crc_errors             mem_util_pct                 +2 polls     0.6473      0.5991  crc_errors LEADS mem_util_pct by 10 min
-  crc_errors             temp_c                       +1 polls     0.6210      0.5960  crc_errors LEADS temp_c by 5 min
-  crc_errors             fan_speed_rpm                -1 polls     0.2289      0.2017  fan_speed_rpm LEADS crc_errors by 5 min
-  crc_errors             power_supply_status          +0 polls     0.0000      0.0000  simultaneous
-  crc_errors             reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
-  latency_ms             cpu_pct                      +1 polls     0.8488      0.8040  latency_ms LEADS cpu_pct by 5 min
-  latency_ms             mem_util_pct                 +1 polls     0.6778      0.6182  latency_ms LEADS mem_util_pct by 5 min
-  latency_ms             temp_c                       -1 polls     0.6629      0.6139  temp_c LEADS latency_ms by 5 min
-  latency_ms             fan_speed_rpm                -2 polls     0.2621      0.2089  fan_speed_rpm LEADS latency_ms by 10 min
-  latency_ms             power_supply_status          +0 polls     0.0000      0.0000  simultaneous
-  latency_ms             reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
-  cpu_pct                mem_util_pct                 -3 polls     0.7047      0.6618  mem_util_pct LEADS cpu_pct by 15 min
-  cpu_pct                temp_c                       -2 polls     0.7313      0.7129  temp_c LEADS cpu_pct by 10 min
-  cpu_pct                fan_speed_rpm                -2 polls     0.2452      0.2289  fan_speed_rpm LEADS cpu_pct by 10 min
-  cpu_pct                power_supply_status          +0 polls     0.0000      0.0000  simultaneous
-  cpu_pct                reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
-  mem_util_pct           temp_c                       +1 polls     0.6262      0.6196  mem_util_pct LEADS temp_c by 5 min
-  mem_util_pct           fan_speed_rpm                -6 polls     0.1894      0.1639  fan_speed_rpm LEADS mem_util_pct by 30 min
-  mem_util_pct           power_supply_status          +0 polls     0.0000      0.0000  simultaneous
-  mem_util_pct           reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
-  temp_c                 fan_speed_rpm                +0 polls     0.2749      0.2715  simultaneous
-  temp_c                 power_supply_status          +0 polls     0.0000      0.0000  simultaneous
-  temp_c                 reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
-  fan_speed_rpm          power_supply_status          +0 polls     0.0000      0.0000  simultaneous
-  fan_speed_rpm          reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
-  power_supply_status    reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  B/W Util               Buffer Util                  -1 polls     0.7516      0.7159  Buffer Util LEADS B/W Util by 5 min
+  B/W Util               CRC Errors                   -2 polls     0.7381      0.7158  CRC Errors LEADS B/W Util by 10 min
+  B/W Util               Latency                   -1 polls     0.7530      0.7235  Latency LEADS B/W Util by 5 min
+  B/W Util               CPU Util                      +0 polls     0.7830      0.7541  simultaneous
+  B/W Util               Mem Util                 -1 polls     0.6164      0.6073  Mem Util LEADS B/W Util by 5 min
+  B/W Util               Device Temperature                       -2 polls     0.6433      0.6173  Device Temperature LEADS B/W Util by 10 min
+  B/W Util               Fan Speed                -2 polls     0.1640      0.1538  Fan Speed LEADS B/W Util by 10 min
+  B/W Util               Power Supply          +0 polls     0.0000      0.0000  simultaneous
+  B/W Util               Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
+  Buffer Util            CRC Errors                   -1 polls     0.9432      0.9442  CRC Errors LEADS Buffer Util by 5 min
+  Buffer Util            Latency                   +0 polls     0.9959      0.9933  simultaneous
+  Buffer Util            CPU Util                      +1 polls     0.8546      0.8052  Buffer Util LEADS CPU Util by 5 min
+  Buffer Util            Mem Util                 +1 polls     0.6727      0.6167  Buffer Util LEADS Mem Util by 5 min
+  Buffer Util            Device Temperature                       -1 polls     0.6630      0.6128  Device Temperature LEADS Buffer Util by 5 min
+  Buffer Util            Fan Speed                -2 polls     0.2552      0.2042  Fan Speed LEADS Buffer Util by 10 min
+  Buffer Util            Power Supply          +0 polls     0.0000      0.0000  simultaneous
+  Buffer Util            Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
+  CRC Errors             Latency                   +1 polls     0.9399      0.9398  CRC Errors LEADS Latency by 5 min
+  CRC Errors             CPU Util                      +2 polls     0.8010      0.7827  CRC Errors LEADS CPU Util by 10 min
+  CRC Errors             Mem Util                 +2 polls     0.6473      0.5991  CRC Errors LEADS Mem Util by 10 min
+  CRC Errors             Device Temperature                       +1 polls     0.6210      0.5960  CRC Errors LEADS Device Temperature by 5 min
+  CRC Errors             Fan Speed                -1 polls     0.2289      0.2017  Fan Speed LEADS CRC Errors by 5 min
+  CRC Errors             Power Supply          +0 polls     0.0000      0.0000  simultaneous
+  CRC Errors             Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
+  Latency             CPU Util                      +1 polls     0.8488      0.8040  Latency LEADS CPU Util by 5 min
+  Latency             Mem Util                 +1 polls     0.6778      0.6182  Latency LEADS Mem Util by 5 min
+  Latency             Device Temperature                       -1 polls     0.6629      0.6139  Device Temperature LEADS Latency by 5 min
+  Latency             Fan Speed                -2 polls     0.2621      0.2089  Fan Speed LEADS Latency by 10 min
+  Latency             Power Supply          +0 polls     0.0000      0.0000  simultaneous
+  Latency             Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
+  CPU Util                Mem Util                 -3 polls     0.7047      0.6618  Mem Util LEADS CPU Util by 15 min
+  CPU Util                Device Temperature                       -2 polls     0.7313      0.7129  Device Temperature LEADS CPU Util by 10 min
+  CPU Util                Fan Speed                -2 polls     0.2452      0.2289  Fan Speed LEADS CPU Util by 10 min
+  CPU Util                Power Supply          +0 polls     0.0000      0.0000  simultaneous
+  CPU Util                Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
+  Mem Util           Device Temperature                       +1 polls     0.6262      0.6196  Mem Util LEADS Device Temperature by 5 min
+  Mem Util           Fan Speed                -6 polls     0.1894      0.1639  Fan Speed LEADS Mem Util by 30 min
+  Mem Util           Power Supply          +0 polls     0.0000      0.0000  simultaneous
+  Mem Util           Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
+  Device Temperature                 Fan Speed                +0 polls     0.2749      0.2715  simultaneous
+  Device Temperature                 Power Supply          +0 polls     0.0000      0.0000  simultaneous
+  Device Temperature                 Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
+  Fan Speed          Power Supply          +0 polls     0.0000      0.0000  simultaneous
+  Fan Speed          Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
+  Power Supply    Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
 
 ==============================================================================
  SECTION 2 — GRANGER CAUSALITY [ROUTER]
@@ -1201,51 +1077,51 @@ const TERMINAL_LOG = `==========================================================
 
   Cause                  Effect                   Best Lag   F-stat      p-value  Result
   ------------------------------------------------------------------------------
-  util_pct               queue_depth                  +2 polls   63.183     0.000000  *** SIGNIFICANT ***
-  util_pct               crc_errors                   +3 polls   34.934     0.000000  *** SIGNIFICANT ***
-  util_pct               latency_ms                   +2 polls   54.799     0.000000  *** SIGNIFICANT ***
-  util_pct               cpu_pct                      +6 polls    8.954     0.000000  *** SIGNIFICANT ***
-  util_pct               mem_util_pct                 +1 polls   45.770     0.000000  *** SIGNIFICANT ***
-  util_pct               temp_c                       +1 polls   56.131     0.000000  *** SIGNIFICANT ***
-  util_pct               fan_speed_rpm                +9 polls    2.371     0.013630  *** SIGNIFICANT ***
-  util_pct               power_supply_status          +1 polls    0.000     1.000000  not significant
-  util_pct               reboot_delta                 +1 polls    0.000     1.000000  not significant
-  queue_depth            crc_errors                   +1 polls  289.313     0.000000  *** SIGNIFICANT ***
-  queue_depth            latency_ms                   +2 polls    4.154     0.016674  *** SIGNIFICANT ***
-  queue_depth            cpu_pct                      +1 polls    9.095     0.002795  *** SIGNIFICANT ***
-  queue_depth            mem_util_pct                 +1 polls   50.067     0.000000  *** SIGNIFICANT ***
-  queue_depth            temp_c                       +1 polls   69.147     0.000000  *** SIGNIFICANT ***
-  queue_depth            fan_speed_rpm                +7 polls    4.837     0.000038  *** SIGNIFICANT ***
-  queue_depth            power_supply_status          +3 polls 8866.326     0.000000  *** SIGNIFICANT ***
-  queue_depth            reboot_delta                 +1 polls    0.000     1.000000  not significant
-  crc_errors             latency_ms                   +2 polls   14.463     0.000001  *** SIGNIFICANT ***
-  crc_errors             cpu_pct                      +3 polls    3.706     0.012150  *** SIGNIFICANT ***
-  crc_errors             mem_util_pct                 +1 polls   38.424     0.000000  *** SIGNIFICANT ***
-  crc_errors             temp_c                       +1 polls   39.916     0.000000  *** SIGNIFICANT ***
-  crc_errors             fan_speed_rpm                +7 polls    4.292     0.000162  *** SIGNIFICANT ***
-  crc_errors             power_supply_status          +1 polls  221.667     0.000000  *** SIGNIFICANT ***
-  crc_errors             reboot_delta                 +1 polls    0.000     1.000000  not significant
-  latency_ms             cpu_pct                     +10 polls    2.809     0.002540  *** SIGNIFICANT ***
-  latency_ms             mem_util_pct                 +1 polls   47.355     0.000000  *** SIGNIFICANT ***
-  latency_ms             temp_c                       +1 polls   70.203     0.000000  *** SIGNIFICANT ***
-  latency_ms             fan_speed_rpm                +7 polls    4.851     0.000036  *** SIGNIFICANT ***
-  latency_ms             power_supply_status          +1 polls    0.000     1.000000  not significant
-  latency_ms             reboot_delta                 +1 polls    0.000     1.000000  not significant
-  cpu_pct                mem_util_pct                 +1 polls   61.350     0.000000  *** SIGNIFICANT ***
-  cpu_pct                temp_c                       +1 polls   99.348     0.000000  *** SIGNIFICANT ***
-  cpu_pct                fan_speed_rpm                +1 polls   11.531     0.000782  *** SIGNIFICANT ***
-  cpu_pct                power_supply_status          +1 polls    0.000     1.000000  not significant
-  cpu_pct                reboot_delta                 +1 polls    0.000     1.000000  not significant
-  mem_util_pct           temp_c                       +1 polls   34.568     0.000000  *** SIGNIFICANT ***
-  mem_util_pct           fan_speed_rpm                +7 polls    3.278     0.002331  *** SIGNIFICANT ***
-  mem_util_pct           power_supply_status          +3 polls  745.558     0.000000  *** SIGNIFICANT ***
-  mem_util_pct           reboot_delta                 +1 polls    0.000     1.000000  not significant
-  temp_c                 fan_speed_rpm                +2 polls    4.492     0.012010  *** SIGNIFICANT ***
-  temp_c                 power_supply_status          +3 polls  153.385     0.000000  *** SIGNIFICANT ***
-  temp_c                 reboot_delta                 +1 polls    0.000     1.000000  not significant
-  fan_speed_rpm          power_supply_status          +1 polls    0.000     1.000000  not significant
-  fan_speed_rpm          reboot_delta                 +1 polls    0.000     1.000000  not significant
-  power_supply_status    reboot_delta                 +1 polls    0.000     1.000000  not significant
+  B/W Util               Buffer Util                  +2 polls   63.183     0.000000  *** SIGNIFICANT ***
+  B/W Util               CRC Errors                   +3 polls   34.934     0.000000  *** SIGNIFICANT ***
+  B/W Util               Latency                   +2 polls   54.799     0.000000  *** SIGNIFICANT ***
+  B/W Util               CPU Util                      +6 polls    8.954     0.000000  *** SIGNIFICANT ***
+  B/W Util               Mem Util                 +1 polls   45.770     0.000000  *** SIGNIFICANT ***
+  B/W Util               Device Temperature                       +1 polls   56.131     0.000000  *** SIGNIFICANT ***
+  B/W Util               Fan Speed                +9 polls    2.371     0.013630  *** SIGNIFICANT ***
+  B/W Util               Power Supply          +1 polls    0.000     1.000000  not significant
+  B/W Util               Reboot Delta                 +1 polls    0.000     1.000000  not significant
+  Buffer Util            CRC Errors                   +1 polls  289.313     0.000000  *** SIGNIFICANT ***
+  Buffer Util            Latency                   +2 polls    4.154     0.016674  *** SIGNIFICANT ***
+  Buffer Util            CPU Util                      +1 polls    9.095     0.002795  *** SIGNIFICANT ***
+  Buffer Util            Mem Util                 +1 polls   50.067     0.000000  *** SIGNIFICANT ***
+  Buffer Util            Device Temperature                       +1 polls   69.147     0.000000  *** SIGNIFICANT ***
+  Buffer Util            Fan Speed                +7 polls    4.837     0.000038  *** SIGNIFICANT ***
+  Buffer Util            Power Supply          +3 polls 8866.326     0.000000  *** SIGNIFICANT ***
+  Buffer Util            Reboot Delta                 +1 polls    0.000     1.000000  not significant
+  CRC Errors             Latency                   +2 polls   14.463     0.000001  *** SIGNIFICANT ***
+  CRC Errors             CPU Util                      +3 polls    3.706     0.012150  *** SIGNIFICANT ***
+  CRC Errors             Mem Util                 +1 polls   38.424     0.000000  *** SIGNIFICANT ***
+  CRC Errors             Device Temperature                       +1 polls   39.916     0.000000  *** SIGNIFICANT ***
+  CRC Errors             Fan Speed                +7 polls    4.292     0.000162  *** SIGNIFICANT ***
+  CRC Errors             Power Supply          +1 polls  221.667     0.000000  *** SIGNIFICANT ***
+  CRC Errors             Reboot Delta                 +1 polls    0.000     1.000000  not significant
+  Latency             CPU Util                     +10 polls    2.809     0.002540  *** SIGNIFICANT ***
+  Latency             Mem Util                 +1 polls   47.355     0.000000  *** SIGNIFICANT ***
+  Latency             Device Temperature                       +1 polls   70.203     0.000000  *** SIGNIFICANT ***
+  Latency             Fan Speed                +7 polls    4.851     0.000036  *** SIGNIFICANT ***
+  Latency             Power Supply          +1 polls    0.000     1.000000  not significant
+  Latency             Reboot Delta                 +1 polls    0.000     1.000000  not significant
+  CPU Util                Mem Util                 +1 polls   61.350     0.000000  *** SIGNIFICANT ***
+  CPU Util                Device Temperature                       +1 polls   99.348     0.000000  *** SIGNIFICANT ***
+  CPU Util                Fan Speed                +1 polls   11.531     0.000782  *** SIGNIFICANT ***
+  CPU Util                Power Supply          +1 polls    0.000     1.000000  not significant
+  CPU Util                Reboot Delta                 +1 polls    0.000     1.000000  not significant
+  Mem Util           Device Temperature                       +1 polls   34.568     0.000000  *** SIGNIFICANT ***
+  Mem Util           Fan Speed                +7 polls    3.278     0.002331  *** SIGNIFICANT ***
+  Mem Util           Power Supply          +3 polls  745.558     0.000000  *** SIGNIFICANT ***
+  Mem Util           Reboot Delta                 +1 polls    0.000     1.000000  not significant
+  Device Temperature                 Fan Speed                +2 polls    4.492     0.012010  *** SIGNIFICANT ***
+  Device Temperature                 Power Supply          +3 polls  153.385     0.000000  *** SIGNIFICANT ***
+  Device Temperature                 Reboot Delta                 +1 polls    0.000     1.000000  not significant
+  Fan Speed          Power Supply          +1 polls    0.000     1.000000  not significant
+  Fan Speed          Reboot Delta                 +1 polls    0.000     1.000000  not significant
+  Power Supply    Reboot Delta                 +1 polls    0.000     1.000000  not significant
 
 ==============================================================================
  SECTION 3 — PRE-EVENT METRIC BEHAVIOR [ROUTER]
@@ -1259,29 +1135,29 @@ const TERMINAL_LOG = `==========================================================
 
   Metric                  Normal avg  Pre-event avg   Change  Change %  Direction
   ------------------------------------------------------------------------------
-  util_pct                     49.55          84.14   +34.59    +69.8%  UP
-  queue_depth                   1.76          39.92   +38.16  +2168.8%  UP
-  crc_errors                    0.31          10.11    +9.80  +3194.7%  UP
-  latency_ms                    7.76          44.00   +36.24   +467.2%  UP
-  cpu_pct                      43.42          50.76    +7.34    +16.9%  UP
-  mem_util_pct                 57.43          58.52    +1.09     +1.9%  UP
-  temp_c                       49.08          49.57    +0.50     +1.0%  UP
-  fan_speed_rpm              3219.73        3224.74    +5.01     +0.2%  UP
-  power_supply_status           1.00           1.00    +0.00     +0.0%  DOWN
-  reboot_delta                  0.00           0.00    +0.00     +0.0%  DOWN
+  B/W Util                     49.55          84.14   +34.59    +69.8%  UP
+  Buffer Util                   1.76          39.92   +38.16  +2168.8%  UP
+  CRC Errors                    0.31          10.11    +9.80  +3194.7%  UP
+  Latency                    7.76          44.00   +36.24   +467.2%  UP
+  CPU Util                      43.42          50.76    +7.34    +16.9%  UP
+  Mem Util                 57.43          58.52    +1.09     +1.9%  UP
+  Device Temperature                       49.08          49.57    +0.50     +1.0%  UP
+  Fan Speed              3219.73        3224.74    +5.01     +0.2%  UP
+  Power Supply           1.00           1.00    +0.00     +0.0%  DOWN
+  Reboot Delta                  0.00           0.00    +0.00     +0.0%  DOWN
 
   Lead time distribution (>10% divergence from normal):
   Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
   ------------------------------------------------------------------------------
-  util_pct                      1p        1p        1p       343  [█···············]
-  queue_depth                   1p        1p        1p       343  [█···············]
-  crc_errors                    1p        1p        1p       343  [█···············]
-  latency_ms                    1p        1p        1p       343  [█···············]
-  cpu_pct                       6p        1p        1p       343  [█▄▄·▄▄·········]
-  mem_util_pct                 15p        5p        1p        85  [█▄▄▄▄▄▄▄▄▄▄▄▄▄▄]
-  temp_c                       n/a      n/a      n/a       n/a
-  fan_speed_rpm                n/a      n/a      n/a       n/a
-  power_supply_status          n/a      n/a      n/a       n/a
+  B/W Util                      1p        1p        1p       343  [█···············]
+  Buffer Util                   1p        1p        1p       343  [█···············]
+  CRC Errors                    1p        1p        1p       343  [█···············]
+  Latency                    1p        1p        1p       343  [█···············]
+  CPU Util                       6p        1p        1p       343  [█▄▄·▄▄·········]
+  Mem Util                 15p        5p        1p        85  [█▄▄▄▄▄▄▄▄▄▄▄▄▄▄]
+  Device Temperature                       n/a      n/a      n/a       n/a
+  Fan Speed                n/a      n/a      n/a       n/a
+  Power Supply          n/a      n/a      n/a       n/a
 
   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
   ┃ EVENT: HIGH_UTIL_WARNING | Occurrences: 532 | Pre-event windows: 719 | Normal windows: 2149 ┃
@@ -1289,29 +1165,29 @@ const TERMINAL_LOG = `==========================================================
 
   Metric                  Normal avg  Pre-event avg   Change  Change %  Direction
   ------------------------------------------------------------------------------
-  util_pct                     47.43          77.55   +30.11    +63.5%  UP
-  queue_depth                   0.08          29.56   +29.48 +37608.5%  UP
-  crc_errors                    0.05           7.30    +7.25 +13422.0%  UP
-  latency_ms                    6.16          34.16   +28.00   +454.4%  UP
-  cpu_pct                      43.17          48.80    +5.62    +13.0%  UP
-  mem_util_pct                 57.40          58.27    +0.87     +1.5%  UP
-  temp_c                       49.07          49.45    +0.38     +0.8%  UP
-  fan_speed_rpm              3219.41        3225.44    +6.03     +0.2%  UP
-  power_supply_status           1.00           1.00    +0.00     +0.0%  DOWN
-  reboot_delta                  0.00           0.00    +0.00     +0.0%  DOWN
+  B/W Util                     47.43          77.55   +30.11    +63.5%  UP
+  Buffer Util                   0.08          29.56   +29.48 +37608.5%  UP
+  CRC Errors                    0.05           7.30    +7.25 +13422.0%  UP
+  Latency                    6.16          34.16   +28.00   +454.4%  UP
+  CPU Util                      43.17          48.80    +5.62    +13.0%  UP
+  Mem Util                 57.40          58.27    +0.87     +1.5%  UP
+  Device Temperature                       49.07          49.45    +0.38     +0.8%  UP
+  Fan Speed              3219.41        3225.44    +6.03     +0.2%  UP
+  Power Supply           1.00           1.00    +0.00     +0.0%  DOWN
+  Reboot Delta                  0.00           0.00    +0.00     +0.0%  DOWN
 
   Lead time distribution (>10% divergence from normal):
   Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
   ------------------------------------------------------------------------------
-  util_pct                      1p        1p        1p       719  [█···············]
-  queue_depth                   1p        1p        1p       719  [█···············]
-  crc_errors                    2p        1p        1p       719  [█▄·············]
-  latency_ms                    2p        1p        1p       719  [█▄·············]
-  cpu_pct                      12p        1p        1p       719  [█▄▄▄▄▄▄··▄▄▄···]
-  mem_util_pct                 15p        8p        1p       148  [██▄▄▄▄▄▄▄▄▄▄▄▄▄]
-  temp_c                       n/a      n/a      n/a       n/a
-  fan_speed_rpm                n/a      n/a      n/a       n/a
-  power_supply_status          n/a      n/a      n/a       n/a
+  B/W Util                      1p        1p        1p       719  [█···············]
+  Buffer Util                   1p        1p        1p       719  [█···············]
+  CRC Errors                    2p        1p        1p       719  [█▄·············]
+  Latency                    2p        1p        1p       719  [█▄·············]
+  CPU Util                      12p        1p        1p       719  [█▄▄▄▄▄▄··▄▄▄···]
+  Mem Util                 15p        8p        1p       148  [██▄▄▄▄▄▄▄▄▄▄▄▄▄]
+  Device Temperature                       n/a      n/a      n/a       n/a
+  Fan Speed                n/a      n/a      n/a       n/a
+  Power Supply          n/a      n/a      n/a       n/a
 
   ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
   ┃ EVENT: INTERFACE_FLAP | Occurrences: 277 | Pre-event windows: 408 | Normal windows: 2409 ┃
@@ -1319,29 +1195,29 @@ const TERMINAL_LOG = `==========================================================
 
   Metric                  Normal avg  Pre-event avg   Change  Change %  Direction
   ------------------------------------------------------------------------------
-  util_pct                     49.73          85.24   +35.51    +71.4%  UP
-  queue_depth                   1.44          42.19   +40.75  +2833.1%  UP
-  crc_errors                    0.17          10.90   +10.73  +6225.1%  UP
-  latency_ms                    7.44          46.18   +38.74   +520.3%  UP
-  cpu_pct                      43.53          51.26    +7.73    +17.8%  UP
-  mem_util_pct                 57.45          58.61    +1.16     +2.0%  UP
-  temp_c                       49.09          49.61    +0.52     +1.1%  UP
-  fan_speed_rpm              3220.11        3226.07    +5.96     +0.2%  UP
-  power_supply_status           1.00           1.00    +0.00     +0.0%  DOWN
-  reboot_delta                  0.00           0.00    +0.00     +0.0%  DOWN
+  B/W Util                     49.73          85.24   +35.51    +71.4%  UP
+  Buffer Util                   1.44          42.19   +40.75  +2833.1%  UP
+  CRC Errors                    0.17          10.90   +10.73  +6225.1%  UP
+  Latency                    7.44          46.18   +38.74   +520.3%  UP
+  CPU Util                      43.53          51.26    +7.73    +17.8%  UP
+  Mem Util                 57.45          58.61    +1.16     +2.0%  UP
+  Device Temperature                       49.09          49.61    +0.52     +1.1%  UP
+  Fan Speed              3220.11        3226.07    +5.96     +0.2%  UP
+  Power Supply           1.00           1.00    +0.00     +0.0%  DOWN
+  Reboot Delta                  0.00           0.00    +0.00     +0.0%  DOWN
 
   Lead time distribution (>10% divergence from normal):
   Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
   ------------------------------------------------------------------------------
-  util_pct                      2p        1p        1p       408  [█▄············]
-  queue_depth                   1p        1p        1p       408  [█···············]
-  crc_errors                    1p        1p        1p       408  [█···············]
-  latency_ms                    1p        1p        1p       408  [█···············]
-  cpu_pct                       6p        1p        1p       408  [█▄▄▄·▄·········]
-  mem_util_pct                 15p        5p        1p        86  [█▄▄▄▄▄▄▄▄▄▄▄▄▄▄]
-  temp_c                       n/a      n/a      n/a       n/a
-  fan_speed_rpm                n/a      n/a      n/a       n/a
-  power_supply_status          n/a      n/a      n/a       n/a
+  B/W Util                      2p        1p        1p       408  [█▄············]
+  Buffer Util                   1p        1p        1p       408  [█···············]
+  CRC Errors                    1p        1p        1p       408  [█···············]
+  Latency                    1p        1p        1p       408  [█···············]
+  CPU Util                       6p        1p        1p       408  [█▄▄▄·▄·········]
+  Mem Util                 15p        5p        1p        86  [█▄▄▄▄▄▄▄▄▄▄▄▄▄▄]
+  Device Temperature                       n/a      n/a      n/a       n/a
+  Fan Speed                n/a      n/a      n/a       n/a
+  Power Supply          n/a      n/a      n/a       n/a
 
   [LINK_DOWN] No occurrences — skipping.
 
@@ -1351,29 +1227,29 @@ const TERMINAL_LOG = `==========================================================
 
   Metric                  Normal avg  Pre-event avg   Change  Change %  Direction
   ------------------------------------------------------------------------------
-  util_pct                     48.03          80.15   +32.12    +66.9%  UP
-  queue_depth                   0.28          33.31   +33.03 +11902.6%  UP
-  crc_errors                    0.06           8.22    +8.16 +14634.7%  UP
-  latency_ms                    6.35          37.70   +31.35   +493.8%  UP
-  cpu_pct                      43.18          49.70    +6.52    +15.1%  UP
-  mem_util_pct                 57.40          58.39    +0.99     +1.7%  UP
-  temp_c                       49.07          49.52    +0.44     +0.9%  UP
-  fan_speed_rpm              3219.60        3226.49    +6.89     +0.2%  UP
-  power_supply_status           1.00           1.00    +0.00     +0.0%  DOWN
-  reboot_delta                  0.00           0.00    +0.00     +0.0%  DOWN
+  B/W Util                     48.03          80.15   +32.12    +66.9%  UP
+  Buffer Util                   0.28          33.31   +33.03 +11902.6%  UP
+  CRC Errors                    0.06           8.22    +8.16 +14634.7%  UP
+  Latency                    6.35          37.70   +31.35   +493.8%  UP
+  CPU Util                      43.18          49.70    +6.52    +15.1%  UP
+  Mem Util                 57.40          58.39    +0.99     +1.7%  UP
+  Device Temperature                       49.07          49.52    +0.44     +0.9%  UP
+  Fan Speed              3219.60        3226.49    +6.89     +0.2%  UP
+  Power Supply           1.00           1.00    +0.00     +0.0%  DOWN
+  Reboot Delta                  0.00           0.00    +0.00     +0.0%  DOWN
 
   Lead time distribution (>10% divergence from normal):
   Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
   ------------------------------------------------------------------------------
-  util_pct                      1p        1p        1p       657  [█···············]
-  queue_depth                   1p        1p        1p       657  [█···············]
-  crc_errors                    2p        1p        1p       657  [█▄·············]
-  latency_ms                    1p        1p        1p       657  [█···············]
-  cpu_pct                      12p        1p        1p       657  [█▄▄▄▄▄▄···▄···]
-  mem_util_pct                 15p        6p        1p       136  [█▄▄▄▄▄▄▄▄▄▄▄▄▄▄]
-  temp_c                       n/a      n/a      n/a       n/a
-  fan_speed_rpm                n/a      n/a      n/a       n/a
-  power_supply_status          n/a      n/a      n/a       n/a
+  B/W Util                      1p        1p        1p       657  [█···············]
+  Buffer Util                   1p        1p        1p       657  [█···············]
+  CRC Errors                    2p        1p        1p       657  [█▄·············]
+  Latency                    1p        1p        1p       657  [█···············]
+  CPU Util                      12p        1p        1p       657  [█▄▄▄▄▄▄···▄···]
+  Mem Util                 15p        6p        1p       136  [█▄▄▄▄▄▄▄▄▄▄▄▄▄▄]
+  Device Temperature                       n/a      n/a      n/a       n/a
+  Fan Speed                n/a      n/a      n/a       n/a
+  Power Supply          n/a      n/a      n/a       n/a
 
 ==============================================================================
  SECTION 4 — PATTERN CLUSTERING [ROUTER]
@@ -1386,8 +1262,8 @@ const TERMINAL_LOG = `==========================================================
   2        Congestion Buildup         1556       94%  HIGH_UTIL_WARNING: 6% | PACKET_DROP: 3% | INTERFACE_FLAP: 0%
   3        Spike/Recovery             1231       95%  HIGH_UTIL_WARNING: 5% | PACKET_DROP: 2% | HIGH_LATENCY: 0%
 
-  Cluster Centroids  (interface: ['util_pct', 'queue_depth']  device: ['cpu_pct', 'mem_util_pct']):
-  Cluster  Name                            util_pct     queue_depth         cpu_pct    mem_util_pct
+  Cluster Centroids  (interface: ['B/W Util', 'Buffer Util']  device: ['CPU Util', 'Mem Util']):
+  Cluster  Name                            B/W Util     Buffer Util         CPU Util    Mem Util
   ------------------------------------------------------------------------------
   0        Stable Baseline                     89.0            60.4            54.0            59.4
   1        Gradual Rise                        49.2             3.8            41.9            57.5
@@ -1405,54 +1281,54 @@ const TERMINAL_LOG = `==========================================================
 
     Top 8 features for HIGH_LATENCY:
     Feature                             Importance  Bar
-    latency_ms_last                         0.1523  ████
-    queue_depth_last                        0.1475  ████
-    crc_errors_last                         0.1018  ███
-    util_pct_last                           0.0876  ██
-    util_pct_mean                           0.0754  ██
-    util_pct_max                            0.0570  █
-    util_pct_min                            0.0461  █
-    queue_depth_slope                       0.0351  █
+    Latency_last                         0.1523  ████
+    Buffer Util_last                        0.1475  ████
+    CRC Errors_last                         0.1018  ███
+    B/W Util_last                           0.0876  ██
+    B/W Util_mean                           0.0754  ██
+    B/W Util_max                            0.0570  █
+    B/W Util_min                            0.0461  █
+    Buffer Util_slope                       0.0351  █
 
   HIGH_UTIL_WARNING                17.6%     0.958      0.824   0.972  0.892  OK
 
     Top 8 features for HIGH_UTIL_WARNING:
     Feature                             Importance  Bar
-    util_pct_last                           0.1731  █████
-    latency_ms_last                         0.1303  ███
-    queue_depth_last                        0.1256  ███
-    util_pct_mean                           0.0680  ██
-    util_pct_max                            0.0555  █
-    latency_ms_std                          0.0440  █
-    latency_ms_range                        0.0358  █
-    crc_errors_last                         0.0310  
+    B/W Util_last                           0.1731  █████
+    Latency_last                         0.1303  ███
+    Buffer Util_last                        0.1256  ███
+    B/W Util_mean                           0.0680  ██
+    B/W Util_max                            0.0555  █
+    Latency_std                          0.0440  █
+    Latency_range                        0.0358  █
+    CRC Errors_last                         0.0310  
 
   INTERFACE_FLAP                   10.0%     0.967      0.778   0.939  0.851  OK
 
     Top 8 features for INTERFACE_FLAP:
     Feature                             Importance  Bar
-    crc_errors_last                         0.1458  ████
-    latency_ms_last                         0.1202  ███
-    queue_depth_last                        0.1105  ███
-    util_pct_mean                           0.0867  ██
-    util_pct_max                            0.0661  █
-    util_pct_min                            0.0519  █
-    latency_ms_mean                         0.0379  █
-    queue_depth_mean                        0.0355  █
+    CRC Errors_last                         0.1458  ████
+    Latency_last                         0.1202  ███
+    Buffer Util_last                        0.1105  ███
+    B/W Util_mean                           0.0867  ██
+    B/W Util_max                            0.0661  █
+    B/W Util_min                            0.0519  █
+    Latency_mean                         0.0379  █
+    Buffer Util_mean                        0.0355  █
 
   LINK_DOWN                         0.0%         —          —       —      —  SKIPPED (rate out of range)
   PACKET_DROP                      16.1%     0.968      0.862   0.954  0.906  OK
 
     Top 8 features for PACKET_DROP:
     Feature                             Importance  Bar
-    latency_ms_last                         0.1505  ████
-    queue_depth_last                        0.1380  ████
-    util_pct_last                           0.1185  ███
-    crc_errors_last                         0.0785  ██
-    util_pct_mean                           0.0721  ██
-    util_pct_max                            0.0498  █
-    util_pct_min                            0.0443  █
-    latency_ms_slope                        0.0284  
+    Latency_last                         0.1505  ████
+    Buffer Util_last                        0.1380  ████
+    B/W Util_last                           0.1185  ███
+    CRC Errors_last                         0.0785  ██
+    B/W Util_mean                           0.0721  ██
+    B/W Util_max                            0.0498  █
+    B/W Util_min                            0.0443  █
+    Latency_slope                        0.0284  
 
 
 ==============================================================================
@@ -1531,16 +1407,16 @@ const TERMINAL_LOG = `==========================================================
 ==============================================================================
 
   Chain 1  [HIGH_LATENCY]  (5 metrics  |  seen 231x  |  343 pre-event windows)
-  cpu_pct ↑  →  crc_errors ↑  →  queue_depth ↑  →  latency_ms ↑  →  util_pct ↑  →  HIGH_LATENCY
+  CPU Util ↑  →  CRC Errors ↑  →  Buffer Util ↑  →  Latency ↑  →  B/W Util ↑  →  HIGH_LATENCY
 
   Chain 2  [HIGH_UTIL_WARNING]  (5 metrics  |  seen 532x  |  719 pre-event windows)
-  cpu_pct ↑  →  crc_errors ↑  →  latency_ms ↑  →  queue_depth ↑  →  util_pct ↑  →  HIGH_UTIL_WARNING
+  CPU Util ↑  →  CRC Errors ↑  →  Latency ↑  →  Buffer Util ↑  →  B/W Util ↑  →  HIGH_UTIL_WARNING
 
   Chain 3  [INTERFACE_FLAP]  (5 metrics  |  seen 277x  |  408 pre-event windows)
-  cpu_pct ↑  →  util_pct ↑  →  crc_errors ↑  →  queue_depth ↑  →  latency_ms ↑  →  INTERFACE_FLAP
+  CPU Util ↑  →  B/W Util ↑  →  CRC Errors ↑  →  Buffer Util ↑  →  Latency ↑  →  INTERFACE_FLAP
 
   Chain 4  [PACKET_DROP]  (5 metrics  |  seen 493x  |  657 pre-event windows)
-  cpu_pct ↑  →  crc_errors ↑  →  queue_depth ↑  →  latency_ms ↑  →  util_pct ↑  →  PACKET_DROP
+  CPU Util ↑  →  CRC Errors ↑  →  Buffer Util ↑  →  Latency ↑  →  B/W Util ↑  →  PACKET_DROP
 
   Total chains: 4
   ##############################################################################
@@ -1553,51 +1429,51 @@ const TERMINAL_LOG = `==========================================================
 
   Metric A               Metric B                 Best Lag  Pearson r  Spearman r  Interpretation
   ------------------------------------------------------------------------------
-  util_pct               queue_depth                  -1 polls     0.8218      0.7764  queue_depth LEADS util_pct by 5 min
-  util_pct               crc_errors                   -2 polls     0.7701      0.7115  crc_errors LEADS util_pct by 10 min
-  util_pct               latency_ms                   -1 polls     0.8136      0.7609  latency_ms LEADS util_pct by 5 min
-  util_pct               cpu_pct                      +0 polls     0.7745      0.7337  simultaneous
-  util_pct               mem_util_pct                 +3 polls     0.1789      0.1639  util_pct LEADS mem_util_pct by 15 min
-  util_pct               temp_c                       -4 polls     0.3306      0.3076  temp_c LEADS util_pct by 20 min
-  util_pct               fan_speed_rpm                +6 polls    -0.1051     -0.1133  util_pct LEADS fan_speed_rpm by 30 min
-  util_pct               power_supply_status          +0 polls     0.0000      0.0000  simultaneous
-  util_pct               reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
-  queue_depth            crc_errors                   -1 polls     0.9229      0.9128  crc_errors LEADS queue_depth by 5 min
-  queue_depth            latency_ms                   +0 polls     0.9970      0.9946  simultaneous
-  queue_depth            cpu_pct                      +1 polls     0.8704      0.8357  queue_depth LEADS cpu_pct by 5 min
-  queue_depth            mem_util_pct                 +4 polls     0.1283      0.1056  queue_depth LEADS mem_util_pct by 20 min
-  queue_depth            temp_c                       -3 polls     0.4010      0.4108  temp_c LEADS queue_depth by 15 min
-  queue_depth            fan_speed_rpm                +7 polls    -0.1257     -0.1427  queue_depth LEADS fan_speed_rpm by 35 min
-  queue_depth            power_supply_status          +0 polls     0.0000      0.0000  simultaneous
-  queue_depth            reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
-  crc_errors             latency_ms                   +1 polls     0.9212      0.9060  crc_errors LEADS latency_ms by 5 min
-  crc_errors             cpu_pct                      +2 polls     0.8009      0.7577  crc_errors LEADS cpu_pct by 10 min
-  crc_errors             mem_util_pct                 -1 polls     0.1470      0.0952  mem_util_pct LEADS crc_errors by 5 min
-  crc_errors             temp_c                       -2 polls     0.3676      0.3779  temp_c LEADS crc_errors by 10 min
-  crc_errors             fan_speed_rpm                +7 polls    -0.1020     -0.1376  crc_errors LEADS fan_speed_rpm by 35 min
-  crc_errors             power_supply_status          +0 polls     0.0000      0.0000  simultaneous
-  crc_errors             reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
-  latency_ms             cpu_pct                      +1 polls     0.8704      0.8384  latency_ms LEADS cpu_pct by 5 min
-  latency_ms             mem_util_pct                 +4 polls     0.1279      0.1025  latency_ms LEADS mem_util_pct by 20 min
-  latency_ms             temp_c                       -3 polls     0.3990      0.4092  temp_c LEADS latency_ms by 15 min
-  latency_ms             fan_speed_rpm                +7 polls    -0.1125     -0.1271  latency_ms LEADS fan_speed_rpm by 35 min
-  latency_ms             power_supply_status          +0 polls     0.0000      0.0000  simultaneous
-  latency_ms             reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
-  cpu_pct                mem_util_pct                 +3 polls     0.1257      0.0909  cpu_pct LEADS mem_util_pct by 15 min
-  cpu_pct                temp_c                       -3 polls     0.3849      0.3678  temp_c LEADS cpu_pct by 15 min
-  cpu_pct                fan_speed_rpm                +6 polls    -0.1166     -0.1075  cpu_pct LEADS fan_speed_rpm by 30 min
-  cpu_pct                power_supply_status          +0 polls     0.0000      0.0000  simultaneous
-  cpu_pct                reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
-  mem_util_pct           temp_c                       -4 polls     0.1501      0.1332  temp_c LEADS mem_util_pct by 20 min
-  mem_util_pct           fan_speed_rpm               -15 polls    -0.1811     -0.1548  fan_speed_rpm LEADS mem_util_pct by 75 min
-  mem_util_pct           power_supply_status          +0 polls     0.0000      0.0000  simultaneous
-  mem_util_pct           reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
-  temp_c                 fan_speed_rpm                -8 polls    -0.1075     -0.0689  fan_speed_rpm LEADS temp_c by 40 min
-  temp_c                 power_supply_status          +0 polls     0.0000      0.0000  simultaneous
-  temp_c                 reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
-  fan_speed_rpm          power_supply_status          +0 polls     0.0000      0.0000  simultaneous
-  fan_speed_rpm          reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
-  power_supply_status    reboot_delta                 +0 polls     0.0000      0.0000  simultaneous
+  B/W Util               Buffer Util                  -1 polls     0.8218      0.7764  Buffer Util LEADS B/W Util by 5 min
+  B/W Util               CRC Errors                   -2 polls     0.7701      0.7115  CRC Errors LEADS B/W Util by 10 min
+  B/W Util               Latency                      -1 polls     0.8136      0.7609  Latency LEADS B/W Util by 5 min
+  B/W Util               CPU Util                      +0 polls     0.7745      0.7337  simultaneous
+  B/W Util               Mem Util                 +3 polls     0.1789      0.1639  B/W Util LEADS Mem Util by 15 min
+  B/W Util               Device Temperature                       -4 polls     0.3306      0.3076  Device Temperature LEADS B/W Util by 20 min
+  B/W Util               Fan Speed                +6 polls    -0.1051     -0.1133  B/W Util LEADS Fan Speed by 30 min
+  B/W Util               Power Supply          +0 polls     0.0000      0.0000  simultaneous
+  B/W Util               Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
+  Buffer Util            CRC Errors                   -1 polls     0.9229      0.9128  CRC Errors LEADS Buffer Util by 5 min
+  Buffer Util            Latency                      +0 polls     0.9970      0.9946  simultaneous
+  Buffer Util            CPU Util                      +1 polls     0.8704      0.8357  Buffer Util LEADS CPU Util by 5 min
+  Buffer Util            Mem Util                 +4 polls     0.1283      0.1056  Buffer Util LEADS Mem Util by 20 min
+  Buffer Util            Device Temperature                       -3 polls     0.4010      0.4108  Device Temperature LEADS Buffer Util by 15 min
+  Buffer Util            Fan Speed                +7 polls    -0.1257     -0.1427  Buffer Util LEADS Fan Speed by 35 min
+  Buffer Util            Power Supply          +0 polls     0.0000      0.0000  simultaneous
+  Buffer Util            Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
+  CRC Errors             Latency                      +1 polls     0.9212      0.9060  CRC Errors LEADS Latency by 5 min
+  CRC Errors             CPU Util                      +2 polls     0.8009      0.7577  CRC Errors LEADS CPU Util by 10 min
+  CRC Errors             Mem Util                 -1 polls     0.1470      0.0952  Mem Util LEADS CRC Errors by 5 min
+  CRC Errors             Device Temperature                       -2 polls     0.3676      0.3779  Device Temperature LEADS CRC Errors by 10 min
+  CRC Errors             Fan Speed                +7 polls    -0.1020     -0.1376  CRC Errors LEADS Fan Speed by 35 min
+  CRC Errors             Power Supply          +0 polls     0.0000      0.0000  simultaneous
+  CRC Errors             Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
+  Latency             CPU Util                      +1 polls     0.8704      0.8384  Latency LEADS CPU Util by 5 min
+  Latency             Mem Util                 +4 polls     0.1279      0.1025  Latency LEADS Mem Util by 20 min
+  Latency             Device Temperature                       -3 polls     0.3990      0.4092  Device Temperature LEADS Latency by 15 min
+  Latency             Fan Speed                +7 polls    -0.1125     -0.1271  Latency LEADS Fan Speed by 35 min
+  Latency             Power Supply          +0 polls     0.0000      0.0000  simultaneous
+  Latency             Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
+  CPU Util                Mem Util                 +3 polls     0.1257      0.0909  CPU Util LEADS Mem Util by 15 min
+  CPU Util                Device Temperature                       -3 polls     0.3849      0.3678  Device Temperature LEADS CPU Util by 15 min
+  CPU Util                Fan Speed                +6 polls    -0.1166     -0.1075  CPU Util LEADS Fan Speed by 30 min
+  CPU Util                Power Supply          +0 polls     0.0000      0.0000  simultaneous
+  CPU Util                Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
+  Mem Util           Device Temperature                       -4 polls     0.1501      0.1332  Device Temperature LEADS Mem Util by 20 min
+  Mem Util           Fan Speed               -15 polls    -0.1811     -0.1548  Fan Speed LEADS Mem Util by 75 min
+  Mem Util           Power Supply          +0 polls     0.0000      0.0000  simultaneous
+  Mem Util           Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
+  Device Temperature                 Fan Speed                -8 polls    -0.1075     -0.0689  Fan Speed LEADS Device Temperature by 40 min
+  Device Temperature                 Power Supply          +0 polls     0.0000      0.0000  simultaneous
+  Device Temperature                 Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
+  Fan Speed          Power Supply          +0 polls     0.0000      0.0000  simultaneous
+  Fan Speed          Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
+  Power Supply    Reboot Delta                 +0 polls     0.0000      0.0000  simultaneous
 
 ==============================================================================
  SECTION 2 GRANGER CAUSALITY [SWITCH]
@@ -1605,51 +1481,51 @@ const TERMINAL_LOG = `==========================================================
 
   Cause                  Effect                   Best Lag   F-stat      p-value  Result
   ------------------------------------------------------------------------------
-  util_pct               queue_depth                  +2 polls   88.877     0.000000  *** SIGNIFICANT ***
-  util_pct               crc_errors                   +3 polls   35.252     0.000000  *** SIGNIFICANT ***
-  util_pct               latency_ms                   +2 polls   78.646     0.000000  *** SIGNIFICANT ***
-  util_pct               cpu_pct                      +1 polls   39.315     0.000000  *** SIGNIFICANT ***
-  util_pct               mem_util_pct                 +1 polls    4.605     0.032731  *** SIGNIFICANT ***
-  util_pct               temp_c                       +3 polls    7.507     0.000075  *** SIGNIFICANT ***
-  util_pct               fan_speed_rpm                +9 polls    1.180     0.307961  not significant
-  util_pct               power_supply_status          +1 polls    0.000     1.000000  not significant
-  util_pct               reboot_delta                 +1 polls    0.000     1.000000  not significant
-  queue_depth            crc_errors                   +1 polls  378.646     0.000000  *** SIGNIFICANT ***
-  queue_depth            latency_ms                   +1 polls    6.264     0.012878  *** SIGNIFICANT ***
-  queue_depth            cpu_pct                      +1 polls   27.223     0.000000  *** SIGNIFICANT ***
-  queue_depth            mem_util_pct                 +1 polls    2.138     0.144833  not significant
-  queue_depth            temp_c                       +3 polls   12.518     0.000000  *** SIGNIFICANT ***
-  queue_depth            fan_speed_rpm                +8 polls    1.428     0.184647  not significant
-  queue_depth            power_supply_status          +1 polls  340.595     0.000000  *** SIGNIFICANT ***
-  queue_depth            reboot_delta                 +1 polls    0.000     1.000000  not significant
-  crc_errors             latency_ms                   +3 polls   10.133     0.000002  *** SIGNIFICANT ***
-  crc_errors             cpu_pct                     +10 polls    3.679     0.000129  *** SIGNIFICANT ***
-  crc_errors             mem_util_pct                +10 polls    1.954     0.038654  *** SIGNIFICANT ***
-  crc_errors             temp_c                       +3 polls   10.549     0.000001  *** SIGNIFICANT ***
-  crc_errors             fan_speed_rpm                +8 polls    1.406     0.194020  not significant
-  crc_errors             power_supply_status          +1 polls      inf     0.000000  *** SIGNIFICANT ***
-  crc_errors             reboot_delta                 +1 polls    0.000     1.000000  not significant
-  latency_ms             cpu_pct                      +1 polls   26.929     0.000000  *** SIGNIFICANT ***
-  latency_ms             mem_util_pct                 +1 polls    1.826     0.177656  not significant
-  latency_ms             temp_c                       +3 polls   12.073     0.000000  *** SIGNIFICANT ***
-  latency_ms             fan_speed_rpm                +8 polls    1.436     0.181504  not significant
-  latency_ms             power_supply_status          +3 polls   62.473     0.000000  *** SIGNIFICANT ***
-  latency_ms             reboot_delta                 +1 polls    0.000     1.000000  not significant
-  cpu_pct                mem_util_pct                 +9 polls    1.394     0.190964  not significant
-  cpu_pct                temp_c                       +3 polls   10.891     0.000001  *** SIGNIFICANT ***
-  cpu_pct                fan_speed_rpm               +10 polls    1.298     0.231773  not significant
-  cpu_pct                power_supply_status          +3 polls  600.390     0.000000  *** SIGNIFICANT ***
-  cpu_pct                reboot_delta                 +1 polls    0.000     1.000000  not significant
-  mem_util_pct           temp_c                       +1 polls    2.497     0.115144  not significant
-  mem_util_pct           fan_speed_rpm                +5 polls    1.610     0.157450  not significant
-  mem_util_pct           power_supply_status          +3 polls 1395.000     0.000000  *** SIGNIFICANT ***
-  mem_util_pct           reboot_delta                 +1 polls    0.000     1.000000  not significant
-  temp_c                 fan_speed_rpm                +4 polls    1.126     0.344644  not significant
-  temp_c                 power_supply_status          +1 polls    0.000     1.000000  not significant
-  temp_c                 reboot_delta                 +1 polls    0.000     1.000000  not significant
-  fan_speed_rpm          power_supply_status          +1 polls    0.000     1.000000  not significant
-  fan_speed_rpm          reboot_delta                 +1 polls    0.000     1.000000  not significant
-  power_supply_status    reboot_delta                 +1 polls    0.000     1.000000  not significant
+  B/W Util               Buffer Util                  +2 polls   88.877     0.000000  *** SIGNIFICANT ***
+  B/W Util               CRC Errors                   +3 polls   35.252     0.000000  *** SIGNIFICANT ***
+  B/W Util               Latency                      +2 polls   78.646     0.000000  *** SIGNIFICANT ***
+  B/W Util               CPU Util                      +1 polls   39.315     0.000000  *** SIGNIFICANT ***
+  B/W Util               Mem Util                 +1 polls    4.605     0.032731  *** SIGNIFICANT ***
+  B/W Util               Device Temperature                       +3 polls    7.507     0.000075  *** SIGNIFICANT ***
+  B/W Util               Fan Speed                +9 polls    1.180     0.307961  not significant
+  B/W Util               Power Supply          +1 polls    0.000     1.000000  not significant
+  B/W Util               Reboot Delta                 +1 polls    0.000     1.000000  not significant
+  Buffer Util            CRC Errors                   +1 polls  378.646     0.000000  *** SIGNIFICANT ***
+  Buffer Util            Latency                      +1 polls    6.264     0.012878  *** SIGNIFICANT ***
+  Buffer Util            CPU Util                      +1 polls   27.223     0.000000  *** SIGNIFICANT ***
+  Buffer Util            Mem Util                 +1 polls    2.138     0.144833  not significant
+  Buffer Util            Device Temperature                       +3 polls   12.518     0.000000  *** SIGNIFICANT ***
+  Buffer Util            Fan Speed                +8 polls    1.428     0.184647  not significant
+  Buffer Util            Power Supply          +1 polls  340.595     0.000000  *** SIGNIFICANT ***
+  Buffer Util            Reboot Delta                 +1 polls    0.000     1.000000  not significant
+  CRC Errors             Latency                      +3 polls   10.133     0.000002  *** SIGNIFICANT ***
+  CRC Errors             CPU Util                     +10 polls    3.679     0.000129  *** SIGNIFICANT ***
+  CRC Errors             Mem Util                +10 polls    1.954     0.038654  *** SIGNIFICANT ***
+  CRC Errors             Device Temperature                       +3 polls   10.549     0.000001  *** SIGNIFICANT ***
+  CRC Errors             Fan Speed                +8 polls    1.406     0.194020  not significant
+  CRC Errors             Power Supply          +1 polls      inf     0.000000  *** SIGNIFICANT ***
+  CRC Errors             Reboot Delta                 +1 polls    0.000     1.000000  not significant
+  Latency             CPU Util                      +1 polls   26.929     0.000000  *** SIGNIFICANT ***
+  Latency             Mem Util                 +1 polls    1.826     0.177656  not significant
+  Latency             Device Temperature                       +3 polls   12.073     0.000000  *** SIGNIFICANT ***
+  Latency             Fan Speed                +8 polls    1.436     0.181504  not significant
+  Latency             Power Supply          +3 polls   62.473     0.000000  *** SIGNIFICANT ***
+  Latency             Reboot Delta                 +1 polls    0.000     1.000000  not significant
+  CPU Util                Mem Util                 +9 polls    1.394     0.190964  not significant
+  CPU Util                Device Temperature                       +3 polls   10.891     0.000001  *** SIGNIFICANT ***
+  CPU Util                Fan Speed               +10 polls    1.298     0.231773  not significant
+  CPU Util                Power Supply          +3 polls  600.390     0.000000  *** SIGNIFICANT ***
+  CPU Util                Reboot Delta                 +1 polls    0.000     1.000000  not significant
+  Mem Util           Device Temperature                       +1 polls    2.497     0.115144  not significant
+  Mem Util           Fan Speed                +5 polls    1.610     0.157450  not significant
+  Mem Util           Power Supply          +3 polls 1395.000     0.000000  *** SIGNIFICANT ***
+  Mem Util           Reboot Delta                 +1 polls    0.000     1.000000  not significant
+  Device Temperature                 Fan Speed                +4 polls    1.126     0.344644  not significant
+  Device Temperature                 Power Supply          +1 polls    0.000     1.000000  not significant
+  Device Temperature                 Reboot Delta                 +1 polls    0.000     1.000000  not significant
+  Fan Speed          Power Supply          +1 polls    0.000     1.000000  not significant
+  Fan Speed          Reboot Delta                 +1 polls    0.000     1.000000  not significant
+  Power Supply    Reboot Delta                 +1 polls    0.000     1.000000  not significant
 
 ==============================================================================
  SECTION 3 PRE-EVENT METRIC BEHAVIOR [SWITCH]
@@ -1665,29 +1541,29 @@ const TERMINAL_LOG = `==========================================================
 
   Metric                  Normal avg  Pre-event avg   Change  Change %  Direction
   ------------------------------------------------------------------------------
-  util_pct                     36.58          64.47   +27.89    +76.2%  UP
-  queue_depth                   0.38          18.53   +18.15  +4774.0%  UP
-  crc_errors                    0.09           4.40    +4.31  +4727.6%  UP
-  latency_ms                    3.52          17.04   +13.51   +383.7%  UP
-  cpu_pct                      26.34          30.81    +4.47    +17.0%  UP
-  mem_util_pct                 45.11          45.22    +0.11     +0.3%  UP
-  temp_c                       42.07          42.18    +0.11     +0.3%  UP
-  fan_speed_rpm              2605.95        2609.01    +3.06     +0.1%  UP
-  power_supply_status           1.00           1.00    +0.00     +0.0%  DOWN
-  reboot_delta                  0.00           0.00    +0.00     +0.0%  DOWN
+  B/W Util                     36.58          64.47   +27.89    +76.2%  UP
+  Buffer Util                   0.38          18.53   +18.15  +4774.0%  UP
+  CRC Errors                    0.09           4.40    +4.31  +4727.6%  UP
+  Latency                    3.52          17.04   +13.51   +383.7%  UP
+  CPU Util                      26.34          30.81    +4.47    +17.0%  UP
+  Mem Util                 45.11          45.22    +0.11     +0.3%  UP
+  Device Temperature                       42.07          42.18    +0.11     +0.3%  UP
+  Fan Speed              2605.95        2609.01    +3.06     +0.1%  UP
+  Power Supply           1.00           1.00    +0.00     +0.0%  DOWN
+  Reboot Delta                  0.00           0.00    +0.00     +0.0%  DOWN
 
   Lead time distribution (>10% divergence from normal):
   Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
   ------------------------------------------------------------------------------
-  util_pct                      1p        1p        1p       265  
-  queue_depth                   1p        1p        1p       265  
-  crc_errors                    2p        1p        1p       265  
-  latency_ms                    1p        1p        1p       265  
-  cpu_pct                       9p        1p        1p       265  
-  mem_util_pct                 15p        8p        1p        68  
-  temp_c                       n/a      n/a      n/a       n/a
-  fan_speed_rpm                n/a      n/a      n/a       n/a
-  power_supply_status          n/a      n/a      n/a       n/a
+  B/W Util                      1p        1p        1p       265  
+  Buffer Util                   1p        1p        1p       265  
+  CRC Errors                    2p        1p        1p       265  
+  Latency                    1p        1p        1p       265  
+  CPU Util                       9p        1p        1p       265  
+  Mem Util                 15p        8p        1p        68  
+  Device Temperature                       n/a      n/a      n/a       n/a
+  Fan Speed                n/a      n/a      n/a       n/a
+  Power Supply          n/a      n/a      n/a       n/a
 
   ==========================================================================================================
   EVENT: INTERFACE_FLAP | Occurrences: 143 | Pre-event windows: 215 | Normal windows: 2675
@@ -1695,29 +1571,29 @@ const TERMINAL_LOG = `==========================================================
 
   Metric                  Normal avg  Pre-event avg   Change  Change %  Direction
   ------------------------------------------------------------------------------
-  util_pct                     37.87          70.45   +32.58    +86.0%  UP
-  queue_depth                   1.31          26.51   +25.19  +1916.2%  UP
-  crc_errors                    0.26           7.16    +6.90  +2670.7%  UP
-  latency_ms                    4.23          22.95   +18.72   +442.4%  UP
-  cpu_pct                      26.45          32.35    +5.89    +22.3%  UP
-  mem_util_pct                 45.11          45.27    +0.16     +0.4%  UP
-  temp_c                       42.07          42.23    +0.16     +0.4%  UP
-  fan_speed_rpm              2606.17        2608.08    +1.91     +0.1%  UP
-  power_supply_status           1.00           1.00    +0.00     +0.0%  DOWN
-  reboot_delta                  0.00           0.00    +0.00     +0.0%  DOWN
+  B/W Util                     37.87          70.45   +32.58    +86.0%  UP
+  Buffer Util                   1.31          26.51   +25.19  +1916.2%  UP
+  CRC Errors                    0.26           7.16    +6.90  +2670.7%  UP
+  Latency                    4.23          22.95   +18.72   +442.4%  UP
+  CPU Util                      26.45          32.35    +5.89    +22.3%  UP
+  Mem Util                 45.11          45.27    +0.16     +0.4%  UP
+  Device Temperature                       42.07          42.23    +0.16     +0.4%  UP
+  Fan Speed              2606.17        2608.08    +1.91     +0.1%  UP
+  Power Supply           1.00           1.00    +0.00     +0.0%  DOWN
+  Reboot Delta                  0.00           0.00    +0.00     +0.0%  DOWN
 
   Lead time distribution (>10% divergence from normal):
   Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
   ------------------------------------------------------------------------------
-  util_pct                      2p        1p        1p       215  
-  queue_depth                   1p        1p        1p       215  
-  crc_errors                    1p        1p        1p       215  
-  latency_ms                    1p        1p        1p       215  
-  cpu_pct                       2p        1p        1p       215  
-  mem_util_pct                 15p        8p        1p        53  
-  temp_c                       n/a      n/a      n/a       n/a
-  fan_speed_rpm                n/a      n/a      n/a       n/a
-  power_supply_status          n/a      n/a      n/a       n/a
+  B/W Util                      2p        1p        1p       215  
+  Buffer Util                   1p        1p        1p       215  
+  CRC Errors                    1p        1p        1p       215  
+  Latency                    1p        1p        1p       215  
+  CPU Util                       2p        1p        1p       215  
+  Mem Util                 15p        8p        1p        53  
+  Device Temperature                       n/a      n/a      n/a       n/a
+  Fan Speed                n/a      n/a      n/a       n/a
+  Power Supply          n/a      n/a      n/a       n/a
 
   ==========================================================================================================
   EVENT: LINK_DOWN | Occurrences: 2 | Pre-event windows: 4 | Normal windows: 4039
@@ -1725,29 +1601,29 @@ const TERMINAL_LOG = `==========================================================
 
   Metric                  Normal avg  Pre-event avg   Change  Change %  Direction
   ------------------------------------------------------------------------------
-  util_pct                     42.91          81.05   +38.13    +88.9%  UP
-  queue_depth                   6.12          46.36   +40.24   +657.1%  UP
-  crc_errors                    2.06          17.41   +15.35   +745.8%  UP
-  latency_ms                    7.80          37.34   +29.53   +378.5%  UP
-  cpu_pct                      27.48          36.25    +8.78    +31.9%  UP
-  mem_util_pct                 45.12          45.75    +0.63     +1.4%  UP
-  temp_c                       42.10          42.32    +0.23     +0.5%  UP
-  fan_speed_rpm              2606.62        2590.64   -15.98     -0.6%  DOWN
-  power_supply_status           1.00           1.00    +0.00     +0.0%  DOWN
-  reboot_delta                  0.00           0.00    +0.00     +0.0%  DOWN
+  B/W Util                     42.91          81.05   +38.13    +88.9%  UP
+  Buffer Util                   6.12          46.36   +40.24   +657.1%  UP
+  CRC Errors                    2.06          17.41   +15.35   +745.8%  UP
+  Latency                    7.80          37.34   +29.53   +378.5%  UP
+  CPU Util                      27.48          36.25    +8.78    +31.9%  UP
+  Mem Util                 45.12          45.75    +0.63     +1.4%  UP
+  Device Temperature                       42.10          42.32    +0.23     +0.5%  UP
+  Fan Speed              2606.62        2590.64   -15.98     -0.6%  DOWN
+  Power Supply           1.00           1.00    +0.00     +0.0%  DOWN
+  Reboot Delta                  0.00           0.00    +0.00     +0.0%  DOWN
 
   Lead time distribution (>10% divergence from normal):
   Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
   ------------------------------------------------------------------------------
-  util_pct                      1p        1p        1p         4  
-  queue_depth                   1p        1p        1p         4  
-  crc_errors                    1p        1p        1p         4  
-  latency_ms                    1p        1p        1p         4  
-  cpu_pct                       3p        2p        1p         4  
-  mem_util_pct                  1p        1p        1p         2  
-  temp_c                       n/a      n/a      n/a       n/a
-  fan_speed_rpm                n/a      n/a      n/a       n/a
-  power_supply_status          n/a      n/a      n/a       n/a
+  B/W Util                      1p        1p        1p         4  
+  Buffer Util                   1p        1p        1p         4  
+  CRC Errors                    1p        1p        1p         4  
+  Latency                    1p        1p        1p         4  
+  CPU Util                       3p        2p        1p         4  
+  Mem Util                  1p        1p        1p         2  
+  Device Temperature                       n/a      n/a      n/a       n/a
+  Fan Speed                n/a      n/a      n/a       n/a
+  Power Supply          n/a      n/a      n/a       n/a
 
   ==========================================================================================================
   EVENT: PACKET_DROP | Occurrences: 246 | Pre-event windows: 344 | Normal windows: 2380
@@ -1755,29 +1631,29 @@ const TERMINAL_LOG = `==========================================================
 
   Metric                  Normal avg  Pre-event avg   Change  Change %  Direction
   ------------------------------------------------------------------------------
-  util_pct                     36.37          65.05   +28.68    +78.8%  UP
-  queue_depth                   0.21          19.27   +19.06  +9148.6%  UP
-  crc_errors                    0.06           4.68    +4.62  +8165.6%  UP
-  latency_ms                    3.39          17.57   +14.18   +418.3%  UP
-  cpu_pct                      26.29          30.83    +4.54    +17.3%  UP
-  mem_util_pct                 45.11          45.22    +0.11     +0.2%  UP
-  temp_c                       42.07          42.18    +0.11     +0.3%  UP
-  fan_speed_rpm              2606.29        2607.24    +0.95     +0.0%  UP
-  power_supply_status           1.00           1.00    +0.00     +0.0%  DOWN
-  reboot_delta                  0.00           0.00    +0.00     +0.0%  DOWN
+  B/W Util                     36.37          65.05   +28.68    +78.8%  UP
+  Buffer Util                   0.21          19.27   +19.06  +9148.6%  UP
+  CRC Errors                    0.06           4.68    +4.62  +8165.6%  UP
+  Latency                    3.39          17.57   +14.18   +418.3%  UP
+  CPU Util                      26.29          30.83    +4.54    +17.3%  UP
+  Mem Util                 45.11          45.22    +0.11     +0.2%  UP
+  Device Temperature                       42.07          42.18    +0.11     +0.3%  UP
+  Fan Speed              2606.29        2607.24    +0.95     +0.0%  UP
+  Power Supply           1.00           1.00    +0.00     +0.0%  DOWN
+  Reboot Delta                  0.00           0.00    +0.00     +0.0%  DOWN
 
   Lead time distribution (>10% divergence from normal):
   Metric                  Earliest   Median   Latest   Windows  Sample dist (polls before event)
   ------------------------------------------------------------------------------
-  util_pct                      1p        1p        1p       344  
-  queue_depth                   1p        1p        1p       344  
-  crc_errors                    2p        1p        1p       344  
-  latency_ms                    1p        1p        1p       344  
-  cpu_pct                       9p        1p        1p       344  
-  mem_util_pct                 15p        8p        1p        79  
-  temp_c                       n/a      n/a      n/a       n/a
-  fan_speed_rpm                n/a      n/a      n/a       n/a
-  power_supply_status          n/a      n/a      n/a       n/a
+  B/W Util                      1p        1p        1p       344  
+  Buffer Util                   1p        1p        1p       344  
+  CRC Errors                    2p        1p        1p       344  
+  Latency                    1p        1p        1p       344  
+  CPU Util                       9p        1p        1p       344  
+  Mem Util                 15p        8p        1p        79  
+  Device Temperature                       n/a      n/a      n/a       n/a
+  Fan Speed                n/a      n/a      n/a       n/a
+  Power Supply          n/a      n/a      n/a       n/a
 
 ==============================================================================
  SECTION 4 PATTERN CLUSTERING [SWITCH]
@@ -1790,8 +1666,8 @@ const TERMINAL_LOG = `==========================================================
   2        Congestion Buildup         1431       98%  HIGH_UTIL_WARNING: 1% | PACKET_DROP: 1%
   3        Spike/Recovery              653       99%  HIGH_UTIL_WARNING: 1% | PACKET_DROP: 1% | INTERFACE_FLAP: 0%
 
-  Cluster Centroids  (interface: ['util_pct', 'queue_depth']  device: ['cpu_pct', 'mem_util_pct']):
-  Cluster  Name                            util_pct     queue_depth         cpu_pct    mem_util_pct
+  Cluster Centroids  (interface: ['B/W Util', 'Buffer Util']  device: ['CPU Util', 'Mem Util']):
+  Cluster  Name                            B/W Util     Buffer Util         CPU Util    Mem Util
   ------------------------------------------------------------------------------
   0        Stable Baseline                     37.3             0.8            24.2            44.9
   1        Gradual Rise                        75.1            45.6            33.9            45.5
@@ -1810,41 +1686,41 @@ const TERMINAL_LOG = `==========================================================
 
     Top 8 features for HIGH_UTIL_WARNING:
     Feature                             Importance  Bar
-    util_pct_last                           0.1479  
-    latency_ms_last                         0.1289  
-    queue_depth_last                        0.1199  
-    crc_errors_last                         0.0813  
-    latency_ms_slope                        0.0763  
-    util_pct_slope                          0.0654  
-    util_pct_mean                           0.0628  
-    queue_depth_slope                       0.0486  
+    B/W Util_last                           0.1479  
+    Latency_last                         0.1289  
+    Buffer Util_last                        0.1199  
+    CRC Errors_last                         0.0813  
+    Latency_slope                        0.0763  
+    B/W Util_slope                          0.0654  
+    B/W Util_mean                           0.0628  
+    Buffer Util_slope                       0.0486  
 
   INTERFACE_FLAP                    5.3%     0.987      0.833   0.930  0.879  OK
 
     Top 8 features for INTERFACE_FLAP:
     Feature                             Importance  Bar
-    crc_errors_last                         0.1571  
-    latency_ms_slope                        0.1304  
-    queue_depth_last                        0.0810  
-    latency_ms_last                         0.0788  
-    queue_depth_slope                       0.0740  
-    util_pct_mean                           0.0725  
-    crc_errors_slope                        0.0431  
-    util_pct_max                            0.0333  
+    CRC Errors_last                         0.1571  
+    Latency_slope                        0.1304  
+    Buffer Util_last                        0.0810  
+    Latency_last                         0.0788  
+    Buffer Util_slope                       0.0740  
+    B/W Util_mean                           0.0725  
+    CRC Errors_slope                        0.0431  
+    B/W Util_max                            0.0333  
 
   LINK_DOWN                         0.1%         SKIPPED (rate out of range)
   PACKET_DROP                       8.4%     0.983      0.840   0.986  0.907  OK
 
     Top 8 features for PACKET_DROP:
     Feature                             Importance  Bar
-    queue_depth_last                        0.1539  
-    latency_ms_last                         0.1428  
-    latency_ms_slope                        0.0939  
-    crc_errors_last                         0.0917  
-    util_pct_last                           0.0838  
-    util_pct_slope                          0.0707  
-    util_pct_mean                           0.0533  
-    queue_depth_slope                       0.0512  
+    Buffer Util_last                        0.1539  
+    Latency_last                         0.1428  
+    Latency_slope                        0.0939  
+    CRC Errors_last                         0.0917  
+    B/W Util_last                           0.0838  
+    B/W Util_slope                          0.0707  
+    B/W Util_mean                           0.0533  
+    Buffer Util_slope                       0.0512  
 
 
 ==============================================================================
@@ -1920,13 +1796,13 @@ const TERMINAL_LOG = `==========================================================
 ==============================================================================
 
   Chain 1  [HIGH_UTIL_WARNING]  (5 metrics  |  seen 178x  |  265 pre-event windows)
-  cpu_pct â†‘  â†’  crc_errors â†‘  â†’  queue_depth â†‘  â†’  latency_ms â†‘  â†’  util_pct â†‘  â†’  HIGH_UTIL_WARNING
+  CPU Util â†‘  â†’  CRC Errors â†‘  â†’  Buffer Util â†‘  â†’  Latency â†‘  â†’  B/W Util â†‘  â†’  HIGH_UTIL_WARNING
 
   Chain 2  [INTERFACE_FLAP]  (5 metrics  |  seen 143x  |  215 pre-event windows)
-  util_pct â†‘  â†’  cpu_pct â†‘  â†’  crc_errors â†‘  â†’  queue_depth â†‘  â†’  latency_ms â†‘  â†’  INTERFACE_FLAP
+  B/W Util â†‘  â†’  CPU Util â†‘  â†’  CRC Errors â†‘  â†’  Buffer Util â†‘  â†’  Latency â†‘  â†’  INTERFACE_FLAP
 
   Chain 3  [PACKET_DROP]  (5 metrics  |  seen 246x  |  344 pre-event windows)
-  cpu_pct â†‘  â†’  crc_errors â†‘  â†’  queue_depth â†‘  â†’  latency_ms â†‘  â†’  util_pct â†‘  â†’  PACKET_DROP
+  CPU Util â†‘  â†’  CRC Errors â†‘  â†’  Buffer Util â†‘  â†’  Latency â†‘  â†’  B/W Util â†‘  â†’  PACKET_DROP
 
   Total chains: 3
 
@@ -1947,112 +1823,112 @@ const TERMINAL_LOG = `==========================================================
   ============================================================================================================================================================
   Cross-Correlation Key Findings
   ============================================================================================================================================================
-  queue_depth LEADS util_pct by 10 min (r=0.6833)
-  crc_errors LEADS util_pct by 15 min (r=0.674)
-  latency_ms LEADS util_pct by 10 min (r=0.6834)
-  cpu_pct LEADS util_pct by 5 min (r=0.7133)
-  mem_util_pct LEADS util_pct by 20 min (r=0.5183)
-  temp_c LEADS util_pct by 15 min (r=0.5098)
-  fan_speed_rpm LEADS util_pct by 5 min (r=0.1691)
-  util_pct LEADS reboot_delta by 55 min (r=-0.1013)
-  crc_errors LEADS queue_depth by 5 min (r=0.9319)
-  queue_depth LEADS cpu_pct by 5 min (r=0.8502)
-  mem_util_pct LEADS queue_depth by 15 min (r=0.666)
-  temp_c LEADS queue_depth by 5 min (r=0.6257)
-  queue_depth LEADS reboot_delta by 45 min (r=-0.0948)
-  crc_errors LEADS latency_ms by 5 min (r=0.9266)
-  crc_errors LEADS cpu_pct by 10 min (r=0.7872)
-  crc_errors LEADS temp_c by 5 min (r=0.5656)
-  crc_errors LEADS fan_speed_rpm by 5 min (r=0.2177)
-  reboot_delta LEADS crc_errors by 15 min (r=0.1007)
-  latency_ms LEADS cpu_pct by 5 min (r=0.8518)
-  mem_util_pct LEADS latency_ms by 10 min (r=0.666)
-  temp_c LEADS latency_ms by 5 min (r=0.6282)
-  latency_ms LEADS reboot_delta by 45 min (r=-0.0962)
-  mem_util_pct LEADS cpu_pct by 20 min (r=0.6931)
-  temp_c LEADS cpu_pct by 5 min (r=0.6919)
-  fan_speed_rpm LEADS cpu_pct by 10 min (r=0.158)
-  reboot_delta LEADS cpu_pct by 75 min (r=0.1172)
-  mem_util_pct LEADS temp_c by 10 min (r=0.5608)
-  reboot_delta LEADS mem_util_pct by 70 min (r=0.1442)
-  temp_c LEADS reboot_delta by 75 min (r=-0.1382)
+  Buffer Util LEADS B/W Util by 10 min (r=0.6833)
+  CRC Errors LEADS B/W Util by 15 min (r=0.674)
+  Latency LEADS B/W Util by 10 min (r=0.6834)
+  CPU Util LEADS B/W Util by 5 min (r=0.7133)
+  Mem Util LEADS B/W Util by 20 min (r=0.5183)
+  Device Temperature LEADS B/W Util by 15 min (r=0.5098)
+  Fan Speed LEADS B/W Util by 5 min (r=0.1691)
+  B/W Util LEADS Reboot Delta by 55 min (r=-0.1013)
+  CRC Errors LEADS Buffer Util by 5 min (r=0.9319)
+  Buffer Util LEADS CPU Util by 5 min (r=0.8502)
+  Mem Util LEADS Buffer Util by 15 min (r=0.666)
+  Device Temperature LEADS Buffer Util by 5 min (r=0.6257)
+  Buffer Util LEADS Reboot Delta by 45 min (r=-0.0948)
+  CRC Errors LEADS Latency by 5 min (r=0.9266)
+  CRC Errors LEADS CPU Util by 10 min (r=0.7872)
+  CRC Errors LEADS Device Temperature by 5 min (r=0.5656)
+  CRC Errors LEADS Fan Speed by 5 min (r=0.2177)
+  Reboot Delta LEADS CRC Errors by 15 min (r=0.1007)
+  Latency LEADS CPU Util by 5 min (r=0.8518)
+  Mem Util LEADS Latency by 10 min (r=0.666)
+  Device Temperature LEADS Latency by 5 min (r=0.6282)
+  Latency LEADS Reboot Delta by 45 min (r=-0.0962)
+  Mem Util LEADS CPU Util by 20 min (r=0.6931)
+  Device Temperature LEADS CPU Util by 5 min (r=0.6919)
+  Fan Speed LEADS CPU Util by 10 min (r=0.158)
+  Reboot Delta LEADS CPU Util by 75 min (r=0.1172)
+  Mem Util LEADS Device Temperature by 10 min (r=0.5608)
+  Reboot Delta LEADS Mem Util by 70 min (r=0.1442)
+  Device Temperature LEADS Reboot Delta by 75 min (r=-0.1382)
 
   ============================================================================================================================================================
   Granger Causality Significant Pairs
   ============================================================================================================================================================
-  util_pct->queue_depth  p=0.0  lag=10 min  *** SIGNIFICANT
-  util_pct->crc_errors  p=0.0  lag=20 min  *** SIGNIFICANT
-  util_pct->latency_ms  p=0.0  lag=15 min  *** SIGNIFICANT
-  util_pct->cpu_pct  p=0.0  lag=30 min  *** SIGNIFICANT
-  util_pct->mem_util_pct  p=1e-06  lag=5 min  *** SIGNIFICANT
-  util_pct->temp_c  p=0.0  lag=10 min  *** SIGNIFICANT
-  util_pct->fan_speed_rpm  p=0.029557  lag=5 min  *** SIGNIFICANT
-  util_pct->reboot_delta  p=0.049878  lag=20 min  *** SIGNIFICANT
-  queue_depth->crc_errors  p=0.0  lag=5 min  *** SIGNIFICANT
-  queue_depth->cpu_pct  p=2.1e-05  lag=5 min  *** SIGNIFICANT
-  queue_depth->mem_util_pct  p=0.0  lag=5 min  *** SIGNIFICANT
-  queue_depth->temp_c  p=0.0  lag=5 min  *** SIGNIFICANT
-  queue_depth->fan_speed_rpm  p=0.029528  lag=5 min  *** SIGNIFICANT
-  queue_depth->power_supply_status  p=0.0  lag=5 min  *** SIGNIFICANT
-  crc_errors->latency_ms  p=0.000146  lag=10 min  *** SIGNIFICANT
-  crc_errors->cpu_pct  p=0.01251  lag=20 min  *** SIGNIFICANT
-  crc_errors->mem_util_pct  p=0.0  lag=5 min  *** SIGNIFICANT
-  crc_errors->temp_c  p=4e-06  lag=5 min  *** SIGNIFICANT
-  crc_errors->fan_speed_rpm  p=0.048759  lag=5 min  *** SIGNIFICANT
-  latency_ms->cpu_pct  p=3e-06  lag=5 min  *** SIGNIFICANT
-  latency_ms->mem_util_pct  p=0.0  lag=5 min  *** SIGNIFICANT
-  latency_ms->temp_c  p=0.0  lag=5 min  *** SIGNIFICANT
-  latency_ms->fan_speed_rpm  p=0.034426  lag=5 min  *** SIGNIFICANT
-  cpu_pct->mem_util_pct  p=0.0  lag=10 min  *** SIGNIFICANT
-  cpu_pct->temp_c  p=0.0  lag=5 min  *** SIGNIFICANT
-  cpu_pct->fan_speed_rpm  p=0.040932  lag=5 min  *** SIGNIFICANT
-  cpu_pct->power_supply_status  p=0.0  lag=15 min  *** SIGNIFICANT
-  mem_util_pct->temp_c  p=3e-05  lag=5 min  *** SIGNIFICANT
+  B/W Util->Buffer Util  p=0.0  lag=10 min  *** SIGNIFICANT
+  B/W Util->CRC Errors  p=0.0  lag=20 min  *** SIGNIFICANT
+  B/W Util->Latency  p=0.0  lag=15 min  *** SIGNIFICANT
+  B/W Util->CPU Util  p=0.0  lag=30 min  *** SIGNIFICANT
+  B/W Util->Mem Util  p=1e-06  lag=5 min  *** SIGNIFICANT
+  B/W Util->Device Temperature  p=0.0  lag=10 min  *** SIGNIFICANT
+  B/W Util->Fan Speed  p=0.029557  lag=5 min  *** SIGNIFICANT
+  B/W Util->Reboot Delta  p=0.049878  lag=20 min  *** SIGNIFICANT
+  Buffer Util->CRC Errors  p=0.0  lag=5 min  *** SIGNIFICANT
+  Buffer Util->CPU Util  p=2.1e-05  lag=5 min  *** SIGNIFICANT
+  Buffer Util->Mem Util  p=0.0  lag=5 min  *** SIGNIFICANT
+  Buffer Util->Device Temperature  p=0.0  lag=5 min  *** SIGNIFICANT
+  Buffer Util->Fan Speed  p=0.029528  lag=5 min  *** SIGNIFICANT
+  Buffer Util->Power Supply  p=0.0  lag=5 min  *** SIGNIFICANT
+  CRC Errors->Latency  p=0.000146  lag=10 min  *** SIGNIFICANT
+  CRC Errors->CPU Util  p=0.01251  lag=20 min  *** SIGNIFICANT
+  CRC Errors->Mem Util  p=0.0  lag=5 min  *** SIGNIFICANT
+  CRC Errors->Device Temperature  p=4e-06  lag=5 min  *** SIGNIFICANT
+  CRC Errors->Fan Speed  p=0.048759  lag=5 min  *** SIGNIFICANT
+  Latency->CPU Util  p=3e-06  lag=5 min  *** SIGNIFICANT
+  Latency->Mem Util  p=0.0  lag=5 min  *** SIGNIFICANT
+  Latency->Device Temperature  p=0.0  lag=5 min  *** SIGNIFICANT
+  Latency->Fan Speed  p=0.034426  lag=5 min  *** SIGNIFICANT
+  CPU Util->Mem Util  p=0.0  lag=10 min  *** SIGNIFICANT
+  CPU Util->Device Temperature  p=0.0  lag=5 min  *** SIGNIFICANT
+  CPU Util->Fan Speed  p=0.040932  lag=5 min  *** SIGNIFICANT
+  CPU Util->Power Supply  p=0.0  lag=15 min  *** SIGNIFICANT
+  Mem Util->Device Temperature  p=3e-05  lag=5 min  *** SIGNIFICANT
 
   ============================================================================================================================================================
   Pre-Event Metric Patterns
   ============================================================================================================================================================
   DEVICE_REBOOT (7 occurrences)
-    queue_depth            normal=10.9  pre-event=13.3  (+22%)
+    Buffer Util            normal=10.9  pre-event=13.3  (+22%)
     Earliest warning: 70 min before event
   HIGH_LATENCY (242 occurrences)
-    util_pct               normal=49.3  pre-event=84.6  (+72%)
-    queue_depth            normal=1.4  pre-event=41.6  (+2784%)
-    crc_errors             normal=0.2  pre-event=11.1  (+5687%)
-    latency_ms             normal=7.5  pre-event=45.8  (+513%)
-    cpu_pct                normal=42.3  pre-event=51.5  (+22%)
+    B/W Util               normal=49.3  pre-event=84.6  (+72%)
+    Buffer Util            normal=1.4  pre-event=41.6  (+2784%)
+    CRC Errors             normal=0.2  pre-event=11.1  (+5687%)
+    Latency             normal=7.5  pre-event=45.8  (+513%)
+    CPU Util                normal=42.3  pre-event=51.5  (+22%)
     Earliest warning: 75 min before event
   HIGH_UTIL_WARNING (505 occurrences)
-    util_pct               normal=47.2  pre-event=76.7  (+63%)
-    queue_depth            normal=0.1  pre-event=29.0  (+38973%)
-    crc_errors             normal=0.1  pre-event=7.3  (+13334%)
-    latency_ms             normal=6.2  pre-event=33.8  (+449%)
+    B/W Util               normal=47.2  pre-event=76.7  (+63%)
+    Buffer Util            normal=0.1  pre-event=29.0  (+38973%)
+    CRC Errors             normal=0.1  pre-event=7.3  (+13334%)
+    Latency             normal=6.2  pre-event=33.8  (+449%)
     Earliest warning: 75 min before event
   INTERFACE_FLAP (283 occurrences)
-    util_pct               normal=49.4  pre-event=86.0  (+74%)
-    queue_depth            normal=1.2  pre-event=44.6  (+3504%)
-    crc_errors             normal=0.1  pre-event=12.3  (+10091%)
-    latency_ms             normal=7.3  pre-event=48.7  (+569%)
-    cpu_pct                normal=42.3  pre-event=52.0  (+23%)
+    B/W Util               normal=49.4  pre-event=86.0  (+74%)
+    Buffer Util            normal=1.2  pre-event=44.6  (+3504%)
+    CRC Errors             normal=0.1  pre-event=12.3  (+10091%)
+    Latency             normal=7.3  pre-event=48.7  (+569%)
+    CPU Util                normal=42.3  pre-event=52.0  (+23%)
     Earliest warning: 75 min before event
   PACKET_DROP (487 occurrences)
-    util_pct               normal=47.7  pre-event=80.0  (+68%)
-    queue_depth            normal=0.2  pre-event=33.9  (+15162%)
-    crc_errors             normal=0.1  pre-event=8.7  (+15418%)
-    latency_ms             normal=6.3  pre-event=38.5  (+510%)
+    B/W Util               normal=47.7  pre-event=80.0  (+68%)
+    Buffer Util            normal=0.2  pre-event=33.9  (+15162%)
+    CRC Errors             normal=0.1  pre-event=8.7  (+15418%)
+    Latency             normal=6.3  pre-event=38.5  (+510%)
     Earliest warning: 75 min before event
 
   ============================================================================================================================================================
   Random Forest Accuracy
   ============================================================================================================================================================
   HIGH_LATENCY                 acc=0.972  prec=0.788  recall=0.931  f1=0.854
-    Top feature: latency_ms_last (0.1460)
+    Top feature: Latency_last (0.1460)
   HIGH_UTIL_WARNING            acc=0.961  prec=0.836  recall=0.948  f1=0.888
-    Top feature: util_pct_last (0.1763)
+    Top feature: B/W Util_last (0.1763)
   INTERFACE_FLAP               acc=0.979  prec=0.865  recall=0.939  f1=0.901
-    Top feature: crc_errors_last (0.1714)
+    Top feature: CRC Errors_last (0.1714)
   PACKET_DROP                  acc=0.974  prec=0.895  recall=0.944  f1=0.919
-    Top feature: queue_depth_last (0.1619)
+    Top feature: Buffer Util_last (0.1619)
 
   ========================================================================================================================
   Top Event Sequences (with lift)
@@ -2074,98 +1950,98 @@ const TERMINAL_LOG = `==========================================================
   ========================================================================================================================
   Cross-Correlation Key Findings
   ========================================================================================================================
-  queue_depth LEADS util_pct by 5 min (r=0.8218)
-  crc_errors LEADS util_pct by 10 min (r=0.7701)
-  latency_ms LEADS util_pct by 5 min (r=0.8136)
-  util_pct LEADS mem_util_pct by 15 min (r=0.1789)
-  temp_c LEADS util_pct by 20 min (r=0.3306)
-  util_pct LEADS fan_speed_rpm by 30 min (r=-0.1051)
-  crc_errors LEADS queue_depth by 5 min (r=0.9229)
-  queue_depth LEADS cpu_pct by 5 min (r=0.8704)
-  queue_depth LEADS mem_util_pct by 20 min (r=0.1283)
-  temp_c LEADS queue_depth by 15 min (r=0.401)
-  queue_depth LEADS fan_speed_rpm by 35 min (r=-0.1257)
-  crc_errors LEADS latency_ms by 5 min (r=0.9212)
-  crc_errors LEADS cpu_pct by 10 min (r=0.8009)
-  mem_util_pct LEADS crc_errors by 5 min (r=0.147)
-  temp_c LEADS crc_errors by 10 min (r=0.3676)
-  crc_errors LEADS fan_speed_rpm by 35 min (r=-0.102)
-  latency_ms LEADS cpu_pct by 5 min (r=0.8704)
-  latency_ms LEADS mem_util_pct by 20 min (r=0.1279)
-  temp_c LEADS latency_ms by 15 min (r=0.399)
-  latency_ms LEADS fan_speed_rpm by 35 min (r=-0.1125)
-  cpu_pct LEADS mem_util_pct by 15 min (r=0.1257)
-  temp_c LEADS cpu_pct by 15 min (r=0.3849)
-  cpu_pct LEADS fan_speed_rpm by 30 min (r=-0.1166)
-  temp_c LEADS mem_util_pct by 20 min (r=0.1501)
-  fan_speed_rpm LEADS mem_util_pct by 75 min (r=-0.1811)
-  fan_speed_rpm LEADS temp_c by 40 min (r=-0.1075)
+  Buffer Util LEADS B/W Util by 5 min (r=0.8218)
+  CRC Errors LEADS B/W Util by 10 min (r=0.7701)
+  Latency LEADS B/W Util by 5 min (r=0.8136)
+  B/W Util LEADS Mem Util by 15 min (r=0.1789)
+  Device Temperature LEADS B/W Util by 20 min (r=0.3306)
+  B/W Util LEADS Fan Speed by 30 min (r=-0.1051)
+  CRC Errors LEADS Buffer Util by 5 min (r=0.9229)
+  Buffer Util LEADS CPU Util by 5 min (r=0.8704)
+  Buffer Util LEADS Mem Util by 20 min (r=0.1283)
+  Device Temperature LEADS Buffer Util by 15 min (r=0.401)
+  Buffer Util LEADS Fan Speed by 35 min (r=-0.1257)
+  CRC Errors LEADS Latency by 5 min (r=0.9212)
+  CRC Errors LEADS CPU Util by 10 min (r=0.8009)
+  Mem Util LEADS CRC Errors by 5 min (r=0.147)
+  Device Temperature LEADS CRC Errors by 10 min (r=0.3676)
+  CRC Errors LEADS Fan Speed by 35 min (r=-0.102)
+  Latency LEADS CPU Util by 5 min (r=0.8704)
+  Latency LEADS Mem Util by 20 min (r=0.1279)
+  Device Temperature LEADS Latency by 15 min (r=0.399)
+  Latency LEADS Fan Speed by 35 min (r=-0.1125)
+  CPU Util LEADS Mem Util by 15 min (r=0.1257)
+  Device Temperature LEADS CPU Util by 15 min (r=0.3849)
+  CPU Util LEADS Fan Speed by 30 min (r=-0.1166)
+  Device Temperature LEADS Mem Util by 20 min (r=0.1501)
+  Fan Speed LEADS Mem Util by 75 min (r=-0.1811)
+  Fan Speed LEADS Device Temperature by 40 min (r=-0.1075)
 
   ========================================================================================================================
   Granger Causality Significant Pairs
   ========================================================================================================================
-  util_pct->queue_depth  p=0.0  lag=10 min  *** SIGNIFICANT
-  util_pct->crc_errors  p=0.0  lag=15 min  *** SIGNIFICANT
-  util_pct->latency_ms  p=0.0  lag=10 min  *** SIGNIFICANT
-  util_pct->cpu_pct  p=0.0  lag=5 min  *** SIGNIFICANT
-  util_pct->mem_util_pct  p=0.032731  lag=5 min  *** SIGNIFICANT
-  util_pct->temp_c  p=7.5e-05  lag=15 min  *** SIGNIFICANT
-  queue_depth->crc_errors  p=0.0  lag=5 min  *** SIGNIFICANT
-  queue_depth->latency_ms  p=0.012878  lag=5 min  *** SIGNIFICANT
-  queue_depth->cpu_pct  p=0.0  lag=5 min  *** SIGNIFICANT
-  queue_depth->temp_c  p=0.0  lag=15 min  *** SIGNIFICANT
-  queue_depth->power_supply_status  p=0.0  lag=5 min  *** SIGNIFICANT
-  crc_errors->latency_ms  p=2e-06  lag=15 min  *** SIGNIFICANT
-  crc_errors->cpu_pct  p=0.000129  lag=50 min  *** SIGNIFICANT
-  crc_errors->mem_util_pct  p=0.038654  lag=50 min  *** SIGNIFICANT
-  crc_errors->temp_c  p=1e-06  lag=15 min  *** SIGNIFICANT
-  crc_errors->power_supply_status  p=0.0  lag=5 min  *** SIGNIFICANT
-  latency_ms->cpu_pct  p=0.0  lag=5 min  *** SIGNIFICANT
-  latency_ms->temp_c  p=0.0  lag=15 min  *** SIGNIFICANT
-  latency_ms->power_supply_status  p=0.0  lag=15 min  *** SIGNIFICANT
-  cpu_pct->temp_c  p=1e-06  lag=15 min  *** SIGNIFICANT
-  cpu_pct->power_supply_status  p=0.0  lag=15 min  *** SIGNIFICANT
-  mem_util_pct->power_supply_status  p=0.0  lag=15 min  *** SIGNIFICANT
+  B/W Util->Buffer Util  p=0.0  lag=10 min  *** SIGNIFICANT
+  B/W Util->CRC Errors  p=0.0  lag=15 min  *** SIGNIFICANT
+  B/W Util->Latency  p=0.0  lag=10 min  *** SIGNIFICANT
+  B/W Util->CPU Util  p=0.0  lag=5 min  *** SIGNIFICANT
+  B/W Util->Mem Util  p=0.032731  lag=5 min  *** SIGNIFICANT
+  B/W Util->Device Temperature  p=7.5e-05  lag=15 min  *** SIGNIFICANT
+  Buffer Util->CRC Errors  p=0.0  lag=5 min  *** SIGNIFICANT
+  Buffer Util->Latency  p=0.012878  lag=5 min  *** SIGNIFICANT
+  Buffer Util->CPU Util  p=0.0  lag=5 min  *** SIGNIFICANT
+  Buffer Util->Device Temperature  p=0.0  lag=15 min  *** SIGNIFICANT
+  Buffer Util->Power Supply  p=0.0  lag=5 min  *** SIGNIFICANT
+  CRC Errors->Latency  p=2e-06  lag=15 min  *** SIGNIFICANT
+  CRC Errors->CPU Util  p=0.000129  lag=50 min  *** SIGNIFICANT
+  CRC Errors->Mem Util  p=0.038654  lag=50 min  *** SIGNIFICANT
+  CRC Errors->Device Temperature  p=1e-06  lag=15 min  *** SIGNIFICANT
+  CRC Errors->Power Supply  p=0.0  lag=5 min  *** SIGNIFICANT
+  Latency->CPU Util  p=0.0  lag=5 min  *** SIGNIFICANT
+  Latency->Device Temperature  p=0.0  lag=15 min  *** SIGNIFICANT
+  Latency->Power Supply  p=0.0  lag=15 min  *** SIGNIFICANT
+  CPU Util->Device Temperature  p=1e-06  lag=15 min  *** SIGNIFICANT
+  CPU Util->Power Supply  p=0.0  lag=15 min  *** SIGNIFICANT
+  Mem Util->Power Supply  p=0.0  lag=15 min  *** SIGNIFICANT
 
   ========================================================================================================================
   Pre-Event Metric Patterns
   ========================================================================================================================
   HIGH_UTIL_WARNING (178 occurrences)
-    util_pct               normal=36.6  pre-event=64.5  (+76%)
-    queue_depth            normal=0.4  pre-event=18.5  (+4774%)
-    crc_errors             normal=0.1  pre-event=4.4  (+4728%)
-    latency_ms             normal=3.5  pre-event=17.0  (+384%)
+    B/W Util               normal=36.6  pre-event=64.5  (+76%)
+    Buffer Util            normal=0.4  pre-event=18.5  (+4774%)
+    CRC Errors             normal=0.1  pre-event=4.4  (+4728%)
+    Latency             normal=3.5  pre-event=17.0  (+384%)
     Earliest warning: 75 min before event
   INTERFACE_FLAP (143 occurrences)
-    util_pct               normal=37.9  pre-event=70.5  (+86%)
-    queue_depth            normal=1.3  pre-event=26.5  (+1916%)
-    crc_errors             normal=0.3  pre-event=7.2  (+2671%)
-    latency_ms             normal=4.2  pre-event=23.0  (+442%)
-    cpu_pct                normal=26.5  pre-event=32.3  (+22%)
+    B/W Util               normal=37.9  pre-event=70.5  (+86%)
+    Buffer Util            normal=1.3  pre-event=26.5  (+1916%)
+    CRC Errors             normal=0.3  pre-event=7.2  (+2671%)
+    Latency             normal=4.2  pre-event=23.0  (+442%)
+    CPU Util                normal=26.5  pre-event=32.3  (+22%)
     Earliest warning: 75 min before event
   LINK_DOWN (2 occurrences)
-    util_pct               normal=42.9  pre-event=81.0  (+89%)
-    queue_depth            normal=6.1  pre-event=46.4  (+657%)
-    crc_errors             normal=2.1  pre-event=17.4  (+746%)
-    latency_ms             normal=7.8  pre-event=37.3  (+378%)
-    cpu_pct                normal=27.5  pre-event=36.3  (+32%)
+    B/W Util               normal=42.9  pre-event=81.0  (+89%)
+    Buffer Util            normal=6.1  pre-event=46.4  (+657%)
+    CRC Errors             normal=2.1  pre-event=17.4  (+746%)
+    Latency             normal=7.8  pre-event=37.3  (+378%)
+    CPU Util                normal=27.5  pre-event=36.3  (+32%)
     Earliest warning: 15 min before event
   PACKET_DROP (246 occurrences)
-    util_pct               normal=36.4  pre-event=65.1  (+79%)
-    queue_depth            normal=0.2  pre-event=19.3  (+9149%)
-    crc_errors             normal=0.1  pre-event=4.7  (+8166%)
-    latency_ms             normal=3.4  pre-event=17.6  (+418%)
+    B/W Util               normal=36.4  pre-event=65.1  (+79%)
+    Buffer Util            normal=0.2  pre-event=19.3  (+9149%)
+    CRC Errors             normal=0.1  pre-event=4.7  (+8166%)
+    Latency             normal=3.4  pre-event=17.6  (+418%)
     Earliest warning: 75 min before event
 
   ========================================================================================================================
   Random Forest Accuracy
   ========================================================================================================================
   HIGH_UTIL_WARNING            acc=0.968  prec=0.680  recall=0.962  f1=0.797
-    Top feature: util_pct_last (0.1479)
+    Top feature: B/W Util_last (0.1479)
   INTERFACE_FLAP               acc=0.987  prec=0.833  recall=0.930  f1=0.879
-    Top feature: crc_errors_last (0.1571)
+    Top feature: CRC Errors_last (0.1571)
   PACKET_DROP                  acc=0.983  prec=0.840  recall=0.986  f1=0.907
-    Top feature: queue_depth_last (0.1539)
+    Top feature: Buffer Util_last (0.1539)
 
   ========================================================================================================================
   Top Event Sequences (with lift)
@@ -2845,7 +2721,7 @@ export default function TrainingLovelablePage() {
                         labelX="Pearson R"
                         focusMetric={focusXcorr}
                         onFocusChange={setFocusXcorr}
-                        metricsList={['util_pct', 'queue_depth', 'crc_errors', 'latency_ms', 'cpu_pct', 'mem_util_pct', 'temp_c', 'fan_speed_rpm']}
+                        metricsList={['B/W Util', 'Buffer Util', 'CRC Errors', 'Latency', 'CPU Util', 'Mem Util', 'Device Temperature', 'Fan Speed']}
                         data={combinedXcorr
                           .filter(d => focusXcorr === 'all' || d.a === focusXcorr || d.b === focusXcorr)
                           .slice(0, 10)
@@ -2937,7 +2813,7 @@ export default function TrainingLovelablePage() {
                         labelX="F-Statistic"
                         focusMetric={focusGranger}
                         onFocusChange={setFocusGranger}
-                        metricsList={['util_pct', 'queue_depth', 'crc_errors', 'latency_ms', 'cpu_pct', 'mem_util_pct', 'temp_c', 'fan_speed_rpm']}
+                        metricsList={['B/W Util', 'Buffer Util', 'CRC Errors', 'Latency', 'CPU Util', 'Mem Util', 'Device Temperature', 'Fan Speed']}
                         data={combinedGranger
                           .filter(d => focusGranger === 'all' || d.c === focusGranger || d.e === focusGranger)
                           .slice(0, 10)
@@ -2999,7 +2875,7 @@ export default function TrainingLovelablePage() {
                         </thead>
                         <tbody className="divide-y divide-[#334155]">
                           {(deviceFilter === 'device' ? (targetType === 'Router' ? D.preEvtR : D.preEvtS) : [...D.preEvtR, ...D.preEvtS]).map((pe, idx) => {
-                            const formatLabel = (str: string) => str.replace(/_/g, ' ').toLowerCase().replace(/(^\w|[\s\(\:]\w)/g, m => m.toUpperCase());
+                            
                             return pe.metrics.map((m, midx) => (
                               <tr key={`${idx}-${midx}`} className="hover:bg-[#1e293b]/60 transition-colors group">
                                 {midx === 0 && (

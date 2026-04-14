@@ -24,52 +24,10 @@ import {
   X,
   ChevronRight
 } from "lucide-react";
-import { cn } from "@/shared/lib/utils";
+import { cn, formatMetricLabel as formatLabel } from "@/shared/lib/utils";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 
-const formatLabel = (str: string) => {
-  if (!str) return '';
-  
-  // Specific mappings for common technical terms
-  const map: Record<string, string> = {
-    'cpu_pct': 'CPU Util',
-    'cpu_percent': 'CPU Util',
-    'cpu': 'CPU Util',
-    'crc_errors': 'CRC Errors',
-    'crc': 'CRC Errors',
-    'queue_depth': 'Buffer Util',
-    'buffer_util': 'Buffer Util',
-    'bandwidth_util': 'B/W Util',
-    'util_pct': 'B/W Util',
-    'utilization_percent': 'B/W Util',
-    'mem_util_pct': 'Mem Util',
-    'men_util_pct': 'Mem Util',
-    'mem_percent': 'Mem Util',
-    'latency_ms': 'Latency',
-    'packet_drop': 'Packet Drop',
-    'packet_loss': 'Packet Loss',
-    'interface_flap': 'Interface Flap'
-  };
-
-  const key = str.toLowerCase().replace(/\s+/g, '_');
-  if (map[key]) return map[key];
-
-  // Fallback for unknown strings: Pascal Case with spacing
-  return str
-    .replace(/_/g, ' ')
-    // Only add space between lowercase and uppercase (camelCase)
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .trim()
-    .split(/\s+/)
-    .map(word => {
-      const upper = word.toUpperCase();
-      if (['CPU', 'CRC', 'BW', 'B/W', 'MEM', 'SLA', 'API', 'NMS'].includes(upper)) return upper;
-      // Maintain existing casing if it's already all caps or already mixed
-      if (word === word.toUpperCase() && word.length > 1) return word;
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    })
-    .join(' ');
-};
+// Local formatLabel removed, using centralized formatMetricLabel via import
 
 // --- MOCK DATA & CONSTANTS ---
 
@@ -90,17 +48,17 @@ const MODELS = [
 ];
 
 const ROUTER_CHAINS = [
-  { id: 'R-Chain-1', label: 'High Latency', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'util_pct'] },
-  { id: 'R-Chain-2', label: 'High Util Warning', sequence: ['cpu_pct', 'crc_errors', 'latency_ms', 'queue_depth', 'util_pct'] },
-  { id: 'R-Chain-3', label: 'Interface Flap', sequence: ['cpu_pct', 'util_pct', 'crc_errors', 'queue_depth', 'latency_ms'] },
-  { id: 'R-Chain-4', label: 'Packet Drop', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'util_pct'] },
+  { id: 'R-Chain-1', label: 'High Latency', sequence: ['CPU Util', 'CRC Errors', 'Buffer Util', 'Latency', 'B/W Util'] },
+  { id: 'R-Chain-2', label: 'High Util Warning', sequence: ['CPU Util', 'CRC Errors', 'Latency', 'Buffer Util', 'B/W Util'] },
+  { id: 'R-Chain-3', label: 'Interface Flap', sequence: ['CPU Util', 'B/W Util', 'CRC Errors', 'Buffer Util', 'Latency'] },
+  { id: 'R-Chain-4', label: 'Packet Drop', sequence: ['CPU Util', 'CRC Errors', 'Buffer Util', 'Latency', 'B/W Util'] },
 ];
 
 const SWITCH_CHAINS = [
-  { id: 'S-Chain-1', label: 'Device Reboot', sequence: ['queue_depth', 'crc_errors', 'latency_ms', 'util_pct', 'cpu_pct'] },
-  { id: 'S-Chain-2', label: 'High Util Warning', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'reboot_delta', 'util_pct'] },
-  { id: 'S-Chain-3', label: 'Interface Flap', sequence: ['cpu_pct', 'util_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'reboot_delta'] },
-  { id: 'S-Chain-4', label: 'Packet Drop', sequence: ['cpu_pct', 'crc_errors', 'queue_depth', 'latency_ms', 'reboot_delta', 'util_pct'] },
+  { id: 'S-Chain-1', label: 'Device Reboot', sequence: ['Buffer Util', 'CRC Errors', 'Latency', 'B/W Util', 'CPU Util'] },
+  { id: 'S-Chain-2', label: 'High Util Warning', sequence: ['CPU Util', 'CRC Errors', 'Buffer Util', 'Latency', 'Reboot Delta', 'B/W Util'] },
+  { id: 'S-Chain-3', label: 'Interface Flap', sequence: ['CPU Util', 'B/W Util', 'CRC Errors', 'Buffer Util', 'Latency', 'Reboot Delta'] },
+  { id: 'S-Chain-4', label: 'Packet Drop', sequence: ['CPU Util', 'CRC Errors', 'Buffer Util', 'Latency', 'Reboot Delta', 'B/W Util'] },
 ];
 
 const EVENT_SEQUENCES = [
@@ -216,10 +174,10 @@ const PROGRESSIVE_TIMELINE = [
     summary: "2 of 4 steps matched — WATCH issued",
     description: "R1's CPU has been climbing fast for the past 75 minutes (slope=0.269%/min). SW1's CRC errors have also exploded (delta=179.9) at exactly the expected 10-minute lag. Steps 3 and 4 metrics are actually rising too, but the lag timing windows are not yet open. The system recognises this as a real chain beginning. First WATCH alert issued. The operator should note the R1 CPU spike and begin monitoring.",
     steps: [
-      { id: 1, device: 'R1', metric: 'cpu_pct', feature: 'slope', actual: 0.2692, threshold: 0.01, last: 53.93, range: [20, 90], status: 'matched', formula: 'slope=0.269 ≥ 0.01 ✓ | last=53.9% ∈ [20,90] ✓' },
-      { id: 2, device: 'SW1', metric: 'crc_errors', feature: 'delta', actual: 179.9100, threshold: 2.0, last: 181.81, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=179.9 ≥ 2.0 ✓ | last=181.8 ∈ [0,500] ✓ | lag=10min ✓' },
-      { id: 3, device: 'SW2', metric: 'buffer_util', feature: 'slope', actual: 0.2266, threshold: 0.03, last: 33.02, range: [10, 98], status: 'pending', lagInfo: 'lag NOT met: elapsed=10min, expected=20±3min — 10min short' },
-      { id: 4, device: 'FW1', metric: 'latency_ms', feature: 'slope', actual: 0.1803, threshold: 0.05, last: 34.34, range: [5, 500], status: 'pending', lagInfo: 'lag NOT met: elapsed=20min, expected=30±3min — 10min short' },
+      { id: 1, device: 'R1', metric: 'CPU Util', feature: 'slope', actual: 0.2692, threshold: 0.01, last: 53.93, range: [20, 90], status: 'matched', formula: 'slope=0.269 ≥ 0.01 ✓ | last=53.9% ∈ [20,90] ✓' },
+      { id: 2, device: 'SW1', metric: 'CRC Errors', feature: 'delta', actual: 179.9100, threshold: 2.0, last: 181.81, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=179.9 ≥ 2.0 ✓ | last=181.8 ∈ [0,500] ✓ | lag=10min ✓' },
+      { id: 3, device: 'SW2', metric: 'Buffer Util', feature: 'slope', actual: 0.2266, threshold: 0.03, last: 33.02, range: [10, 98], status: 'pending', lagInfo: 'lag NOT met: elapsed=10min, expected=20±3min — 10min short' },
+      { id: 4, device: 'FW1', metric: 'Latency', feature: 'slope', actual: 0.1803, threshold: 0.05, last: 34.34, range: [5, 500], status: 'pending', lagInfo: 'lag NOT met: elapsed=20min, expected=30±3min — 10min short' },
     ]
   },
   {
@@ -234,10 +192,10 @@ const PROGRESSIVE_TIMELINE = [
     summary: "2 of 4 steps — WATCH maintained, cascade intensifying",
     description: "CRC errors at SW1 have grown further to 231.9. R1's CPU continues climbing (now at 62%). SW2's buffer and FW1's latency are both rising (slopes 0.244 and 0.447 respectively) but the lag windows are not yet open. Score stable at 0.36 — same 2 steps confirmed. The cascade is deepening but the pattern engine correctly waits for timing alignment.",
     steps: [
-      { id: 1, device: 'R1', metric: 'cpu_pct', feature: 'slope', actual: 0.3807, threshold: 0.01, last: 62.09, range: [20, 90], status: 'matched', formula: 'slope=0.381 ≥ 0.01 ✓ | last=62.1% ∈ [20,90] ✓' },
-      { id: 2, device: 'SW1', metric: 'crc_errors', feature: 'delta', actual: 231.5700, threshold: 2.0, last: 231.9, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=231.6 ≥ 2.0 ✓ | last=231.9 ∈ [0,500] ✓ | lag=10min ✓' },
-      { id: 3, device: 'SW2', metric: 'buffer_util', feature: 'slope', actual: 0.2438, threshold: 0.03, last: 41.54, range: [10, 98], status: 'pending', lagInfo: 'lag NOT met: elapsed=10min — waiting for 20min mark' },
-      { id: 4, device: 'FW1', metric: 'latency_ms', feature: 'slope', actual: 0.4471, threshold: 0.05, last: 56.03, range: [5, 500], status: 'pending', lagInfo: 'lag NOT met: elapsed=20min — waiting for 30min mark' },
+      { id: 1, device: 'R1', metric: 'CPU Util', feature: 'slope', actual: 0.3807, threshold: 0.01, last: 62.09, range: [20, 90], status: 'matched', formula: 'slope=0.381 ≥ 0.01 ✓ | last=62.1% ∈ [20,90] ✓' },
+      { id: 2, device: 'SW1', metric: 'CRC Errors', feature: 'delta', actual: 231.5700, threshold: 2.0, last: 231.9, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=231.6 ≥ 2.0 ✓ | last=231.9 ∈ [0,500] ✓ | lag=10min ✓' },
+      { id: 3, device: 'SW2', metric: 'Buffer Util', feature: 'slope', actual: 0.2438, threshold: 0.03, last: 41.54, range: [10, 98], status: 'pending', lagInfo: 'lag NOT met: elapsed=10min — waiting for 20min mark' },
+      { id: 4, device: 'FW1', metric: 'Latency', feature: 'slope', actual: 0.4471, threshold: 0.05, last: 56.03, range: [5, 500], status: 'pending', lagInfo: 'lag NOT met: elapsed=20min — waiting for 30min mark' },
     ]
   },
   {
@@ -252,10 +210,10 @@ const PROGRESSIVE_TIMELINE = [
     summary: "3 of 4 steps — WARN! SW2 buffer confirmed at 20-min lag",
     description: "SW2's buffer utilisation is now at 59.55%, rising at 0.448%/min, and exactly 20 minutes have elapsed since Step 1 started (within the ±3min tolerance). Step 3 confirmed. Score jumps to 0.54. WARN issued. Only FW1's latency lag window remains closed. The operator should now page on-call: HIGH_LATENCY expected in ~30 minutes.",
     steps: [
-      { id: 1, device: 'R1', metric: 'cpu_pct', feature: 'slope', actual: 0.5796, threshold: 0.01, last: 71.64, range: [20, 90], status: 'matched', formula: 'slope=0.580 ≥ 0.01 ✓ | last=71.6% ∈ [20,90] ✓' },
-      { id: 2, device: 'SW1', metric: 'crc_errors', feature: 'delta', actual: 291.2100, threshold: 2.0, last: 292.39, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=291.2 ≥ 2.0 ✓ | last=292.4 ∈ [0,500] ✓ | lag=10min ✓' },
-      { id: 3, device: 'SW2', metric: 'buffer_util', feature: 'slope', actual: 0.4477, threshold: 0.03, last: 59.55, range: [10, 98], status: 'matched', lag: '20min', formula: 'slope=0.448 ≥ 0.03 ✓ | last=59.6% ∈ [10,98] ✓ | lag=20min ✓' },
-      { id: 4, device: 'FW1', metric: 'latency_ms', feature: 'slope', actual: 1.4015, threshold: 0.05, last: 114.2, range: [5, 500], status: 'pending', lagInfo: 'lag NOT met: elapsed=20min, expected=30±3min — 10min short' },
+      { id: 1, device: 'R1', metric: 'CPU Util', feature: 'slope', actual: 0.5796, threshold: 0.01, last: 71.64, range: [20, 90], status: 'matched', formula: 'slope=0.580 ≥ 0.01 ✓ | last=71.6% ∈ [20,90] ✓' },
+      { id: 2, device: 'SW1', metric: 'CRC Errors', feature: 'delta', actual: 291.2100, threshold: 2.0, last: 292.39, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=291.2 ≥ 2.0 ✓ | last=292.4 ∈ [0,500] ✓ | lag=10min ✓' },
+      { id: 3, device: 'SW2', metric: 'Buffer Util', feature: 'slope', actual: 0.4477, threshold: 0.03, last: 59.55, range: [10, 98], status: 'matched', lag: '20min', formula: 'slope=0.448 ≥ 0.03 ✓ | last=59.6% ∈ [10,98] ✓ | lag=20min ✓' },
+      { id: 4, device: 'FW1', metric: 'Latency', feature: 'slope', actual: 1.4015, threshold: 0.05, last: 114.2, range: [5, 500], status: 'pending', lagInfo: 'lag NOT met: elapsed=20min, expected=30±3min — 10min short' },
     ]
   },
   {
@@ -270,10 +228,10 @@ const PROGRESSIVE_TIMELINE = [
     summary: "3 of 4 steps — WARN maintained, FW1 latency almost there",
     description: "FW1's latency slope is now 1.930ms/min — an enormous rate of rise. The absolute value is 144ms. Every condition for Step 4 is met except the lag: elapsed time since Step 1 is 25 minutes but the window opens at 30 ± 3min. Just 2 minutes away from the confirmation window. Cascade is fully visible and unstoppable at this point.",
     steps: [
-      { id: 1, device: 'R1', metric: 'cpu_pct', feature: 'slope', actual: 0.5155, threshold: 0.01, last: 71.48, range: [20, 90], status: 'matched', formula: 'slope=0.516 ≥ 0.01 ✓ | last=71.5% ∈ [20,90] ✓' },
-      { id: 2, device: 'SW1', metric: 'crc_errors', feature: 'delta', actual: 265.7600, threshold: 2.0, last: 308.04, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=265.8 ≥ 2.0 ✓ | last=308.0 ∈ [0,500] ✓ | lag=10min ✓' },
-      { id: 3, device: 'SW2', metric: 'buffer_util', feature: 'slope', actual: 0.5840, threshold: 0.03, last: 64.0, range: [10, 98], status: 'matched', lag: '20min', formula: 'slope=0.584 ≥ 0.03 ✓ | last=64.0% ∈ [10,98] ✓ | lag=20min ✓' },
-      { id: 4, device: 'FW1', metric: 'latency_ms', feature: 'slope', actual: 1.9298, threshold: 0.05, last: 144.23, range: [5, 500], status: 'pending', lagInfo: 'lag NOT met: elapsed=25min, expected=30±3min — 2min short!' },
+      { id: 1, device: 'R1', metric: 'CPU Util', feature: 'slope', actual: 0.5155, threshold: 0.01, last: 71.48, range: [20, 90], status: 'matched', formula: 'slope=0.516 ≥ 0.01 ✓ | last=71.5% ∈ [20,90] ✓' },
+      { id: 2, device: 'SW1', metric: 'CRC Errors', feature: 'delta', actual: 265.7600, threshold: 2.0, last: 308.04, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=265.8 ≥ 2.0 ✓ | last=308.0 ∈ [0,500] ✓ | lag=10min ✓' },
+      { id: 3, device: 'SW2', metric: 'Buffer Util', feature: 'slope', actual: 0.5840, threshold: 0.03, last: 64.0, range: [10, 98], status: 'matched', lag: '20min', formula: 'slope=0.584 ≥ 0.03 ✓ | last=64.0% ∈ [10,98] ✓ | lag=20min ✓' },
+      { id: 4, device: 'FW1', metric: 'Latency', feature: 'slope', actual: 1.9298, threshold: 0.05, last: 144.23, range: [5, 500], status: 'pending', lagInfo: 'lag NOT met: elapsed=25min, expected=30±3min — 2min short!' },
     ]
   },
   {
@@ -289,10 +247,10 @@ const PROGRESSIVE_TIMELINE = [
     description: "FW1's latency slope is 2.389ms/min (latency at 174ms and rising). All four conditions are met including the lag: exactly 30 minutes have elapsed since Step 1 (within ±3min tolerance). Score = 0.72 ≥ 0.70 threshold. CRITICAL alert fires. The operator has approximately 10 minutes to reroute traffic away from FW1 before latency reaches 219ms at T+0.",
     hasAlert: true,
     steps: [
-      { id: 1, device: 'R1', metric: 'cpu_pct', feature: 'slope', actual: 0.4427, threshold: 0.01, last: 74.05, range: [20, 90], status: 'matched', formula: 'slope=0.443 ≥ 0.01 ✓ | last=74.1% ∈ [20,90] ✓' },
-      { id: 2, device: 'SW1', metric: 'crc_errors', feature: 'delta', actual: 214.0500, threshold: 2.0, last: 315.52, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=214.1 ≥ 2.0 ✓ | last=315.5 ∈ [0,500] ✓ | lag=10min ✓' },
-      { id: 3, device: 'SW2', metric: 'buffer_util', feature: 'slope', actual: 0.6871, threshold: 0.03, last: 70.5, range: [10, 98], status: 'matched', lag: '20min', formula: 'slope=0.687 ≥ 0.03 ✓ | last=70.5% ∈ [10,98] ✓ | lag=20min ✓' },
-      { id: 4, device: 'FW1', metric: 'latency_ms', feature: 'slope', actual: 2.3887, threshold: 0.05, last: 174.11, range: [5, 500], status: 'matched', lag: '30min', formula: 'slope=2.389 ≥ 0.05 ✓ | last=174.1ms ∈ [5,500] ✓ | lag=30min ✓' },
+      { id: 1, device: 'R1', metric: 'CPU Util', feature: 'slope', actual: 0.4427, threshold: 0.01, last: 74.05, range: [20, 90], status: 'matched', formula: 'slope=0.443 ≥ 0.01 ✓ | last=74.1% ∈ [20,90] ✓' },
+      { id: 2, device: 'SW1', metric: 'CRC Errors', feature: 'delta', actual: 214.0500, threshold: 2.0, last: 315.52, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=214.1 ≥ 2.0 ✓ | last=315.5 ∈ [0,500] ✓ | lag=10min ✓' },
+      { id: 3, device: 'SW2', metric: 'Buffer Util', feature: 'slope', actual: 0.6871, threshold: 0.03, last: 70.5, range: [10, 98], status: 'matched', lag: '20min', formula: 'slope=0.687 ≥ 0.03 ✓ | last=70.5% ∈ [10,98] ✓ | lag=20min ✓' },
+      { id: 4, device: 'FW1', metric: 'Latency', feature: 'slope', actual: 2.3887, threshold: 0.05, last: 174.11, range: [5, 500], status: 'matched', lag: '30min', formula: 'slope=2.389 ≥ 0.05 ✓ | last=174.1ms ∈ [5,500] ✓ | lag=30min ✓' },
     ]
   },
   {
@@ -304,13 +262,13 @@ const PROGRESSIVE_TIMELINE = [
     confidence: 0.72,
     score: 0.72,
     summary: "Peak moment — HIGH_LATENCY event reached (FW1 latency = 219ms)",
-    description: "The failure has arrived. FW1:latency_ms peaked at 194.91ms in this window (the actual peak of 219ms is at T+0min). The pattern was correctly identified and a CRITICAL alert was issued 10 minutes earlier. R1:cpu_pct is at 73.71% (still elevated). SW1:crc_errors at 318.84 (maximum of the episode). SW2:buffer_util at 69.4%. The cascade is at full intensity.",
+    description: "The failure has arrived. FW1:Latency peaked at 194.91ms in this window (the actual peak of 219ms is at T+0min). The pattern was correctly identified and a CRITICAL alert was issued 10 minutes earlier. R1:CPU Util is at 73.71% (still elevated). SW1:CRC Errors at 318.84 (maximum of the episode). SW2:Buffer Util at 69.4%. The cascade is at full intensity.",
     hasAlert: true,
     steps: [
-      { id: 1, device: 'R1', metric: 'cpu_pct', feature: 'slope', actual: 0.5112, threshold: 0.01, last: 73.71, range: [20, 90], status: 'matched', formula: 'slope=0.511 ≥ 0.01 ✓ | last=73.7% ∈ [20,90] ✓' },
-      { id: 2, device: 'SW1', metric: 'crc_errors', feature: 'delta', actual: 318.84, threshold: 2.0, last: 318.84, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=318.8 ≥ 2.0 ✓ | last=318.8 ∈ [0,500] ✓ | lag=10min ✓' },
-      { id: 3, device: 'SW2', metric: 'buffer_util', feature: 'slope', actual: 0.694, threshold: 0.03, last: 69.4, range: [10, 98], status: 'matched', lag: '20min', formula: 'slope=0.694 ≥ 0.03 ✓ | last=69.4% ∈ [10,98] ✓ | lag=20min ✓' },
-      { id: 4, device: 'FW1', metric: 'latency_ms', feature: 'slope', actual: 2.389, threshold: 0.05, last: 219.0, range: [5, 500], status: 'matched', lag: '30min', formula: 'slope=2.389 ≥ 0.05 ✓ | last=219.0ms ∈ [5,500] ✓ | lag=30min ✓' },
+      { id: 1, device: 'R1', metric: 'CPU Util', feature: 'slope', actual: 0.5112, threshold: 0.01, last: 73.71, range: [20, 90], status: 'matched', formula: 'slope=0.511 ≥ 0.01 ✓ | last=73.7% ∈ [20,90] ✓' },
+      { id: 2, device: 'SW1', metric: 'CRC Errors', feature: 'delta', actual: 318.84, threshold: 2.0, last: 318.84, range: [0, 500], status: 'matched', lag: '10min', formula: 'delta=318.8 ≥ 2.0 ✓ | last=318.8 ∈ [0,500] ✓ | lag=10min ✓' },
+      { id: 3, device: 'SW2', metric: 'Buffer Util', feature: 'slope', actual: 0.694, threshold: 0.03, last: 69.4, range: [10, 98], status: 'matched', lag: '20min', formula: 'slope=0.694 ≥ 0.03 ✓ | last=69.4% ∈ [10,98] ✓ | lag=20min ✓' },
+      { id: 4, device: 'FW1', metric: 'Latency', feature: 'slope', actual: 2.389, threshold: 0.05, last: 219.0, range: [5, 500], status: 'matched', lag: '30min', formula: 'slope=2.389 ≥ 0.05 ✓ | last=219.0ms ∈ [5,500] ✓ | lag=30min ✓' },
     ]
   }
 ];
@@ -426,7 +384,7 @@ export default function LiveInferencePage() {
           };
           pCount++;
         } else { // Anomaly Case
-          const triggerMetric = ['cpu_pct', 'util_pct', 'queue_depth', 'latency_ms', 'crc_errors'][Math.floor(Math.random() * 5)];
+          const triggerMetric = ['CPU Util', 'B/W Util', 'Buffer Util', 'Latency', 'CRC Errors'][Math.floor(Math.random() * 5)];
           const description = `${formatLabel(triggerMetric)} Spike Detected`;
           item = {
             id: `INF-${Date.now()}-${i}`,

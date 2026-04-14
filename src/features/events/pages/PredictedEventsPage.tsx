@@ -148,22 +148,22 @@ export default function PredictedEventsPage() {
         };
 
         const baseMetrics = {
-            util_pct: 82,
-            queue_depth: 42,
-            crc_errors: 12,
-            latency_ms: 55,
-            cpu_pct: 60,
-            mem_util_pct: 62
+            'B/W Util': 82,
+            'Buffer Util': 42,
+            'CRC Errors': 12,
+            'Latency': 55,
+            'CPU Util': 60,
+            'Mem Util': 62
         };
 
         const baseFeatures = [
-            { name: "util_pct_mean", value: 72 },
-            { name: "util_pct_max", value: 86 },
-            { name: "queue_depth_mean", value: 30 },
-            { name: "crc_errors_mean", value: 9 },
-            { name: "latency_mean", value: 42 },
-            { name: "cpu_mean", value: 55 },
-            { name: "queue_depth_max", value: 46 }
+            { name: "B/W Util (mean)", value: 72 },
+            { name: "B/W Util (max)", value: 86 },
+            { name: "Buffer Util (mean)", value: 30 },
+            { name: "CRC Errors (mean)", value: 9 },
+            { name: "Latency (mean)", value: 42 },
+            { name: "CPU Util (mean)", value: 55 },
+            { name: "Buffer Util (max)", value: 46 }
         ];
 
         let modelDecision;
@@ -207,7 +207,7 @@ export default function PredictedEventsPage() {
                 },
                 importance: [
                     { name: "queue_depth_max", importance: 0.34 },
-                    { name: "util_pct_max", importance: 0.28 },
+                    { name: "B/W Util_max", importance: 0.28 },
                     { name: "latency_mean", importance: 0.17 },
                     { name: "crc_errors_mean", importance: 0.12 },
                     { name: "cpu_mean", importance: 0.09 }

@@ -46,7 +46,7 @@ import {
     ReferenceLine
 } from 'recharts';
 import { MLExplainabilityPanel } from '@/features/analytics/components/MLExplainabilityPanel';
-import { cn } from '@/shared/lib/utils';
+import { cn, formatMetricLabel } from '@/shared/lib/utils';
 
 // --- Types & Mock Data ---
 
@@ -69,7 +69,7 @@ const mockAnomalies: Anomaly[] = [
         id: 'ANOM-4021',
         device: 'Router01',
         interface: 'Gi0/1',
-        metric: 'latency_ms',
+        metric: 'Latency',
         value: 65,
         expected: 10,
         score: -0.68,
@@ -82,7 +82,7 @@ const mockAnomalies: Anomaly[] = [
         id: 'ANOM-4022',
         device: 'Router01',
         interface: 'Gi0/2',
-        metric: 'cpu_pct',
+        metric: 'CPU Util',
         value: 85,
         expected: 40,
         score: -0.52,
@@ -95,7 +95,7 @@ const mockAnomalies: Anomaly[] = [
         id: 'ANOM-4023',
         device: 'Switch-NA-05',
         interface: 'Te1/1/1',
-        metric: 'queue_depth',
+        metric: 'Buffer Util',
         value: 46,
         expected: 5,
         score: -0.74,
@@ -108,7 +108,7 @@ const mockAnomalies: Anomaly[] = [
         id: 'ANOM-4024',
         device: 'Edge-FW-WA',
         interface: 'outside',
-        metric: 'session_count',
+        metric: 'Interface Load',
         value: 4500,
         expected: 1200,
         score: -0.45,
@@ -160,10 +160,10 @@ export default function AnomalyDetectionPage() {
             metrics: {
                 [selectedAnom.metric]: selectedAnom.value,
                 baseline: selectedAnom.expected,
-                util_pct: 82,
-                queue_depth: 42,
-                cpu_pct: 60,
-                memory_util_pct: 62
+                'B/W Util': 82,
+                'Buffer Util': 42,
+                'CPU Util': 60,
+                'Mem Util': 62
             },
             features: [
                 { name: "latency_zscore", value: Math.abs(selectedAnom.score * 10) },
@@ -187,8 +187,8 @@ export default function AnomalyDetectionPage() {
                 },
                 importance: [
                     { name: selectedAnom.metric, importance: 0.65 },
-                    { name: "queue_depth", importance: 0.20 },
-                    { name: "cpu_pct", importance: 0.15 }
+                    { name: "Buffer Util", importance: 0.20 },
+                    { name: "CPU Util", importance: 0.15 }
                 ]
             },
             trainingMetadata: {
@@ -272,7 +272,7 @@ export default function AnomalyDetectionPage() {
                                             </TableCell>
                                             <TableCell>
                                                 <Badge variant="outline" className="text-[10px] font-bold uppercase shadow-sm">
-                                                    {anom.metric.replace('_', ' ')}
+                                                    {formatMetricLabel(anom.metric)}
                                                 </Badge>
                                             </TableCell>
                                             {!selectedAnomId && (
@@ -318,7 +318,7 @@ export default function AnomalyDetectionPage() {
                                     <div>
                                         <CardTitle className="text-sm font-bold flex items-center gap-2">
                                             <LineChartIcon className="h-4 w-4 text-primary" />
-                                            Metric Deviation: {selectedAnom.metric}
+                                            Metric Deviation: {formatMetricLabel(selectedAnom.metric)}
                                         </CardTitle>
                                         <CardDescription className="text-[10px]">Comparing observed values against 30-day dynamic baseline</CardDescription>
                                     </div>

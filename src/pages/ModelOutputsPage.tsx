@@ -195,10 +195,10 @@ export default function ModelOutputsPage() {
           </p>
           <div className="space-y-4">
             {[
-              { key: 'util_pct', name: 'B/W Util', unit: '%', desc: 'Current load vs capacity' },
-              { key: 'queue_depth', name: 'Buffer Util', unit: 'pkts', desc: 'Congestion indicator' },
-              { key: 'crc_errors', name: 'CRC Error Rate', unit: 'err/s', desc: 'Physical layer integrity' },
-              { key: 'latency_ms', name: 'Latency', unit: 'ms', desc: 'Kernel processing time' },
+              { key: 'B/W Util', name: 'B/W Util', unit: '%', desc: 'Current load vs capacity' },
+              { key: 'Buffer Util', name: 'Buffer Util', unit: 'pkts', desc: 'Congestion indicator' },
+              { key: 'CRC Errors', name: 'CRC Errors', unit: 'err/s', desc: 'Physical layer integrity' },
+              { key: 'Latency', name: 'Latency', unit: 'ms', desc: 'Kernel processing time' },
             ].map((metric) => (
               <div key={metric.key} className="space-y-1.5 group">
                 <div className="flex items-center justify-between">

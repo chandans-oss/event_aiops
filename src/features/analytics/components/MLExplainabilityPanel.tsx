@@ -31,7 +31,7 @@ import {
     Line,
     ReferenceLine
 } from 'recharts';
-import { cn } from '@/shared/lib/utils';
+import { cn, formatMetricLabel } from '@/shared/lib/utils';
 
 export type ExplainerMode = 'prediction' | 'anomaly' | 'pattern';
 
@@ -118,7 +118,7 @@ export function MLExplainabilityPanel({ mode, data, onClose }: MLExplainabilityP
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
                         {Object.entries(data.metrics).map(([key, value]) => (
                             <div key={key} className="flex flex-col p-2.5 rounded-lg bg-secondary/30 border border-border/40">
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">{key.replace('_', ' ')}</span>
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{formatMetricLabel(key)}</span>
                                 <span className="text-lg font-mono font-bold text-foreground">
                                     {value}{typeof value === 'number' && key.includes('pct') ? '%' : ''}
                                 </span>
@@ -144,7 +144,7 @@ export function MLExplainabilityPanel({ mode, data, onClose }: MLExplainabilityP
                         <div className="space-y-2">
                             {data.features.slice(0, 6).map((feat) => (
                                 <div key={feat.name} className="flex items-center justify-between p-2 rounded bg-secondary/20 hover:bg-secondary/40 transition-colors">
-                                    <span className="text-xs font-medium text-muted-foreground">{feat.name}</span>
+                                    <span className="text-xs font-medium text-muted-foreground">{formatMetricLabel(feat.name)}</span>
                                     <span className="text-xs font-mono font-bold text-foreground">{feat.value}</span>
                                 </div>
                             ))}

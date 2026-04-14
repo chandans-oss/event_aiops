@@ -71,14 +71,14 @@ const BATCHES = [
 ];
 
 const METRICS_LIST = [
-  { name: "util_pct", category: "Interface", unit: "%" },
-  { name: "queue_depth", category: "Interface", unit: "pkts" },
-  { name: "crc_errors", category: "Interface", unit: "cnt" },
-  { name: "latency_ms", category: "Interface", unit: "ms" },
-  { name: "cpu_pct", category: "Device", unit: "%" },
-  { name: "mem_util_pct", category: "Device", unit: "%" },
-  { name: "temp_c", category: "Device", unit: "°C" },
-  { name: "fan_speed", category: "Device", unit: "rpm" },
+  { name: "B/W Util", category: "Interface", unit: "%" },
+  { name: "Buffer Util", category: "Interface", unit: "pkts" },
+  { name: "CRC Errors", category: "Interface", unit: "cnt" },
+  { name: "Latency", category: "Interface", unit: "ms" },
+  { name: "CPU Util", category: "Device", unit: "%" },
+  { name: "Mem Util", category: "Device", unit: "%" },
+  { name: "Device Temperature", category: "Device", unit: "°C" },
+  { name: "Fan Speed", category: "Device", unit: "rpm" },
 ];
 
 export default function TrainingPage() {

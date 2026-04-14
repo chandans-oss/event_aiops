@@ -13,13 +13,13 @@ import '@/styles/rcaPlayground.css';
 
 
 const KPI_MAP: Record<string, [string, string]> = {
-    "utilization_percent": ["Bandwidth Utilization", "%"],
-    "util_pct": ["Bandwidth Utilization", "%"],
-    "cpu_percent": ["CPU Utilization", "%"],
-    "cpu_pct": ["CPU Utilization", "%"],
-    "mem_percent": ["Memory Utilization", "%"],
-    "mem_util_pct": ["Memory Utilization", "%"],
-    "men_util_pct": ["Memory Utilization", "%"],
+    "utilization_percent": ["B/W Util", "%"],
+    "util_pct": ["B/W Util", "%"],
+    "cpu_percent": ["CPU Util", "%"],
+    "cpu_pct": ["CPU Util", "%"],
+    "mem_percent": ["Mem Util", "%"],
+    "mem_util_pct": ["Mem Util", "%"],
+    "men_util_pct": ["Mem Util", "%"],
     "temp_c": ["Device Temperature", " ℃"],
     "latency_ms": ["Latency", " ms"],
     "packet_loss_percent": ["Packet Loss", "%"],
@@ -27,8 +27,8 @@ const KPI_MAP: Record<string, [string, string]> = {
     "in_errors": ["Input Errors", " pkts"],
     "crc_errors": ["CRC Errors", " pkts"],
     "out_discards": ["Output Errors", " pkts"],
-    "queue_depth": ["Buffer Utilization", " pkts"],
-    "buffer_util": ["Buffer Utilization", " pkts"],
+    "queue_depth": ["Buffer Util", " pkts"],
+    "buffer_util": ["Buffer Util", " pkts"],
     "fan_speed": ["Fan Speed", " rpm"],
     "power_watt": ["Power Supply", " watt"]
 };

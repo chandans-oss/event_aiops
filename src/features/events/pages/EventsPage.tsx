@@ -29,17 +29,11 @@ import { SeverityIcon } from '@/shared/components/common/SeverityIcon';
 import { sampleNetworkEvents, getEventStats, NetworkEvent } from '@/features/events/data/eventsData';
 import { mockClusters } from '@/data/mock/mockData';
 import { Severity } from '@/shared/types';
-import { cn } from '@/shared/lib/utils';
+import { cn, formatMetricLabel as formatLabel } from '@/shared/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { useToast } from '@/shared/hooks/use-toast';
 
-const formatLabel = (str: string) => {
-  if (!str) return '';
-  return str
-    .replace(/_/g, ' ')
-    .toLowerCase()
-    .replace(/(^\w|\s\w|\(\w)/g, m => m.toUpperCase());
-};
+// Local formatLabel removed, using centralized formatMetricLabel via import
 
 type SidebarType = 'rca' | 'impact' | 'remediation' | 'probable-cause' | null;
 

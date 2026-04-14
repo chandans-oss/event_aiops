@@ -395,7 +395,7 @@ export const MOCK_PATTERNS: Pattern[] = [
             { order: 4, title: 'Service Slowdown', description: 'Fw1:Latency', color: 'red' }
         ],
         predictedEvents: [
-            { name: 'High Latency', probability: 0.94, severity: 'Major', title: 'Predicted Latency Spike', subtitle: 'Service degradation likely' }
+            { name: 'Latency', probability: 0.94, severity: 'Major', title: 'Predicted Latency Spike', subtitle: 'Service degradation likely' }
         ],
         drillDownMetrics: [
             { label: 'CPU Util', value: 'Sustained > 95% in DC East', icon: 'trending', color: 'blue' },
@@ -469,7 +469,7 @@ export const MOCK_PATTERNS: Pattern[] = [
         ruleCreationDate: 'Feb 10, 2025',
         tags: ['Congestion', 'Packet Loss', 'Queue'],
         steps: [
-            { id: 'S1', name: 'R1:Buffer Util', description: 'Queue depth > 1200', icon: Database, delay: '0s' },
+            { id: 'S1', name: 'R1:Buffer Util', description: 'Buffer Util > 1200', icon: Database, delay: '0s' },
             { id: 'S2', name: 'Sw1:CRC Errors', description: 'Rising input errors', icon: Activity, delay: '+1m' },
             { id: 'S3', name: 'Sw2:Latency', description: 'Jitter > 50ms', icon: Clock, delay: '+2m' },
             { id: 'S4', name: 'Fw1:Packet Drop', description: 'Terminal egress discard', icon: AlertTriangle, delay: 'Final' }
@@ -500,7 +500,7 @@ export const MOCK_PATTERNS: Pattern[] = [
                 events: [
                     {
                         id: 'E-D-01', timestamp: new Date(Date.now() - 3600000 * 5 - 300000).toISOString(),
-                        title: 'Queue Depth', subtitle: 'R1 Output Drops', severity: 'Major',
+                        title: 'Buffer Util', subtitle: 'R1 Output Drops', severity: 'Major',
                         nodeName: 'R1-DC-East', nodeIp: '10.50.1.1', resource: 'Gi0/1',
                         alertValue: '1250', threshold: '> 1000'
                     }

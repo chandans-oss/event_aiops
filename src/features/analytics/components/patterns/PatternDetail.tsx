@@ -63,45 +63,9 @@ import {
 import { Pattern, PatternOccurrence, EvidenceItem } from './PatternData';
 import { useState, useEffect, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { formatMetricLabel as formatLabel } from '@/shared/lib/utils';
 
-const formatLabel = (str: string) => {
-    if (!str) return '';
-    const map: Record<string, string> = {
-        'cpu_pct': 'CPU Util',
-        'cpu_util': 'CPU Util',
-        'cpu': 'CPU Util',
-        'cpu util': 'CPU Util',
-        'util_pct': 'B/W Util',
-        'util': 'B/W Util',
-        'bw_util': 'B/W Util',
-        'mem_util_pct': 'Mem Util',
-        'mem_util': 'Mem Util',
-        'queue_depth': 'Buffer Util',
-        'buffer_util': 'Buffer Util',
-        'latency_ms': 'Latency',
-        'lat': 'Latency',
-        'lat_ms': 'Latency',
-        'crc_errors': 'CRC Errors',
-        'crc': 'CRC Errors',
-        'men_util_pct': 'Mem Util'
-    };
-
-    const lower = str.toLowerCase();
-    if (map[lower]) return map[lower];
-
-    return str
-        .replace(/_/g, ' ')
-        .toLowerCase()
-        .replace(/(^|[^a-zA-Z0-9])([a-z])/g, (m, p1, p2) => p1 + p2.toUpperCase())
-        .replace(/Cpu/g, 'CPU')
-        .replace(/Crc/g, 'CRC')
-        .replace(/Queue Depth/g, 'Buffer Util')
-        .replace(/Latency Ms/g, 'Latency')
-        .replace(/Util Pct/g, 'B/W Util')
-        .replace(/Cpu Pct/g, 'CPU Util')
-        .replace(/Mem Util Pct/g, 'Mem Util')
-        .replace(/Men Util Pct/g, 'Mem Util');
-};
+// Local formatLabel removed, using centralized formatMetricLabel via import
 
 // --- Module-level store: persists custom occurrences across re-mounts ---
 const _patternCustomOccurrences: Record<string, PatternOccurrence[]> = {};
