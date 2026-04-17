@@ -190,7 +190,7 @@ const generateRCASteps = (id: string, type: string, device: string): RCAProcessS
         },
         {
             id: 'data-correlator',
-            name: 'Data Correlation Engine',
+            name: 'Historical Data Retriever',
             description: 'Semantic match against historical incident database',
             status: 'complete',
             details: {
@@ -465,7 +465,7 @@ export const CLU_LC_001_Data: ClusterSpecificData = {
         },
         {
             id: 'data-correlator',
-            name: 'Data Correlation Engine',
+            name: 'Historical Data Retriever',
             description: 'Semantic match against historical data',
             status: 'complete',
             details: {

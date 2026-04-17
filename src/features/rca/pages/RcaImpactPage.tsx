@@ -16,7 +16,7 @@ const pipelineStages = [
   { id: 2, name: 'Intent Routing', icon: Target, description: 'Identifying intent patterns' },
   { id: 3, name: 'Hypothesis Scoring', icon: Lightbulb, description: 'Evaluating possible causes' },
   { id: 4, name: 'Situation Builder', icon: FileText, description: 'Building context' },
-  { id: 5, name: 'Data Correlation Engine', icon: Search, description: 'Finding similar incidents' },
+  { id: 5, name: 'Historical Data Retriever', icon: Search, description: 'Finding similar incidents' },
   { id: 6, name: 'RCA Engine', icon: Activity, description: 'Final analysis' },
 ];
 

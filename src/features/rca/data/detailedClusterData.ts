@@ -110,7 +110,7 @@ export const CLU_002_DetailedData: ClusterSpecificData = {
         },
         {
             id: 'data-correlator',
-            name: 'Data Correlation Engine',
+            name: 'Historical Data Retriever',
             description: 'Historical pattern matching',
             status: 'complete',
             details: {

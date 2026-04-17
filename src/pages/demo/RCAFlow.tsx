@@ -39,7 +39,7 @@ const rcaSteps = [
   },
   {
     id: 5,
-    name: 'Data Correlation Engine',
+    name: 'Historical Data Retriever',
     icon: Search,
     description: 'Correlating events across time, topology, and causality',
     status: 'pending',
